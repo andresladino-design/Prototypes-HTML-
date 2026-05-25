@@ -1313,6 +1313,17 @@
       border-top: 1px solid var(--border-subtle);
       background: white;
     }
+    .dialog-footer-state-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 12px;
+    }
+    .btn-invisible {
+      visibility: hidden;
+      pointer-events: none;
+    }
 
     .footer-pause-btn {
       display: inline-flex;
@@ -3827,6 +3838,46 @@
     }, 6300);
   },
   get currentFlowStep() { return this.flowSteps[this.selectedSeries] || 'configure'; },
+  wizardSteps: ['programacion', 'notificaciones', 'count', 'amount', 'pct_count', 'pct_amount'],
+  get wizardCurrentKey() {
+    if (this.selectedSection === 'programacion') return 'programacion';
+    if (this.selectedSection === 'notificaciones') return 'notificaciones';
+    if (this.selectedSection === 'series' && this.selectedSeries) return this.selectedSeries;
+    return 'programacion';
+  },
+  get wizardCurrentIndex() {
+    const idx = this.wizardSteps.indexOf(this.wizardCurrentKey);
+    return idx < 0 ? 0 : idx;
+  },
+  get wizardIsFirst() { return this.wizardCurrentIndex === 0; },
+  get wizardIsLast() { return this.wizardCurrentIndex === this.wizardSteps.length - 1; },
+  goToWizardStep(stepKey) {
+    if (stepKey === 'programacion' || stepKey === 'notificaciones') {
+      this.selectedSection = stepKey;
+      this.selectedSeries = null;
+    } else {
+      this.selectMetric(stepKey);
+    }
+    setTimeout(() => lucide.createIcons(), 50);
+  },
+  wizardNext() {
+    if (this.wizardIsLast) {
+      // Última serie: guardar todo
+      if (this.hasPendingActivation) {
+        this.saveAllConfigured();
+      } else {
+        this.dialogOpen = false;
+      }
+      return;
+    }
+    const next = this.wizardSteps[this.wizardCurrentIndex + 1];
+    this.goToWizardStep(next);
+  },
+  wizardBack() {
+    if (this.wizardIsFirst) return;
+    const prev = this.wizardSteps[this.wizardCurrentIndex - 1];
+    this.goToWizardStep(prev);
+  },
   loadingStates: { count: 'idle', amount: 'idle', pct_count: 'idle', pct_amount: 'idle' },
   flowSteps:     { count: 'configure', amount: 'configure', pct_count: 'configure', pct_amount: 'configure' },
   analysisStates:{ count: 'idle', amount: 'idle', pct_count: 'idle', pct_amount: 'idle' },
@@ -5504,49 +5555,48 @@
 
       </div>
 
-      <!-- Dialog footer -->
+      <!-- Dialog footer — wizard navigation -->
       <div class="dialog-footer">
-        <button class="footer-pause-btn" x-show="selectedSeries && globalFlowStep === 'ready'">
-          <i data-lucide="pause-circle"></i>
-          <span>Pausar monitoreo</span>
-        </button>
-        <span x-show="!selectedSeries || globalFlowStep !== 'ready'"></span>
-        <div class="flex items-center gap-2">
-          <button class="btn-secondary" @click="dialogOpen = false">
-            <span x-text="(selectedSeries && globalFlowStep === 'ready') ? 'Cerrar' : 'Cancelar'"></span>
-          </button>
-          <!-- Configure step: Guardar configuración — activa TODAS las métricas configuradas al mismo tiempo -->
-          <button class="btn-primary"
-            x-show="selectedSeries && globalFlowStep === 'configure'"
-            :disabled="!hasPendingActivation"
-            :style="!hasPendingActivation ? 'opacity: 0.55; cursor: not-allowed;' : ''"
-            @click="hasPendingActivation && saveAllConfigured()">
-            <i data-lucide="check"></i>
-            <span x-text="hasPendingActivation ? ('Guardar configuración (' + pendingActivation.length + ' ' + (pendingActivation.length === 1 ? 'métrica' : 'métricas') + ')') : 'Guardar configuración'"></span>
-          </button>
-          <!-- Saving / Warming / Progressing: disabled spinner reflejando el estado global -->
-          <button class="btn-primary"
-            x-show="selectedSeries && (globalFlowStep === 'saving' || globalFlowStep === 'warming' || globalFlowStep === 'progressing')"
-            disabled
-            style="opacity: 0.7; cursor: not-allowed;">
-            <i data-lucide="loader-circle" class="spin-icon"></i>
-            <span x-text="globalFlowStep === 'saving' ? 'Activando' : globalFlowStep === 'warming' ? 'Aprendiendo' : 'Generando análisis'"></span>
-          </button>
-          <!-- Ready: Hecho -->
-          <button class="btn-primary"
-            x-show="selectedSeries && globalFlowStep === 'ready'"
-            @click="dialogOpen = false">
-            <i data-lucide="check"></i>
-            <span>Hecho</span>
-          </button>
-          <!-- No series selected (e.g. Programación): generic save -->
-          <button class="btn-primary"
-            x-show="!selectedSeries"
-            @click="dialogOpen = false">
-            <i data-lucide="check"></i>
-            <span>Guardar</span>
-          </button>
-        </div>
+        <!-- Estado intermedio (saving/warming/progressing): mostramos spinner readonly y nada más -->
+        <template x-if="globalFlowStep === 'saving' || globalFlowStep === 'warming' || globalFlowStep === 'progressing'">
+          <div class="dialog-footer-state-wrap">
+            <span></span>
+            <button class="btn-primary" disabled style="opacity: 0.7; cursor: not-allowed;">
+              <i data-lucide="loader-circle" class="spin-icon"></i>
+              <span x-text="globalFlowStep === 'saving' ? 'Activando' : globalFlowStep === 'warming' ? 'Aprendiendo' : 'Generando análisis'"></span>
+            </button>
+          </div>
+        </template>
+        <!-- Estado ready (después de Guardar): "Hecho" -->
+        <template x-if="globalFlowStep === 'ready'">
+          <div class="dialog-footer-state-wrap">
+            <button class="footer-pause-btn">
+              <i data-lucide="pause-circle"></i>
+              <span>Pausar monitoreo</span>
+            </button>
+            <button class="btn-primary" @click="dialogOpen = false">
+              <i data-lucide="check"></i>
+              <span>Hecho</span>
+            </button>
+          </div>
+        </template>
+        <!-- Estado configure (wizard activo) -->
+        <template x-if="globalFlowStep === 'configure'">
+          <div class="dialog-footer-state-wrap">
+            <button class="btn-secondary" :class="{ 'btn-invisible': wizardIsFirst }" :disabled="wizardIsFirst" @click="wizardBack()">
+              <i data-lucide="arrow-left"></i>
+              <span>Atrás</span>
+            </button>
+            <button class="btn-primary"
+                    :disabled="wizardIsLast && !hasPendingActivation"
+                    :style="(wizardIsLast && !hasPendingActivation) ? 'opacity: 0.55; cursor: not-allowed;' : ''"
+                    @click="wizardNext()">
+              <span x-text="wizardIsLast ? (hasPendingActivation ? ('Guardar (' + pendingActivation.length + ' ' + (pendingActivation.length === 1 ? 'métrica' : 'métricas') + ')') : 'Guardar') : 'Siguiente'"></span>
+              <span x-show="!wizardIsLast" style="display:inline-flex;"><i data-lucide="arrow-right"></i></span>
+              <span x-show="wizardIsLast" style="display:inline-flex;"><i data-lucide="check"></i></span>
+            </button>
+          </div>
+        </template>
       </div>
 
     </div>
