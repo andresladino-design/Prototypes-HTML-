@@ -1199,18 +1199,21 @@
       line-height: 1;
       user-select: none;
     }
+
     .form-input .input-prefix {
       border-right: 1px solid var(--border-default);
       padding-right: 10px;
       margin-right: 2px;
       margin-left: -4px;
     }
+
     .form-input .input-suffix {
       border-left: 1px solid var(--border-default);
       padding-left: 10px;
       margin-left: 2px;
       margin-right: -4px;
     }
+
     .form-input.ai-filled .input-prefix,
     .form-input.ai-filled .input-suffix {
       border-color: #ddd6fe;
@@ -1313,6 +1316,7 @@
       border-top: 1px solid var(--border-subtle);
       background: white;
     }
+
     .dialog-footer-state-wrap {
       display: flex;
       align-items: center;
@@ -1320,6 +1324,7 @@
       width: 100%;
       gap: 12px;
     }
+
     .btn-invisible {
       visibility: hidden;
       pointer-events: none;
@@ -1452,7 +1457,8 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      margin-bottom: 2px;     /* label-row liviano dentro del instrument */
+      margin-bottom: 2px;
+      /* label-row liviano dentro del instrument */
     }
 
     /* Framing hint: aclara qué está configurando el usuario */
@@ -1466,6 +1472,7 @@
       border-radius: 8px;
       margin-bottom: 14px;
     }
+
     .card-framing-hint strong {
       color: var(--text-primary);
       font-weight: 600;
@@ -1492,6 +1499,7 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 4px;
+      width: 100%;
       flex-wrap: wrap;
     }
 
@@ -1860,11 +1868,13 @@
       align-items: center;
       gap: 6px;
     }
+
     /* Bolder: columna del Máximo (umbral crítico) */
     .threshold-col-label:has(.req-pill) {
       font-weight: 600;
       color: var(--text-primary);
     }
+
     /* Quieter: columna del Mínimo (opcional) */
     .threshold-col-label:has(.opt-pill) {
       color: var(--text-tertiary);
@@ -3181,6 +3191,7 @@
       position: relative;
       overflow: hidden;
     }
+
     .flow-transition-loader::after {
       content: '';
       position: absolute;
@@ -3189,16 +3200,19 @@
       animation: banner-sweep 1800ms ease-in-out infinite;
       pointer-events: none;
     }
+
     .flow-transition-mark {
       width: 36px !important;
       height: 36px !important;
       border-radius: 9px;
       animation: ai-mark-pulse 1400ms ease-in-out infinite;
     }
+
     .flow-transition-mark svg {
       width: 18px;
       height: 18px;
     }
+
     .flow-transition-text {
       display: flex;
       flex-direction: column;
@@ -3206,12 +3220,14 @@
       min-width: 0;
       flex: 1;
     }
+
     .flow-transition-title {
       font-size: 15px;
       font-weight: 700;
       color: var(--text-primary);
       letter-spacing: -0.01em;
     }
+
     .flow-transition-sub {
       font-size: 12.5px;
       color: var(--text-secondary);
@@ -3219,12 +3235,14 @@
       align-items: center;
       gap: 4px;
     }
+
     .typing-dots {
       display: inline-flex;
       gap: 3px;
       align-items: center;
       margin-left: 4px;
     }
+
     .typing-dots span {
       width: 4px;
       height: 4px;
@@ -3232,8 +3250,14 @@
       background: #8b85ff;
       animation: typing-bounce 1200ms ease-in-out infinite;
     }
-    .typing-dots span:nth-child(2) { animation-delay: 150ms; }
-    .typing-dots span:nth-child(3) { animation-delay: 300ms; }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: 150ms;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: 300ms;
+    }
 
     /* ===================================================== */
     /* Tendencia: sub-blocks dentro del acordeón             */
@@ -3241,28 +3265,34 @@
     .trend-block {
       padding: 4px 0 14px;
     }
-    .trend-block + .trend-block {
+
+    .trend-block+.trend-block {
       border-top: 1px solid var(--border-subtle);
       padding-top: 14px;
     }
+
     .trend-block-title {
       font-size: 13px;
       font-weight: 600;
       color: var(--text-primary);
       margin-bottom: 6px;
     }
+
     .trend-block-text {
       font-size: 12.5px;
       line-height: 1.55;
       color: var(--text-secondary);
     }
+
     .trend-block-text strong {
       color: var(--text-primary);
       font-weight: 600;
     }
+
     .trend-block-text em {
       font-style: italic;
     }
+
     .trend-footer-note {
       font-size: 11.5px;
       color: var(--text-tertiary);
@@ -3271,6 +3301,7 @@
       margin-top: 8px;
       border-top: 1px dashed var(--border-default);
     }
+
     .trend-footer-note:empty {
       display: none;
     }
@@ -3283,16 +3314,19 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
     }
+
     .stats-cell {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
+
     .stats-cell-label {
       font-size: 11.5px;
       color: var(--text-tertiary);
       font-weight: 500;
     }
+
     .stats-cell-value {
       font-size: 18px;
       font-weight: 700;
@@ -3439,53 +3473,138 @@
        AI ANALYSIS BLOCK (configure state)
        Pensando → Análisis inteligente + Preview chart
        ===================================================== */
-    .ai-analysis-block { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
-    .ai-analysis-header { margin-bottom: 4px; }
-    .ai-analysis-header-title { font-size: 14px; font-weight: 600; color: var(--text-strong, #4F46E5); }
+    .ai-analysis-block {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-analysis-header {
+      margin-bottom: 4px;
+    }
+
+    .ai-analysis-header-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-strong, #4F46E5);
+    }
 
     /* THINKING */
     .thinking-block {
       background: transparent;
       padding: 4px 0 0;
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
+
     .thinking-header {
-      display: flex; align-items: center; gap: 8px;
-      color: var(--text-muted, #6B7280); font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted, #6B7280);
+      font-size: 13px;
     }
+
     .thinking-spin {
-      width: 14px; height: 14px;
+      width: 14px;
+      height: 14px;
       animation: thinking-spin 1.2s linear infinite;
       color: var(--text-muted, #6B7280);
     }
-    @keyframes thinking-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
-    .thinking-label { font-weight: 500; }
-    .thinking-chevron { width: 12px; height: 12px; color: var(--text-muted, #9CA3AF); margin-left: 2px; }
-    .thinking-steps { list-style: none; padding: 0; margin: 0 0 0 22px; display: flex; flex-direction: column; gap: 6px; }
+
+    @keyframes thinking-spin {
+      from {
+        transform: rotate(0);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .thinking-label {
+      font-weight: 500;
+    }
+
+    .thinking-chevron {
+      width: 12px;
+      height: 12px;
+      color: var(--text-muted, #9CA3AF);
+      margin-left: 2px;
+    }
+
+    .thinking-steps {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 0 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .thinking-step {
-      display: flex; align-items: center; gap: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: 13px;
       color: var(--text-default, #4B5563);
       animation: thinking-step-in 280ms ease-out;
     }
-    .thinking-step.in_progress { color: var(--text-default, #374151); }
-    .thinking-step.complete { color: var(--text-muted, #6B7280); }
+
+    .thinking-step.in_progress {
+      color: var(--text-default, #374151);
+    }
+
+    .thinking-step.complete {
+      color: var(--text-muted, #6B7280);
+    }
+
     @keyframes thinking-step-in {
-      from { opacity: 0; transform: translateY(-3px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-3px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     .thinking-step-icon {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 18px; height: 18px; flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
     }
-    .thinking-step-icon svg { width: 14px; height: 14px; }
+
+    .thinking-step-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
     .thinking-step .ai-mark-xs {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 14px; height: 14px; border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
       background: linear-gradient(135deg, #7C3AED, #4F46E5);
     }
-    .thinking-step .ai-mark-xs svg { width: 9px; height: 9px; }
-    .thinking-step.complete .thinking-step-icon { color: var(--success-strong, #10B981); }
+
+    .thinking-step .ai-mark-xs svg {
+      width: 9px;
+      height: 9px;
+    }
+
+    .thinking-step.complete .thinking-step-icon {
+      color: var(--success-strong, #10B981);
+    }
 
     /* STATS CARD (ready) */
     .analysis-stats-card {
@@ -3493,7 +3612,9 @@
       border: 1px solid var(--border-default, #E5E7EB);
       border-radius: 10px;
       padding: 16px 18px;
-      display: flex; flex-direction: column; gap: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     /* Side switch tabs (Lado A / Lado B) */
@@ -3508,6 +3629,7 @@
       width: fit-content;
       max-width: 100%;
     }
+
     .analysis-side-tab {
       display: inline-flex;
       align-items: center;
@@ -3523,26 +3645,41 @@
       max-width: 100%;
       min-width: 0;
     }
-    .analysis-side-tab:hover { background: var(--bg-subtle, #F3F4F6); color: var(--text-default, #374151); }
+
+    .analysis-side-tab:hover {
+      background: var(--bg-subtle, #F3F4F6);
+      color: var(--text-default, #374151);
+    }
+
     .analysis-side-tab.is-active {
       background: var(--bg-subtle, #F3F4F6);
       color: var(--text-strong, #111827);
       font-weight: 600;
       box-shadow: 0 1px 2px rgba(17, 24, 39, 0.06);
     }
+
     .analysis-side-dot {
-      width: 8px; height: 8px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .analysis-side-dot-a { background: #6366F1; }
-    .analysis-side-dot-b { background: #0EA5E9; }
+
+    .analysis-side-dot-a {
+      background: #6366F1;
+    }
+
+    .analysis-side-dot-b {
+      background: #0EA5E9;
+    }
+
     .analysis-side-name {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 220px;
     }
+
     .analysis-side-badge {
       display: inline-block;
       padding: 1px 6px;
@@ -3554,17 +3691,36 @@
       letter-spacing: 0.01em;
       flex-shrink: 0;
     }
+
     .analysis-side-tab.is-active .analysis-side-badge {
       background: rgba(99, 102, 241, 0.12);
       color: #4F46E5;
     }
+
     .stats-3col-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
       padding-bottom: 4px;
     }
-    .stats-3col-cell { display: flex; flex-direction: column; gap: 4px; }
-    .stats-3col-label { font-size: 12px; color: var(--text-muted, #6B7280); }
-    .stats-3col-value { font-size: 22px; font-weight: 700; color: var(--text-strong, #111827); letter-spacing: -0.01em; }
+
+    .stats-3col-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stats-3col-label {
+      font-size: 12px;
+      color: var(--text-muted, #6B7280);
+    }
+
+    .stats-3col-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-strong, #111827);
+      letter-spacing: -0.01em;
+    }
 
     .analysis-summary {
       margin: 0;
@@ -3572,37 +3728,90 @@
       line-height: 1.55;
       color: var(--text-default, #374151);
     }
-    .analysis-summary strong { color: var(--text-strong, #111827); font-weight: 600; }
-    .analysis-summary em { color: var(--text-muted, #6B7280); font-style: italic; }
+
+    .analysis-summary strong {
+      color: var(--text-strong, #111827);
+      font-weight: 600;
+    }
+
+    .analysis-summary em {
+      color: var(--text-muted, #6B7280);
+      font-style: italic;
+    }
 
     .analysis-detail-toggle {
       align-self: flex-start;
-      display: inline-flex; align-items: center; gap: 6px;
-      background: transparent; border: none; padding: 0; cursor: pointer;
-      font-size: 13px; color: var(--text-default, #374151);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-default, #374151);
       font-weight: 500;
     }
-    .analysis-detail-toggle:hover { color: var(--text-strong, #111827); }
-    .analysis-detail-toggle svg { width: 14px; height: 14px; }
+
+    .analysis-detail-toggle:hover {
+      color: var(--text-strong, #111827);
+    }
+
+    .analysis-detail-toggle svg {
+      width: 14px;
+      height: 14px;
+    }
 
     .analysis-detail-body {
-      display: flex; flex-direction: column; gap: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
       padding-top: 4px;
     }
-    .analysis-detail-block { display: flex; flex-direction: column; gap: 4px; }
-    .analysis-detail-title { font-size: 13px; font-weight: 600; color: var(--text-strong, #111827); }
-    .analysis-detail-text { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-default, #4B5563); }
-    .analysis-detail-text strong { color: var(--text-strong, #111827); font-weight: 600; }
-    .analysis-detail-text em { color: var(--text-muted, #6B7280); font-style: italic; }
+
+    .analysis-detail-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .analysis-detail-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-strong, #111827);
+    }
+
+    .analysis-detail-text {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-default, #4B5563);
+    }
+
+    .analysis-detail-text strong {
+      color: var(--text-strong, #111827);
+      font-weight: 600;
+    }
+
+    .analysis-detail-text em {
+      color: var(--text-muted, #6B7280);
+      font-style: italic;
+    }
 
     .analysis-footnote {
-      display: flex; align-items: center; gap: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       padding-top: 8px;
       border-top: 1px solid var(--border-default, #E5E7EB);
       font-size: 12px;
       color: var(--text-muted, #6B7280);
     }
-    .analysis-footnote svg { width: 14px; height: 14px; }
+
+    .analysis-footnote svg {
+      width: 14px;
+      height: 14px;
+    }
 
     /* PREVIEW CHART CARD */
     .preview-card {
@@ -3610,85 +3819,143 @@
       border: 1px solid var(--border-default, #E5E7EB);
       border-radius: 10px;
       padding: 14px 16px 12px;
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       position: relative;
       overflow: hidden;
     }
+
     .preview-card::after {
       content: '';
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
       pointer-events: none;
       border-radius: 10px;
       background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(79, 70, 229, 0.04) 40%, transparent 70%);
       mix-blend-mode: multiply;
       opacity: 0.6;
     }
+
     .preview-card-header {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      position: relative; z-index: 1;
+      position: relative;
+      z-index: 1;
     }
-    .preview-card-title { font-size: 13px; font-weight: 600; color: var(--text-strong, #111827); }
+
+    .preview-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-strong, #111827);
+    }
+
     .preview-card-legend {
-      display: inline-flex; align-items: center; gap: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
       font-size: 11px;
       color: var(--text-muted, #6B7280);
     }
-    .preview-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+
+    .preview-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .preview-legend-dot {
       display: inline-block;
-      width: 8px; height: 8px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .preview-legend-dot-a { background: #6366F1; }
-    .preview-legend-dot-b { background: #0EA5E9; }
-    .preview-legend-label { color: var(--text-default, #374151); }
+
+    .preview-legend-dot-a {
+      background: #6366F1;
+    }
+
+    .preview-legend-dot-b {
+      background: #0EA5E9;
+    }
+
+    .preview-legend-label {
+      color: var(--text-default, #374151);
+    }
+
     .preview-card-meta {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-size: 11px;
       color: var(--text-muted, #6B7280);
-      position: relative; z-index: 1;
+      position: relative;
+      z-index: 1;
     }
+
     .preview-card-chart {
       width: 100%;
-      position: relative; z-index: 1;
+      position: relative;
+      z-index: 1;
     }
+
     .preview-svg {
       width: 100%;
       height: auto;
       display: block;
     }
-    .preview-grid-y, .preview-grid-x {
+
+    .preview-grid-y,
+    .preview-grid-x {
       stroke: #E5E7EB;
       stroke-width: 1;
       stroke-dasharray: 2 3;
     }
+
     .preview-axis-text-y {
       font-size: 9px;
       fill: #6B7280;
       text-anchor: end;
     }
+
     .preview-axis-text-x {
       font-size: 9px;
       fill: #6B7280;
       text-anchor: end;
     }
+
     .preview-data-path {
       fill: none;
       stroke-width: 1.6;
       stroke-linejoin: round;
       stroke-linecap: round;
     }
-    .preview-data-path-a { stroke: #6366F1; }
-    .preview-data-path-b { stroke: #0EA5E9; }
+
+    .preview-data-path-a {
+      stroke: #6366F1;
+    }
+
+    .preview-data-path-b {
+      stroke: #0EA5E9;
+    }
+
     .preview-limit-line {
       stroke-width: 1;
       stroke-dasharray: 3 3;
       fill: none;
     }
-    .preview-limit-upper { stroke: #EF4444; }
-    .preview-limit-lower { stroke: #EF4444; }
+
+    .preview-limit-upper {
+      stroke: #EF4444;
+    }
+
+    .preview-limit-lower {
+      stroke: #EF4444;
+    }
+
     .preview-limit-text {
       font-size: 9px;
       fill: #EF4444;
@@ -4025,11 +4292,11 @@
   },
   metricConfigs: {
     count: {
-      title: 'Transacciones pendientes',
+      title: 'Registros no conciliados',
       icon: 'hash',
-      description: 'El agente alertará cuando el número de transacciones pendientes supere el máximo aceptable en cualquiera de los lados.',
-      unit: 'transacciones',
-      framingLabel: 'del número de transacciones pendientes',
+      description: 'El agente alertará cuando el número de registros no conciliados supere el máximo aceptable en cualquiera de los lados.',
+      unit: 'registros',
+      framingLabel: 'del número de registros no conciliados',
       placeholderMin: 'ej. 1.000',
       placeholderMax: 'ej. 50.000',
       helperMin: 'Si las pendientes caen por debajo (poco común), se notifica.',
@@ -4041,11 +4308,11 @@
       }
     },
     amount: {
-      title: 'Monto pendiente',
+      title: 'Valor no conciliado',
       icon: 'coins',
-      description: 'El agente alertará cuando el monto pendiente supere el máximo aceptable en cualquiera de los lados.',
+      description: 'El agente alertará cuando el valor no conciliado supere el máximo aceptable en cualquiera de los lados.',
       unit: 'moneda local',
-      framingLabel: 'del monto pendiente',
+      framingLabel: 'del valor no conciliado',
       placeholderMin: 'ej. 1.000.000',
       placeholderMax: 'ej. 100.000.000',
       helperMin: 'Si el monto pendiente cae por debajo, se notifica.',
@@ -4057,11 +4324,11 @@
       }
     },
     pct_count: {
-      title: '% de transacciones pendientes',
+      title: '% de registros no conciliados',
       icon: 'percent',
-      description: 'El agente alertará cuando el porcentaje de transacciones pendientes supere el máximo aceptable en cualquiera de los lados.',
+      description: 'El agente alertará cuando el porcentaje de registros no conciliados supere el máximo aceptable en cualquiera de los lados.',
       unit: '%',
-      framingLabel: 'del porcentaje de transacciones pendientes',
+      framingLabel: 'del porcentaje de registros no conciliados',
       placeholderMin: 'ej. 0',
       placeholderMax: 'ej. 5',
       helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
@@ -4073,11 +4340,11 @@
       }
     },
     pct_amount: {
-      title: '% del monto pendiente',
+      title: '% de valor no conciliado',
       icon: 'percent',
-      description: 'El agente alertará cuando el porcentaje del monto pendiente supere el máximo aceptable en cualquiera de los lados. Ejemplo: alertar cuando los pendientes superen el 5% del monto total.',
+      description: 'El agente alertará cuando el porcentaje de valor no conciliado supere el máximo aceptable en cualquiera de los lados. Ejemplo: alertar cuando el no conciliado supere el 5% del valor total.',
       unit: '%',
-      framingLabel: 'del porcentaje del monto pendiente',
+      framingLabel: 'del porcentaje de valor no conciliado',
       placeholderMin: 'ej. 0',
       placeholderMax: 'ej. 5',
       helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
@@ -4321,11 +4588,12 @@
 }">
 
   <!-- Banner de sanity check: si lo ves, estás cargando la versión actualizada -->
-<div style="position: fixed; top: 12px; right: 12px; z-index: 99999; background: #10b981; color: white; padding: 8px 14px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
-  ✓ v2 · UNIFIED FLOW LOADED
-</div>
+  <div
+    style="position: fixed; top: 12px; right: 12px; z-index: 99999; background: #10b981; color: white; padding: 8px 14px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
+    ✓ v2 · UNIFIED FLOW LOADED
+  </div>
 
-<div class="flex h-screen">
+  <div class="flex h-screen">
 
     <!-- ============ LEFT SIDEBAR ============ -->
     <aside class="flex flex-col"
@@ -4846,7 +5114,7 @@
               :class="widgetMeta.metricsConfiguredText.startsWith('0') ? 'empty' : (widgetMeta.metricsConfiguredText.startsWith('4') ? 'complete' : 'partial')"
               x-text="widgetMeta.metricsConfiguredText"></span>
           </div>
-          <div class="section-helper">Cada métrica permite configurar umbrales para Lado A y Lado B.</div>
+          <div class="section-helper">Configura de umbrales para Lado A y Lado B.</div>
 
           <template x-for="(metric, key) in metricConfigs" :key="key">
             <div class="series-item-v2" :class="{ active: selectedSeries === key }" @click="selectMetric(key)">
@@ -4877,13 +5145,15 @@
                     <span class="pulse-dot"></span>
                     Generando
                   </span>
-                  <span x-show="flowSteps[key] === 'ready' && metricStateFor(key).incidents > 0" class="pill-soft pill-affected">
+                  <span x-show="flowSteps[key] === 'ready' && metricStateFor(key).incidents > 0"
+                    class="pill-soft pill-affected">
                     Afectado · <span x-text="metricStateFor(key).incidents"></span>
                   </span>
                 </div>
 
                 <!-- Stats row: min/max solo cuando flowStep === 'ready' -->
-                <div class="series-stats" x-show="flowSteps[key] === 'ready' && metricStateFor(key).learnedMin && metricStateFor(key).learnedMax">
+                <div class="series-stats"
+                  x-show="flowSteps[key] === 'ready' && metricStateFor(key).learnedMin && metricStateFor(key).learnedMax">
                   mín: <span x-text="metricStateFor(key).learnedMin"></span> · máx: <span
                     x-text="metricStateFor(key).learnedMax"></span>
                 </div>
@@ -5031,11 +5301,13 @@
               <div class="detail-header-chips">
                 <span class="chip-meta">fiserv_all_transactions</span>
                 <span class="chip-meta">SKT_CREATED_AT</span>
-                <span class="pill-analysis-active" x-show="currentFlowStep === 'warming' || currentFlowStep === 'progressing' || currentFlowStep === 'ready'">
+                <span class="pill-analysis-active"
+                  x-show="currentFlowStep === 'warming' || currentFlowStep === 'progressing' || currentFlowStep === 'ready'">
                   <i data-lucide="check-circle-2"></i>
                   Análisis activo
                 </span>
-                <a class="link-incidents" x-show="currentFlowStep === 'ready' && currentMetricState.incidents > 0" href="#" @click.prevent>
+                <a class="link-incidents" x-show="currentFlowStep === 'ready' && currentMetricState.incidents > 0"
+                  href="#" @click.prevent>
                   <i data-lucide="external-link"></i>
                   Ver incidentes (<span x-text="currentMetricState.incidents"></span>)
                 </a>
@@ -5243,11 +5515,13 @@
                   </div>
                   <div class="stats-cell">
                     <div class="stats-cell-label">Desv. estándar</div>
-                    <div class="stats-cell-value" x-text="currentMetricState.perfilEstadistico?.desvEstandar ?? '0.00'"></div>
+                    <div class="stats-cell-value" x-text="currentMetricState.perfilEstadistico?.desvEstandar ?? '0.00'">
+                    </div>
                   </div>
                   <div class="stats-cell">
                     <div class="stats-cell-label">Umbral z</div>
-                    <div class="stats-cell-value" x-text="currentMetricState.perfilEstadistico?.umbralZ ?? '2.00'"></div>
+                    <div class="stats-cell-value" x-text="currentMetricState.perfilEstadistico?.umbralZ ?? '2.00'">
+                    </div>
                   </div>
                 </div>
               </div>
@@ -5280,7 +5554,8 @@
                 </div>
                 <ul class="thinking-steps">
                   <template x-for="step in (analysisSteps[selectedSeries] || [])" :key="step.id">
-                    <li class="thinking-step" :class="step.status" x-show="step.status !== 'pending'" x-transition.opacity>
+                    <li class="thinking-step" :class="step.status" x-show="step.status !== 'pending'"
+                      x-transition.opacity>
                       <span class="thinking-step-icon">
                         <span x-show="step.status === 'in_progress'" class="ai-mark-xs">
                           <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -5298,20 +5573,16 @@
               <!-- READY: stats card + detail expandible -->
               <div class="analysis-stats-card" x-show="analysisStates[selectedSeries] === 'ready'" x-transition.opacity>
                 <div class="analysis-side-switch" role="tablist">
-                  <button type="button" role="tab"
-                          class="analysis-side-tab"
-                          :class="{ 'is-active': analysisSide[selectedSeries] === 'a' }"
-                          :aria-selected="analysisSide[selectedSeries] === 'a'"
-                          @click="analysisSide[selectedSeries] = 'a'">
+                  <button type="button" role="tab" class="analysis-side-tab"
+                    :class="{ 'is-active': analysisSide[selectedSeries] === 'a' }"
+                    :aria-selected="analysisSide[selectedSeries] === 'a'" @click="analysisSide[selectedSeries] = 'a'">
                     <span class="analysis-side-dot analysis-side-dot-a"></span>
                     <span class="analysis-side-name" x-text="chartMeta.ladoA.resource"></span>
                     <span class="analysis-side-badge">Lado A</span>
                   </button>
-                  <button type="button" role="tab"
-                          class="analysis-side-tab"
-                          :class="{ 'is-active': analysisSide[selectedSeries] === 'b' }"
-                          :aria-selected="analysisSide[selectedSeries] === 'b'"
-                          @click="analysisSide[selectedSeries] = 'b'">
+                  <button type="button" role="tab" class="analysis-side-tab"
+                    :class="{ 'is-active': analysisSide[selectedSeries] === 'b' }"
+                    :aria-selected="analysisSide[selectedSeries] === 'b'" @click="analysisSide[selectedSeries] = 'b'">
                     <span class="analysis-side-dot analysis-side-dot-b"></span>
                     <span class="analysis-side-name" x-text="chartMeta.ladoB.resource"></span>
                     <span class="analysis-side-badge">Lado B</span>
@@ -5335,7 +5606,7 @@
                 <p class="analysis-summary" x-html="analysisDataFor(selectedSeries).summary"></p>
 
                 <button type="button" class="analysis-detail-toggle"
-                        @click="analysisDetailOpen[selectedSeries] = !analysisDetailOpen[selectedSeries]; setTimeout(() => lucide.createIcons(), 50)">
+                  @click="analysisDetailOpen[selectedSeries] = !analysisDetailOpen[selectedSeries]; setTimeout(() => lucide.createIcons(), 50)">
                   <i data-lucide="chevron-right" x-show="!analysisDetailOpen[selectedSeries]"></i>
                   <i data-lucide="chevron-down" x-show="analysisDetailOpen[selectedSeries]"></i>
                   <span>Ver análisis detallado</span>
@@ -5362,13 +5633,15 @@
 
                 <div class="analysis-footnote">
                   <i data-lucide="info"></i>
-                  <span>Este análisis refleja el comportamiento del <strong x-text="analysisDataFor(selectedSeries).sideLabel"></strong> · <span x-text="analysisDataFor(selectedSeries).resourceName"></span>.</span>
+                  <span>Este análisis refleja el comportamiento del <strong
+                      x-text="analysisDataFor(selectedSeries).sideLabel"></strong> · <span
+                      x-text="analysisDataFor(selectedSeries).resourceName"></span>.</span>
                 </div>
               </div>
 
               <!-- PREVIEW CHART -->
               <div class="preview-card" x-data="{ chart: null }"
-                   x-effect="chart = previewChartPath(selectedSeries, analysisStates[selectedSeries] === 'ready')">
+                x-effect="chart = previewChartPath(selectedSeries, analysisStates[selectedSeries] === 'ready')">
                 <div class="preview-card-header">
                   <div class="preview-card-title">Vista previa de configuración</div>
                   <div class="preview-card-legend" x-show="analysisStates[selectedSeries] === 'ready'">
@@ -5402,7 +5675,9 @@
                 <div class="form-card-header-help">Unidad: <span x-text="currentMetric.unit"></span></div>
               </div>
               <p class="card-framing-hint">
-                Estás configurando los umbrales <strong x-text="currentMetric.framingLabel || 'del valor pendiente'"></strong>, no del conciliado. El agente alertará cuando los pendientes superen el máximo aceptable.
+                Estás configurando los umbrales <strong
+                  x-text="currentMetric.framingLabel || 'del valor pendiente'"></strong>, no del conciliado. El agente
+                alertará cuando los pendientes superen el máximo aceptable.
               </p>
 
               <!-- Threshold grid v2: stacked blocks per Lado with tight rhythm -->
@@ -5434,12 +5709,13 @@
                       </template>
                       <template x-if="currentState !== 'loading'">
                         <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.aMin }">
-                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMin"
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input
+                            type="text" :placeholder="currentMetric.placeholderMin"
                             :value="values[selectedSeries]?.aMin"
                             @input="values[selectedSeries].aMin = $event.target.value; markEdited(selectedSeries, 'aMin')"
                             class="value-fade-in" />
-                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.aMin"
-                            title="Sugerido por el agente">
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span
+                            class="ai-inline-mark" x-show="fromAi[selectedSeries]?.aMin" title="Sugerido por el agente">
                             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
                             </svg>
@@ -5452,12 +5728,13 @@
                       </template>
                       <template x-if="currentState !== 'loading'">
                         <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.aMax }">
-                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMax"
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input
+                            type="text" :placeholder="currentMetric.placeholderMax"
                             :value="values[selectedSeries]?.aMax"
                             @input="values[selectedSeries].aMax = $event.target.value; markEdited(selectedSeries, 'aMax')"
                             class="value-fade-in" />
-                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.aMax"
-                            title="Sugerido por el agente">
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span
+                            class="ai-inline-mark" x-show="fromAi[selectedSeries]?.aMax" title="Sugerido por el agente">
                             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
                             </svg>
@@ -5495,12 +5772,13 @@
                       </template>
                       <template x-if="currentState !== 'loading'">
                         <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.bMin }">
-                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMin"
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input
+                            type="text" :placeholder="currentMetric.placeholderMin"
                             :value="values[selectedSeries]?.bMin"
                             @input="values[selectedSeries].bMin = $event.target.value; markEdited(selectedSeries, 'bMin')"
                             class="value-fade-in" style="animation-delay: 120ms;" />
-                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.bMin"
-                            title="Sugerido por el agente">
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span
+                            class="ai-inline-mark" x-show="fromAi[selectedSeries]?.bMin" title="Sugerido por el agente">
                             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
                             </svg>
@@ -5513,12 +5791,13 @@
                       </template>
                       <template x-if="currentState !== 'loading'">
                         <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.bMax }">
-                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMax"
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input
+                            type="text" :placeholder="currentMetric.placeholderMax"
                             :value="values[selectedSeries]?.bMax"
                             @input="values[selectedSeries].bMax = $event.target.value; markEdited(selectedSeries, 'bMax')"
                             class="value-fade-in" style="animation-delay: 200ms;" />
-                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.bMax"
-                            title="Sugerido por el agente">
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span
+                            class="ai-inline-mark" x-show="fromAi[selectedSeries]?.bMax" title="Sugerido por el agente">
                             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
                             </svg>
@@ -5572,12 +5851,14 @@
       <!-- Dialog footer — wizard navigation -->
       <div class="dialog-footer">
         <!-- Estado intermedio (saving/warming/progressing): mostramos spinner readonly y nada más -->
-        <template x-if="globalFlowStep === 'saving' || globalFlowStep === 'warming' || globalFlowStep === 'progressing'">
+        <template
+          x-if="globalFlowStep === 'saving' || globalFlowStep === 'warming' || globalFlowStep === 'progressing'">
           <div class="dialog-footer-state-wrap">
             <span></span>
             <button class="btn-primary" disabled style="opacity: 0.7; cursor: not-allowed;">
               <i data-lucide="loader-circle" class="spin-icon"></i>
-              <span x-text="globalFlowStep === 'saving' ? 'Activando' : globalFlowStep === 'warming' ? 'Aprendiendo' : 'Generando análisis'"></span>
+              <span
+                x-text="globalFlowStep === 'saving' ? 'Activando' : globalFlowStep === 'warming' ? 'Aprendiendo' : 'Generando análisis'"></span>
             </button>
           </div>
         </template>
@@ -5597,14 +5878,14 @@
         <!-- Estado configure (wizard activo) -->
         <template x-if="globalFlowStep === 'configure'">
           <div class="dialog-footer-state-wrap">
-            <button class="btn-secondary" :class="{ 'btn-invisible': wizardIsFirst }" :disabled="wizardIsFirst" @click="wizardBack()">
+            <button class="btn-secondary" :class="{ 'btn-invisible': wizardIsFirst }" :disabled="wizardIsFirst"
+              @click="wizardBack()">
               <i data-lucide="arrow-left"></i>
               <span>Atrás</span>
             </button>
-            <button class="btn-primary"
-                    :disabled="wizardIsLast && !hasPendingActivation"
-                    :style="(wizardIsLast && !hasPendingActivation) ? 'opacity: 0.55; cursor: not-allowed;' : ''"
-                    @click="wizardNext()">
+            <button class="btn-primary" :disabled="wizardIsLast && !hasPendingActivation"
+              :style="(wizardIsLast && !hasPendingActivation) ? 'opacity: 0.55; cursor: not-allowed;' : ''"
+              @click="wizardNext()">
               <span x-text="wizardIsLast ? 'Guardar' : 'Siguiente'"></span>
               <span x-show="!wizardIsLast" style="display:inline-flex;"><i data-lucide="arrow-right"></i></span>
               <span x-show="wizardIsLast" style="display:inline-flex;"><i data-lucide="check"></i></span>
