@@ -1,0 +1,5113 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simetrik · Centro de Operaciones · Pay ins APS 2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-app: #ffffff;
+      --bg-sidebar: #f7f7f8;
+      --bg-hover: #efeff1;
+      --bg-selected: #ececee;
+      --bg-card: #ffffff;
+      --bg-pill: #f4f4f5;
+      --bg-pill-2: #f1f1f3;
+      --bg-tab-active: #ffffff;
+      --bg-tabs-container: #f4f4f5;
+
+      --border-subtle: #ececee;
+      --border-default: #e4e4e7;
+      --border-strong: #d4d4d8;
+
+      --text-primary: #18181b;
+      --text-secondary: #52525b;
+      --text-tertiary: #71717a;
+      --text-muted: #a1a1aa;
+      --text-placeholder: #a1a1aa;
+
+      --primary: #635bff;
+      --primary-hover: #5147f5;
+      --primary-soft: #f0eefe;
+      --primary-soft-2: #e7e5ff;
+      --primary-text: #4c44e0;
+
+      --green-bar: #5ed3a3;
+      --green-text: #10b981;
+      --green-soft: #d1fae5;
+      --green-soft-2: #ecfdf5;
+      --red-bar: #f7a4a4;
+      --red-text: #ef4444;
+      --orange: #f59e0b;
+      --orange-soft: #fef3c7;
+      --orange-text: #b45309;
+      --grey-dot: #a1a1aa;
+    }
+
+    html,
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #d4d4d8;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a1a1aa;
+    }
+
+    .lucide {
+      stroke-width: 1.75;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: 'tnum';
+    }
+
+    /* Sidebar nav item */
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      line-height: 1.3;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .nav-item.active {
+      background: var(--bg-selected);
+      color: var(--text-primary);
+    }
+
+    .nav-item .lucide {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--text-tertiary);
+    }
+
+    .nav-item.active .lucide {
+      color: var(--text-primary);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .chip .lucide {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--primary);
+      color: white;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: white;
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+    }
+
+    .btn-secondary .lucide {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      background: white;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    .segmented {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-tabs-container);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .segmented .seg {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+
+    .segmented .seg.active {
+      background: white;
+      color: var(--text-primary);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .segmented .seg .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    .subtabs {
+      display: inline-flex;
+      background: var(--bg-tabs-container);
+      border-radius: 8px;
+      padding: 3px;
+      width: 100%;
+    }
+
+    .subtabs .seg {
+      flex: 1;
+      text-align: center;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+
+    .subtabs .seg.active {
+      background: white;
+      color: var(--text-primary);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+
+    .underline-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      margin-bottom: -1px;
+    }
+
+    .underline-tab.active {
+      color: var(--primary-text);
+      border-bottom-color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 4px 4px 0 0;
+    }
+
+    .underline-tab .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    .board-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .board-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .board-item.active {
+      background: var(--bg-selected);
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .board-item .lucide {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .badge-beta {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+    }
+
+    .badge-new {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      background: var(--primary-soft);
+      color: var(--primary-text);
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .workspace-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .workspace-card:hover {
+      background: var(--bg-hover);
+    }
+
+    .workspace-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #8b85ff 0%, #635bff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .input-search {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .input-search input {
+      flex: 1;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .input-search input::placeholder {
+      color: var(--text-placeholder);
+    }
+
+    .input-search .lucide {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .kbd {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      background: var(--bg-pill);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+    }
+
+    .bottom-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+
+    .bottom-icon:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .bottom-icon .lucide {
+      width: 16px;
+      height: 16px;
+    }
+
+    .fav-empty {
+      border: 1.5px dashed var(--border-strong);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: transparent;
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      width: 100%;
+      background: var(--red-bar);
+    }
+
+    .progress>.seg-green {
+      background: var(--green-bar);
+      height: 100%;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-green {
+      background: var(--green-text);
+    }
+
+    .dot-yellow {
+      background: var(--orange);
+    }
+
+    .dot-red {
+      background: var(--red-text);
+    }
+
+    .dot-grey {
+      background: var(--grey-dot);
+    }
+
+    .side-label {
+      display: inline-flex;
+      padding: 3px 10px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .metric-big {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .metric-pct {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      margin-left: 2px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      font-weight: 400;
+    }
+
+    .widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .widget-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .widget-title .lucide {
+      width: 16px;
+      height: 16px;
+      color: var(--text-tertiary);
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px var(--border-default);
+    }
+
+    .logo-mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-mark::before {
+      content: '';
+      width: 11px;
+      height: 11px;
+      background: white;
+      clip-path: polygon(40% 0%, 100% 0%, 60% 50%, 100% 50%, 0% 100%, 40% 50%, 0% 50%);
+    }
+
+    .sort-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+    }
+
+    .sort-mini:hover {
+      background: var(--bg-hover);
+    }
+
+    .new-board-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .new-board-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    .new-board-btn .lucide {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .tab-icons-row {
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 18px;
+    }
+
+    /* ===================================================== */
+    /* AI ACTIVATE MONITOR BADGE — entrada al dialog          */
+    /* ===================================================== */
+    .activate-monitor-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 11px 4px 6px;
+      background: linear-gradient(135deg, #f4f2ff 0%, #ece9ff 100%);
+      border: 1px solid #ddd6fe;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #5b4bdf;
+      cursor: pointer;
+      transition: background 200ms ease-out, border-color 200ms ease-out, transform 120ms ease-out;
+    }
+
+    .activate-monitor-badge:hover {
+      background: linear-gradient(135deg, #ece9ff 0%, #ddd6fe 100%);
+      border-color: #c4b5fd;
+    }
+
+    .activate-monitor-badge:active {
+      transform: scale(0.985);
+    }
+
+    .ai-mark {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      background: linear-gradient(135deg, #8b85ff 0%, #5048e5 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 1px 2px rgba(80, 72, 229, 0.3);
+    }
+
+    .ai-mark svg {
+      width: 11px;
+      height: 11px;
+    }
+
+    /* ===================================================== */
+    /* MODAL DIALOG — Monitoreo inteligente                   */
+    /* ===================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 24, 27, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .dialog-shell {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 1180px;
+      height: 100%;
+      max-height: 820px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: dialog-in 200ms ease-out;
+    }
+
+    @keyframes dialog-in {
+      from {
+        opacity: 0;
+        transform: scale(0.98) translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Dialog header bar */
+    .dialog-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .dialog-topbar-title-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dialog-ai-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #8b85ff 0%, #5048e5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 2px 6px rgba(80, 72, 229, 0.3);
+    }
+
+    .dialog-ai-logo svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .dialog-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    .dialog-subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.3;
+    }
+
+    .dialog-topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Dialog body: two columns */
+    .dialog-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .dialog-left {
+      width: 380px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: 14px 14px 24px;
+    }
+
+    .dialog-right {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 28px 28px;
+    }
+
+    /* Section label (small caps) */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      padding: 18px 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-label .progress-pill {
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 11px;
+    }
+
+    .progress-pill.complete {
+      color: var(--green-text);
+    }
+
+    .progress-pill.partial {
+      color: var(--orange-text);
+    }
+
+    .progress-pill.empty {
+      color: var(--text-muted);
+    }
+
+    .section-helper {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      padding: 0 8px 8px;
+      line-height: 1.4;
+    }
+
+    /* Big nav item (Programación / Notificaciones) */
+    .nav-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 150ms ease-out;
+    }
+
+    .nav-block:hover {
+      background: var(--bg-hover);
+    }
+
+    .nav-block.active {
+      background: var(--bg-selected);
+    }
+
+    .nav-block-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .nav-block-icon.check {
+      background: var(--green-soft-2);
+      border-color: var(--green-soft);
+      color: var(--green-text);
+    }
+
+    .nav-block-icon.pending {
+      background: var(--bg-pill);
+      border-color: var(--border-default);
+      color: var(--text-tertiary);
+    }
+
+    .nav-block-icon .lucide {
+      width: 17px;
+      height: 17px;
+    }
+
+    .nav-block-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .nav-block-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    .nav-block-sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.35;
+      margin-top: 1px;
+    }
+
+    /* Divider inside left panel */
+    .left-divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 8px 8px;
+    }
+
+    /* Serie monitoreable item */
+    .series-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 150ms ease-out;
+    }
+
+    .series-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .series-item.active {
+      background: var(--bg-selected);
+    }
+
+    .series-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .series-icon .lucide {
+      width: 16px;
+      height: 16px;
+    }
+
+    .series-body {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .series-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .series-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pill-soft {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .pill-pending {
+      background: var(--bg-pill);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+    }
+
+    .pill-risk {
+      background: var(--orange-soft);
+      color: var(--orange-text);
+      border: 1px solid #fde68a;
+    }
+
+    .pill-tech {
+      background: white;
+      color: var(--text-tertiary);
+      border: 1px solid var(--border-default);
+      font-family: 'SF Mono', 'Monaco', monospace;
+      font-size: 10px;
+      letter-spacing: 0.02em;
+    }
+
+    /* Dataset / análisis adicional item */
+    .resource-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .resource-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .resource-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .resource-icon .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    .resource-body {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .resource-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .resource-meta {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      line-height: 1.3;
+      margin-top: 1px;
+    }
+
+    /* ===== Right panel ===== */
+    .right-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .right-header-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .right-header-title .lucide {
+      width: 20px;
+      height: 20px;
+      color: var(--text-secondary);
+    }
+
+    .agent-status-header {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 10px;
+    }
+
+    .agent-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: var(--green-soft-2);
+      border: 1px solid var(--green-soft);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--green-text);
+      margin-bottom: 20px;
+    }
+
+    .agent-status-pill .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Form section card */
+    .form-card {
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .form-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .form-card-header-left .lucide {
+      width: 16px;
+      height: 16px;
+      color: var(--text-secondary);
+    }
+
+    .form-card-header-help {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      text-align: right;
+      line-height: 1.35;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .form-row.cols-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form-row.cols-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .form-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .form-input,
+    .form-select {
+      display: flex;
+      align-items: center;
+      height: 38px;
+      padding: 0 12px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-primary);
+      cursor: text;
+      transition: border-color 120ms ease-out;
+    }
+
+    .form-input:hover,
+    .form-select:hover {
+      border-color: var(--border-strong);
+    }
+
+    .form-input:focus-within,
+    .form-select:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.12);
+      outline: none;
+    }
+
+    .form-input input,
+    .form-select select {
+      flex: 1;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      font-size: 13px;
+      color: var(--text-primary);
+      width: 100%;
+      font-family: inherit;
+    }
+
+    .form-input input::placeholder {
+      color: var(--text-placeholder);
+    }
+
+    /* Input prefix / suffix: marca la unidad dentro del input */
+    .form-input .input-prefix,
+    .form-input .input-suffix {
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+      line-height: 1;
+      user-select: none;
+    }
+    .form-input .input-prefix {
+      border-right: 1px solid var(--border-default);
+      padding-right: 10px;
+      margin-right: 2px;
+      margin-left: -4px;
+    }
+    .form-input .input-suffix {
+      border-left: 1px solid var(--border-default);
+      padding-left: 10px;
+      margin-left: 2px;
+      margin-right: -4px;
+    }
+    .form-input.ai-filled .input-prefix,
+    .form-input.ai-filled .input-suffix {
+      border-color: #ddd6fe;
+      color: var(--text-secondary);
+    }
+
+    .form-select {
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .form-select .lucide {
+      width: 14px;
+      height: 14px;
+      color: var(--text-tertiary);
+    }
+
+    .form-select .placeholder {
+      color: var(--text-placeholder);
+    }
+
+    /* Disabled select: fijado por el chart, no editable */
+    .form-select.is-disabled {
+      background: var(--bg-pill);
+      border-color: var(--border-subtle);
+      cursor: not-allowed;
+      color: var(--text-secondary);
+    }
+
+    .form-select.is-disabled:hover {
+      border-color: var(--border-subtle);
+    }
+
+    .form-select.is-disabled:focus-within {
+      border-color: var(--border-subtle);
+      box-shadow: none;
+    }
+
+    .form-select.is-disabled span {
+      color: var(--text-secondary);
+    }
+
+    .form-select.is-disabled .lucide {
+      color: var(--text-muted);
+    }
+
+    .form-helper {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .form-empty-block {
+      background: var(--bg-pill);
+      border: 1px dashed var(--border-strong);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    /* Segmented control large (3-way) */
+    .segmented-lg {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background: var(--bg-pill);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .segmented-lg .seg {
+      text-align: center;
+      padding: 9px 12px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: background 150ms ease-out;
+    }
+
+    .segmented-lg .seg:hover {
+      color: var(--text-secondary);
+    }
+
+    .segmented-lg .seg.active {
+      background: white;
+      color: var(--text-primary);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Footer with save/cancel — minimal, sticky bottom of dialog */
+    .dialog-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 22px;
+      border-top: 1px solid var(--border-subtle);
+      background: white;
+    }
+
+    .footer-pause-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .footer-pause-btn:hover {
+      background: var(--bg-hover);
+    }
+
+    .footer-pause-btn .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ===================================================== */
+    /* AI suggestion strip inside threshold card             */
+    /* ===================================================== */
+    .ai-suggestion-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #faf9ff 0%, #f1efff 100%);
+      border: 1px solid #e0dcff;
+      border-radius: 9px;
+      margin-bottom: 16px;
+    }
+
+    .ai-suggestion-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .ai-mark-sm {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #8b85ff, #5048e5);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: white;
+      box-shadow: 0 1px 2px rgba(80, 72, 229, 0.25);
+    }
+
+    .ai-mark-sm svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .ai-suggestion-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      line-height: 1.3;
+    }
+
+    .ai-suggestion-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #5b4bdf;
+      letter-spacing: 0.02em;
+    }
+
+    .ai-suggestion-detail {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .ai-suggestion-detail .ai-pair {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .ai-apply-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: white;
+      border: 1px solid #c4b5fd;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #5b4bdf;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 150ms ease-out;
+    }
+
+    .ai-apply-btn:hover {
+      background: #f4f2ff;
+      border-color: #a78bfa;
+    }
+
+    .ai-apply-btn .lucide {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* ===================================================== */
+    /* Threshold grid v2 (stacked blocks per Lado)           */
+    /* ===================================================== */
+    .threshold-grid-v2 {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .threshold-col-headers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 2px;     /* label-row liviano dentro del instrument */
+    }
+
+    /* Framing hint: aclara qué está configurando el usuario */
+    .card-framing-hint {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      padding: 10px 14px;
+      background: #fafaff;
+      border: 1px solid #ece8ff;
+      border-radius: 8px;
+      margin-bottom: 14px;
+    }
+    .card-framing-hint strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Per-Lado block: tight rhythm within, breath between */
+    .lado-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      /* tight within block */
+      padding: 4px 0;
+    }
+
+    .lado-block-divided {
+      margin-top: 20px;
+      /* breath between A and B */
+      padding-top: 20px;
+      border-top: 1px dashed var(--border-default);
+    }
+
+    .lado-header {
+      display: flex flex-direction:table-row;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+
+    .side-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 12px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+      flex-shrink: 0;
+    }
+
+    /* Lado header v4: recurso + badge alineados a la izquierda en una sola fila */
+    .lado-header-v4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      width: 100%;
+    }
+
+    .lado-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .lado-resource-icon {
+      width: 14px !important;
+      height: 14px !important;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .lado-resource-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .side-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 9px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    .lado-column-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+      padding-left: 22px;
+      /* alinea con resource name (icon + gap) */
+    }
+
+    .lado-column-info .lucide {
+      width: 12px;
+      height: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .lado-col-mono {
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.01em;
+    }
+
+    /* Lado header v3: avatar + title + dataset-chip */
+    .lado-header-v3 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lado-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 9px;
+      background: white;
+      border: 1px solid var(--border-default);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .lado-header-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .lado-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+
+    .dataset-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 14px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .dataset-chip .lucide {
+      width: 12px;
+      height: 12px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .dataset-chip-value {
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.01em;
+    }
+
+    .dataset-chip-sep {
+      color: var(--border-strong);
+      margin: 0 4px;
+    }
+
+    /* Lado columns metadata — qué columnas se están monitoreando */
+    .lado-columns {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+    }
+
+    .lado-col-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .lado-col-item .lucide {
+      width: 12px;
+      height: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .lado-col-value {
+      font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: 0.01em;
+    }
+
+    .lado-col-sep {
+      color: var(--border-strong);
+      font-size: 11px;
+    }
+
+    .lado-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Instrument wrapper: une inputs + today row + sparkline + meta en una sola pieza */
+    .lado-instrument {
+      background: #fafafa;
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 200ms ease-out;
+    }
+
+    .lado-instrument:focus-within {
+      border-color: var(--border-default);
+    }
+
+    /* Today row: reading actual + median histórico */
+    .today-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      flex-wrap: wrap;
+    }
+
+    .today-marker-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-primary);
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .today-label {
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+
+    .today-value {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+
+    .today-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .today-status.in-band {
+      background: var(--green-soft-2);
+      color: var(--green-text);
+      border: 1px solid var(--green-soft);
+    }
+
+    .today-status.out-band {
+      background: #fef2f2;
+      color: var(--red-text);
+      border: 1px solid #fecaca;
+    }
+
+    .today-sep {
+      color: var(--border-strong);
+    }
+
+    .today-median {
+      color: var(--text-tertiary);
+      font-size: 11.5px;
+    }
+
+    .today-median-value {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      margin-left: 3px;
+    }
+
+    /* Sparkline inside instrument */
+    .lado-spark {
+      margin-top: 0;
+    }
+
+    .lado-spark .sparkline {
+      height: 68px;
+      background: white;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .lado-spark .spark-meta {
+      margin-top: 6px;
+    }
+
+    /* Median line on sparkline (faint dotted) */
+    .sparkline .median-line {
+      stroke: #a1a1aa;
+      stroke-width: 0.5;
+      stroke-dasharray: 1 4;
+      opacity: 0.55;
+      transition: y1 200ms ease-out, y2 200ms ease-out;
+    }
+
+    /* Today dot on sparkline (last point, strong) */
+    .sparkline .today-dot-bg {
+      fill: white;
+      stroke: var(--text-primary);
+      stroke-width: 1.5;
+      transition: cx 200ms ease-out, cy 200ms ease-out;
+    }
+
+    .sparkline .today-dot-fg {
+      fill: var(--text-primary);
+      transition: cx 200ms ease-out, cy 200ms ease-out;
+    }
+
+    /* ===================================================== */
+    /* Legacy Threshold grid (kept for reference / no usage) */
+    /* ===================================================== */
+    .threshold-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .threshold-grid-header,
+    .threshold-grid-row {
+      display: grid;
+      grid-template-columns: 76px 1fr 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .threshold-grid-header {
+      padding-bottom: 4px;
+    }
+
+    .threshold-grid-row {
+      padding: 6px 0;
+    }
+
+    .threshold-col-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    /* Bolder: columna del Máximo (umbral crítico) */
+    .threshold-col-label:has(.req-pill) {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    /* Quieter: columna del Mínimo (opcional) */
+    .threshold-col-label:has(.opt-pill) {
+      color: var(--text-tertiary);
+    }
+
+    .req-pill {
+      font-size: 10px;
+      color: var(--red-text);
+      font-weight: 500;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 1px 6px;
+      border-radius: 4px;
+      line-height: 1.5;
+    }
+
+    .opt-pill {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      padding: 1px 6px;
+      border-radius: 4px;
+      line-height: 1.5;
+    }
+
+    .side-cell {
+      display: flex;
+      align-items: center;
+    }
+
+    .threshold-helper {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding-top: 12px;
+      margin-top: 8px;
+      border-top: 1px dashed var(--border-default);
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+    }
+
+    .threshold-helper .helper-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .threshold-helper .helper-item .lucide {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    /* ===================================================== */
+    /* Preview empty actionable                              */
+    /* ===================================================== */
+    .preview-empty-actionable {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      background: var(--bg-pill);
+      border: 1px dashed var(--border-strong);
+      border-radius: 9px;
+    }
+
+    .preview-empty-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .preview-empty-text .lucide {
+      width: 16px;
+      height: 16px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    /* ===================================================== */
+    /* Loading + AI states per metric                        */
+    /* ===================================================== */
+
+    /* Pills extra states */
+    .pill-loading {
+      background: linear-gradient(135deg, #faf9ff 0%, #f1efff 100%);
+      color: #5b4bdf;
+      border: 1px solid #ddd6fe;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pill-ready {
+      background: var(--green-soft-2);
+      color: var(--green-text);
+      border: 1px solid var(--green-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill-ready .lucide {
+      width: 11px;
+      height: 11px;
+    }
+
+    .pill-modified {
+      background: var(--bg-pill);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill-modified .lucide {
+      width: 11px;
+      height: 11px;
+    }
+
+    /* Pulse dot used inside loading pill */
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #8b85ff;
+      box-shadow: 0 0 0 0 rgba(139, 133, 255, 0.7);
+      animation: pulse-ring 1400ms ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        box-shadow: 0 0 0 0 rgba(139, 133, 255, 0.6);
+      }
+
+      70% {
+        box-shadow: 0 0 0 6px rgba(139, 133, 255, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(139, 133, 255, 0);
+      }
+    }
+
+    /* Loading dot on the series-icon (left panel) */
+    .series-icon {
+      position: relative;
+    }
+
+    .series-loading-dot {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #8b85ff;
+      border: 2px solid white;
+      box-shadow: 0 0 0 0 rgba(139, 133, 255, 0.5);
+      animation: pulse-ring 1400ms ease-out infinite;
+    }
+
+    /* AI calculating banner (replaces AI suggestion strip while loading) */
+    .ai-calculating-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, #faf9ff 0%, #f1efff 100%);
+      border: 1px solid #e0dcff;
+      border-radius: 9px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-calculating-banner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(139, 133, 255, 0.12) 50%, transparent 100%);
+      animation: banner-sweep 1800ms ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes banner-sweep {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .ai-calculating-banner .ai-mark-sm {
+      animation: ai-mark-pulse 1400ms ease-in-out infinite;
+    }
+
+    @keyframes ai-mark-pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 1px 2px rgba(80, 72, 229, 0.25);
+      }
+
+      50% {
+        transform: scale(1.06);
+        box-shadow: 0 2px 8px rgba(80, 72, 229, 0.4);
+      }
+    }
+
+    .ai-calculating-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.3;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .ai-calculating-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .ai-calculating-sub {
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+
+    .ai-calculating-typing {
+      display: inline-flex;
+      gap: 3px;
+      align-items: center;
+      margin-left: 4px;
+    }
+
+    .ai-calculating-typing span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #8b85ff;
+      animation: typing-bounce 1200ms ease-in-out infinite;
+    }
+
+    .ai-calculating-typing span:nth-child(2) {
+      animation-delay: 150ms;
+    }
+
+    .ai-calculating-typing span:nth-child(3) {
+      animation-delay: 300ms;
+    }
+
+    @keyframes typing-bounce {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(0.6);
+        opacity: 0.5;
+      }
+
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* AI status line (replaces strip when ready) */
+    .ai-status-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 12px;
+      background: #faf9ff;
+      border: 1px solid #ece8ff;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      font-size: 12px;
+    }
+
+    .ai-status-line-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      min-width: 0;
+    }
+
+    .ai-status-line-left .ai-mark-xs {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #8b85ff, #5048e5);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ai-status-line-left .ai-mark-xs svg {
+      width: 9px;
+      height: 9px;
+    }
+
+    .ai-status-line-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .ai-link-btn {
+      background: transparent;
+      border: 0;
+      color: #5b4bdf;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ai-link-btn:hover {
+      background: #f4f2ff;
+    }
+
+    .ai-link-btn .lucide {
+      width: 12px;
+      height: 12px;
+    }
+
+    .ai-link-btn.subtle {
+      color: var(--text-tertiary);
+    }
+
+    /* Skeleton input (replaces form-input while loading) */
+    .form-input-skeleton {
+      height: 38px;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      background: white;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-input-skeleton::after {
+      content: '';
+      display: block;
+      height: 12px;
+      width: 60%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #ececee 0%, #f4f4f5 40%, #d4d4d8 50%, #f4f4f5 60%, #ececee 100%);
+      background-size: 250% 100%;
+      animation: shimmer 1400ms ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    /* Input with AI value: add subtle violet halo + AI mark inside */
+    .form-input.ai-filled {
+      background: #fafaff;
+      border-color: #ddd6fe;
+    }
+
+    .form-input.ai-filled input {
+      font-weight: 500;
+    }
+
+    .form-input .ai-inline-mark {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #8b85ff, #5048e5);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-left: 6px;
+    }
+
+    .form-input .ai-inline-mark svg {
+      width: 9px;
+      height: 9px;
+    }
+
+    /* Value fade-in animation when loaded */
+    .value-fade-in {
+      animation: value-fade 320ms ease-out;
+    }
+
+    @keyframes value-fade {
+      from {
+        opacity: 0;
+        transform: translateY(2px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ===================================================== */
+    /* Sparkline live preview per side                       */
+    /* ===================================================== */
+    .spark-row {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      column-gap: 12px;
+      align-items: flex-start;
+      margin-top: 6px;
+      margin-bottom: 14px;
+    }
+
+    .spark-side-spacer {
+      /* aligns with the side-cell column */
+    }
+
+    .spark-viz {
+      position: relative;
+      width: 100%;
+    }
+
+    .sparkline {
+      width: 100%;
+      height: 60px;
+      display: block;
+      border-radius: 6px;
+      background: #fafafa;
+      border: 1px solid var(--border-subtle);
+      overflow: visible;
+    }
+
+    .sparkline .band-rect {
+      fill: rgba(94, 211, 163, 0.16);
+      transition: y 200ms ease-out, height 200ms ease-out;
+    }
+
+    .sparkline .band-line {
+      stroke: rgba(16, 185, 129, 0.55);
+      stroke-width: 1;
+      stroke-dasharray: 3 3;
+      transition: y1 200ms ease-out, y2 200ms ease-out;
+    }
+
+    .sparkline .data-path {
+      stroke: #52525b;
+      stroke-width: 1.75;
+      fill: none;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .sparkline .alert-dot-bg {
+      fill: white;
+      transition: cx 200ms ease-out, cy 200ms ease-out;
+    }
+
+    .sparkline .alert-dot-fg {
+      fill: var(--red-text);
+      transition: cx 200ms ease-out, cy 200ms ease-out;
+    }
+
+    .sparkline .last-point {
+      fill: #18181b;
+      stroke: white;
+      stroke-width: 1.5;
+    }
+
+    .spark-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .alert-count-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .alert-count-pill .marker {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .alert-count-pill.has-alerts {
+      color: var(--red-text);
+    }
+
+    .alert-count-pill.has-alerts .marker {
+      background: var(--red-text);
+    }
+
+    .alert-count-pill.no-alerts {
+      color: var(--green-text);
+    }
+
+    .alert-count-pill.no-alerts .marker {
+      background: var(--green-text);
+    }
+
+    .alert-count-pill.no-threshold {
+      color: var(--text-tertiary);
+    }
+
+    .alert-count-pill.no-threshold .marker {
+      background: var(--border-strong);
+    }
+
+    .spark-axis-label {
+      color: var(--text-muted);
+      font-size: 10.5px;
+      letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .spark-axis-label .sep {
+      color: var(--border-strong);
+    }
+
+    /* ===================================================== */
+    /* Series item v2 (with stats row)                       */
+    /* ===================================================== */
+    .series-item-v2 {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 150ms ease-out;
+    }
+
+    .series-item-v2:hover {
+      background: var(--bg-hover);
+    }
+
+    .series-item-v2.active {
+      background: var(--bg-selected);
+    }
+
+    .series-item-v2 .series-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .series-item-v2 .series-icon .lucide {
+      width: 16px;
+      height: 16px;
+    }
+
+    .series-item-v2 .series-body {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .series-item-v2 .series-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .series-stats {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Lifecycle pills */
+    .pill-warming {
+      background: white;
+      color: var(--text-secondary);
+      border: 1px dashed var(--border-strong);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pill-affected {
+      background: #fef2f2;
+      color: var(--red-text);
+      border: 1px solid #fecaca;
+      font-weight: 500;
+    }
+
+    /* ===================================================== */
+    /* Right panel — header v2 (with chips inline)           */
+    /* ===================================================== */
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .detail-header-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .detail-header-icon .lucide {
+      width: 18px;
+      height: 18px;
+    }
+
+    .detail-header-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .detail-header-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .detail-header-name .pill-tech {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    .detail-header-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-default);
+      border-radius: 14px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .pill-analysis-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: var(--green-soft-2);
+      border: 1px solid var(--green-soft);
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--green-text);
+    }
+
+    .pill-analysis-active .lucide {
+      width: 13px;
+      height: 13px;
+    }
+
+    .link-incidents {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .link-incidents:hover {
+      background: var(--bg-hover);
+    }
+
+    .link-incidents .lucide {
+      width: 13px;
+      height: 13px;
+      color: var(--text-tertiary);
+    }
+
+    /* ===================================================== */
+    /* PREPARING (warming_up) state                          */
+    /* ===================================================== */
+    .preparing-block {
+      margin-bottom: 18px;
+    }
+
+    .preparing-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+    }
+
+    .preparing-title .ai-mark-sm {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+    }
+
+    .preparing-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 20px;
+      max-width: 720px;
+    }
+
+    /* Accordion-style block */
+    .accordion-block {
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      background: white;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .accordion-header .lucide {
+      width: 16px;
+      height: 16px;
+      color: var(--text-secondary);
+    }
+
+    .accordion-header .ai-mark-sm {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+
+    .accordion-header-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .accordion-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .accordion-subtitle {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+
+    .accordion-chevron {
+      margin-left: auto;
+      color: var(--text-tertiary);
+    }
+
+    .accordion-content {
+      padding: 4px 14px 16px 44px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* Setup step (Preparing) */
+    .setup-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      font-size: 13px;
+      line-height: 1.4;
+      animation: step-slide-in 500ms ease-out;
+    }
+
+    @keyframes step-slide-in {
+      from {
+        opacity: 0;
+        transform: translateX(-6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .setup-step-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .setup-step-icon .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    .setup-step.complete .setup-step-icon {
+      color: var(--green-text);
+    }
+
+    .setup-step.complete {
+      color: var(--text-secondary);
+    }
+
+    .setup-step.in_progress .setup-step-icon {
+      color: var(--primary);
+    }
+
+    .setup-step.in_progress {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .setup-step.error .setup-step-icon {
+      color: var(--red-text);
+    }
+
+    .setup-step.error {
+      color: var(--red-text);
+      font-weight: 500;
+    }
+
+    .setup-step.pending .setup-step-icon {
+      color: var(--text-muted);
+    }
+
+    .setup-step.pending {
+      color: var(--text-muted);
+    }
+
+    /* Limits detected block (in preparing) */
+    .limits-detected-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 4px;
+    }
+
+    .limits-detected-row .lucide {
+      width: 18px;
+      height: 18px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .limits-detected-text {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .limits-detected-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .limits-detected-sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .footer-hint {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-style: italic;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+
+    .footer-helper {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    /* ===================================================== */
+    /* PENDING state (no historical data)                    */
+    /* ===================================================== */
+    .preview-empty-card {
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      background: white;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .preview-empty-card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    .preview-empty-state {
+      border: 1px dashed var(--border-default);
+      border-radius: 8px;
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--text-tertiary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preview-empty-state .lucide {
+      width: 20px;
+      height: 20px;
+      color: var(--text-muted);
+    }
+
+    .preview-empty-state h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .preview-empty-state p {
+      font-size: 12px;
+      line-height: 1.4;
+      max-width: 360px;
+    }
+
+    .preview-empty-caption {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 10px;
+    }
+
+    .categories-block {
+      margin-bottom: 14px;
+    }
+
+    .categories-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .categories-label .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    .no-monitor-text {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    /* ===================================================== */
+    /* READY state — Análisis inteligente                    */
+    /* ===================================================== */
+    .quality-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 18px;
+    }
+
+    .quality-row>.lucide {
+      width: 16px;
+      height: 16px;
+      color: var(--text-tertiary);
+    }
+
+    .quality-row-label {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .quality-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .quality-pill.grade-warming {
+      background: white;
+      border: 1px dashed var(--border-strong);
+      color: var(--text-secondary);
+    }
+
+    .quality-pill.grade-warming .grade-icon {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      border: 1px dashed var(--text-tertiary);
+    }
+
+    .quality-pill.grade-low {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: var(--red-text);
+    }
+
+    .quality-pill.grade-low .grade-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red-text);
+    }
+
+    .quality-pill.grade-medium {
+      background: var(--orange-soft);
+      border: 1px solid #fde68a;
+      color: var(--orange-text);
+    }
+
+    .quality-pill.grade-medium .grade-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .quality-pill.grade-high {
+      background: var(--green-soft-2);
+      border: 1px solid var(--green-soft);
+      color: var(--green-text);
+    }
+
+    .quality-pill.grade-high .grade-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-text);
+    }
+
+    /* AI Section header */
+    .ai-section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .ai-section-header .ai-mark-sm {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .ai-section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    .ai-section-sub {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    /* Narrative box */
+    .narrative-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .narrative-meta-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text-tertiary);
+    }
+
+    .narrative-meta-label .lucide {
+      width: 12px;
+      height: 12px;
+    }
+
+    .narrative-meta-value {
+      display: inline-flex;
+      padding: 2px 10px;
+      background: var(--bg-pill);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .narrative-text {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .narrative-text strong {
+      color: var(--text-primary);
+    }
+
+    .narrative-text em {
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    /* Detected limit metric */
+    .detected-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .detected-metric-label {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .detected-metric-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Edit-thresholds CTA */
+    .edit-thresholds-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      cursor: pointer;
+      margin-top: 18px;
+      transition: background 150ms ease-out;
+    }
+
+    .edit-thresholds-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-strong);
+    }
+
+    .edit-thresholds-btn .lucide {
+      width: 14px;
+      height: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* Back button (in edit mode) */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: white;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+
+    .back-link:hover {
+      background: var(--bg-hover);
+    }
+
+    .back-link .lucide {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Pending hint: top notice in edit/pending shared view */
+    .pending-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 9px;
+      margin-bottom: 16px;
+      font-size: 12.5px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+
+    .pending-hint .lucide {
+      width: 16px;
+      height: 16px;
+      color: var(--orange);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ===================================================== */
+    /* Flow transition loaders (saving, progressing)         */
+    /* ===================================================== */
+    .flow-transition-loader {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 28px 24px;
+      background: linear-gradient(135deg, #faf9ff 0%, #f1efff 100%);
+      border: 1px solid #e0dcff;
+      border-radius: 12px;
+      margin: 24px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-transition-loader::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(139, 133, 255, 0.14) 50%, transparent 100%);
+      animation: banner-sweep 1800ms ease-in-out infinite;
+      pointer-events: none;
+    }
+    .flow-transition-mark {
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 9px;
+      animation: ai-mark-pulse 1400ms ease-in-out infinite;
+    }
+    .flow-transition-mark svg {
+      width: 18px;
+      height: 18px;
+    }
+    .flow-transition-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      flex: 1;
+    }
+    .flow-transition-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .flow-transition-sub {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .typing-dots {
+      display: inline-flex;
+      gap: 3px;
+      align-items: center;
+      margin-left: 4px;
+    }
+    .typing-dots span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #8b85ff;
+      animation: typing-bounce 1200ms ease-in-out infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 150ms; }
+    .typing-dots span:nth-child(3) { animation-delay: 300ms; }
+
+    /* ===================================================== */
+    /* Tendencia: sub-blocks dentro del acordeón             */
+    /* ===================================================== */
+    .trend-block {
+      padding: 4px 0 14px;
+    }
+    .trend-block + .trend-block {
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 14px;
+    }
+    .trend-block-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .trend-block-text {
+      font-size: 12.5px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+    }
+    .trend-block-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .trend-block-text em {
+      font-style: italic;
+    }
+    .trend-footer-note {
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      font-style: italic;
+      padding-top: 12px;
+      margin-top: 8px;
+      border-top: 1px dashed var(--border-default);
+    }
+    .trend-footer-note:empty {
+      display: none;
+    }
+
+    /* ===================================================== */
+    /* Stats grid: Perfil estadístico                        */
+    /* ===================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .stats-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stats-cell-label {
+      font-size: 11.5px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+    }
+    .stats-cell-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    /* Spin animation for loader-circle icons */
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .spin-icon {
+      animation: spin 1.4s linear infinite;
+      transform-origin: center;
+    }
+
+    .setup-step.in_progress .setup-step-icon .lucide {
+      animation: spin 1.4s linear infinite;
+      transform-origin: center;
+    }
+
+    /* ===================================================== */
+    /* Badge variants on widget header (lifecycle states)    */
+    /* ===================================================== */
+
+    /* Warming up: dashed pill with pulsing dot */
+    .warming-monitor-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 11px 4px 9px;
+      background: white;
+      border: 1px dashed var(--border-strong);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 200ms ease-out;
+    }
+
+    .warming-monitor-badge:hover {
+      background: var(--bg-hover);
+    }
+
+    .warming-monitor-badge .warming-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #8b85ff;
+      box-shadow: 0 0 0 0 rgba(139, 133, 255, 0.55);
+      animation: pulse-ring 1400ms ease-out infinite;
+      flex-shrink: 0;
+    }
+
+    /* Monitoreo activo: green pill with check */
+    .active-monitor-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 11px 4px 9px;
+      background: var(--green-soft-2);
+      border: 1px solid var(--green-soft);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--green-text);
+      cursor: pointer;
+      transition: background 200ms ease-out;
+    }
+
+    .active-monitor-badge:hover {
+      background: #d1fae5;
+    }
+
+    .active-monitor-badge .lucide {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* Afectado: secondary pill that sits next to "Monitoreo activo" */
+    .affected-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px 4px 9px;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--red-text);
+      cursor: pointer;
+      transition: background 200ms ease-out;
+    }
+
+    .affected-pill:hover {
+      background: #fee2e2;
+    }
+
+    .affected-pill .lucide {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* Demo caption above each widget variant */
+    .widget-variant-caption {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+    }
+
+    .widget-variant-caption::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--border-strong);
+    }
+
+    .widget-variant-block {
+      margin-bottom: 24px;
+    }
+
+    .widget-variant-block:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body class="h-screen overflow-hidden" x-data="{
+  dialogOpen: false,
+  _v2: true,
+  selectedSection: 'programacion',
+  selectedSeries: null,
+  editMode: false,
+  activeWidget: null,
+  chartMeta: {
+    dataset: 'fiserv_all_transactions',
+    ladoA: { resource: 'Banco_Occidente_31_03_2026', valueColumn: 'A K Cast' },
+    ladoB: { resource: 'ERP_SAP_31_03_2026',         valueColumn: 'B K Cast' }
+  },
+  widgetStates: [
+    {
+      id: 'activar',
+      demoLabel: 'Variante 1 · Sin monitoreo (estado inicial)',
+      badge: 'activar',
+      meta: {
+        programacionConfigured: false,
+        programacionSummary: 'Pendiente de configurar',
+        notificationSummary: 'Sin canales activos',
+        metricsConfiguredText: '0 de 4 configuradas'
+      },
+      metricsOverride: {
+        count:      { lifecycle: 'pending', incidents: 0, samplesCount: 720, quality: 'HIGH', learnedMin: '28.000', learnedMax: '34.000', aiSummary: 'Las transacciones pendientes se mantienen estables. La línea base se aprendió con 720 muestras a lo largo de 30 días, con una distribución consistente alrededor de 30.500 pendientes diarios. <strong>El modelo tiene alta confianza</strong> en el máximo aceptable calculado.', tendencia: { direction: 'Las transacciones pendientes se mantienen <strong>estables</strong>. Sin tendencia significativa.', outliers: 'Se detectaron 2 valores atípicos, ambos dentro del rango aprendido.', gaps: 'Sin brechas de datos.' }, perfilEstadistico: { media: '30.500', desvEstandar: '1.850', umbralZ: '2.00' } },
+        amount:     { lifecycle: 'pending', incidents: 0, samplesCount: 720, quality: 'HIGH', learnedMin: '820.000.000', learnedMax: '870.000.000', aiSummary: 'El monto pendiente se mantiene dentro del rango esperado. La línea base se aprendió con 720 muestras, sin desviaciones significativas. <strong>Modelo con alta confianza</strong>, sin alertas en los últimos 30 días.', tendencia: { direction: 'El monto pendiente fluctúa <strong>predeciblemente</strong> entre $820M y $870M.', outliers: 'No se detectaron valores atípicos.', gaps: 'Cobertura completa.' }, perfilEstadistico: { media: '$845M', desvEstandar: '$24,8M', umbralZ: '2.00' } },
+        pct_count:  { lifecycle: 'pending', incidents: 0, samplesCount: 720, quality: 'MEDIUM', learnedMin: '65', learnedMax: '72', aiSummary: 'El porcentaje de transacciones pendientes oscila típicamente entre 65% y 72%, con baseline aprendido de 30 días. <strong>Modelo con confianza media</strong>: la variabilidad natural del indicador hace que se requieran más muestras para ajustar mejor el máximo aceptable.', tendencia: { direction: 'El % de transacciones pendientes oscila con <strong>variabilidad natural</strong> entre 65% y 72%.', outliers: 'Se detectaron 3 valores atípicos, ninguno superó el máximo aceptable.', gaps: 'Sin brechas de datos.' }, perfilEstadistico: { media: '68,5%', desvEstandar: '2,3%', umbralZ: '2.00' } },
+        pct_amount: { lifecycle: 'pending', incidents: 0, samplesCount: 720, quality: 'HIGH', learnedMin: '54', learnedMax: '59', aiSummary: 'El porcentaje del monto pendiente se mantiene estable entre 54% y 59%. Sin desviaciones detectadas en los últimos 30 días. <strong>Alta confianza</strong>.', tendencia: { direction: 'El % del monto pendiente se mantiene <strong>estable</strong> entre 54% y 59%.', outliers: 'No se detectaron valores atípicos.', gaps: 'Cobertura completa.' }, perfilEstadistico: { media: '56,0%', desvEstandar: '1,8%', umbralZ: '2.00' } }
+      }
+    },
+    {
+      id: 'warming',
+      demoLabel: 'Variante 2 · Calentando (BADS aprendiendo)',
+      badge: 'warming',
+      meta: {
+        programacionConfigured: true,
+        programacionSummary: 'Diario · 08:00-20:00',
+        notificationSummary: '1 canal activo',
+        metricsConfiguredText: '4 de 4 configuradas'
+      },
+      metricsOverride: {
+        count: { lifecycle: 'warming_up', incidents: 0, setupSteps: [
+          { id: 'monitor_activated', label: 'Monitor activado', status: 'complete' },
+          { id: 'registering',       label: 'Registrando esta serie en el motor de análisis…', status: 'complete' },
+          { id: 'initial_poll',      label: 'Sondeo inicial', status: 'in_progress' },
+          { id: 'baseline',          label: 'Línea base', status: 'pending' },
+          { id: 'system_kpis',       label: 'KPIs del sistema', status: 'pending' },
+          { id: 'resource_profile',  label: 'Perfil del recurso', status: 'pending' }
+        ]},
+        amount: { lifecycle: 'warming_up', incidents: 0, setupSteps: [
+          { id: 'monitor_activated', label: 'Monitor activado', status: 'complete' },
+          { id: 'registering',       label: 'Registrando esta serie en el motor de análisis…', status: 'complete' },
+          { id: 'initial_poll',      label: 'Sondeo inicial', status: 'complete' },
+          { id: 'baseline',          label: 'Línea base', status: 'in_progress' },
+          { id: 'system_kpis',       label: 'KPIs del sistema', status: 'pending' },
+          { id: 'resource_profile',  label: 'Perfil del recurso', status: 'pending' }
+        ]},
+        pct_count: { lifecycle: 'warming_up', incidents: 0, setupSteps: [
+          { id: 'monitor_activated', label: 'Monitor activado', status: 'complete' },
+          { id: 'registering',       label: 'Registrando esta serie en el motor de análisis…', status: 'complete' },
+          { id: 'initial_poll',      label: 'Sondeo inicial', status: 'in_progress' },
+          { id: 'baseline',          label: 'Línea base', status: 'pending' },
+          { id: 'system_kpis',       label: 'KPIs del sistema', status: 'pending' },
+          { id: 'resource_profile',  label: 'Perfil del recurso', status: 'pending' }
+        ]},
+        pct_amount: { lifecycle: 'warming_up', incidents: 0, setupSteps: [
+          { id: 'monitor_activated', label: 'Monitor activado', status: 'complete' },
+          { id: 'registering',       label: 'Registrando esta serie en el motor de análisis…', status: 'complete' },
+          { id: 'initial_poll',      label: 'Sondeo inicial', status: 'complete' },
+          { id: 'baseline',          label: 'Línea base', status: 'in_progress' },
+          { id: 'system_kpis',       label: 'KPIs del sistema', status: 'pending' },
+          { id: 'resource_profile',  label: 'Perfil del recurso', status: 'pending' }
+        ]}
+      }
+    },
+    {
+      id: 'active',
+      demoLabel: 'Variante 3 · Monitoreo activo (saludable)',
+      badge: 'active',
+      meta: {
+        programacionConfigured: true,
+        programacionSummary: 'Diario · 08:00-20:00',
+        notificationSummary: '2 canales activos',
+        metricsConfiguredText: '4 de 4 configuradas'
+      },
+      metricsOverride: {
+        count:      { lifecycle: 'ready', quality: 'HIGH',   incidents: 0, samplesCount: 720, learnedMin: '28.000', learnedMax: '34.000', aiSummary: 'Las transacciones pendientes se mantienen estables. La línea base se aprendió con 720 muestras a lo largo de 30 días, con una distribución consistente alrededor de 30.500 pendientes diarios. <strong>El modelo tiene alta confianza</strong> en el máximo aceptable calculado.', tendencia: { direction: 'Las transacciones pendientes se mantienen <strong>estables</strong>. La mediana de los últimos 30 días es 30.500 pendientes diarios sin tendencia ascendente ni descendente significativa.', outliers: 'Se detectaron 2 valores atípicos en los últimos 30 días, ambos dentro del rango aprendido. Ninguno superó el máximo aceptable configurado.', gaps: 'Sin brechas de datos en el período de observación. Cobertura completa de los 30 días.' }, perfilEstadistico: { media: '30.500', desvEstandar: '1.850', umbralZ: '2.00' } },
+        amount:     { lifecycle: 'ready', quality: 'HIGH',   incidents: 0, samplesCount: 720, learnedMin: '820.000.000', learnedMax: '870.000.000', aiSummary: 'El monto pendiente se mantiene dentro del rango esperado. La línea base se aprendió con 720 muestras, sin desviaciones significativas. <strong>Modelo con alta confianza</strong>, sin alertas en los últimos 30 días.', tendencia: { direction: 'El monto pendiente fluctúa de forma <strong>predecible</strong> entre $820M y $870M, sin patrón ascendente.', outliers: 'No se detectaron valores atípicos en los últimos 30 días.', gaps: 'Cobertura completa de datos en los últimos 30 días.' }, perfilEstadistico: { media: '$845M', desvEstandar: '$24,8M', umbralZ: '2.00' } },
+        pct_count:  { lifecycle: 'ready', quality: 'MEDIUM', incidents: 0, samplesCount: 720, learnedMin: '65',     learnedMax: '72',     aiSummary: 'El porcentaje de transacciones pendientes oscila típicamente entre 65% y 72%, con baseline aprendido de 30 días. <strong>Modelo con confianza media</strong>: la variabilidad natural del indicador hace que se requieran más muestras para ajustar mejor el máximo aceptable.', tendencia: { direction: 'El % de transacciones pendientes oscila con <strong>variabilidad natural</strong> entre 65% y 72%, sin tendencia clara.', outliers: 'Se detectaron 3 valores atípicos en los últimos 30 días, ninguno superó el máximo aceptable.', gaps: 'Sin brechas de datos.' }, perfilEstadistico: { media: '68,5%', desvEstandar: '2,3%', umbralZ: '2.00' } },
+        pct_amount: { lifecycle: 'ready', quality: 'HIGH',   incidents: 0, samplesCount: 720, learnedMin: '54',     learnedMax: '59',     aiSummary: 'El porcentaje del monto pendiente se mantiene estable entre 54% y 59%. Sin desviaciones detectadas en los últimos 30 días. <strong>Alta confianza</strong>.', tendencia: { direction: 'El % del monto pendiente se mantiene <strong>estable</strong> entre 54% y 59%. Sin tendencia significativa.', outliers: 'No se detectaron valores atípicos.', gaps: 'Cobertura completa de los 30 días.' }, perfilEstadistico: { media: '56,0%', desvEstandar: '1,8%', umbralZ: '2.00' } }
+      }
+    },
+    {
+      id: 'affected',
+      demoLabel: 'Variante 4 · Afectado (18 incidentes hoy)',
+      badge: 'affected',
+      meta: {
+        programacionConfigured: true,
+        programacionSummary: 'Diario · 08:00-20:00',
+        notificationSummary: '2 canales activos',
+        metricsConfiguredText: '4 de 4 configuradas'
+      },
+      metricsOverride: {
+        count:      { lifecycle: 'ready', quality: 'HIGH',       incidents: 0,  samplesCount: 720, learnedMin: '28.000', learnedMax: '34.000', aiSummary: 'Las transacciones pendientes se mantienen estables. Sin desviaciones detectadas en los últimos 30 días. <strong>Modelo con alta confianza</strong>.', tendencia: { direction: 'Las transacciones pendientes se mantienen <strong>estables</strong>. Sin tendencia ascendente o descendente.', outliers: 'No se detectaron valores atípicos en los últimos 30 días.', gaps: 'Sin brechas de datos.' }, perfilEstadistico: { media: '30.500', desvEstandar: '1.850', umbralZ: '2.00' } },
+        amount:     { lifecycle: 'ready', quality: 'MEDIUM',     incidents: 3,  samplesCount: 720, learnedMin: '820.000.000', learnedMax: '870.000.000', aiSummary: '<strong>Detectadas 3 desviaciones</strong> en el monto pendiente durante la última semana. Picos por encima del máximo aceptable los días 12, 17 y 23. Revisar si corresponden a eventos puntuales o a un patrón emergente.', tendencia: { direction: 'El monto pendiente muestra una <strong>tendencia ascendente</strong> en los últimos 7 días. Pendiente promedio: +2,3% diario.', outliers: '<strong>3 valores atípicos detectados</strong> los días 12, 17 y 23. Todos superaron el máximo aceptable. Investigar.', gaps: 'Sin brechas de datos. Cobertura completa de los 30 días.' }, perfilEstadistico: { media: '$865M', desvEstandar: '$38,1M', umbralZ: '2.00' } },
+        pct_count:  { lifecycle: 'ready', quality: 'LOW',        incidents: 5,  samplesCount: 720, learnedMin: '65',     learnedMax: '72',     aiSummary: '<strong>El porcentaje de transacciones pendientes superó el máximo aceptable en 5 días distintos</strong>, todos concentrados en los últimos 7 días. Subida promedio: 8 puntos porcentuales. El modelo recomienda investigar la integridad del flujo de Lado A.', tendencia: { direction: 'El % de transacciones pendientes muestra <strong>tendencia ascendente sostenida</strong> en los últimos 7 días.', outliers: '<strong>5 valores atípicos consecutivos</strong>, todos por encima del máximo aceptable. Patrón emergente.', gaps: 'Sin brechas de datos.' }, perfilEstadistico: { media: '74,2%', desvEstandar: '4,8%', umbralZ: '2.00' } },
+        pct_amount: { lifecycle: 'ready', quality: 'WARMING_UP', incidents: 10, samplesCount: 0, learnedMin: '0,00', learnedMax: '0,00', aiSummary: '<strong>Crítico: No hay datos disponibles para análisis</strong>, la situación persiste sin resolución. La métrica continúa mostrando <em>cero observaciones</em> en todo el período de medición durante ciclos de evaluación consecutivos. Esto impide cualquier análisis estadístico significativo, identificación de tendencias o información operativa. <strong>El escalamiento inmediato sigue siendo necesario</strong>, la falla en la recopilación de datos no se ha abordado desde la última evaluación. Verificar la integridad del pipeline de datos, confirmar la conectividad del sistema y restaurar la recopilación de datos como la <strong>máxima prioridad</strong>.', tendencia: { direction: 'Datos insuficientes para determinar una dirección de tendencia confiable. Con <strong>cero observaciones</strong> en el período actual, no se puede establecer ninguna tendencia ascendente, descendente o plana.', outliers: 'No se detectaron valores atípicos. Sin puntos de datos disponibles en el período actual, ningún valor superó o cayó por debajo de los rangos esperados. Esta condición es <strong>consistente con la evaluación anterior</strong>.', gaps: '<strong>La ausencia completa de datos continúa, sin cambios desde la evaluación anterior.</strong> No se recopilaron valores durante toda la ventana de observación. Esto representa una <em>brecha crítica continua</em> que requiere investigación inmediata de los procesos de recopilación de datos o la conectividad del sistema. La situación permanece <strong>sin cambios</strong> y sin resolver.', footer: 'Sin datos recientes disponibles' }, perfilEstadistico: { media: '0,00', desvEstandar: '0,00', umbralZ: '2.00' } }
+      }
+    }
+  ],
+  get currentWidget() { return this.widgetStates.find(ws => ws.id === this.activeWidget) || null; },
+  metricStateFor(key) {
+    const ws = this.currentWidget;
+    if (!ws) return this.metricStates[key] || {};
+    const override = ws.metricsOverride?.[key] || {};
+    // Fallback merge: si el variante activa no tiene data de ready (ej. warming),
+    // hereda los campos faltantes del variante 'active' (healthy default).
+    const fallback = this.widgetStates.find(w => w.id === 'active')?.metricsOverride?.[key] || this.metricStates[key] || {};
+    return { ...fallback, ...override };
+  },
+  get widgetMeta() {
+    return this.currentWidget?.meta || {
+      programacionConfigured: true,
+      programacionSummary: 'Diario · 08:00-20:00',
+      notificationSummary: '1 canal activo',
+      metricsConfiguredText: '0 de 4 configuradas'
+    };
+  },
+  openDialogFor(widgetId) {
+    this.activeWidget = widgetId;
+    this.editMode = false;
+    this.selectedSection = 'programacion';
+    this.selectedSeries = null;
+    this.dialogOpen = true;
+    // Inicializa flowSteps según el lifecycle de cada métrica del widget activo
+    const ws = this.widgetStates.find(w => w.id === widgetId);
+    if (ws && ws.metricsOverride) {
+      Object.keys(this.metricConfigs).forEach(key => {
+        const lc = ws.metricsOverride[key]?.lifecycle;
+        this.flowSteps[key] = lc === 'pending' ? 'configure'
+                            : lc === 'warming_up' ? 'warming'
+                            : 'ready';
+      });
+    }
+    setTimeout(() => lucide.createIcons(), 50);
+  },
+  saveAndActivate(key) {
+    // (Legacy) Activa una sola métrica — se mantiene por compatibilidad.
+    this.flowSteps[key] = 'saving';
+    setTimeout(() => lucide.createIcons(), 50);
+    setTimeout(() => {
+      this.flowSteps[key] = 'warming';
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 800);
+    setTimeout(() => {
+      this.flowSteps[key] = 'progressing';
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 5500);
+    setTimeout(() => {
+      this.flowSteps[key] = 'ready';
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 6300);
+  },
+  hasValues(key) {
+    const v = this.values[key];
+    if (!v) return false;
+    return !!(String(v.aMin).trim() || String(v.aMax).trim() || String(v.bMin).trim() || String(v.bMax).trim());
+  },
+  get configuredMetrics() {
+    // Métricas con al menos un valor — incluye configure/saving/warming/progressing/ready
+    return Object.keys(this.values).filter(k => this.hasValues(k));
+  },
+  get pendingActivation() {
+    // Métricas configuradas que todavía no se han activado
+    return this.configuredMetrics.filter(k => this.flowSteps[k] === 'configure');
+  },
+  get hasAnyConfigured() { return this.configuredMetrics.length > 0; },
+  get hasPendingActivation() { return this.pendingActivation.length > 0; },
+  get globalFlowStep() {
+    // Estado agregado: en flight gana sobre todo; luego ready si todas las configuradas están listas
+    const steps = Object.values(this.flowSteps);
+    if (steps.includes('progressing')) return 'progressing';
+    if (steps.includes('warming'))     return 'warming';
+    if (steps.includes('saving'))      return 'saving';
+    const configured = this.configuredMetrics;
+    if (configured.length > 0 && configured.every(k => this.flowSteps[k] === 'ready')) return 'ready';
+    return 'configure';
+  },
+  saveAllConfigured() {
+    // Activa al mismo tiempo todas las métricas configuradas que aún están en 'configure'.
+    // No re-activa las que ya están en flight o ya están ready.
+    const keys = this.pendingActivation;
+    if (keys.length === 0) return;
+    keys.forEach(k => { this.flowSteps[k] = 'saving'; });
+    setTimeout(() => lucide.createIcons(), 50);
+    setTimeout(() => {
+      keys.forEach(k => { this.flowSteps[k] = 'warming'; });
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 800);
+    setTimeout(() => {
+      keys.forEach(k => { this.flowSteps[k] = 'progressing'; });
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 5500);
+    setTimeout(() => {
+      keys.forEach(k => { this.flowSteps[k] = 'ready'; });
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 6300);
+  },
+  get currentFlowStep() { return this.flowSteps[this.selectedSeries] || 'configure'; },
+  loadingStates: { count: 'idle', amount: 'idle', pct_count: 'idle', pct_amount: 'idle' },
+  flowSteps:     { count: 'configure', amount: 'configure', pct_count: 'configure', pct_amount: 'configure' },
+  values: {
+    count:      { aMin: '', aMax: '', bMin: '', bMax: '' },
+    amount:     { aMin: '', aMax: '', bMin: '', bMax: '' },
+    pct_count:  { aMin: '', aMax: '', bMin: '', bMax: '' },
+    pct_amount: { aMin: '', aMax: '', bMin: '', bMax: '' }
+  },
+  fromAi: {
+    count:      { aMin: false, aMax: false, bMin: false, bMax: false },
+    amount:     { aMin: false, aMax: false, bMin: false, bMax: false },
+    pct_count:  { aMin: false, aMax: false, bMin: false, bMax: false },
+    pct_amount: { aMin: false, aMax: false, bMin: false, bMax: false }
+  },
+  metricStates: {
+    count: {
+      lifecycle: 'ready',
+      quality: 'HIGH',
+      incidents: 0,
+      samplesCount: 720,
+      learnedMax: '34.000',
+      learnedMin: '28.000',
+      aiSummary: 'La métrica se comporta de manera estable. La línea base se aprendió con 720 muestras a lo largo de 30 días, con una distribución consistente alrededor de 30.500 transacciones diarias. Los picos esporádicos detectados (días 16 y 30) se mantuvieron dentro del rango aprendido, sin disparar incidentes. <strong>El modelo tiene alta confianza</strong> en los rangos calculados.'
+    },
+    amount: {
+      lifecycle: 'warming_up',
+      incidents: 0,
+      setupSteps: [
+        { id: 'monitor_activated', label: 'Monitor activado', status: 'complete' },
+        { id: 'registering', label: 'Registrando esta serie en el motor de análisis…', status: 'complete' },
+        { id: 'initial_poll', label: 'Sondeo inicial', status: 'error' },
+        { id: 'baseline', label: 'Línea base', status: 'error' },
+        { id: 'system_kpis', label: 'KPIs del sistema', status: 'pending' },
+        { id: 'resource_profile', label: 'Perfil del recurso', status: 'pending' }
+      ]
+    },
+    pct_count: {
+      lifecycle: 'pending',
+      incidents: 0
+    },
+    pct_amount: {
+      lifecycle: 'ready',
+      quality: 'WARMING_UP',
+      incidents: 18,
+      samplesCount: 0,
+      learnedMax: '0,00',
+      learnedMin: '0,00',
+      aiSummary: '<strong>Crítico: No hay datos disponibles para análisis</strong>, la situación persiste sin resolución. La métrica continúa mostrando <em>cero observaciones</em> en todo el período de medición durante ciclos de evaluación consecutivos. Esto impide cualquier análisis estadístico significativo, identificación de tendencias o información operativa. <strong>El escalamiento inmediato sigue siendo necesario</strong>, la falla en la recopilación de datos no se ha abordado desde la última evaluación. Verificar la integridad del pipeline de datos, confirmar la conectividad del sistema y restaurar la recopilación de datos como la <strong>máxima prioridad</strong>.'
+    }
+  },
+  get currentMetricState() { return this.metricStateFor(this.selectedSeries); },
+  qualityLabel(grade) {
+    return { WARMING_UP: 'Calentando', LOW: 'Baja', MEDIUM: 'Media', HIGH: 'Alta' }[grade] || '—';
+  },
+  qualityVariant(grade) {
+    return { WARMING_UP: 'warming', LOW: 'low', MEDIUM: 'medium', HIGH: 'high' }[grade] || 'warming';
+  },
+  techPillFor(key) {
+    return { count: 'COUNT', amount: 'SUM', pct_count: '% reg', pct_amount: '% val' }[key] || '';
+  },
+  enterEditMode() {
+    this.editMode = true;
+    if (this.loadingStates[this.selectedSeries] === 'idle') {
+      this.loadingStates[this.selectedSeries] = 'loading';
+      setTimeout(() => {
+        const s = this.metricConfigs[this.selectedSeries].aiSuggestion;
+        this.values[this.selectedSeries] = { aMin: s.aMin, aMax: s.aMax, bMin: s.bMin, bMax: s.bMax };
+        this.fromAi[this.selectedSeries] = { aMin: true, aMax: true, bMin: true, bMax: true };
+        this.loadingStates[this.selectedSeries] = 'ready';
+        setTimeout(() => lucide.createIcons(), 50);
+      }, 1400);
+    }
+  },
+  metricConfigs: {
+    count: {
+      title: 'Transacciones pendientes',
+      icon: 'hash',
+      description: 'El agente alertará cuando el número de transacciones pendientes supere el máximo aceptable en cualquiera de los lados.',
+      unit: 'transacciones',
+      placeholderMin: 'ej. 1.000',
+      placeholderMax: 'ej. 50.000',
+      helperMin: 'Si las pendientes caen por debajo (poco común), se notifica.',
+      helperMax: 'Si las pendientes superan este valor, se dispara una alerta.',
+      aiSuggestion: { aMin: '28.000', aMax: '34.000', bMin: '62.000', bMax: '68.000', basis: 'baseline de 30 días' },
+      series30d: {
+        a: [30100, 31200, 29800, 32400, 30600, 31100, 28900, 30200, 31800, 33100, 32500, 30800, 31400, 32700, 33800, 34900, 33500, 32100, 30700, 29400, 28200, 27500, 28800, 30100, 31600, 32400, 33200, 32800, 31500, 30900],
+        b: [63100, 64200, 62800, 65300, 64500, 65700, 63800, 64100, 65800, 66700, 67200, 65900, 64800, 66100, 67400, 68900, 67800, 66400, 64900, 63600, 62300, 61800, 62700, 64300, 65500, 66400, 67100, 66800, 65400, 64700]
+      }
+    },
+    amount: {
+      title: 'Monto pendiente',
+      icon: 'coins',
+      description: 'El agente alertará cuando el monto pendiente supere el máximo aceptable en cualquiera de los lados.',
+      unit: 'moneda local',
+      placeholderMin: 'ej. 1.000.000',
+      placeholderMax: 'ej. 100.000.000',
+      helperMin: 'Si el monto pendiente cae por debajo, se notifica.',
+      helperMax: 'Si el monto pendiente supera este valor, se dispara una alerta.',
+      aiSuggestion: { aMin: '820.000.000', aMax: '870.000.000', bMin: '1.300.000.000', bMax: '1.400.000.000', basis: 'baseline de 30 días' },
+      series30d: {
+        a: [830000000, 845000000, 822000000, 858000000, 838000000, 850000000, 815000000, 825000000, 858000000, 865000000, 870000000, 858000000, 845000000, 855000000, 868000000, 880000000, 875000000, 858000000, 840000000, 820000000, 805000000, 798000000, 815000000, 832000000, 850000000, 862000000, 868000000, 865000000, 850000000, 838000000],
+        b: [1310000000, 1340000000, 1300000000, 1370000000, 1350000000, 1360000000, 1290000000, 1320000000, 1360000000, 1390000000, 1400000000, 1380000000, 1350000000, 1370000000, 1410000000, 1430000000, 1410000000, 1380000000, 1340000000, 1310000000, 1280000000, 1270000000, 1300000000, 1330000000, 1360000000, 1380000000, 1400000000, 1390000000, 1360000000, 1340000000]
+      }
+    },
+    pct_count: {
+      title: '% de transacciones pendientes',
+      icon: 'percent',
+      description: 'El agente alertará cuando el porcentaje de transacciones pendientes supere el máximo aceptable en cualquiera de los lados.',
+      unit: '%',
+      placeholderMin: 'ej. 0',
+      placeholderMax: 'ej. 5',
+      helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
+      helperMax: 'Si el % pendiente supera este valor, se dispara una alerta.',
+      aiSuggestion: { aMin: '65', aMax: '72', bMin: '38', bMax: '45', basis: 'baseline de 30 días' },
+      series30d: {
+        a: [67, 69, 66, 70, 68, 71, 65, 67, 71, 72, 71, 70, 69, 70, 71, 72, 71, 70, 68, 66, 64, 65, 66, 68, 70, 72, 71, 72, 70, 69],
+        b: [40, 42, 39, 43, 41, 44, 38, 40, 43, 44, 45, 43, 41, 42, 44, 46, 45, 43, 41, 39, 37, 36, 38, 40, 42, 44, 45, 44, 42, 41]
+      }
+    },
+    pct_amount: {
+      title: '% del monto pendiente',
+      icon: 'percent',
+      description: 'El agente alertará cuando el porcentaje del monto pendiente supere el máximo aceptable en cualquiera de los lados. Ejemplo: alertar cuando los pendientes superen el 5% del monto total.',
+      unit: '%',
+      placeholderMin: 'ej. 0',
+      placeholderMax: 'ej. 5',
+      helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
+      helperMax: 'Si el % pendiente supera este valor, se dispara una alerta.',
+      aiSuggestion: { aMin: '54', aMax: '59', bMin: '24', bMax: '28', basis: 'baseline de 30 días' },
+      series30d: {
+        a: [56, 57, 55, 58, 56, 57, 54, 55, 57, 58, 59, 57, 56, 57, 58, 60, 59, 57, 55, 54, 53, 52, 54, 56, 57, 58, 59, 58, 56, 55],
+        b: [25, 26, 24, 27, 26, 27, 24, 25, 27, 28, 28, 27, 26, 27, 28, 29, 28, 27, 25, 24, 23, 22, 24, 25, 27, 28, 28, 27, 26, 25]
+      }
+    }
+  },
+  get currentMetric() { return this.metricConfigs[this.selectedSeries] || {}; },
+  get currentState() { return this.loadingStates[this.selectedSeries] || 'idle'; },
+  get inputPrefix() {
+    const unit = this.currentMetric?.unit;
+    if (unit === 'moneda local') return '$';
+    return null;
+  },
+  get inputSuffix() {
+    const unit = this.currentMetric?.unit;
+    if (unit === '%') return '%';
+    return null;
+  },
+  parseNumeric(str) {
+    if (str === null || str === undefined || str === '') return null;
+    const cleaned = String(str).replace(/[.\s,%]/g, '');
+    const n = parseFloat(cleaned);
+    return isNaN(n) ? null : n;
+  },
+  sparklineData(metricKey, side) {
+    const config = this.metricConfigs[metricKey];
+    if (!config || !config.series30d) return null;
+    const data = config.series30d[side];
+    if (!data) return null;
+    const vals = this.values[metricKey] || {};
+    const minKey = side + 'Min';
+    const maxKey = side + 'Max';
+    const userMin = this.parseNumeric(vals[minKey]);
+    const userMax = this.parseNumeric(vals[maxKey]);
+    const width = 580;
+    const height = 64;
+    const padding = 8;
+    const dataMin = Math.min(...data);
+    const dataMax = Math.max(...data);
+    const lowBound = userMin !== null ? Math.min(dataMin, userMin) : dataMin;
+    const highBound = userMax !== null ? Math.max(dataMax, userMax) : dataMax;
+    const span = (highBound - lowBound) || 1;
+    const rangeMin = lowBound - span * 0.10;
+    const rangeMax = highBound + span * 0.10;
+    const xStep = (width - padding * 2) / (data.length - 1);
+    const yFor = (v) => height - padding - ((v - rangeMin) / (rangeMax - rangeMin)) * (height - padding * 2);
+    const points = data.map((v, i) => ({ x: padding + i * xStep, y: yFor(v), value: v }));
+    const path = points.map((p, i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+    let bandY1 = padding;
+    let bandY2 = height - padding;
+    if (userMax !== null) bandY1 = yFor(userMax);
+    if (userMin !== null) bandY2 = yFor(userMin);
+    const alerts = points.filter(p =>
+      (userMin !== null && p.value < userMin) ||
+      (userMax !== null && p.value > userMax)
+    );
+    return { width, height, padding, path, bandY1, bandY2, points, alerts, alertCount: alerts.length, hasMin: userMin !== null, hasMax: userMax !== null };
+  },
+  selectMetric(key) {
+    this.selectedSection = 'series';
+    this.selectedSeries = key;
+    this.editMode = false;
+    // Si el flowStep está en 'configure', disparamos el AI loader que pre-llena umbrales.
+    if (this.flowSteps[key] === 'configure' && this.loadingStates[key] === 'idle') {
+      this.loadingStates[key] = 'loading';
+      setTimeout(() => {
+        const s = this.metricConfigs[key].aiSuggestion;
+        this.values[key] = { aMin: s.aMin, aMax: s.aMax, bMin: s.bMin, bMax: s.bMax };
+        this.fromAi[key] = { aMin: true, aMax: true, bMin: true, bMax: true };
+        this.loadingStates[key] = 'ready';
+        setTimeout(() => lucide.createIcons(), 50);
+      }, 1400);
+    }
+    setTimeout(() => lucide.createIcons(), 50);
+  },
+  markEdited(key, field) {
+    this.fromAi[key][field] = false;
+  },
+  clearAi(key) {
+    this.values[key] = { aMin: '', aMax: '', bMin: '', bMax: '' };
+    this.fromAi[key] = { aMin: false, aMax: false, bMin: false, bMax: false };
+    this.loadingStates[key] = 'modified';
+  },
+  resuggest(key) {
+    this.loadingStates[key] = 'loading';
+    setTimeout(() => {
+      const s = this.metricConfigs[key].aiSuggestion;
+      this.values[key] = { aMin: s.aMin, aMax: s.aMax, bMin: s.bMin, bMax: s.bMax };
+      this.fromAi[key] = { aMin: true, aMax: true, bMin: true, bMax: true };
+      this.loadingStates[key] = 'ready';
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 1400);
+  }
+}">
+
+  <!-- Banner de sanity check: si lo ves, estás cargando la versión actualizada -->
+<div style="position: fixed; top: 12px; right: 12px; z-index: 99999; background: #10b981; color: white; padding: 8px 14px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);">
+  ✓ v2 · UNIFIED FLOW LOADED
+</div>
+
+<div class="flex h-screen">
+
+    <!-- ============ LEFT SIDEBAR ============ -->
+    <aside class="flex flex-col"
+      style="width: 232px; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle);">
+
+      <div class="flex items-center justify-between px-3 pt-3 pb-2">
+        <div class="flex items-center gap-2">
+          <div class="logo-mark"></div>
+          <span class="text-[14px] font-semibold" style="color: var(--text-primary);">Simetrik</span>
+        </div>
+        <button class="bottom-icon" title="Ocultar">
+          <i data-lucide="eye"></i>
+        </button>
+      </div>
+
+      <div class="px-3 pb-3">
+        <div class="workspace-card">
+          <div class="workspace-avatar">S</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-[12px] font-semibold leading-tight" style="color: var(--text-primary);">STAGE Dlocal</div>
+            <div class="text-[11px] leading-tight truncate" style="color: var(--text-tertiary);">PRUEBAS PS SERVICES ...
+            </div>
+          </div>
+          <i data-lucide="chevrons-up-down" class="lucide"
+            style="width: 14px; height: 14px; color: var(--text-tertiary);"></i>
+        </div>
+      </div>
+
+      <div class="px-3 pb-3">
+        <div class="input-search">
+          <i data-lucide="search"></i>
+          <input placeholder="Buscar" />
+          <span class="kbd">⌘ + K</span>
+        </div>
+      </div>
+
+      <nav class="px-2 flex-1 overflow-y-auto">
+        <div class="nav-item">
+          <i data-lucide="flag"></i>
+          <span class="flex-1">Resumen</span>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="arrow-up-right"></i>
+          <span class="flex-1">Accesos<br />directos</span>
+          <span class="badge-new">Nuevo</span>
+          <i data-lucide="chevron-right" class="lucide" style="width:14px;height:14px;"></i>
+        </div>
+        <div class="nav-item active">
+          <i data-lucide="target"></i>
+          <span class="flex-1">Centro de Operaciones</span>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="zap"></i>
+          <span class="flex-1">Automatizar</span>
+          <i data-lucide="chevron-right" class="lucide" style="width:14px;height:14px;"></i>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="sliders-horizontal"></i>
+          <span class="flex-1">Gestionar</span>
+          <i data-lucide="chevron-right" class="lucide" style="width:14px;height:14px;"></i>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="shield-check"></i>
+          <span class="flex-1">Auditar</span>
+          <i data-lucide="chevron-right" class="lucide" style="width:14px;height:14px;"></i>
+        </div>
+        <div class="nav-item">
+          <i data-lucide="wrench"></i>
+          <span class="flex-1">Herramientas</span>
+          <i data-lucide="more-horizontal" class="lucide" style="width:14px;height:14px;"></i>
+        </div>
+      </nav>
+
+      <div class="px-3 py-3 border-t" style="border-color: var(--border-subtle);">
+        <div class="flex items-center justify-between">
+          <div class="user-avatar"></div>
+          <div class="flex items-center gap-0.5">
+            <button class="bottom-icon" title="Notificaciones"><i data-lucide="bell"></i></button>
+            <button class="bottom-icon" title="Privacidad"><i data-lucide="shield"></i></button>
+            <button class="bottom-icon" title="Configuración"><i data-lucide="settings"></i></button>
+            <button class="bottom-icon" title="Logs"><i data-lucide="file-text"></i></button>
+            <button class="bottom-icon" title="Colapsar"><i data-lucide="panel-left-close"></i></button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN AREA ============ -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+
+      <div class="flex items-center justify-between px-4 py-3"
+        style="border-bottom: 1px solid var(--border-subtle); background: var(--bg-app);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="target" class="lucide" style="width:18px;height:18px;color:var(--text-secondary);"></i>
+          <span class="text-[14px] font-semibold" style="color: var(--text-primary);">Centro de operaciones</span>
+          <span class="badge-beta">Beta</span>
+        </div>
+
+        <div class="segmented">
+          <div class="seg active">
+            <i data-lucide="layout-grid"></i>
+            <span>Tableros</span>
+          </div>
+          <div class="seg">
+            <i data-lucide="alert-circle"></i>
+            <span>Anomalias</span>
+          </div>
+          <div class="seg">
+            <i data-lucide="clock"></i>
+            <span>Pendientes</span>
+          </div>
+        </div>
+
+        <div style="width: 80px;"></div>
+      </div>
+
+      <div class="flex flex-1 overflow-hidden">
+
+        <!-- ===== Tableros panel ===== -->
+        <aside class="flex flex-col"
+          style="width: 268px; background: var(--bg-app); border-right: 1px solid var(--border-subtle);">
+
+          <div class="flex items-center justify-between px-4 pt-4 pb-3">
+            <span class="text-[14px] font-semibold" style="color: var(--text-primary);">Tableros</span>
+            <button class="bottom-icon" title="Colapsar"><i data-lucide="chevron-left"></i></button>
+          </div>
+
+          <div class="px-4 pb-3">
+            <div class="subtabs">
+              <div class="seg active">Tableros</div>
+              <div class="seg">Datasets</div>
+            </div>
+          </div>
+
+          <div class="px-4 pb-3">
+            <button class="new-board-btn">
+              <i data-lucide="plus"></i>
+              <span>Nuevo tablero</span>
+            </button>
+          </div>
+
+          <div class="px-4 pb-3">
+            <div class="input-search">
+              <i data-lucide="search"></i>
+              <input placeholder="Buscar tablero" />
+            </div>
+          </div>
+
+          <div class="px-4 pb-2">
+            <div class="text-[11px] font-medium mb-2" style="color: var(--text-tertiary);">Favoritos (0/15)</div>
+            <div class="fav-empty">Fija o arrastra hasta 15 tableros</div>
+          </div>
+
+          <div class="px-4 pt-3 pb-2 flex items-center justify-between">
+            <span class="text-[11px] font-medium" style="color: var(--text-tertiary);">Tableros (6)</span>
+            <button class="sort-mini" title="Ordenar">
+              <i data-lucide="arrow-down-up" class="lucide" style="width:13px;height:13px;"></i>
+            </button>
+          </div>
+
+          <div class="px-2 flex-1 overflow-y-auto">
+            <div class="board-item"><i data-lucide="globe"></i><span>DEMO VISA Ops Center</span></div>
+            <div class="board-item"><i data-lucide="globe"></i><span>N Demo</span></div>
+            <div class="board-item active"><i data-lucide="globe"></i><span>Pay ins APS 2</span></div>
+            <div class="board-item"><i data-lucide="globe"></i><span>Pay Ins APS Dashboard</span></div>
+            <div class="board-item"><i data-lucide="globe"></i><span>test</span></div>
+            <div class="board-item"><i data-lucide="globe"></i><span>Testing</span></div>
+          </div>
+        </aside>
+
+        <!-- ===== Dashboard area ===== -->
+        <section class="flex-1 flex flex-col overflow-hidden" style="background: var(--bg-app);">
+
+          <div class="flex items-center justify-between px-5 py-3"
+            style="border-bottom: 1px solid var(--border-subtle);">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[15px] font-semibold" style="color: var(--text-primary);">Pay ins APS 2</span>
+                <i data-lucide="pencil" class="lucide"
+                  style="width:13px;height:13px;color:var(--text-tertiary);cursor:pointer;"></i>
+              </div>
+              <span class="chip">
+                <i data-lucide="database"></i>
+                <span>1 Dataset usado</span>
+              </span>
+              <span class="chip">
+                <i data-lucide="activity"></i>
+                <span>Recursos monitoreados</span>
+                <i data-lucide="chevron-down" class="lucide" style="width:13px;height:13px;"></i>
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button class="icon-btn" title="Descargar"><i data-lucide="download" class="lucide"
+                  style="width:15px;height:15px;"></i></button>
+              <button class="btn-secondary">
+                <i data-lucide="compass"></i>
+                <span>Contexto</span>
+              </button>
+              <button class="btn-primary">
+                <i data-lucide="pencil"></i>
+                <span>Editar tablero</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="tab-icons-row flex items-center gap-1 pt-2">
+            <button class="bottom-icon" style="border-radius:4px;" title="Vista lista">
+              <i data-lucide="list" class="lucide" style="width:15px;height:15px;"></i>
+            </button>
+            <div class="underline-tab active">
+              <span>Page 1</span>
+              <i data-lucide="more-horizontal" class="lucide" style="width:13px;height:13px;"></i>
+            </div>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-5" style="background: var(--bg-app);">
+
+            <!-- Widget: Pendientes Avanzados — 4 variantes por lifecycle state -->
+            <template x-for="ws in widgetStates" :key="ws.id">
+              <div class="widget-variant-block">
+                <div class="widget-variant-caption" x-text="ws.demoLabel"></div>
+                <div class="card">
+
+                  <div class="widget-header">
+                    <div class="widget-title">
+                      <i data-lucide="layout-grid"></i>
+                      <span>Pendientes Avanzados</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                      <!-- Variant 1: Activar monitoreo inteligente -->
+                      <button x-show="ws.badge === 'activar'" class="activate-monitor-badge"
+                        @click="openDialogFor(ws.id)">
+                        <span class="ai-mark">
+                          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                          </svg>
+                        </span>
+                        <span>Activar monitoreo inteligente</span>
+                      </button>
+
+                      <!-- Variant 2: Calentando (dashed + pulse) -->
+                      <button x-show="ws.badge === 'warming'" class="warming-monitor-badge"
+                        @click="openDialogFor(ws.id)">
+                        <span class="warming-dot"></span>
+                        <span>Calentando</span>
+                      </button>
+
+                      <!-- Variant 3: Monitoreo activo (green check) -->
+                      <button x-show="ws.badge === 'active'" class="active-monitor-badge" @click="openDialogFor(ws.id)">
+                        <i data-lucide="check-circle-2"></i>
+                        <span>Monitoreo activo</span>
+                      </button>
+
+                      <!-- Variant 4: Monitoreo activo + Afectado dual pill -->
+                      <span x-show="ws.badge === 'affected'"
+                        style="display: inline-flex; align-items: center; gap: 6px;">
+                        <button class="active-monitor-badge" @click="openDialogFor(ws.id)">
+                          <i data-lucide="check-circle-2"></i>
+                          <span>Monitoreo activo</span>
+                        </button>
+                        <button class="affected-pill" @click="openDialogFor(ws.id)">
+                          <i data-lucide="alert-triangle"></i>
+                          <span>Afectado · 18</span>
+                        </button>
+                      </span>
+
+                      <button class="bottom-icon" title="Más opciones">
+                        <i data-lucide="more-vertical" class="lucide" style="width:16px;height:16px;"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-10 px-6 py-6">
+
+                    <!-- ========== LADO A ========== -->
+                    <div class="space-y-7">
+                      <div><span class="side-label">Lado A</span></div>
+
+                      <div class="space-y-3">
+                        <div class="text-[13px] font-semibold" style="color: var(--text-primary);">Registros</div>
+                        <div class="flex items-end gap-6">
+                          <div>
+                            <div class="metric-big tabular">68.21<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">Total conciliado</div>
+                          </div>
+                          <div>
+                            <div class="metric-big tabular">31.79<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">No conciliado</div>
+                          </div>
+                        </div>
+                        <div class="progress">
+                          <div class="seg-green" style="width: 68.21%;"></div>
+                        </div>
+                        <div class="space-y-1.5 pt-2">
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-green"></span><span
+                                style="color: var(--text-secondary);">Conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">30,362,879</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-yellow"></span><span
+                                style="color: var(--text-secondary);">Compensado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-red"></span><span
+                                style="color: var(--text-secondary);">No conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">14,153,656</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-grey"></span><span
+                                style="color: var(--text-secondary);">Ajustado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="space-y-3">
+                        <div class="text-[13px] font-semibold" style="color: var(--text-primary);">Valores</div>
+                        <div class="flex items-end gap-6">
+                          <div>
+                            <div class="metric-big tabular">56.08<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">Total conciliado</div>
+                          </div>
+                          <div>
+                            <div class="metric-big tabular">43.92<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">No conciliado</div>
+                          </div>
+                        </div>
+                        <div class="progress">
+                          <div class="seg-green" style="width: 56.08%;"></div>
+                        </div>
+                        <div class="space-y-1.5 pt-2">
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-green"></span><span
+                                style="color: var(--text-secondary);">Conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">845,467,603.73</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-yellow"></span><span
+                                style="color: var(--text-secondary);">Compensado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0.00</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-red"></span><span
+                                style="color: var(--text-secondary);">No conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">662,052,521.08</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-grey"></span><span
+                                style="color: var(--text-secondary);">Ajustado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0.00</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- ========== LADO B ========== -->
+                    <div class="space-y-7">
+                      <div><span class="side-label">Lado B</span></div>
+
+                      <div class="space-y-3">
+                        <div class="text-[13px] font-semibold" style="color: var(--text-primary);">Registros</div>
+                        <div class="flex items-end gap-6">
+                          <div>
+                            <div class="metric-big tabular">41.48<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">Total conciliado</div>
+                          </div>
+                          <div>
+                            <div class="metric-big tabular">58.52<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">No conciliado</div>
+                          </div>
+                        </div>
+                        <div class="progress">
+                          <div class="seg-green" style="width: 41.48%;"></div>
+                        </div>
+                        <div class="space-y-1.5 pt-2">
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-green"></span><span
+                                style="color: var(--text-secondary);">Conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">30,362,879</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-yellow"></span><span
+                                style="color: var(--text-secondary);">Compensado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-red"></span><span
+                                style="color: var(--text-secondary);">No conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">42,835,234</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-grey"></span><span
+                                style="color: var(--text-secondary);">Ajustado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="space-y-3">
+                        <div class="text-[13px] font-semibold" style="color: var(--text-primary);">Valores</div>
+                        <div class="flex items-end gap-6">
+                          <div>
+                            <div class="metric-big tabular">25.87<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">Total conciliado</div>
+                          </div>
+                          <div>
+                            <div class="metric-big tabular">74.13<span class="metric-pct">%</span></div>
+                            <div class="metric-label mt-1">No conciliado</div>
+                          </div>
+                        </div>
+                        <div class="progress">
+                          <div class="seg-green" style="width: 25.87%;"></div>
+                        </div>
+                        <div class="space-y-1.5 pt-2">
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-green"></span><span
+                                style="color: var(--text-secondary);">Conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">1,344,165,363,224.00</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-yellow"></span><span
+                                style="color: var(--text-secondary);">Compensado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0.00</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-red"></span><span
+                                style="color: var(--text-secondary);">No conciliado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">3,850,870,966,792.00</span>
+                          </div>
+                          <div class="flex items-center justify-between text-[12px]">
+                            <div class="flex items-center gap-2"><span class="dot dot-grey"></span><span
+                                style="color: var(--text-secondary);">Ajustado</span></div>
+                            <span class="tabular" style="color: var(--text-primary);">0.00</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div><!-- /card -->
+              </div><!-- /widget-variant-block -->
+            </template>
+
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- MODAL DIALOG: Monitoreo Inteligente — Pendientes Avanzados          -->
+  <!-- ================================================================== -->
+  <div class="modal-overlay" x-show="dialogOpen" x-transition.opacity @keydown.escape.window="dialogOpen = false"
+    style="display: none;">
+    <div class="dialog-shell" @click.outside="dialogOpen = false">
+
+      <!-- Dialog topbar -->
+      <div class="dialog-topbar">
+        <div class="dialog-topbar-title-block">
+          <div class="dialog-ai-logo">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+            </svg>
+          </div>
+          <div>
+            <div class="dialog-title">Monitoreo inteligente</div>
+            <div class="dialog-subtitle">Pendientes Avanzados</div>
+          </div>
+        </div>
+
+        <div class="dialog-topbar-actions">
+          <button class="bottom-icon" title="Editar nombre"><i data-lucide="pencil"></i></button>
+          <button class="bottom-icon" title="Cerrar" @click="dialogOpen = false"><i data-lucide="x"></i></button>
+        </div>
+      </div>
+
+      <!-- Dialog body -->
+      <div class="dialog-body">
+
+        <!-- ===== LEFT PANEL ===== -->
+        <aside class="dialog-left">
+
+          <!-- Programación (estado coherente con widget activo) -->
+          <div class="nav-block" :class="{ active: selectedSection === 'programacion' }"
+            @click="selectedSection = 'programacion'; selectedSeries = null">
+            <div class="nav-block-icon" :class="widgetMeta.programacionConfigured ? 'check' : 'pending'">
+              <i x-show="widgetMeta.programacionConfigured" data-lucide="check"></i>
+              <i x-show="!widgetMeta.programacionConfigured" data-lucide="settings"></i>
+            </div>
+            <div class="nav-block-text">
+              <div class="nav-block-title">Programación</div>
+              <div class="nav-block-sub" x-text="widgetMeta.programacionSummary"></div>
+            </div>
+          </div>
+
+          <!-- Notificaciones -->
+          <div class="nav-block" :class="{ active: selectedSection === 'notificaciones' }"
+            @click="selectedSection = 'notificaciones'; selectedSeries = null">
+            <div class="nav-block-icon">
+              <i data-lucide="bell"></i>
+            </div>
+            <div class="nav-block-text">
+              <div class="nav-block-title">Notificaciones</div>
+              <div class="nav-block-sub" x-text="widgetMeta.notificationSummary"></div>
+            </div>
+          </div>
+
+          <div class="left-divider"></div>
+
+          <!-- Series y Valores -->
+          <div class="section-label">
+            <span>Series y valores</span>
+            <span class="progress-pill"
+              :class="widgetMeta.metricsConfiguredText.startsWith('0') ? 'empty' : (widgetMeta.metricsConfiguredText.startsWith('4') ? 'complete' : 'partial')"
+              x-text="widgetMeta.metricsConfiguredText"></span>
+          </div>
+          <div class="section-helper">Cada métrica permite configurar umbrales para Lado A y Lado B.</div>
+
+          <template x-for="(metric, key) in metricConfigs" :key="key">
+            <div class="series-item-v2" :class="{ active: selectedSeries === key }" @click="selectMetric(key)">
+              <div class="series-icon">
+                <span x-show="metric.icon === 'hash'" style="display:inline-flex"><i data-lucide="hash"></i></span>
+                <span x-show="metric.icon === 'coins'" style="display:inline-flex"><i data-lucide="coins"></i></span>
+                <span x-show="metric.icon === 'percent'" style="display:inline-flex"><i
+                    data-lucide="percent"></i></span>
+              </div>
+              <div class="series-body">
+                <div class="series-name" x-text="metric.title"></div>
+
+                <!-- Pill row: flowStep + tech -->
+                <div class="series-meta">
+                  <span class="pill-tech" x-text="techPillFor(key)"></span>
+                  <span x-show="flowSteps[key] === 'configure'" class="pill-soft pill-pending">
+                    Pendiente
+                  </span>
+                  <span x-show="flowSteps[key] === 'saving'" class="pill-soft pill-warming">
+                    <span class="pulse-dot"></span>
+                    Activando
+                  </span>
+                  <span x-show="flowSteps[key] === 'warming'" class="pill-soft pill-warming">
+                    <span class="pulse-dot"></span>
+                    Calentando
+                  </span>
+                  <span x-show="flowSteps[key] === 'progressing'" class="pill-soft pill-warming">
+                    <span class="pulse-dot"></span>
+                    Generando
+                  </span>
+                  <span x-show="flowSteps[key] === 'ready' && metricStateFor(key).incidents > 0" class="pill-soft pill-affected">
+                    Afectado · <span x-text="metricStateFor(key).incidents"></span>
+                  </span>
+                </div>
+
+                <!-- Stats row: min/max solo cuando flowStep === 'ready' -->
+                <div class="series-stats" x-show="flowSteps[key] === 'ready' && metricStateFor(key).learnedMin && metricStateFor(key).learnedMax">
+                  mín: <span x-text="metricStateFor(key).learnedMin"></span> · máx: <span
+                    x-text="metricStateFor(key).learnedMax"></span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <div class="left-divider"></div>
+
+          <!-- Análisis adicionales -->
+          <div class="section-label">
+            <span>Análisis adicionales</span>
+          </div>
+          <div class="section-helper">Activados automáticamente por Simetrik</div>
+
+          <div class="resource-item">
+            <div class="resource-icon"><i data-lucide="database"></i></div>
+            <div class="resource-body">
+              <div class="resource-name">Banco_Occidente_31_03_...</div>
+              <div class="resource-meta">ID: 79008 · WS 1755</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon"><i data-lucide="database"></i></div>
+            <div class="resource-body">
+              <div class="resource-name">Tesoreria_Interna_31_03_...</div>
+              <div class="resource-meta">ID: 79009 · WS 1755</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon"><i data-lucide="database"></i></div>
+            <div class="resource-body">
+              <div class="resource-name">PayU_Latam_31_03_2026</div>
+              <div class="resource-meta">ID: 79010 · WS 1756</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon"><i data-lucide="database"></i></div>
+            <div class="resource-body">
+              <div class="resource-name">ERP_SAP_31_03_2026</div>
+              <div class="resource-meta">ID: 79011 · WS 1756</div>
+            </div>
+          </div>
+          <div class="resource-item">
+            <div class="resource-icon"><i data-lucide="database"></i></div>
+            <div class="resource-body">
+              <div class="resource-name">Visa_Acquiring_31_03_2...</div>
+              <div class="resource-meta">ID: 79012 · WS 1800</div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ===== RIGHT PANEL ===== -->
+        <section class="dialog-right" x-show="selectedSection === 'programacion'">
+
+          <div class="right-header">
+            <div class="right-header-title">
+              <i data-lucide="sliders-horizontal"></i>
+              <span>Programación</span>
+            </div>
+            <button class="bottom-icon" title="Editar"><i data-lucide="pencil"></i></button>
+          </div>
+
+          <!-- Serie Tiempo (fijada por el chart) -->
+          <div class="form-card">
+            <div class="form-card-header">
+              <div class="form-card-header-left">
+                <i data-lucide="calendar"></i>
+                <span>Serie Tiempo</span>
+              </div>
+              <div class="form-card-header-help">Columna de fecha del análisis</div>
+            </div>
+
+            <div class="form-field">
+              <label class="form-label">Columna de fecha</label>
+              <div class="form-select is-disabled" title="Fijada por la configuración del gráfico Pendientes Avanzados">
+                <span>Skt Created At</span>
+                <i data-lucide="lock"></i>
+              </div>
+              <div class="form-helper">Fijada por la configuración del gráfico, no editable.</div>
+            </div>
+          </div>
+
+          <!-- ¿Cuándo revisar tus datos? -->
+          <div class="form-card">
+            <div class="form-card-header">
+              <div class="form-card-header-left">
+                <i data-lucide="clock"></i>
+                <span>¿Cuándo revisar tus datos?</span>
+              </div>
+            </div>
+
+            <div class="form-field" style="margin-bottom: 14px;">
+              <label class="form-label">Frecuencia de monitoreo</label>
+              <div class="segmented-lg">
+                <div class="seg active">Diario</div>
+                <div class="seg">Días hábiles (L-V)</div>
+                <div class="seg">Semanal</div>
+              </div>
+            </div>
+
+            <div class="form-row cols-3">
+              <div class="form-field">
+                <label class="form-label">Hora inicio</label>
+                <div class="form-input">
+                  <input type="text" placeholder="08:00 a.m." value="08:00 a.m." />
+                </div>
+              </div>
+              <div class="form-field">
+                <label class="form-label">Hora fin</label>
+                <div class="form-input">
+                  <input type="text" placeholder="08:00 p.m." value="08:00 p.m." />
+                </div>
+              </div>
+              <div class="form-field">
+                <label class="form-label">Zona horaria</label>
+                <div class="form-select">
+                  <span>America/Bogota (GMT-5)</span>
+                  <i data-lucide="chevron-down"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ===== RIGHT PANEL: METRIC VIEW (when metric selected) ===== -->
+        <section class="dialog-right" x-show="selectedSection === 'series' && selectedSeries">
+
+          <!-- ===== DETAIL HEADER (always) ===== -->
+          <div class="detail-header">
+            <span class="detail-header-icon">
+              <span x-show="currentMetric.icon === 'hash'" style="display:inline-flex; align-items:center;"><i
+                  data-lucide="hash"></i></span>
+              <span x-show="currentMetric.icon === 'coins'" style="display:inline-flex; align-items:center;"><i
+                  data-lucide="coins"></i></span>
+              <span x-show="currentMetric.icon === 'percent'" style="display:inline-flex; align-items:center;"><i
+                  data-lucide="percent"></i></span>
+            </span>
+            <div class="detail-header-main">
+              <div class="detail-header-name">
+                <span x-text="currentMetric.title"></span>
+                <span class="pill-tech" x-text="techPillFor(selectedSeries)"></span>
+              </div>
+              <div class="detail-header-chips">
+                <span class="chip-meta">fiserv_all_transactions</span>
+                <span class="chip-meta">SKT_CREATED_AT</span>
+                <span class="pill-analysis-active" x-show="currentFlowStep === 'warming' || currentFlowStep === 'progressing' || currentFlowStep === 'ready'">
+                  <i data-lucide="check-circle-2"></i>
+                  Análisis activo
+                </span>
+                <a class="link-incidents" x-show="currentFlowStep === 'ready' && currentMetricState.incidents > 0" href="#" @click.prevent>
+                  <i data-lucide="external-link"></i>
+                  Ver incidentes (<span x-text="currentMetricState.incidents"></span>)
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== TRANSITION LOADER: saving (configure → warming) ===== -->
+          <div x-show="currentFlowStep === 'saving'" x-transition.opacity>
+            <div class="flow-transition-loader">
+              <span class="ai-mark-sm flow-transition-mark">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                </svg>
+              </span>
+              <div class="flow-transition-text">
+                <div class="flow-transition-title">Activando monitoreo</div>
+                <div class="flow-transition-sub">Estamos registrando tu configuración en el agente
+                  <span class="typing-dots"><span></span><span></span><span></span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== TRANSITION LOADER: progressing (warming → ready) ===== -->
+          <div x-show="currentFlowStep === 'progressing'" x-transition.opacity>
+            <div class="flow-transition-loader">
+              <span class="ai-mark-sm flow-transition-mark">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                </svg>
+              </span>
+              <div class="flow-transition-text">
+                <div class="flow-transition-title">Análisis listo</div>
+                <div class="flow-transition-sub">Preparando los resultados
+                  <span class="typing-dots"><span></span><span></span><span></span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== VIEW: WARMING UP ===== -->
+          <div x-show="currentFlowStep === 'warming'">
+            <div class="preparing-block">
+              <div class="preparing-title">
+                <span class="ai-mark-sm">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                  </svg>
+                </span>
+                Preparando tu análisis
+              </div>
+              <p class="preparing-desc">
+                Estamos aprendiendo cómo se comporta esta métrica para detectar anomalías automáticamente. Esto puede
+                tardar varios minutos.
+              </p>
+            </div>
+
+            <div class="accordion-block">
+              <div class="accordion-header">
+                <i data-lucide="loader-circle" class="spin-icon"></i>
+                <div class="accordion-header-text">
+                  <div class="accordion-title">En proceso</div>
+                </div>
+                <i data-lucide="chevron-up" class="accordion-chevron"></i>
+              </div>
+              <div class="accordion-content">
+                <template x-for="step in (currentMetricState.setupSteps || [])" :key="step.id">
+                  <div class="setup-step" :class="step.status">
+                    <span class="setup-step-icon">
+                      <span x-show="step.status === 'complete'" style="display:inline-flex"><i
+                          data-lucide="check-circle"></i></span>
+                      <span x-show="step.status === 'in_progress'" style="display:inline-flex"><i
+                          data-lucide="loader-circle"></i></span>
+                      <span x-show="step.status === 'error'" style="display:inline-flex"><i
+                          data-lucide="x-circle"></i></span>
+                      <span x-show="step.status === 'pending'" style="display:inline-flex"><i
+                          data-lucide="circle"></i></span>
+                    </span>
+                    <span x-text="step.label"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <div class="accordion-block">
+              <div class="limits-detected-row">
+                <i data-lucide="gauge"></i>
+                <div class="limits-detected-text">
+                  <div class="limits-detected-title">Límites detectados</div>
+                  <div class="limits-detected-sub">Rangos esperados según el comportamiento histórico</div>
+                </div>
+              </div>
+            </div>
+
+            <p class="footer-hint">Este proceso es automático, puedes cerrar el diálogo y volver cuando quieras.</p>
+            <p class="footer-helper">Opcionales. Cada serie puede tener sus propios límites o funcionar en modo
+              adaptativo puro.</p>
+          </div>
+
+          <!-- ===== VIEW: READY ===== -->
+          <div x-show="currentFlowStep === 'ready'">
+            <div class="quality-row">
+              <i data-lucide="signal"></i>
+              <span class="quality-row-label">Calidad</span>
+              <span class="quality-pill" :class="`grade-${qualityVariant(currentMetricState.quality)}`">
+                <span class="grade-icon"></span>
+                <span x-text="qualityLabel(currentMetricState.quality)"></span>
+              </span>
+            </div>
+
+            <div class="ai-section-header">
+              <span class="ai-mark-sm">
+                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                </svg>
+              </span>
+              <div>
+                <div class="ai-section-title">Análisis inteligente</div>
+                <div class="ai-section-sub">Conoce cómo se comporta tu métrica y el modelo que detecta sus anomalías
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-block">
+              <div class="accordion-header">
+                <i data-lucide="sparkles"></i>
+                <div class="accordion-header-text">
+                  <div class="accordion-title">Resumen</div>
+                  <div class="accordion-subtitle">Cómo se aprendió a monitorear esta métrica</div>
+                </div>
+                <i data-lucide="chevron-up" class="accordion-chevron"></i>
+              </div>
+              <div class="accordion-content">
+                <div class="narrative-meta">
+                  <span class="narrative-meta-label">
+                    <i data-lucide="gauge"></i>
+                    Muestras
+                  </span>
+                  <span class="narrative-meta-value" x-text="currentMetricState.samplesCount"></span>
+                </div>
+                <div class="narrative-text" x-html="currentMetricState.aiSummary"></div>
+              </div>
+            </div>
+
+            <div class="accordion-block">
+              <div class="accordion-header">
+                <i data-lucide="gauge"></i>
+                <div class="accordion-header-text">
+                  <div class="accordion-title">Límites detectados</div>
+                  <div class="accordion-subtitle">Rangos esperados según el comportamiento histórico</div>
+                </div>
+                <i data-lucide="chevron-up" class="accordion-chevron"></i>
+              </div>
+              <div class="accordion-content">
+                <div class="detected-metric">
+                  <span class="detected-metric-label">Máx. aprendido (p95)</span>
+                  <span class="detected-metric-value" x-text="currentMetricState.learnedMax"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Acordeón: Tendencia -->
+            <div class="accordion-block">
+              <div class="accordion-header">
+                <i data-lucide="trending-up"></i>
+                <div class="accordion-header-text">
+                  <div class="accordion-title">Tendencia</div>
+                  <div class="accordion-subtitle">Cómo evoluciona la métrica en el tiempo</div>
+                </div>
+                <i data-lucide="chevron-up" class="accordion-chevron"></i>
+              </div>
+              <div class="accordion-content">
+                <div class="trend-block">
+                  <div class="trend-block-title">Tendencia</div>
+                  <p class="trend-block-text" x-html="currentMetricState.tendencia?.direction"></p>
+                </div>
+                <div class="trend-block">
+                  <div class="trend-block-title">Valores atípicos</div>
+                  <p class="trend-block-text" x-html="currentMetricState.tendencia?.outliers"></p>
+                </div>
+                <div class="trend-block">
+                  <div class="trend-block-title">Brechas de datos</div>
+                  <p class="trend-block-text" x-html="currentMetricState.tendencia?.gaps"></p>
+                </div>
+                <div class="trend-footer-note" x-text="currentMetricState.tendencia?.footer || ''"></div>
+              </div>
+            </div>
+
+            <!-- Acordeón: Perfil estadístico -->
+            <div class="accordion-block">
+              <div class="accordion-header">
+                <i data-lucide="bar-chart-3"></i>
+                <div class="accordion-header-text">
+                  <div class="accordion-title">Perfil estadístico</div>
+                  <div class="accordion-subtitle">Métricas técnicas del modelo</div>
+                </div>
+                <i data-lucide="chevron-up" class="accordion-chevron"></i>
+              </div>
+              <div class="accordion-content">
+                <div class="stats-grid">
+                  <div class="stats-cell">
+                    <div class="stats-cell-label">Media</div>
+                    <div class="stats-cell-value" x-text="currentMetricState.perfilEstadistico?.media ?? '0.00'"></div>
+                  </div>
+                  <div class="stats-cell">
+                    <div class="stats-cell-label">Desv. estándar</div>
+                    <div class="stats-cell-value" x-text="currentMetricState.perfilEstadistico?.desvEstandar ?? '0.00'"></div>
+                  </div>
+                  <div class="stats-cell">
+                    <div class="stats-cell-label">Umbral z</div>
+                    <div class="stats-cell-value" x-text="currentMetricState.perfilEstadistico?.umbralZ ?? '2.00'"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ===== EDIT MODE + PENDING (shared rich threshold UI) ===== -->
+          <div x-show="currentFlowStep === 'configure'">
+
+            <!-- Single unified Umbrales card -->
+            <div class="form-card">
+              <div class="form-card-header">
+                <div class="form-card-header-left">
+                  <i data-lucide="sliders-horizontal"></i>
+                  <span>Umbrales del pendiente por lado</span>
+                </div>
+                <div class="form-card-header-help">Unidad: <span x-text="currentMetric.unit"></span></div>
+              </div>
+              <p class="card-framing-hint">
+                Estás configurando los umbrales <strong>del valor pendiente</strong>, no del conciliado. El agente alertará cuando los pendientes superen el máximo aceptable.
+              </p>
+
+              <!-- Threshold grid v2: stacked blocks per Lado with tight rhythm -->
+              <div class="threshold-grid-v2">
+
+                <!-- ========== Lado A ========== -->
+                <div class="lado-block">
+                  <div class="lado-header lado-header-v4">
+                    <i data-lucide="database" class="lado-resource-icon"></i>
+                    <span class="lado-resource-name" x-text="chartMeta.ladoA.resource"></span>
+                    <span class="side-badge">Lado A</span>
+                  </div>
+
+                  <div class="lado-instrument" x-data="{ spark: null }"
+                    x-effect="spark = sparklineData(selectedSeries, 'a')">
+                    <div class="threshold-col-headers">
+                      <div class="threshold-col-label">
+                        Mínimo de pendiente
+                        <span class="opt-pill">opcional</span>
+                      </div>
+                      <div class="threshold-col-label">
+                        Máximo de pendiente
+                        <span class="req-pill">requerido</span>
+                      </div>
+                    </div>
+                    <div class="lado-inputs">
+                      <template x-if="currentState === 'loading'">
+                        <div class="form-input-skeleton"></div>
+                      </template>
+                      <template x-if="currentState !== 'loading'">
+                        <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.aMin }">
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMin"
+                            :value="values[selectedSeries]?.aMin"
+                            @input="values[selectedSeries].aMin = $event.target.value; markEdited(selectedSeries, 'aMin')"
+                            class="value-fade-in" />
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.aMin"
+                            title="Sugerido por el agente">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                            </svg>
+                          </span>
+                        </div>
+                      </template>
+
+                      <template x-if="currentState === 'loading'">
+                        <div class="form-input-skeleton"></div>
+                      </template>
+                      <template x-if="currentState !== 'loading'">
+                        <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.aMax }">
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMax"
+                            :value="values[selectedSeries]?.aMax"
+                            @input="values[selectedSeries].aMax = $event.target.value; markEdited(selectedSeries, 'aMax')"
+                            class="value-fade-in" />
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.aMax"
+                            title="Sugerido por el agente">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                            </svg>
+                          </span>
+                        </div>
+                      </template>
+                    </div>
+
+                    <div class="lado-spark" x-show="currentState !== 'loading'">
+                      <svg class="sparkline" :viewBox="`0 0 ${spark?.width || 580} ${spark?.height || 64}`"
+                        preserveAspectRatio="none">
+                        <rect class="band-rect" x="0" width="100%" :y="spark?.bandY1 || 0"
+                          :height="Math.max(0, (spark?.bandY2 || 0) - (spark?.bandY1 || 0))"></rect>
+                        <line class="band-line" x1="0" :y1="spark?.bandY1 || 0" x2="100%" :y2="spark?.bandY1 || 0"
+                          x-show="spark?.hasMax"></line>
+                        <line class="band-line" x1="0" :y1="spark?.bandY2 || 0" x2="100%" :y2="spark?.bandY2 || 0"
+                          x-show="spark?.hasMin"></line>
+                        <path class="data-path" :d="spark?.path || ''"></path>
+                        <template x-for="(p, i) in spark?.alerts || []" :key="`a-${i}-${p.x}`">
+                          <g>
+                            <circle class="alert-dot-bg" :cx="p.x" :cy="p.y" r="3.5"></circle>
+                            <circle class="alert-dot-fg" :cx="p.x" :cy="p.y" r="2.2"></circle>
+                          </g>
+                        </template>
+                      </svg>
+                      <div class="spark-meta">
+                        <span class="alert-count-pill"
+                          :class="!spark?.hasMin && !spark?.hasMax ? 'no-threshold' : (spark?.alertCount > 0 ? 'has-alerts' : 'no-alerts')">
+                          <span class="marker"></span>
+                          <span x-show="!spark?.hasMin && !spark?.hasMax">Define un umbral para ver el conteo de
+                            alertas</span>
+                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount === 0">Sin alertas con
+                            estos umbrales en los últimos 30 días</span>
+                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount > 0">
+                            <span x-text="spark?.alertCount"></span>
+                            <span
+                              x-text="spark?.alertCount === 1 ? 'alerta se habría disparado' : 'alertas se habrían disparado'"></span>
+                            en los últimos 30 días
+                          </span>
+                        </span>
+                        <span class="spark-axis-label">
+                          <span>hace 30 días</span>
+                          <span class="sep">|</span>
+                          <span>hoy</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ========== Lado B ========== -->
+                <div class="lado-block lado-block-divided">
+                  <div class="lado-header lado-header-v4">
+                    <i data-lucide="database" class="lado-resource-icon"></i>
+                    <span class="lado-resource-name" x-text="chartMeta.ladoB.resource"></span>
+                    <span class="side-badge">Lado B</span>
+                  </div>
+
+                  <div class="lado-instrument" x-data="{ spark: null }"
+                    x-effect="spark = sparklineData(selectedSeries, 'b')">
+                    <div class="threshold-col-headers">
+                      <div class="threshold-col-label">
+                        Mínimo de pendiente
+                        <span class="opt-pill">opcional</span>
+                      </div>
+                      <div class="threshold-col-label">
+                        Máximo de pendiente
+                        <span class="req-pill">requerido</span>
+                      </div>
+                    </div>
+                    <div class="lado-inputs">
+                      <template x-if="currentState === 'loading'">
+                        <div class="form-input-skeleton" style="animation-delay: 150ms;"></div>
+                      </template>
+                      <template x-if="currentState !== 'loading'">
+                        <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.bMin }">
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMin"
+                            :value="values[selectedSeries]?.bMin"
+                            @input="values[selectedSeries].bMin = $event.target.value; markEdited(selectedSeries, 'bMin')"
+                            class="value-fade-in" style="animation-delay: 120ms;" />
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.bMin"
+                            title="Sugerido por el agente">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                            </svg>
+                          </span>
+                        </div>
+                      </template>
+
+                      <template x-if="currentState === 'loading'">
+                        <div class="form-input-skeleton" style="animation-delay: 150ms;"></div>
+                      </template>
+                      <template x-if="currentState !== 'loading'">
+                        <div class="form-input" :class="{ 'ai-filled': fromAi[selectedSeries]?.bMax }">
+                          <span class="input-prefix" x-show="inputPrefix" x-text="inputPrefix || ''"></span><input type="text" :placeholder="currentMetric.placeholderMax"
+                            :value="values[selectedSeries]?.bMax"
+                            @input="values[selectedSeries].bMax = $event.target.value; markEdited(selectedSeries, 'bMax')"
+                            class="value-fade-in" style="animation-delay: 200ms;" />
+                          <span class="input-suffix" x-show="inputSuffix" x-text="inputSuffix || ''"></span><span class="ai-inline-mark" x-show="fromAi[selectedSeries]?.bMax"
+                            title="Sugerido por el agente">
+                            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                            </svg>
+                          </span>
+                        </div>
+                      </template>
+                    </div>
+
+                    <div class="lado-spark" x-show="currentState !== 'loading'">
+                      <svg class="sparkline" :viewBox="`0 0 ${spark?.width || 580} ${spark?.height || 64}`"
+                        preserveAspectRatio="none">
+                        <rect class="band-rect" x="0" width="100%" :y="spark?.bandY1 || 0"
+                          :height="Math.max(0, (spark?.bandY2 || 0) - (spark?.bandY1 || 0))"></rect>
+                        <line class="band-line" x1="0" :y1="spark?.bandY1 || 0" x2="100%" :y2="spark?.bandY1 || 0"
+                          x-show="spark?.hasMax"></line>
+                        <line class="band-line" x1="0" :y1="spark?.bandY2 || 0" x2="100%" :y2="spark?.bandY2 || 0"
+                          x-show="spark?.hasMin"></line>
+                        <path class="data-path" :d="spark?.path || ''"></path>
+                        <template x-for="(p, i) in spark?.alerts || []" :key="`b-${i}-${p.x}`">
+                          <g>
+                            <circle class="alert-dot-bg" :cx="p.x" :cy="p.y" r="3.5"></circle>
+                            <circle class="alert-dot-fg" :cx="p.x" :cy="p.y" r="2.2"></circle>
+                          </g>
+                        </template>
+                      </svg>
+                      <div class="spark-meta">
+                        <span class="alert-count-pill"
+                          :class="!spark?.hasMin && !spark?.hasMax ? 'no-threshold' : (spark?.alertCount > 0 ? 'has-alerts' : 'no-alerts')">
+                          <span class="marker"></span>
+                          <span x-show="!spark?.hasMin && !spark?.hasMax">Define un umbral para ver el conteo de
+                            alertas</span>
+                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount === 0">Sin alertas con
+                            estos umbrales en los últimos 30 días</span>
+                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount > 0">
+                            <span x-text="spark?.alertCount"></span>
+                            <span
+                              x-text="spark?.alertCount === 1 ? 'alerta se habría disparado' : 'alertas se habrían disparado'"></span>
+                            en los últimos 30 días
+                          </span>
+                        </span>
+                        <span class="spark-axis-label">
+                          <span>hace 30 días</span>
+                          <span class="sep">|</span>
+                          <span>hoy</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /editMode wrapper -->
+        </section>
+
+        <!-- ===== RIGHT PANEL: NOTIFICACIONES ===== -->
+        <section class="dialog-right" x-show="selectedSection === 'notificaciones'">
+          <div class="right-header">
+            <div class="right-header-title">
+              <i data-lucide="bell"></i>
+              <span>Notificaciones</span>
+            </div>
+          </div>
+
+          <div class="agent-status-header">Cómo te avisamos</div>
+
+          <div class="form-card">
+            <div class="form-card-header">
+              <div class="form-card-header-left">
+                <i data-lucide="mail"></i>
+                <span>Email</span>
+              </div>
+            </div>
+            <div class="form-helper">Activa para recibir un correo cuando se detecte una anomalía.</div>
+          </div>
+
+          <div class="form-card">
+            <div class="form-card-header">
+              <div class="form-card-header-left">
+                <i data-lucide="message-square"></i>
+                <span>In-app</span>
+              </div>
+            </div>
+            <div class="form-helper">Recibe notificaciones dentro del Centro de Operaciones.</div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Dialog footer -->
+      <div class="dialog-footer">
+        <button class="footer-pause-btn" x-show="selectedSeries && globalFlowStep === 'ready'">
+          <i data-lucide="pause-circle"></i>
+          <span>Pausar monitoreo</span>
+        </button>
+        <span x-show="!selectedSeries || globalFlowStep !== 'ready'"></span>
+        <div class="flex items-center gap-2">
+          <button class="btn-secondary" @click="dialogOpen = false">
+            <span x-text="(selectedSeries && globalFlowStep === 'ready') ? 'Cerrar' : 'Cancelar'"></span>
+          </button>
+          <!-- Configure step: Guardar configuración — activa TODAS las métricas configuradas al mismo tiempo -->
+          <button class="btn-primary"
+            x-show="selectedSeries && globalFlowStep === 'configure'"
+            :disabled="!hasPendingActivation"
+            :style="!hasPendingActivation ? 'opacity: 0.55; cursor: not-allowed;' : ''"
+            @click="hasPendingActivation && saveAllConfigured()">
+            <i data-lucide="check"></i>
+            <span x-text="hasPendingActivation ? ('Guardar configuración (' + pendingActivation.length + ' ' + (pendingActivation.length === 1 ? 'métrica' : 'métricas') + ')') : 'Guardar configuración'"></span>
+          </button>
+          <!-- Saving / Warming / Progressing: disabled spinner reflejando el estado global -->
+          <button class="btn-primary"
+            x-show="selectedSeries && (globalFlowStep === 'saving' || globalFlowStep === 'warming' || globalFlowStep === 'progressing')"
+            disabled
+            style="opacity: 0.7; cursor: not-allowed;">
+            <i data-lucide="loader-circle" class="spin-icon"></i>
+            <span x-text="globalFlowStep === 'saving' ? 'Activando' : globalFlowStep === 'warming' ? 'Aprendiendo' : 'Generando análisis'"></span>
+          </button>
+          <!-- Ready: Hecho -->
+          <button class="btn-primary"
+            x-show="selectedSeries && globalFlowStep === 'ready'"
+            @click="dialogOpen = false">
+            <i data-lucide="check"></i>
+            <span>Hecho</span>
+          </button>
+          <!-- No series selected (e.g. Programación): generic save -->
+          <button class="btn-primary"
+            x-show="!selectedSeries"
+            @click="dialogOpen = false">
+            <i data-lucide="check"></i>
+            <span>Guardar</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Re-render lucide icons each time Alpine renders new DOM (modal open)
+    document.addEventListener('alpine:initialized', () => lucide.createIcons());
+    // Initial render
+    window.addEventListener('load', () => lucide.createIcons());
+    // After any state change, re-create icons inside opened modal
+    document.addEventListener('click', () => setTimeout(() => lucide.createIcons(), 50));
+  </script>
+</body>
+
+</html>
