@@ -4029,6 +4029,7 @@
       icon: 'hash',
       description: 'El agente alertará cuando el número de transacciones pendientes supere el máximo aceptable en cualquiera de los lados.',
       unit: 'transacciones',
+      framingLabel: 'del número de transacciones pendientes',
       placeholderMin: 'ej. 1.000',
       placeholderMax: 'ej. 50.000',
       helperMin: 'Si las pendientes caen por debajo (poco común), se notifica.',
@@ -4044,6 +4045,7 @@
       icon: 'coins',
       description: 'El agente alertará cuando el monto pendiente supere el máximo aceptable en cualquiera de los lados.',
       unit: 'moneda local',
+      framingLabel: 'del monto pendiente',
       placeholderMin: 'ej. 1.000.000',
       placeholderMax: 'ej. 100.000.000',
       helperMin: 'Si el monto pendiente cae por debajo, se notifica.',
@@ -4059,6 +4061,7 @@
       icon: 'percent',
       description: 'El agente alertará cuando el porcentaje de transacciones pendientes supere el máximo aceptable en cualquiera de los lados.',
       unit: '%',
+      framingLabel: 'del porcentaje de transacciones pendientes',
       placeholderMin: 'ej. 0',
       placeholderMax: 'ej. 5',
       helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
@@ -4074,6 +4077,7 @@
       icon: 'percent',
       description: 'El agente alertará cuando el porcentaje del monto pendiente supere el máximo aceptable en cualquiera de los lados. Ejemplo: alertar cuando los pendientes superen el 5% del monto total.',
       unit: '%',
+      framingLabel: 'del porcentaje del monto pendiente',
       placeholderMin: 'ej. 0',
       placeholderMax: 'ej. 5',
       helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
@@ -5398,7 +5402,7 @@
                 <div class="form-card-header-help">Unidad: <span x-text="currentMetric.unit"></span></div>
               </div>
               <p class="card-framing-hint">
-                Estás configurando los umbrales <strong>del valor pendiente</strong>, no del conciliado. El agente alertará cuando los pendientes superen el máximo aceptable.
+                Estás configurando los umbrales <strong x-text="currentMetric.framingLabel || 'del valor pendiente'"></strong>, no del conciliado. El agente alertará cuando los pendientes superen el máximo aceptable.
               </p>
 
               <!-- Threshold grid v2: stacked blocks per Lado with tight rhythm -->
