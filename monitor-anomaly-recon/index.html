@@ -5601,7 +5601,7 @@
                     :disabled="wizardIsLast && !hasPendingActivation"
                     :style="(wizardIsLast && !hasPendingActivation) ? 'opacity: 0.55; cursor: not-allowed;' : ''"
                     @click="wizardNext()">
-              <span x-text="wizardIsLast ? (hasPendingActivation ? ('Guardar (' + pendingActivation.length + ' ' + (pendingActivation.length === 1 ? 'métrica' : 'métricas') + ')') : 'Guardar') : 'Siguiente'"></span>
+              <span x-text="wizardIsLast ? 'Guardar' : 'Siguiente'"></span>
               <span x-show="!wizardIsLast" style="display:inline-flex;"><i data-lucide="arrow-right"></i></span>
               <span x-show="wizardIsLast" style="display:inline-flex;"><i data-lucide="check"></i></span>
             </button>
