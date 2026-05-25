@@ -3672,6 +3672,20 @@
     .analysis-side-dot-b {
       background: #0EA5E9;
     }
+    .analysis-side-dot-pair {
+      display: inline-flex; align-items: center;
+      flex-shrink: 0;
+      width: 14px; height: 8px;
+      position: relative;
+    }
+    .analysis-side-dot-pair .analysis-side-dot {
+      position: absolute; top: 0;
+      width: 8px; height: 8px;
+      border: 1.5px solid white;
+      box-sizing: content-box;
+    }
+    .analysis-side-dot-pair .analysis-side-dot-a { left: -1.5px; z-index: 2; }
+    .analysis-side-dot-pair .analysis-side-dot-b { left: 5px; z-index: 1; }
 
     .analysis-side-name {
       overflow: hidden;
@@ -4218,7 +4232,7 @@
   analysisStates:{ count: 'idle', amount: 'idle', pct_count: 'idle', pct_amount: 'idle' },
   analysisSteps: { count: [], amount: [], pct_count: [], pct_amount: [] },
   analysisDetailOpen: { count: false, amount: false, pct_count: false, pct_amount: false },
-  analysisSide: { count: 'a', amount: 'a', pct_count: 'a', pct_amount: 'a' },
+  analysisSide: { count: 'both', amount: 'both', pct_count: 'both', pct_amount: 'both' },
   values: {
     count:      { aMin: '', aMax: '', bMin: '', bMax: '' },
     amount:     { aMin: '', aMax: '', bMin: '', bMax: '' },
@@ -4394,7 +4408,20 @@
     if (!cfg || !cfg.series30d) {
       return { mean:'—', lower:'—', upper:'—', cv:'0.0', days:0, dateRange:'', recordCount:'', summary:'', detail:{}, series:[] };
     }
-    const series = (cfg.series30d[side] || []).slice();
+    const a = cfg.series30d.a || [];
+    const b = cfg.series30d.b || [];
+    let series;
+    if (side === 'both') {
+      const n = Math.max(a.length, b.length);
+      series = [];
+      for (let i = 0; i < n; i++) {
+        const va = a[i] || 0;
+        const vb = b[i] || 0;
+        series.push(cfg.unit === '%' ? (va + vb) / 2 : (va + vb));
+      }
+    } else {
+      series = (cfg.series30d[side] || []).slice();
+    }
     if (series.length === 0) {
       return { mean:'—', lower:'—', upper:'—', cv:'0.0', days:0, dateRange:'', recordCount:'', summary:'', detail:{}, series:[] };
     }
@@ -4406,8 +4433,13 @@
     const upper = mean + std * 1.5;
     const fmt = (x) => this.formatAggregateValue(x, cfg.unit);
     const meanLabel = fmt(mean) + (cfg.unit === '%' ? '' : '/día');
-    const sideLabel = side === 'a' ? 'Lado A' : 'Lado B';
-    const resourceName = side === 'a' ? this.chartMeta.ladoA.resource : this.chartMeta.ladoB.resource;
+    const sideLabel = side === 'a' ? 'Lado A' : side === 'b' ? 'Lado B' : 'Ambos lados';
+    const resourceName = side === 'a' ? this.chartMeta.ladoA.resource
+                       : side === 'b' ? this.chartMeta.ladoB.resource
+                       : `${this.chartMeta.ladoA.resource} + ${this.chartMeta.ladoB.resource}`;
+    const scopePhrase = side === 'both'
+      ? 'del consolidado de Lado A y Lado B'
+      : `del ${sideLabel}`;
     return {
       mean: fmt(mean),
       lower: fmt(lower),
@@ -4418,12 +4450,12 @@
       recordCount: `${series.length} registros`,
       sideLabel,
       resourceName,
-      summary: `<strong>Línea base estable y limpia</strong> · <strong>${series.length} días</strong> de observaciones de baja dispersión (CV <strong>${cv.toFixed(1)}%</strong>), sin brechas, sin valores atípicos. <em>Una línea base simple para anclar el monitoreo del ${sideLabel}.</em>`,
+      summary: `<strong>Línea base estable y limpia</strong> · <strong>${series.length} días</strong> de observaciones de baja dispersión (CV <strong>${cv.toFixed(1)}%</strong>), sin brechas, sin valores atípicos. <em>Una línea base simple para anclar el monitoreo ${scopePhrase}.</em>`,
       detail: {
-        trend: `El valor del <strong>${sideLabel}</strong> se ha mantenido <em>estable</em> en torno a <strong>${meanLabel}</strong> durante los últimos <strong>${series.length} días</strong> con un margen estrecho de <strong>±${cv.toFixed(1)}%</strong>. Este es un punto de referencia limpio para anclar el monitoreo.`,
+        trend: `El valor ${scopePhrase} se ha mantenido <em>estable</em> en torno a <strong>${meanLabel}</strong> durante los últimos <strong>${series.length} días</strong> con un margen estrecho de <strong>±${cv.toFixed(1)}%</strong>. Este es un punto de referencia limpio para anclar el monitoreo.`,
         seasonality: `No se detecta un patrón <strong>semanal</strong> ni <strong>mensual</strong> claro en la ventana: los valores fluctúan sin un ritmo recurrente de días de la semana o calendario. <em>Una línea base simple para anclarse.</em>`,
-        outliers: `<strong>No hay valores atípicos</strong> en la ventana del <strong>${sideLabel}</strong>: todas las observaciones se encuentran dentro del rango operativo alrededor de <strong>~${meanLabel}</strong>. Los umbrales reflejarán una distribución limpia.`,
-        gaps: `<strong>No hay días faltantes</strong> en la ventana de la línea base del <strong>${sideLabel}</strong>: la cadencia de recopilación es limpia.`
+        outliers: `<strong>No hay valores atípicos</strong> en la ventana ${scopePhrase}: todas las observaciones se encuentran dentro del rango operativo alrededor de <strong>~${meanLabel}</strong>. Los umbrales reflejarán una distribución limpia.`,
+        gaps: `<strong>No hay días faltantes</strong> en la ventana de la línea base ${scopePhrase}: la cadencia de recopilación es limpia.`
       },
       series,
       meanRaw: mean,
@@ -5573,6 +5605,15 @@
               <!-- READY: stats card + detail expandible -->
               <div class="analysis-stats-card" x-show="analysisStates[selectedSeries] === 'ready'" x-transition.opacity>
                 <div class="analysis-side-switch" role="tablist">
+                  <button type="button" role="tab" class="analysis-side-tab analysis-side-tab-both"
+                    :class="{ 'is-active': analysisSide[selectedSeries] === 'both' }"
+                    :aria-selected="analysisSide[selectedSeries] === 'both'" @click="analysisSide[selectedSeries] = 'both'">
+                    <span class="analysis-side-dot-pair">
+                      <span class="analysis-side-dot analysis-side-dot-a"></span>
+                      <span class="analysis-side-dot analysis-side-dot-b"></span>
+                    </span>
+                    <span class="analysis-side-name">Ambos lados</span>
+                  </button>
                   <button type="button" role="tab" class="analysis-side-tab"
                     :class="{ 'is-active': analysisSide[selectedSeries] === 'a' }"
                     :aria-selected="analysisSide[selectedSeries] === 'a'" @click="analysisSide[selectedSeries] = 'a'">
@@ -5633,9 +5674,8 @@
 
                 <div class="analysis-footnote">
                   <i data-lucide="info"></i>
-                  <span>Este análisis refleja el comportamiento del <strong
-                      x-text="analysisDataFor(selectedSeries).sideLabel"></strong> · <span
-                      x-text="analysisDataFor(selectedSeries).resourceName"></span>.</span>
+                  <span x-show="analysisSide[selectedSeries] === 'both'">Este análisis consolida el comportamiento de <strong>ambos lados</strong> · <span x-text="analysisDataFor(selectedSeries).resourceName"></span>.</span>
+                  <span x-show="analysisSide[selectedSeries] !== 'both'">Este análisis refleja el comportamiento del <strong x-text="analysisDataFor(selectedSeries).sideLabel"></strong> · <span x-text="analysisDataFor(selectedSeries).resourceName"></span>.</span>
                 </div>
               </div>
 
