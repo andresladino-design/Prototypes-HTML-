@@ -4310,6 +4310,7 @@
       description: 'El agente alertará cuando el número de registros no conciliados supere el máximo aceptable en cualquiera de los lados.',
       unit: 'registros',
       framingLabel: 'del número de registros no conciliados',
+      thresholdTitle: 'Umbrales de registros no conciliados',
       placeholderMin: 'ej. 1.000',
       placeholderMax: 'ej. 50.000',
       helperMin: 'Si las pendientes caen por debajo (poco común), se notifica.',
@@ -4326,6 +4327,7 @@
       description: 'El agente alertará cuando el valor no conciliado supere el máximo aceptable en cualquiera de los lados.',
       unit: 'moneda local',
       framingLabel: 'del valor no conciliado',
+      thresholdTitle: 'Umbrales de valor no conciliado',
       placeholderMin: 'ej. 1.000.000',
       placeholderMax: 'ej. 100.000.000',
       helperMin: 'Si el monto pendiente cae por debajo, se notifica.',
@@ -4342,6 +4344,7 @@
       description: 'El agente alertará cuando el porcentaje de registros no conciliados supere el máximo aceptable en cualquiera de los lados.',
       unit: '%',
       framingLabel: 'del porcentaje de registros no conciliados',
+      thresholdTitle: 'Umbrales de % de registros no conciliados',
       placeholderMin: 'ej. 0',
       placeholderMax: 'ej. 5',
       helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
@@ -4358,6 +4361,7 @@
       description: 'El agente alertará cuando el porcentaje de valor no conciliado supere el máximo aceptable en cualquiera de los lados. Ejemplo: alertar cuando el no conciliado supere el 5% del valor total.',
       unit: '%',
       framingLabel: 'del porcentaje de valor no conciliado',
+      thresholdTitle: 'Umbrales de % de valor no conciliado',
       placeholderMin: 'ej. 0',
       placeholderMax: 'ej. 5',
       helperMin: 'Si el % pendiente cae por debajo (poco común), se notifica.',
@@ -5709,15 +5713,10 @@
               <div class="form-card-header">
                 <div class="form-card-header-left">
                   <i data-lucide="sliders-horizontal"></i>
-                  <span>Umbrales del pendiente por lado</span>
+                  <span x-text="currentMetric.thresholdTitle || 'Umbrales'"></span>
                 </div>
                 <div class="form-card-header-help">Unidad: <span x-text="currentMetric.unit"></span></div>
               </div>
-              <p class="card-framing-hint">
-                Estás configurando los umbrales <strong
-                  x-text="currentMetric.framingLabel || 'del valor pendiente'"></strong>, no del conciliado. El agente
-                alertará cuando los pendientes superen el máximo aceptable.
-              </p>
 
               <!-- Threshold grid v2: stacked blocks per Lado with tight rhythm -->
               <div class="threshold-grid-v2">
