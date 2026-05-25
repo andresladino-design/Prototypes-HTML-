@@ -3566,17 +3566,21 @@
       position: relative; z-index: 1;
     }
     .preview-card-title { font-size: 13px; font-weight: 600; color: var(--text-strong, #111827); }
-    .preview-card-select {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 4px 8px;
-      border: 1px solid var(--border-default, #E5E7EB);
-      border-radius: 6px;
-      font-size: 12px;
-      color: var(--text-default, #374151);
-      background: white;
-      cursor: default;
+    .preview-card-legend {
+      display: inline-flex; align-items: center; gap: 14px;
+      font-size: 11px;
+      color: var(--text-muted, #6B7280);
     }
-    .preview-card-select svg { width: 12px; height: 12px; color: var(--text-muted, #6B7280); }
+    .preview-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .preview-legend-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .preview-legend-dot-a { background: #6366F1; }
+    .preview-legend-dot-b { background: #0EA5E9; }
+    .preview-legend-label { color: var(--text-default, #374151); }
     .preview-card-meta {
       display: flex; align-items: center; justify-content: space-between;
       font-size: 11px;
@@ -3609,11 +3613,12 @@
     }
     .preview-data-path {
       fill: none;
-      stroke: #6366F1;
-      stroke-width: 1.5;
+      stroke-width: 1.6;
       stroke-linejoin: round;
       stroke-linecap: round;
     }
+    .preview-data-path-a { stroke: #6366F1; }
+    .preview-data-path-b { stroke: #0EA5E9; }
     .preview-limit-line {
       stroke-width: 1;
       stroke-dasharray: 3 3;
@@ -4090,36 +4095,38 @@
     };
   },
   previewChartPath(key, withBands) {
-    const data = this.analysisDataFor(key);
-    const agg = data.aggSeries || [];
-    if (agg.length === 0) return { svgHtml: '' };
+    const cfg = this.metricConfigs[key];
+    if (!cfg || !cfg.series30d) return { svgHtml: '' };
+    const sideA = cfg.series30d.a || [];
+    const sideB = cfg.series30d.b || [];
+    const n = Math.max(sideA.length, sideB.length);
+    if (n === 0) return { svgHtml: '' };
+
     const width = 640;
     const height = 220;
-    const padLeft = 42;
+    const padLeft = 48;
     const padRight = 16;
     const padTop = 12;
     const padBottom = 42;
     const innerW = width - padLeft - padRight;
     const innerH = height - padTop - padBottom;
-    const dataMin = Math.min(...agg);
-    const dataMax = Math.max(...agg);
-    const lower = data.lowerRaw;
-    const upper = data.upperRaw;
-    const lo = Math.min(dataMin, lower);
-    const hi = Math.max(dataMax, upper);
-    const span = (hi - lo) || 1;
-    const yMin = 0;
-    const yMax = hi + span * 0.6;
-    const xStep = innerW / (agg.length - 1 || 1);
-    const yFor = (v) => padTop + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
-    const tick = (v) => this.formatAggregateValue(v, this.metricConfigs[key]?.unit);
 
-    // Path
-    const pts = agg.map((v,i) => ({ x: padLeft + i * xStep, y: yFor(v) }));
-    const dPath = pts.map((p,i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+    const allVals = [...sideA, ...sideB];
+    const dataMin = Math.min(...allVals);
+    const dataMax = Math.max(...allVals);
+    const span = (dataMax - dataMin) || 1;
+    const yMin = Math.max(0, dataMin - span * 0.15);
+    const yMax = dataMax + span * 0.20;
+    const xStep = innerW / (n - 1 || 1);
+    const yFor = (v) => padTop + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+    const tick = (v) => this.formatAggregateValue(v, cfg.unit);
+
+    const buildPath = (series) => series.map((v,i) => (i === 0 ? 'M' : 'L') + (padLeft + i * xStep).toFixed(1) + ',' + yFor(v).toFixed(1)).join(' ');
+    const dPathA = buildPath(sideA);
+    const dPathB = buildPath(sideB);
 
     // Y axis ticks + labels
-    const yTickValues = [0, yMax * 0.25, yMax * 0.5, yMax * 0.75, yMax];
+    const yTickValues = [yMin, yMin + (yMax - yMin) * 0.25, yMin + (yMax - yMin) * 0.5, yMin + (yMax - yMin) * 0.75, yMax];
     let yGrid = '';
     let yLabelsHtml = '';
     yTickValues.forEach(v => {
@@ -4131,7 +4138,7 @@
     // X axis ticks + labels (rotated)
     let xGrid = '';
     let xLabelsHtml = '';
-    agg.forEach((_, i) => {
+    for (let i = 0; i < n; i++) {
       const x = padLeft + i * xStep;
       const dayIdx = 2 + i;
       const day = (dayIdx % 31) + 1;
@@ -4141,23 +4148,12 @@
       xGrid += `<line class='preview-grid-x' x1='${x.toFixed(1)}' x2='${x.toFixed(1)}' y1='${padTop}' y2='${height - padBottom}'/>`;
       const ly = height - padBottom + 10;
       xLabelsHtml += `<text class='preview-axis-text-x' x='${x.toFixed(1)}' y='${ly}' transform='rotate(-60 ${x.toFixed(1)} ${ly})'>${label}</text>`;
-    });
-
-    // Bands (min/max lines + labels)
-    let bandsHtml = '';
-    if (withBands) {
-      const uY = yFor(upper);
-      const lY = yFor(lower);
-      bandsHtml += `<line class='preview-limit-line preview-limit-upper' x1='${padLeft}' x2='${width - padRight}' y1='${uY.toFixed(1)}' y2='${uY.toFixed(1)}'/>`;
-      bandsHtml += `<line class='preview-limit-line preview-limit-lower' x1='${padLeft}' x2='${width - padRight}' y1='${lY.toFixed(1)}' y2='${lY.toFixed(1)}'/>`;
-      bandsHtml += `<text class='preview-limit-text preview-limit-text-upper' x='${padLeft + 4}' y='${(uY - 4).toFixed(1)}'>max: ${tick(upper)}</text>`;
-      bandsHtml += `<text class='preview-limit-text preview-limit-text-lower' x='${padLeft + 4}' y='${(lY - 4).toFixed(1)}'>min: ${tick(lower)}</text>`;
     }
 
     const svgHtml = `<svg viewBox='0 0 ${width} ${height}' class='preview-svg' xmlns='http://www.w3.org/2000/svg'>`
       + yGrid + xGrid
-      + `<path class='preview-data-path' d='${dPath}'/>`
-      + bandsHtml
+      + `<path class='preview-data-path preview-data-path-a' d='${dPathA}'/>`
+      + `<path class='preview-data-path preview-data-path-b' d='${dPathB}'/>`
       + yLabelsHtml + xLabelsHtml
       + `</svg>`;
 
@@ -5285,9 +5281,15 @@
                    x-effect="chart = previewChartPath(selectedSeries, analysisStates[selectedSeries] === 'ready')">
                 <div class="preview-card-header">
                   <div class="preview-card-title">Vista previa de configuración</div>
-                  <div class="preview-card-select" x-show="analysisStates[selectedSeries] === 'ready'">
-                    <span>Todas las categorías</span>
-                    <i data-lucide="chevron-down"></i>
+                  <div class="preview-card-legend" x-show="analysisStates[selectedSeries] === 'ready'">
+                    <span class="preview-legend-item">
+                      <span class="preview-legend-dot preview-legend-dot-a"></span>
+                      <span class="preview-legend-label" x-text="chartMeta.ladoA.resource"></span>
+                    </span>
+                    <span class="preview-legend-item">
+                      <span class="preview-legend-dot preview-legend-dot-b"></span>
+                      <span class="preview-legend-label" x-text="chartMeta.ladoB.resource"></span>
+                    </span>
                   </div>
                 </div>
                 <div class="preview-card-meta">
@@ -5374,45 +5376,6 @@
                       </template>
                     </div>
 
-                    <div class="lado-spark" x-show="currentState !== 'loading'">
-                      <svg class="sparkline" :viewBox="`0 0 ${spark?.width || 580} ${spark?.height || 64}`"
-                        preserveAspectRatio="none">
-                        <rect class="band-rect" x="0" width="100%" :y="spark?.bandY1 || 0"
-                          :height="Math.max(0, (spark?.bandY2 || 0) - (spark?.bandY1 || 0))"></rect>
-                        <line class="band-line" x1="0" :y1="spark?.bandY1 || 0" x2="100%" :y2="spark?.bandY1 || 0"
-                          x-show="spark?.hasMax"></line>
-                        <line class="band-line" x1="0" :y1="spark?.bandY2 || 0" x2="100%" :y2="spark?.bandY2 || 0"
-                          x-show="spark?.hasMin"></line>
-                        <path class="data-path" :d="spark?.path || ''"></path>
-                        <template x-for="(p, i) in spark?.alerts || []" :key="`a-${i}-${p.x}`">
-                          <g>
-                            <circle class="alert-dot-bg" :cx="p.x" :cy="p.y" r="3.5"></circle>
-                            <circle class="alert-dot-fg" :cx="p.x" :cy="p.y" r="2.2"></circle>
-                          </g>
-                        </template>
-                      </svg>
-                      <div class="spark-meta">
-                        <span class="alert-count-pill"
-                          :class="!spark?.hasMin && !spark?.hasMax ? 'no-threshold' : (spark?.alertCount > 0 ? 'has-alerts' : 'no-alerts')">
-                          <span class="marker"></span>
-                          <span x-show="!spark?.hasMin && !spark?.hasMax">Define un umbral para ver el conteo de
-                            alertas</span>
-                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount === 0">Sin alertas con
-                            estos umbrales en los últimos 30 días</span>
-                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount > 0">
-                            <span x-text="spark?.alertCount"></span>
-                            <span
-                              x-text="spark?.alertCount === 1 ? 'alerta se habría disparado' : 'alertas se habrían disparado'"></span>
-                            en los últimos 30 días
-                          </span>
-                        </span>
-                        <span class="spark-axis-label">
-                          <span>hace 30 días</span>
-                          <span class="sep">|</span>
-                          <span>hoy</span>
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -5474,45 +5437,6 @@
                       </template>
                     </div>
 
-                    <div class="lado-spark" x-show="currentState !== 'loading'">
-                      <svg class="sparkline" :viewBox="`0 0 ${spark?.width || 580} ${spark?.height || 64}`"
-                        preserveAspectRatio="none">
-                        <rect class="band-rect" x="0" width="100%" :y="spark?.bandY1 || 0"
-                          :height="Math.max(0, (spark?.bandY2 || 0) - (spark?.bandY1 || 0))"></rect>
-                        <line class="band-line" x1="0" :y1="spark?.bandY1 || 0" x2="100%" :y2="spark?.bandY1 || 0"
-                          x-show="spark?.hasMax"></line>
-                        <line class="band-line" x1="0" :y1="spark?.bandY2 || 0" x2="100%" :y2="spark?.bandY2 || 0"
-                          x-show="spark?.hasMin"></line>
-                        <path class="data-path" :d="spark?.path || ''"></path>
-                        <template x-for="(p, i) in spark?.alerts || []" :key="`b-${i}-${p.x}`">
-                          <g>
-                            <circle class="alert-dot-bg" :cx="p.x" :cy="p.y" r="3.5"></circle>
-                            <circle class="alert-dot-fg" :cx="p.x" :cy="p.y" r="2.2"></circle>
-                          </g>
-                        </template>
-                      </svg>
-                      <div class="spark-meta">
-                        <span class="alert-count-pill"
-                          :class="!spark?.hasMin && !spark?.hasMax ? 'no-threshold' : (spark?.alertCount > 0 ? 'has-alerts' : 'no-alerts')">
-                          <span class="marker"></span>
-                          <span x-show="!spark?.hasMin && !spark?.hasMax">Define un umbral para ver el conteo de
-                            alertas</span>
-                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount === 0">Sin alertas con
-                            estos umbrales en los últimos 30 días</span>
-                          <span x-show="(spark?.hasMin || spark?.hasMax) && spark?.alertCount > 0">
-                            <span x-text="spark?.alertCount"></span>
-                            <span
-                              x-text="spark?.alertCount === 1 ? 'alerta se habría disparado' : 'alertas se habrían disparado'"></span>
-                            en los últimos 30 días
-                          </span>
-                        </span>
-                        <span class="spark-axis-label">
-                          <span>hace 30 días</span>
-                          <span class="sep">|</span>
-                          <span>hoy</span>
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
