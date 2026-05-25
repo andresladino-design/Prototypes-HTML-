@@ -4453,7 +4453,7 @@
       recordCount: `${series.length} registros`,
       sideLabel,
       resourceName,
-      summary: `<strong>Línea base estable y limpia</strong> · <strong>${series.length} días</strong> de observaciones de baja dispersión (CV <strong>${cv.toFixed(1)}%</strong>), sin brechas, sin valores atípicos. <em>Una línea base simple para anclar el monitoreo ${scopePhrase}.</em>`,
+      summary: `<strong>Línea base estable y limpia</strong> · <strong>${series.length} días</strong> de observaciones de baja dispersión (CV <strong>${cv.toFixed(1)}%</strong>), sin brechas, sin valores atípicos.`,
       detail: {
         trend: `El valor ${scopePhrase} se ha mantenido <em>estable</em> en torno a <strong>${meanLabel}</strong> durante los últimos <strong>${series.length} días</strong> con un margen estrecho de <strong>±${cv.toFixed(1)}%</strong>. Este es un punto de referencia limpio para anclar el monitoreo.`,
         seasonality: `No se detecta un patrón <strong>semanal</strong> ni <strong>mensual</strong> claro en la ventana: los valores fluctúan sin un ritmo recurrente de días de la semana o calendario. <em>Una línea base simple para anclarse.</em>`,
