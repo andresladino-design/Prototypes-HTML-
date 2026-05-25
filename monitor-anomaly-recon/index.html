@@ -3423,6 +3423,198 @@
     .widget-variant-block:last-child {
       margin-bottom: 0;
     }
+
+    /* =====================================================
+       AI ANALYSIS BLOCK (configure state)
+       Pensando → Análisis inteligente + Preview chart
+       ===================================================== */
+    .ai-analysis-block { margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .ai-analysis-header { margin-bottom: 4px; }
+    .ai-analysis-header-title { font-size: 14px; font-weight: 600; color: var(--text-strong, #4F46E5); }
+
+    /* THINKING */
+    .thinking-block {
+      background: transparent;
+      padding: 4px 0 0;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .thinking-header {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--text-muted, #6B7280); font-size: 13px;
+    }
+    .thinking-spin {
+      width: 14px; height: 14px;
+      animation: thinking-spin 1.2s linear infinite;
+      color: var(--text-muted, #6B7280);
+    }
+    @keyframes thinking-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+    .thinking-label { font-weight: 500; }
+    .thinking-chevron { width: 12px; height: 12px; color: var(--text-muted, #9CA3AF); margin-left: 2px; }
+    .thinking-steps { list-style: none; padding: 0; margin: 0 0 0 22px; display: flex; flex-direction: column; gap: 6px; }
+    .thinking-step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px;
+      color: var(--text-default, #4B5563);
+      animation: thinking-step-in 280ms ease-out;
+    }
+    .thinking-step.in_progress { color: var(--text-default, #374151); }
+    .thinking-step.complete { color: var(--text-muted, #6B7280); }
+    @keyframes thinking-step-in {
+      from { opacity: 0; transform: translateY(-3px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .thinking-step-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; flex-shrink: 0;
+    }
+    .thinking-step-icon svg { width: 14px; height: 14px; }
+    .thinking-step .ai-mark-xs {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 4px;
+      background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    }
+    .thinking-step .ai-mark-xs svg { width: 9px; height: 9px; }
+    .thinking-step.complete .thinking-step-icon { color: var(--success-strong, #10B981); }
+
+    /* STATS CARD (ready) */
+    .analysis-stats-card {
+      background: var(--bg-subtle, #F9FAFB);
+      border: 1px solid var(--border-default, #E5E7EB);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .stats-3col-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      padding-bottom: 4px;
+    }
+    .stats-3col-cell { display: flex; flex-direction: column; gap: 4px; }
+    .stats-3col-label { font-size: 12px; color: var(--text-muted, #6B7280); }
+    .stats-3col-value { font-size: 22px; font-weight: 700; color: var(--text-strong, #111827); letter-spacing: -0.01em; }
+
+    .analysis-summary {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-default, #374151);
+    }
+    .analysis-summary strong { color: var(--text-strong, #111827); font-weight: 600; }
+    .analysis-summary em { color: var(--text-muted, #6B7280); font-style: italic; }
+
+    .analysis-detail-toggle {
+      align-self: flex-start;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; border: none; padding: 0; cursor: pointer;
+      font-size: 13px; color: var(--text-default, #374151);
+      font-weight: 500;
+    }
+    .analysis-detail-toggle:hover { color: var(--text-strong, #111827); }
+    .analysis-detail-toggle svg { width: 14px; height: 14px; }
+
+    .analysis-detail-body {
+      display: flex; flex-direction: column; gap: 14px;
+      padding-top: 4px;
+    }
+    .analysis-detail-block { display: flex; flex-direction: column; gap: 4px; }
+    .analysis-detail-title { font-size: 13px; font-weight: 600; color: var(--text-strong, #111827); }
+    .analysis-detail-text { margin: 0; font-size: 13px; line-height: 1.55; color: var(--text-default, #4B5563); }
+    .analysis-detail-text strong { color: var(--text-strong, #111827); font-weight: 600; }
+    .analysis-detail-text em { color: var(--text-muted, #6B7280); font-style: italic; }
+
+    .analysis-footnote {
+      display: flex; align-items: center; gap: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-default, #E5E7EB);
+      font-size: 12px;
+      color: var(--text-muted, #6B7280);
+    }
+    .analysis-footnote svg { width: 14px; height: 14px; }
+
+    /* PREVIEW CHART CARD */
+    .preview-card {
+      background: white;
+      border: 1px solid var(--border-default, #E5E7EB);
+      border-radius: 10px;
+      padding: 14px 16px 12px;
+      display: flex; flex-direction: column; gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .preview-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      pointer-events: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(79, 70, 229, 0.04) 40%, transparent 70%);
+      mix-blend-mode: multiply;
+      opacity: 0.6;
+    }
+    .preview-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+      position: relative; z-index: 1;
+    }
+    .preview-card-title { font-size: 13px; font-weight: 600; color: var(--text-strong, #111827); }
+    .preview-card-select {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 8px;
+      border: 1px solid var(--border-default, #E5E7EB);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--text-default, #374151);
+      background: white;
+      cursor: default;
+    }
+    .preview-card-select svg { width: 12px; height: 12px; color: var(--text-muted, #6B7280); }
+    .preview-card-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted, #6B7280);
+      position: relative; z-index: 1;
+    }
+    .preview-card-chart {
+      width: 100%;
+      position: relative; z-index: 1;
+    }
+    .preview-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .preview-grid-y, .preview-grid-x {
+      stroke: #E5E7EB;
+      stroke-width: 1;
+      stroke-dasharray: 2 3;
+    }
+    .preview-axis-text-y {
+      font-size: 9px;
+      fill: #6B7280;
+      text-anchor: end;
+    }
+    .preview-axis-text-x {
+      font-size: 9px;
+      fill: #6B7280;
+      text-anchor: end;
+    }
+    .preview-data-path {
+      fill: none;
+      stroke: #6366F1;
+      stroke-width: 1.5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .preview-limit-line {
+      stroke-width: 1;
+      stroke-dasharray: 3 3;
+      fill: none;
+    }
+    .preview-limit-upper { stroke: #EF4444; }
+    .preview-limit-lower { stroke: #EF4444; }
+    .preview-limit-text {
+      font-size: 9px;
+      fill: #EF4444;
+      text-anchor: start;
+    }
   </style>
 </head>
 
@@ -3637,6 +3829,9 @@
   get currentFlowStep() { return this.flowSteps[this.selectedSeries] || 'configure'; },
   loadingStates: { count: 'idle', amount: 'idle', pct_count: 'idle', pct_amount: 'idle' },
   flowSteps:     { count: 'configure', amount: 'configure', pct_count: 'configure', pct_amount: 'configure' },
+  analysisStates:{ count: 'idle', amount: 'idle', pct_count: 'idle', pct_amount: 'idle' },
+  analysisSteps: { count: [], amount: [], pct_count: [], pct_amount: [] },
+  analysisDetailOpen: { count: false, amount: false, pct_count: false, pct_amount: false },
   values: {
     count:      { aMin: '', aMax: '', bMin: '', bMax: '' },
     amount:     { aMin: '', aMax: '', bMin: '', bMax: '' },
@@ -3788,6 +3983,135 @@
     const n = parseFloat(cleaned);
     return isNaN(n) ? null : n;
   },
+  formatAggregateValue(v, unit) {
+    if (v === null || v === undefined || isNaN(v)) return '—';
+    if (unit === '%') return v.toFixed(1) + '%';
+    if (unit === 'moneda local') {
+      if (v >= 1e9) return '$' + (v/1e9).toFixed(2) + 'B';
+      if (v >= 1e6) return '$' + (v/1e6).toFixed(1) + 'M';
+      return '$' + Math.round(v).toLocaleString('es-ES');
+    }
+    if (v >= 1000) return (v/1000).toFixed(2) + 'K';
+    return Math.round(v).toLocaleString('es-ES');
+  },
+  analysisDataFor(key) {
+    const cfg = this.metricConfigs[key];
+    if (!cfg || !cfg.series30d) {
+      return { mean:'—', lower:'—', upper:'—', cv:'0.0', days:0, dateRange:'', recordCount:'', summary:'', detail:{}, aggSeries:[] };
+    }
+    const a = cfg.series30d.a || [];
+    const b = cfg.series30d.b || [];
+    const n = Math.max(a.length, b.length);
+    const agg = [];
+    for (let i = 0; i < n; i++) {
+      const va = a[i] || 0;
+      const vb = b[i] || 0;
+      // Para % preferimos un promedio (no sumar porcentajes); para conteos/montos sumamos los lados.
+      agg.push(cfg.unit === '%' ? (va + vb) / 2 : (va + vb));
+    }
+    const mean = agg.reduce((s,v)=>s+v,0) / (agg.length || 1);
+    const variance = agg.reduce((s,v)=>s+(v-mean)**2,0) / (agg.length || 1);
+    const std = Math.sqrt(variance);
+    const cv = mean ? (std/mean)*100 : 0;
+    const lower = mean - std * 1.5;
+    const upper = mean + std * 1.5;
+    const fmt = (x) => this.formatAggregateValue(x, cfg.unit);
+    const meanLabel = fmt(mean) + (cfg.unit === '%' ? '' : '/día');
+    return {
+      mean: fmt(mean),
+      lower: fmt(lower),
+      upper: fmt(upper),
+      cv: cv.toFixed(1),
+      days: agg.length,
+      dateRange: '25/04/2026 – 25/05/2026',
+      recordCount: `${agg.length} registros`,
+      summary: `<strong>Línea base estable y limpia</strong> · <strong>${agg.length} días</strong> de observaciones de baja dispersión (CV <strong>${cv.toFixed(1)}%</strong>), sin brechas, sin valores atípicos. <em>Una línea base simple para anclar el monitoreo.</em>`,
+      detail: {
+        trend: `El valor se ha mantenido <em>estable</em> en torno a <strong>${meanLabel}</strong> durante los últimos <strong>${agg.length} días</strong> con un margen estrecho de <strong>±${cv.toFixed(1)}%</strong>. Este es un punto de referencia limpio para anclar el monitoreo.`,
+        seasonality: `No se detecta un patrón <strong>semanal</strong> ni <strong>mensual</strong> claro en la ventana: los valores fluctúan sin un ritmo recurrente de días de la semana o calendario. <em>Una línea base simple para anclarse.</em>`,
+        outliers: `<strong>No hay valores atípicos</strong> en la ventana: todas las observaciones se encuentran dentro del rango operativo alrededor de <strong>~${meanLabel}</strong> en la serie agregada. Los umbrales reflejarán una distribución limpia.`,
+        gaps: `<strong>No hay días faltantes</strong> en la ventana de la línea base: la cadencia de recopilación es limpia.`
+      },
+      aggSeries: agg,
+      meanRaw: mean,
+      lowerRaw: lower,
+      upperRaw: upper
+    };
+  },
+  previewChartPath(key, withBands) {
+    const data = this.analysisDataFor(key);
+    const agg = data.aggSeries || [];
+    if (agg.length === 0) return { svgHtml: '' };
+    const width = 640;
+    const height = 220;
+    const padLeft = 42;
+    const padRight = 16;
+    const padTop = 12;
+    const padBottom = 42;
+    const innerW = width - padLeft - padRight;
+    const innerH = height - padTop - padBottom;
+    const dataMin = Math.min(...agg);
+    const dataMax = Math.max(...agg);
+    const lower = data.lowerRaw;
+    const upper = data.upperRaw;
+    const lo = Math.min(dataMin, lower);
+    const hi = Math.max(dataMax, upper);
+    const span = (hi - lo) || 1;
+    const yMin = 0;
+    const yMax = hi + span * 0.6;
+    const xStep = innerW / (agg.length - 1 || 1);
+    const yFor = (v) => padTop + innerH - ((v - yMin) / (yMax - yMin)) * innerH;
+    const tick = (v) => this.formatAggregateValue(v, this.metricConfigs[key]?.unit);
+
+    // Path
+    const pts = agg.map((v,i) => ({ x: padLeft + i * xStep, y: yFor(v) }));
+    const dPath = pts.map((p,i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+
+    // Y axis ticks + labels
+    const yTickValues = [0, yMax * 0.25, yMax * 0.5, yMax * 0.75, yMax];
+    let yGrid = '';
+    let yLabelsHtml = '';
+    yTickValues.forEach(v => {
+      const y = yFor(v);
+      yGrid += `<line class='preview-grid-y' x1='${padLeft}' x2='${width - padRight}' y1='${y.toFixed(1)}' y2='${y.toFixed(1)}'/>`;
+      yLabelsHtml += `<text class='preview-axis-text-y' x='${padLeft - 6}' y='${(y + 3).toFixed(1)}'>${tick(v)}</text>`;
+    });
+
+    // X axis ticks + labels (rotated)
+    let xGrid = '';
+    let xLabelsHtml = '';
+    agg.forEach((_, i) => {
+      const x = padLeft + i * xStep;
+      const dayIdx = 2 + i;
+      const day = (dayIdx % 31) + 1;
+      const dayStr = String(day).padStart(2, '0');
+      const month = dayIdx >= 29 ? '04' : '03';
+      const label = `${dayStr}/${month}/2026`;
+      xGrid += `<line class='preview-grid-x' x1='${x.toFixed(1)}' x2='${x.toFixed(1)}' y1='${padTop}' y2='${height - padBottom}'/>`;
+      const ly = height - padBottom + 10;
+      xLabelsHtml += `<text class='preview-axis-text-x' x='${x.toFixed(1)}' y='${ly}' transform='rotate(-60 ${x.toFixed(1)} ${ly})'>${label}</text>`;
+    });
+
+    // Bands (min/max lines + labels)
+    let bandsHtml = '';
+    if (withBands) {
+      const uY = yFor(upper);
+      const lY = yFor(lower);
+      bandsHtml += `<line class='preview-limit-line preview-limit-upper' x1='${padLeft}' x2='${width - padRight}' y1='${uY.toFixed(1)}' y2='${uY.toFixed(1)}'/>`;
+      bandsHtml += `<line class='preview-limit-line preview-limit-lower' x1='${padLeft}' x2='${width - padRight}' y1='${lY.toFixed(1)}' y2='${lY.toFixed(1)}'/>`;
+      bandsHtml += `<text class='preview-limit-text preview-limit-text-upper' x='${padLeft + 4}' y='${(uY - 4).toFixed(1)}'>max: ${tick(upper)}</text>`;
+      bandsHtml += `<text class='preview-limit-text preview-limit-text-lower' x='${padLeft + 4}' y='${(lY - 4).toFixed(1)}'>min: ${tick(lower)}</text>`;
+    }
+
+    const svgHtml = `<svg viewBox='0 0 ${width} ${height}' class='preview-svg' xmlns='http://www.w3.org/2000/svg'>`
+      + yGrid + xGrid
+      + `<path class='preview-data-path' d='${dPath}'/>`
+      + bandsHtml
+      + yLabelsHtml + xLabelsHtml
+      + `</svg>`;
+
+    return { svgHtml, width, height, hasBands: !!withBands };
+  },
   sparklineData(metricKey, side) {
     const config = this.metricConfigs[metricKey];
     if (!config || !config.series30d) return null;
@@ -3826,18 +4150,38 @@
     this.selectedSection = 'series';
     this.selectedSeries = key;
     this.editMode = false;
-    // Si el flowStep está en 'configure', disparamos el AI loader que pre-llena umbrales.
-    if (this.flowSteps[key] === 'configure' && this.loadingStates[key] === 'idle') {
-      this.loadingStates[key] = 'loading';
-      setTimeout(() => {
-        const s = this.metricConfigs[key].aiSuggestion;
-        this.values[key] = { aMin: s.aMin, aMax: s.aMax, bMin: s.bMin, bMax: s.bMax };
-        this.fromAi[key] = { aMin: true, aMax: true, bMin: true, bMax: true };
-        this.loadingStates[key] = 'ready';
-        setTimeout(() => lucide.createIcons(), 50);
-      }, 1400);
+    // Si el flowStep está en 'configure', disparamos el análisis inteligente (Pensando…)
+    // que termina prellenando los umbrales sugeridos.
+    if (this.flowSteps[key] === 'configure' && this.analysisStates[key] === 'idle') {
+      this.startAnalysisFor(key);
     }
     setTimeout(() => lucide.createIcons(), 50);
+  },
+  startAnalysisFor(key) {
+    this.analysisStates[key] = 'thinking';
+    this.loadingStates[key] = 'loading';
+    this.analysisSteps[key] = [
+      { id: 'fetch',    label: 'Consultando datos históricos del recurso…', status: 'in_progress' },
+      { id: 'baseline', label: 'Calculando línea base estadística…',         status: 'pending' }
+    ];
+    setTimeout(() => lucide.createIcons(), 50);
+    setTimeout(() => {
+      this.analysisSteps[key][0].status = 'complete';
+      this.analysisSteps[key][1].status = 'in_progress';
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 1100);
+    setTimeout(() => {
+      this.analysisSteps[key][1].status = 'complete';
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 2300);
+    setTimeout(() => {
+      const s = this.metricConfigs[key].aiSuggestion;
+      this.values[key] = { aMin: s.aMin, aMax: s.aMax, bMin: s.bMin, bMax: s.bMax };
+      this.fromAi[key] = { aMin: true, aMax: true, bMin: true, bMax: true };
+      this.loadingStates[key] = 'ready';
+      this.analysisStates[key] = 'ready';
+      setTimeout(() => lucide.createIcons(), 50);
+    }, 2700);
   },
   markEdited(key, field) {
     this.fromAi[key][field] = false;
@@ -4796,6 +5140,114 @@
 
           <!-- ===== EDIT MODE + PENDING (shared rich threshold UI) ===== -->
           <div x-show="currentFlowStep === 'configure'">
+
+            <!-- ====== AI ANALYSIS (Pensando → Análisis inteligente + Preview) ====== -->
+            <div class="ai-analysis-block" x-show="analysisStates[selectedSeries] !== 'idle'">
+
+              <!-- AI section header (always, while analyzing or ready) -->
+              <div class="ai-section-header ai-analysis-header">
+                <span class="ai-mark-sm">
+                  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                  </svg>
+                </span>
+                <div class="ai-analysis-header-title">Análisis inteligente</div>
+              </div>
+
+              <!-- THINKING -->
+              <div class="thinking-block" x-show="analysisStates[selectedSeries] === 'thinking'" x-transition.opacity>
+                <div class="thinking-header">
+                  <i data-lucide="loader-circle" class="thinking-spin"></i>
+                  <span class="thinking-label">Pensando…</span>
+                  <i data-lucide="chevron-up" class="thinking-chevron"></i>
+                </div>
+                <ul class="thinking-steps">
+                  <template x-for="step in (analysisSteps[selectedSeries] || [])" :key="step.id">
+                    <li class="thinking-step" :class="step.status" x-show="step.status !== 'pending'" x-transition.opacity>
+                      <span class="thinking-step-icon">
+                        <span x-show="step.status === 'in_progress'" class="ai-mark-xs">
+                          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 1.5 L10 6.5 L14.5 8 L10 9.5 L8 14.5 L6 9.5 L1.5 8 L6 6.5 Z" fill="white" />
+                          </svg>
+                        </span>
+                        <i data-lucide="check" x-show="step.status === 'complete'"></i>
+                      </span>
+                      <span x-text="step.label"></span>
+                    </li>
+                  </template>
+                </ul>
+              </div>
+
+              <!-- READY: stats card + detail expandible -->
+              <div class="analysis-stats-card" x-show="analysisStates[selectedSeries] === 'ready'" x-transition.opacity>
+                <div class="stats-3col-grid">
+                  <div class="stats-3col-cell">
+                    <div class="stats-3col-label">Media</div>
+                    <div class="stats-3col-value" x-text="analysisDataFor(selectedSeries).mean"></div>
+                  </div>
+                  <div class="stats-3col-cell">
+                    <div class="stats-3col-label">Límite inferior sugerido</div>
+                    <div class="stats-3col-value" x-text="analysisDataFor(selectedSeries).lower"></div>
+                  </div>
+                  <div class="stats-3col-cell">
+                    <div class="stats-3col-label">Límite superior sugerido</div>
+                    <div class="stats-3col-value" x-text="analysisDataFor(selectedSeries).upper"></div>
+                  </div>
+                </div>
+
+                <p class="analysis-summary" x-html="analysisDataFor(selectedSeries).summary"></p>
+
+                <button type="button" class="analysis-detail-toggle"
+                        @click="analysisDetailOpen[selectedSeries] = !analysisDetailOpen[selectedSeries]; setTimeout(() => lucide.createIcons(), 50)">
+                  <i data-lucide="chevron-right" x-show="!analysisDetailOpen[selectedSeries]"></i>
+                  <i data-lucide="chevron-down" x-show="analysisDetailOpen[selectedSeries]"></i>
+                  <span>Ver análisis detallado</span>
+                </button>
+
+                <div class="analysis-detail-body" x-show="analysisDetailOpen[selectedSeries]" x-transition>
+                  <div class="analysis-detail-block">
+                    <div class="analysis-detail-title">Tendencia</div>
+                    <p class="analysis-detail-text" x-html="analysisDataFor(selectedSeries).detail.trend"></p>
+                  </div>
+                  <div class="analysis-detail-block">
+                    <div class="analysis-detail-title">Estacionalidad</div>
+                    <p class="analysis-detail-text" x-html="analysisDataFor(selectedSeries).detail.seasonality"></p>
+                  </div>
+                  <div class="analysis-detail-block">
+                    <div class="analysis-detail-title">Valores atípicos</div>
+                    <p class="analysis-detail-text" x-html="analysisDataFor(selectedSeries).detail.outliers"></p>
+                  </div>
+                  <div class="analysis-detail-block">
+                    <div class="analysis-detail-title">Brechas de datos</div>
+                    <p class="analysis-detail-text" x-html="analysisDataFor(selectedSeries).detail.gaps"></p>
+                  </div>
+                </div>
+
+                <div class="analysis-footnote">
+                  <i data-lucide="info"></i>
+                  <span>Este análisis refleja el agregado de todas las categorías.</span>
+                </div>
+              </div>
+
+              <!-- PREVIEW CHART -->
+              <div class="preview-card" x-data="{ chart: null }"
+                   x-effect="chart = previewChartPath(selectedSeries, analysisStates[selectedSeries] === 'ready')">
+                <div class="preview-card-header">
+                  <div class="preview-card-title">Vista previa de configuración</div>
+                  <div class="preview-card-select" x-show="analysisStates[selectedSeries] === 'ready'">
+                    <span>Todas las categorías</span>
+                    <i data-lucide="chevron-down"></i>
+                  </div>
+                </div>
+                <div class="preview-card-meta">
+                  <span class="preview-card-range" x-text="analysisDataFor(selectedSeries).dateRange"></span>
+                  <span class="preview-card-records" x-text="analysisDataFor(selectedSeries).recordCount"></span>
+                </div>
+                <div class="preview-card-chart" x-html="chart?.svgHtml || ''"></div>
+              </div>
+
+            </div>
+            <!-- ====== /AI ANALYSIS ====== -->
 
             <!-- Single unified Umbrales card -->
             <div class="form-card">
