@@ -5166,7 +5166,7 @@
                 <div class="series-meta">
                   <span class="pill-tech" x-text="techPillFor(key)"></span>
                   <span x-show="flowSteps[key] === 'configure'" class="pill-soft pill-pending">
-                    Pendiente
+                    Sin configurar
                   </span>
                   <span x-show="flowSteps[key] === 'saving'" class="pill-soft pill-warming">
                     <span class="pulse-dot"></span>
@@ -5263,7 +5263,7 @@
             </div>
 
             <div class="form-field">
-              <label class="form-label">Columna de fecha</label>
+              <label class="form-label">Período</label>
               <div class="form-select is-disabled" title="Fijada por la configuración del gráfico Pendientes Avanzados">
                 <span>Skt Created At</span>
                 <i data-lucide="lock"></i>
@@ -5876,10 +5876,7 @@
         <!-- Estado ready (después de Guardar): "Hecho" -->
         <template x-if="globalFlowStep === 'ready'">
           <div class="dialog-footer-state-wrap">
-            <button class="footer-pause-btn">
-              <i data-lucide="pause-circle"></i>
-              <span>Pausar monitoreo</span>
-            </button>
+            <span></span>
             <button class="btn-primary" @click="dialogOpen = false">
               <i data-lucide="check"></i>
               <span>Hecho</span>
