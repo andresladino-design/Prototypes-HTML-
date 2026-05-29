@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>5.3 Señales vs Incidentes — Simetrik</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root { --primary:#2563eb; --border:#e4e4e7; --muted-bg:#f4f4f5; }
+  body { font-family: ui-sans-serif, system-ui, sans-serif; background: var(--muted-bg); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="max-w-[860px] mx-auto p-6" x-data="{ signals:false, incidents:true, channel:'slack' }">
+
+  <h1 class="text-[20px] font-semibold tracking-tight">¿Qué eventos disparan notificación?</h1>
+  <p class="text-[13px] text-zinc-500 mt-1 mb-6">Las señales son atómicas, los incidentes las agrupan con contexto. Eligí qué querés recibir.</p>
+
+  <div class="grid grid-cols-2 gap-4 mb-5">
+
+    <label class="card p-5 cursor-pointer transition"
+      :class="signals ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-zinc-300'">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-9 h-9 rounded-md bg-amber-50 flex items-center justify-center">
+          <i data-lucide="activity" class="w-4.5 h-4.5 text-amber-600"></i>
+        </div>
+        <input type="checkbox" x-model="signals" class="accent-blue-600">
+      </div>
+      <h3 class="text-[14px] font-semibold mb-1">Señales de anomalía</h3>
+      <p class="text-[12.5px] text-zinc-500 leading-relaxed mb-3">Cada vez que el agente detecta una desviación. Más granular, más ruido.</p>
+      <div class="text-[11.5px] text-zinc-500 space-y-1.5">
+        <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Visibilidad temprana del problema</div>
+        <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Útil para power users</div>
+        <div class="flex items-center gap-1.5"><i data-lucide="alert-circle" class="w-3 h-3 text-amber-500"></i> Volumen alto (~85/mes)</div>
+      </div>
+    </label>
+
+    <label class="card p-5 cursor-pointer transition"
+      :class="incidents ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-zinc-300'">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-9 h-9 rounded-md bg-red-50 flex items-center justify-center">
+          <i data-lucide="alert-triangle" class="w-4.5 h-4.5 text-red-600"></i>
+        </div>
+        <input type="checkbox" x-model="incidents" class="accent-blue-600">
+      </div>
+      <h3 class="text-[14px] font-semibold mb-1">Incidentes</h3>
+      <p class="text-[12.5px] text-zinc-500 leading-relaxed mb-3">Señales agrupadas con problema identificado, severidad e impacto estimado.</p>
+      <div class="text-[11.5px] text-zinc-500 space-y-1.5">
+        <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Contexto completo (hipótesis del agente)</div>
+        <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Foco operativo recomendado</div>
+        <div class="flex items-center gap-1.5"><i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Volumen manejable (~12/mes)</div>
+      </div>
+    </label>
+
+  </div>
+
+  <!-- Sugerencia del agente -->
+  <div class="card p-3.5 mb-5 flex gap-3" style="background:#eff6ff; border-color:#bfdbfe;">
+    <i data-lucide="sparkles" class="w-4 h-4 mt-0.5 text-blue-600 shrink-0"></i>
+    <div class="text-[12.5px] leading-relaxed">
+      <p class="font-medium text-blue-900">Recomendación del agente</p>
+      <p class="text-blue-800 mt-0.5">Empezá solo con <b>Incidentes</b>. Si más adelante querés más detalle, activá <b>Señales</b>. La mayoría del equipo opera con incidentes únicamente.</p>
+    </div>
+  </div>
+
+  <!-- Por canal -->
+  <div class="card p-5 mb-5">
+    <h2 class="text-[14px] font-semibold mb-3">¿Aplicar la misma configuración a todos los canales?</h2>
+    <div class="space-y-2">
+      <label class="flex items-center gap-3 p-2.5 rounded-md hover:bg-zinc-50 cursor-pointer">
+        <input type="radio" name="ch" value="all" checked class="accent-blue-600">
+        <span class="text-[13px]">Sí, aplicar a Slack, correo e in-app</span>
+      </label>
+      <label class="flex items-center gap-3 p-2.5 rounded-md hover:bg-zinc-50 cursor-pointer">
+        <input type="radio" name="ch" value="custom" class="accent-blue-600">
+        <span class="text-[13px]">Configurar por canal (ej. Slack solo incidentes, correo ambos)</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Vista previa -->
+  <div class="card p-5 mb-5 bg-zinc-50">
+    <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-2">Vista previa</p>
+    <div class="space-y-1.5 text-[12.5px]">
+      <div class="flex items-center gap-2" x-show="incidents">
+        <i data-lucide="bell" class="w-3.5 h-3.5 text-zinc-500"></i>
+        <span class="text-zinc-700"><b>Incidente abierto:</b> archivo Transbank no recibido (3 señales agrupadas)</span>
+      </div>
+      <div class="flex items-center gap-2" x-show="signals">
+        <i data-lucide="bell" class="w-3.5 h-3.5 text-zinc-500"></i>
+        <span class="text-zinc-700"><b>Señal activa:</b> volumen cayó 23% vs baseline</span>
+      </div>
+      <div class="flex items-center gap-2" x-show="signals">
+        <i data-lucide="bell" class="w-3.5 h-3.5 text-zinc-500"></i>
+        <span class="text-zinc-700"><b>Señal activa:</b> trigger - dato no recibido en ventana</span>
+      </div>
+      <p x-show="!signals && !incidents" class="text-zinc-500 italic">No vas a recibir notificaciones.</p>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <button class="text-[13px] text-zinc-700 px-3 h-9 rounded-md hover:bg-zinc-100">Cancelar</button>
+    <button class="text-[13px] text-white bg-[var(--primary)] hover:bg-blue-700 px-3 h-9 rounded-md font-medium">Guardar</button>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

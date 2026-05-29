@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>10. Notificaciones para System KPIs — Simetrik</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root { --primary:#2563eb; --border:#e4e4e7; --muted-bg:#f4f4f5; --primary-soft:#eff6ff; }
+  body { font-family: ui-sans-serif, system-ui, sans-serif; background: var(--muted-bg); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; }
+  .pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:500; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="max-w-[1100px] mx-auto p-6" x-data="{
+  mode: 'consolidated',
+  channels: { slack:true, email:false, inApp:true },
+  destination: 'me',
+  cascadeAware: true
+}">
+
+  <nav class="text-xs text-zinc-500 mb-3 flex items-center gap-1.5">
+    <span>Anomalías</span>
+    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+    <span>System KPIs</span>
+    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+    <span>tbk_settlement_daily.csv</span>
+    <i data-lucide="chevron-right" class="w-3 h-3"></i>
+    <span class="text-zinc-900 font-medium">Notificaciones</span>
+  </nav>
+
+  <header class="flex items-start justify-between mb-5">
+    <div>
+      <h1 class="text-[20px] font-semibold tracking-tight">Notificaciones de System KPIs</h1>
+      <p class="text-[13px] text-zinc-500 mt-1">Estos KPIs los crea el agente automáticamente sobre las fuentes que detecta. Configurá cómo querés enterarte.</p>
+    </div>
+  </header>
+
+  <!-- Tab nav -->
+  <div class="flex gap-5 border-b border-zinc-200 mb-6 text-[13px]">
+    <button class="px-1 pb-2.5 text-zinc-500 hover:text-zinc-900">General</button>
+    <button class="px-1 pb-2.5 text-zinc-500 hover:text-zinc-900">Preparación</button>
+    <button class="px-1 pb-2.5 text-zinc-500 hover:text-zinc-900">Umbrales</button>
+    <button class="px-1 pb-2.5 font-medium border-b-2 border-blue-600 text-zinc-900">Notificaciones</button>
+    <button class="px-1 pb-2.5 text-zinc-500 hover:text-zinc-900">Cascada</button>
+  </div>
+
+  <!-- Banner: cascade explanation -->
+  <div class="card p-3.5 mb-5 flex gap-3 border-l-0" style="background: var(--primary-soft); border-color:#bfdbfe;">
+    <i data-lucide="git-branch" class="w-4 h-4 mt-0.5 text-blue-600 shrink-0"></i>
+    <div class="text-[12.5px] leading-relaxed flex-1">
+      <p class="font-medium text-blue-900">El agente activó <b>5 System KPIs</b> sobre esta fuente</p>
+      <p class="text-blue-800 mt-0.5">archivos recibidos por día · volumen por hora · tasa de error · latencia de ingesta · % completitud. Sin agrupar, podrían generar mucho ruido.</p>
+    </div>
+    <button class="text-[12px] font-medium text-blue-700 hover:text-blue-900 shrink-0">Ver cascada</button>
+  </div>
+
+  <div class="grid grid-cols-[1fr_320px] gap-5">
+
+    <section class="space-y-5">
+
+      <!-- Modo de notificación -->
+      <div class="card p-5">
+        <h2 class="text-[14px] font-semibold mb-1">Modo</h2>
+        <p class="text-[12.5px] text-zinc-500 mb-4">Qué te llega cuando uno o varios System KPIs disparan señal.</p>
+
+        <div class="space-y-2">
+
+          <label class="flex items-start gap-3 p-3.5 rounded-md border cursor-pointer transition"
+            :class="mode==='consolidated' ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/30' : 'border-zinc-200 hover:border-zinc-300'">
+            <input type="radio" x-model="mode" value="consolidated" class="mt-0.5 accent-blue-600">
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[13px] font-medium">Consolidado por incidente</span>
+                <span class="pill bg-emerald-50 text-emerald-700">Recomendado</span>
+              </div>
+              <p class="text-[11.5px] text-zinc-500 mt-0.5">Una notificación por incidente, agrupando todas las señales de la cascada. Reduce ruido ~80%.</p>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3 p-3.5 rounded-md border cursor-pointer transition"
+            :class="mode==='per-kpi' ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/30' : 'border-zinc-200 hover:border-zinc-300'">
+            <input type="radio" x-model="mode" value="per-kpi" class="mt-0.5 accent-blue-600">
+            <div class="flex-1">
+              <div class="text-[13px] font-medium">Una por System KPI</div>
+              <p class="text-[11.5px] text-zinc-500 mt-0.5">Una notificación por cada KPI que dispara. Más granular, más volumen.</p>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3 p-3.5 rounded-md border cursor-pointer transition"
+            :class="mode==='digest' ? 'border-blue-500 ring-2 ring-blue-100 bg-blue-50/30' : 'border-zinc-200 hover:border-zinc-300'">
+            <input type="radio" x-model="mode" value="digest" class="mt-0.5 accent-blue-600">
+            <div class="flex-1">
+              <div class="text-[13px] font-medium">Resumen diario</div>
+              <p class="text-[11.5px] text-zinc-500 mt-0.5">Un único mensaje 09:00 hora local con todo lo del día. Útil para fuentes de baja prioridad.</p>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-3 p-3.5 rounded-md border cursor-pointer transition"
+            :class="mode==='off' ? 'border-zinc-400 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-300'">
+            <input type="radio" x-model="mode" value="off" class="mt-0.5 accent-zinc-600">
+            <div class="flex-1">
+              <div class="text-[13px] font-medium">No notificar</div>
+              <p class="text-[11.5px] text-zinc-500 mt-0.5">Los incidentes siguen apareciendo en la lista, pero sin notificación activa.</p>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Canales -->
+      <div class="card p-5" x-show="mode !== 'off'">
+        <h2 class="text-[14px] font-semibold mb-3">Canales</h2>
+        <div class="space-y-2">
+          <label class="flex items-center justify-between p-3 rounded-md border cursor-pointer"
+            :class="channels.slack ? 'border-zinc-300 bg-white' : 'border-zinc-200'">
+            <div class="flex items-center gap-3">
+              <i data-lucide="hash" class="w-4 h-4 text-zinc-500"></i>
+              <div>
+                <div class="text-[13px] font-medium">Slack · #ops-conciliacion-mx</div>
+                <p class="text-[11.5px] text-zinc-500">Con Block Kit y acciones inline</p>
+              </div>
+            </div>
+            <input type="checkbox" x-model="channels.slack" class="accent-blue-600">
+          </label>
+
+          <label class="flex items-center justify-between p-3 rounded-md border cursor-pointer">
+            <div class="flex items-center gap-3">
+              <i data-lucide="mail" class="w-4 h-4 text-zinc-500"></i>
+              <div>
+                <div class="text-[13px] font-medium">Correo</div>
+                <p class="text-[11.5px] text-zinc-500">Para auditoría / fuera del horario</p>
+              </div>
+            </div>
+            <input type="checkbox" x-model="channels.email" class="accent-blue-600">
+          </label>
+
+          <label class="flex items-center justify-between p-3 rounded-md border cursor-pointer">
+            <div class="flex items-center gap-3">
+              <i data-lucide="bell" class="w-4 h-4 text-zinc-500"></i>
+              <div>
+                <div class="text-[13px] font-medium">In-app</div>
+                <p class="text-[11.5px] text-zinc-500">Centro de notificaciones de Simetrik</p>
+              </div>
+            </div>
+            <input type="checkbox" x-model="channels.inApp" class="accent-blue-600">
+          </label>
+        </div>
+      </div>
+
+      <!-- Destinatarios -->
+      <div class="card p-5" x-show="mode !== 'off'">
+        <h2 class="text-[14px] font-semibold mb-3">¿A quién le llega?</h2>
+        <div class="space-y-2">
+          <label class="flex items-center gap-3 p-2.5 rounded-md hover:bg-zinc-50 cursor-pointer">
+            <input type="radio" name="dest" x-model="destination" value="me" checked class="accent-blue-600">
+            <span class="text-[13px]">Solo a mí (owner de la fuente)</span>
+          </label>
+          <label class="flex items-center gap-3 p-2.5 rounded-md hover:bg-zinc-50 cursor-pointer">
+            <input type="radio" name="dest" x-model="destination" value="team" class="accent-blue-600">
+            <span class="text-[13px]">A mí y al equipo del workspace</span>
+          </label>
+          <label class="flex items-center gap-3 p-2.5 rounded-md hover:bg-zinc-50 cursor-pointer">
+            <input type="radio" name="dest" x-model="destination" value="custom" class="accent-blue-600">
+            <span class="text-[13px]">Personas o canales específicos</span>
+          </label>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right summary -->
+    <aside class="space-y-4">
+
+      <div class="card p-4">
+        <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-3">Volumen estimado</p>
+        <div class="space-y-3">
+          <div>
+            <div class="flex items-baseline justify-between">
+              <span class="text-[22px] font-semibold tabular-nums" x-text="mode==='consolidated' ? 6 : mode==='per-kpi' ? 28 : mode==='digest' ? 30 : 0"></span>
+              <span class="text-[11.5px] text-zinc-500">por mes</span>
+            </div>
+            <p class="text-[11.5px] text-zinc-500">Basado en últimos 30 días</p>
+          </div>
+
+          <hr class="border-zinc-100">
+
+          <div class="text-[12px] text-zinc-700 space-y-1.5">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span x-text="mode==='consolidated' ? 'Sin saturar Slack' : mode==='digest' ? 'Sin interrupciones' : 'Granularidad máxima'"></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Hipótesis del agente incluida</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4">
+        <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-2">Aplica a</p>
+        <ul class="text-[12px] space-y-1.5">
+          <li class="flex items-center gap-1.5"><i data-lucide="dot" class="w-3 h-3 text-zinc-400"></i>archivos recibidos por día</li>
+          <li class="flex items-center gap-1.5"><i data-lucide="dot" class="w-3 h-3 text-zinc-400"></i>volumen por hora</li>
+          <li class="flex items-center gap-1.5"><i data-lucide="dot" class="w-3 h-3 text-zinc-400"></i>tasa de error</li>
+          <li class="flex items-center gap-1.5"><i data-lucide="dot" class="w-3 h-3 text-zinc-400"></i>latencia de ingesta</li>
+          <li class="flex items-center gap-1.5"><i data-lucide="dot" class="w-3 h-3 text-zinc-400"></i>% completitud</li>
+        </ul>
+        <button class="mt-3 text-[12px] font-medium text-blue-600 hover:text-blue-800">Configurar por KPI →</button>
+      </div>
+
+      <div class="card p-4 bg-zinc-50">
+        <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-2">Linear</p>
+        <p class="text-[12px] leading-relaxed">
+          <a class="text-blue-600 hover:underline">SWAT-535</a> Parametrización · <a class="text-blue-600 hover:underline">SWAT-536</a> Sugerencias del agente · <a class="text-blue-600 hover:underline">SWAT-537</a> Activar/desactivar
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="flex justify-end gap-2 mt-6">
+    <button class="text-[13px] text-zinc-700 px-3 h-9 rounded-md hover:bg-zinc-100">Cancelar</button>
+    <button class="text-[13px] text-white bg-[var(--primary)] hover:bg-blue-700 px-3 h-9 rounded-md font-medium">Guardar notificaciones</button>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

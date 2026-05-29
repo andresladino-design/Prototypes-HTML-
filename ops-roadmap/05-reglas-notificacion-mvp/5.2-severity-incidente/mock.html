@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>5.2 Parametrizar severity — Simetrik</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root { --primary:#2563eb; --border:#e4e4e7; --muted-bg:#f4f4f5; }
+  body { font-family: ui-sans-serif, system-ui, sans-serif; background: var(--muted-bg); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:500; border:1px solid; }
+  .dot { width:7px; height:7px; border-radius:999px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="max-w-[780px] mx-auto p-6" x-data="{
+  selected: { urgent:true, high:true, medium:false, low:false },
+  count() { return Object.values(this.selected).filter(Boolean).length }
+}">
+
+  <h1 class="text-[20px] font-semibold tracking-tight">Filtrar notificaciones por severidad</h1>
+  <p class="text-[13px] text-zinc-500 mt-1 mb-6">Recibí notificación solo de los incidentes con la severidad que te interesa.</p>
+
+  <div class="card p-5 mb-5">
+    <h2 class="text-[14px] font-semibold mb-1">Severidad de incidente</h2>
+    <p class="text-[12.5px] text-zinc-500 mb-4">El agente clasifica cada incidente según el impacto detectado. <span x-text="count()"></span> de 4 niveles activos.</p>
+
+    <div class="space-y-2">
+
+      <label class="flex items-center gap-3 p-3 rounded-md border cursor-pointer transition"
+        :class="selected.urgent ? 'border-red-300 bg-red-50/40' : 'border-zinc-200 hover:border-zinc-300'">
+        <input type="checkbox" x-model="selected.urgent" class="accent-red-600">
+        <span class="dot bg-red-500"></span>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[13px] font-medium">Urgente</span>
+            <span class="text-[11px] text-zinc-500">URGENT</span>
+          </div>
+          <p class="text-[11.5px] text-zinc-500">Bloqueo de operación, impacto financiero directo, dato crítico ausente.</p>
+        </div>
+        <span class="text-[11px] text-zinc-400 font-mono">~3 por mes</span>
+      </label>
+
+      <label class="flex items-center gap-3 p-3 rounded-md border cursor-pointer transition"
+        :class="selected.high ? 'border-orange-300 bg-orange-50/40' : 'border-zinc-200 hover:border-zinc-300'">
+        <input type="checkbox" x-model="selected.high" class="accent-orange-600">
+        <span class="dot bg-orange-500"></span>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[13px] font-medium">Alta</span>
+            <span class="text-[11px] text-zinc-500">HIGH</span>
+          </div>
+          <p class="text-[11.5px] text-zinc-500">Desvío significativo del baseline, requiere revisión en el día.</p>
+        </div>
+        <span class="text-[11px] text-zinc-400 font-mono">~12 por mes</span>
+      </label>
+
+      <label class="flex items-center gap-3 p-3 rounded-md border cursor-pointer transition"
+        :class="selected.medium ? 'border-amber-300 bg-amber-50/40' : 'border-zinc-200 hover:border-zinc-300'">
+        <input type="checkbox" x-model="selected.medium" class="accent-amber-600">
+        <span class="dot bg-amber-400"></span>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[13px] font-medium">Media</span>
+            <span class="text-[11px] text-zinc-500">MEDIUM</span>
+          </div>
+          <p class="text-[11.5px] text-zinc-500">Patrón inusual sin impacto inmediato, revisar en la semana.</p>
+        </div>
+        <span class="text-[11px] text-zinc-400 font-mono">~38 por mes</span>
+      </label>
+
+      <label class="flex items-center gap-3 p-3 rounded-md border cursor-pointer transition"
+        :class="selected.low ? 'border-zinc-300 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-300'">
+        <input type="checkbox" x-model="selected.low" class="accent-zinc-600">
+        <span class="dot bg-zinc-400"></span>
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[13px] font-medium">Baja</span>
+            <span class="text-[11px] text-zinc-500">LOW</span>
+          </div>
+          <p class="text-[11.5px] text-zinc-500">Observación informativa, sin acción requerida.</p>
+        </div>
+        <span class="text-[11px] text-zinc-400 font-mono">~95 por mes</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="card p-5 mb-5 bg-blue-50/30" style="border-color:#bfdbfe;">
+    <p class="text-[11px] uppercase tracking-wide text-blue-900 font-semibold mb-3">Vista previa de qué recibirás</p>
+
+    <div class="space-y-2 text-[12.5px]">
+      <div class="flex items-center gap-2" x-show="selected.urgent">
+        <span class="chip border-red-200 bg-red-50 text-red-700"><span class="dot bg-red-500"></span> Urgente</span>
+        <span class="text-zinc-700">Archivo de Transbank no recibido a las 02:00 UTC</span>
+      </div>
+      <div class="flex items-center gap-2" x-show="selected.high">
+        <span class="chip border-orange-200 bg-orange-50 text-orange-700"><span class="dot bg-orange-500"></span> Alta</span>
+        <span class="text-zinc-700">Volumen de transacciones cayó 47% vs baseline</span>
+      </div>
+      <div class="flex items-center gap-2" x-show="selected.medium">
+        <span class="chip border-amber-200 bg-amber-50 text-amber-700"><span class="dot bg-amber-400"></span> Media</span>
+        <span class="text-zinc-700">% conciliado por debajo del rango habitual</span>
+      </div>
+      <div class="flex items-center gap-2" x-show="selected.low">
+        <span class="chip border-zinc-200 bg-zinc-50 text-zinc-700"><span class="dot bg-zinc-400"></span> Baja</span>
+        <span class="text-zinc-700">Nueva fuente detectada en el árbol de dependencias</span>
+      </div>
+      <p x-show="count()===0" class="text-zinc-500 italic">No vas a recibir notificaciones con esta configuración.</p>
+    </div>
+
+    <p class="text-[11px] text-zinc-500 mt-3" x-show="count() > 0">
+      Volumen estimado: ~<span class="font-mono font-medium" x-text="(selected.urgent?3:0)+(selected.high?12:0)+(selected.medium?38:0)+(selected.low?95:0)"></span> notificaciones por mes
+    </p>
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <button class="text-[13px] text-zinc-700 px-3 h-9 rounded-md hover:bg-zinc-100">Cancelar</button>
+    <button class="text-[13px] text-white bg-[var(--primary)] hover:bg-blue-700 px-3 h-9 rounded-md font-medium">Guardar</button>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>5.4 Slack Block Kit preview — Simetrik</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root { --primary:#2563eb; --border:#e4e4e7; --muted-bg:#f4f4f5; }
+  body { font-family: ui-sans-serif, system-ui, sans-serif; background: var(--muted-bg); }
+  .card { background:#fff; border:1px solid var(--border); border-radius:10px; }
+  .slack-msg { font-family: "Slack-Lato", "Lato", -apple-system, "Segoe UI", sans-serif; }
+  .slack-divider { height:1px; background:#e8e8e8; margin:10px 0; }
+  .slack-btn { display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:4px; font-size:13px; font-weight:700; border:1px solid #ddd; background:#fff; cursor:pointer; }
+  .slack-btn-primary { background:#007a5a; color:#fff; border-color:#007a5a; }
+  .slack-btn-danger { color:#e01e5a; }
+  .slack-pill { display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:3px; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="max-w-[1200px] mx-auto p-6">
+
+  <h1 class="text-[20px] font-semibold tracking-tight">Notificaciones de Slack con Block Kit</h1>
+  <p class="text-[13px] text-zinc-500 mt-1 mb-6">Antes (texto plano) vs propuesta (Block Kit). Mismo evento real: archivo no recibido en Transbank.</p>
+
+  <div class="grid grid-cols-2 gap-5">
+
+    <!-- ANTES -->
+    <section>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-[11px] uppercase tracking-wide font-semibold text-zinc-500">Antes</span>
+        <span class="text-[11px] text-zinc-400">texto plano + mrkdwn</span>
+      </div>
+
+      <div class="card p-4 slack-msg">
+        <div class="flex items-start gap-2.5">
+          <div class="w-9 h-9 rounded bg-zinc-900 text-white flex items-center justify-center text-[11px] font-bold">SK</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-0.5">
+              <span class="font-bold text-[14px]">Simetrik</span>
+              <span class="text-[10px] bg-zinc-200 text-zinc-700 px-1 rounded font-semibold">APP</span>
+              <span class="text-[11px] text-zinc-500">11:24 AM</span>
+            </div>
+            <p class="text-[14px] text-zinc-900 leading-relaxed">
+              🚨 *Incidente abierto:* Transbank_Settlement no recibió archivo a las 02:00 UTC.<br>
+              Severity: URGENT<br>
+              Workspace: <a class="text-blue-600">Reconciliación México</a><br>
+              Recurso: tbk_settlement_daily.csv<br>
+              breach_pct: 100.0%<br>
+              Ver detalle: https://app.simetrik.com/ops/incidents/6f93...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-[11.5px] text-zinc-500 mt-3 leading-relaxed">
+        Difícil de escanear. Mezcla nivel de severidad, contexto y métricas internas (<code>breach_pct</code>) sin jerarquía. URL completa visible.
+      </p>
+    </section>
+
+    <!-- AHORA -->
+    <section>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-[11px] uppercase tracking-wide font-semibold text-emerald-700">Propuesta</span>
+        <span class="text-[11px] text-zinc-400">Block Kit</span>
+      </div>
+
+      <div class="card p-4 slack-msg">
+        <div class="flex items-start gap-2.5">
+          <div class="w-9 h-9 rounded bg-zinc-900 text-white flex items-center justify-center text-[11px] font-bold">SK</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-bold text-[14px]">Simetrik</span>
+              <span class="text-[10px] bg-zinc-200 text-zinc-700 px-1 rounded font-semibold">APP</span>
+              <span class="text-[11px] text-zinc-500">11:24 AM</span>
+            </div>
+
+            <!-- header block -->
+            <div class="flex items-center gap-2 mb-2">
+              <span class="slack-pill bg-red-50 text-red-700">● Urgente</span>
+              <span class="text-[12px] text-zinc-500">Incidente · M-024</span>
+            </div>
+
+            <p class="text-[15px] font-bold text-zinc-900 leading-snug">Archivo de Transbank no recibido</p>
+
+            <div class="slack-divider"></div>
+
+            <!-- section block: detail -->
+            <div class="text-[13.5px] text-zinc-800 space-y-1.5 leading-relaxed">
+              <div><span class="text-zinc-500">Recurso:</span> <code class="bg-zinc-100 px-1 rounded text-[12.5px]">tbk_settlement_daily.csv</code></div>
+              <div><span class="text-zinc-500">Espacio:</span> Reconciliación México</div>
+              <div><span class="text-zinc-500">Ventana:</span> 02:00 UTC <span class="text-red-600 font-medium">· 3h 24min de retraso</span></div>
+            </div>
+
+            <div class="slack-divider"></div>
+
+            <!-- context block: hypothesis -->
+            <div class="flex items-start gap-2 text-[12px] text-zinc-600">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0"></i>
+              <p><b>Hipótesis del agente:</b> patrón de retraso similar al 12-may. El proveedor SFTP suele liberar entre 04:30-05:30 UTC esos días. Sin acción ahora, el cierre del día se va a ver afectado.</p>
+            </div>
+
+            <div class="slack-divider"></div>
+
+            <!-- actions block -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button class="slack-btn slack-btn-primary">Tomar este incidente</button>
+              <button class="slack-btn">Ver detalle</button>
+              <button class="slack-btn slack-btn-danger">Silenciar 1h</button>
+            </div>
+
+            <div class="text-[11px] text-zinc-400 mt-2.5">Tomar y resolver se ejecutan sin salir de Slack · Ver detalle abre Simetrik</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-[11.5px] text-zinc-700 mt-3 leading-relaxed">
+        Jerarquía clara (severidad → título → contexto → hipótesis → acción). Acciones inline reducen el time-to-resolve. La métrica interna (<code>breach_pct</code>) se traduce a lenguaje del operador.
+      </p>
+    </section>
+  </div>
+
+  <!-- thread updates -->
+  <section class="mt-10">
+    <p class="text-[11px] uppercase tracking-wide font-semibold text-zinc-500 mb-2">Updates en el hilo del incidente</p>
+    <div class="card p-4 slack-msg max-w-[680px]">
+      <div class="flex items-start gap-2.5 pb-3 border-b border-zinc-100">
+        <div class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[11px] font-bold">CA</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-0.5">
+            <span class="font-bold text-[13px]">Camila</span>
+            <span class="text-[11px] text-zinc-500">11:31 AM</span>
+          </div>
+          <p class="text-[13.5px]">Lo tomo, hablo con el proveedor</p>
+        </div>
+      </div>
+
+      <div class="flex items-start gap-2.5 pt-3">
+        <div class="w-7 h-7 rounded bg-zinc-900 text-white flex items-center justify-center text-[10px] font-bold">SK</div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-bold text-[13px]">Simetrik</span>
+            <span class="text-[10px] bg-zinc-200 text-zinc-700 px-1 rounded font-semibold">APP</span>
+            <span class="text-[11px] text-zinc-500">11:42 AM</span>
+          </div>
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="slack-pill bg-emerald-50 text-emerald-700">● Resuelto</span>
+            <span class="text-[12px] text-zinc-500">por Camila</span>
+          </div>
+          <p class="text-[13.5px] text-zinc-800">Archivo recibido a las 11:38 UTC. Pipeline corriendo normal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="mt-8 card p-4 bg-zinc-50">
+    <p class="text-[11px] uppercase tracking-wide font-semibold text-zinc-500 mb-1">Linear</p>
+    <p class="text-[12.5px]"><a class="text-blue-600 hover:underline">SWAT-1381</a> notifications-backend: Block Kit · <a class="text-blue-600 hover:underline">SWAT-846</a> Integración Slack API · <a class="text-blue-600 hover:underline">SWAT-1386</a> docs + BDD ✅</p>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Refactor Navegación Anomalías · Patrón C Recurso-céntrico</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --fg: #18181b;
+    --muted: #71717a;
+    --subtle: #a1a1aa;
+    --border: #e4e4e7;
+    --border-soft: #f4f4f5;
+    --primary: #2563eb;
+    --primary-soft: #eff6ff;
+    --success: #16a34a;
+    --warning: #ea580c;
+    --danger: #dc2626;
+    --info: #3b82f6;
+    --ai-tint: #f5f3ff;
+    --ai-accent: #7c3aed;
+  }
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font-family: ui-sans-serif, system-ui, "Inter", sans-serif; }
+  .surface { background: var(--surface); }
+  .border-subtle { border-color: var(--border); }
+  .pill { display:inline-flex; align-items:center; gap:5px; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:500; line-height:1.4; }
+  .dot { width:6px; height:6px; border-radius:999px; flex-shrink:0; }
+  .kbd { font-family: ui-monospace, monospace; font-size:10.5px; padding:1px 5px; border:1px solid var(--border); border-radius:4px; background:#fafafa; color:var(--muted); }
+  [x-cloak] { display:none !important; }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 4px; }
+  /* AI card: superficie neutra + acento por icon y border-left sutil, no halo */
+  .ai-card { background: #ffffff; border-left: 2px solid #ddd6fe; }
+  .ai-header { background: #fafafa; }
+  .focus-ring:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  /* Provider sidebar items */
+  .sb-item { display:flex; align-items:center; gap:8px; padding: 0 8px; height: 32px; border-radius: 6px; color:#3f3f46; cursor:pointer; transition: background 80ms; }
+  .sb-item:hover { background:#f4f4f5; color:#18181b; }
+  .sb-item-active { display:flex; align-items:center; gap:8px; padding: 0 8px; height: 32px; border-radius: 6px; background:#eff6ff; color:#1e40af; font-weight: 500; cursor: pointer; }
+  .sb-icon { width: 15px; height: 15px; flex-shrink: 0; }
+  /* Entity badge: chip outline para deep-link de recurso, fuente, KPI, tablero. Inline en prosa del agente. */
+  .ref-chip { display:inline-flex; align-items:center; gap:4px; padding:0 6px; height:20px; line-height:1; border:1px solid #d4d4d8; border-radius:6px; background:#ffffff; color:#27272a; font-size:12px; font-weight:500; vertical-align:baseline; transition: border-color 80ms, background 80ms; cursor:pointer; white-space:nowrap; }
+  .ref-chip:hover { border-color:#a1a1aa; background:#fafafa; }
+  .ref-chip i { width:12px; height:12px; color:#71717a; flex-shrink:0; }
+</style>
+</head>
+<body class="h-screen overflow-hidden" x-data="state()">
+
+<!-- =========================  SHELL  ========================= -->
+<div class="flex h-screen">
+
+  <!-- ===== Provider Sidebar (global Simetrik shell · ~256px, light) ===== -->
+  <aside class="w-[240px] surface border-r border-subtle flex flex-col shrink-0">
+
+    <!-- Header: Logo + Workspace selector + Search -->
+    <div class="px-3 pt-3 pb-2 border-b border-subtle">
+      <a class="flex items-center gap-2 h-8 px-1 mb-2">
+        <div class="w-6 h-6 rounded-md bg-zinc-900 text-white flex items-center justify-center text-[11px] font-bold">S</div>
+        <span class="text-[13px] font-semibold tracking-tight">Simetrik</span>
+      </a>
+
+      <button class="w-full flex items-center gap-2 h-10 px-2 rounded-md hover:bg-zinc-50 focus-ring text-left">
+        <div class="w-7 h-7 rounded-md bg-blue-100 text-blue-800 flex items-center justify-center text-[11px] font-semibold shrink-0">RM</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[12.5px] font-medium truncate">Reconciliación México</p>
+          <p class="text-[10.5px] text-zinc-500 truncate">Cliente · Banco Sumitomo MX</p>
+        </div>
+        <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 text-zinc-400 shrink-0"></i>
+      </button>
+
+      <button class="mt-2 w-full flex items-center justify-between gap-2 h-7 px-2 rounded-md hover:bg-zinc-50 text-[12px] text-zinc-500">
+        <span class="flex items-center gap-1.5"><i data-lucide="search" class="w-3.5 h-3.5"></i>Buscar</span>
+        <span class="kbd">⌘ K</span>
+      </button>
+    </div>
+
+    <!-- Content: nav groups -->
+    <nav class="flex-1 overflow-y-auto px-2 py-2 scrollbar-thin space-y-0.5 text-[13px]">
+      <a class="sb-item"><i data-lucide="flag" class="sb-icon"></i><span>Overview</span></a>
+      <a class="sb-item"><i data-lucide="bot" class="sb-icon"></i><span>Simetrik Agent</span></a>
+
+      <!-- Operation Center (active) -->
+      <a class="sb-item-active"><i data-lucide="radar" class="sb-icon"></i><span>Operation Center</span></a>
+      <a class="sb-item pl-9 !h-8 text-[12.5px] text-zinc-500"><span>Marketplace</span></a>
+
+      <div class="pt-3 pb-1 px-2 text-[10.5px] uppercase tracking-wider text-zinc-400 font-semibold">Automate</div>
+      <a class="sb-item"><i data-lucide="wand-2" class="sb-icon"></i><span>Solutions Catalog</span></a>
+      <a class="sb-item"><i data-lucide="workflow" class="sb-icon"></i><span>Workflows</span></a>
+
+      <div class="pt-3 pb-1 px-2 text-[10.5px] uppercase tracking-wider text-zinc-400 font-semibold">Operate</div>
+      <a class="sb-item"><i data-lucide="line-chart" class="sb-icon"></i><span>Reportes</span></a>
+      <a class="sb-item"><i data-lucide="git-branch" class="sb-icon"></i><span>Conciliaciones</span></a>
+      <a class="sb-item"><i data-lucide="layers" class="sb-icon"></i><span>Datasets</span></a>
+
+      <div class="pt-3 pb-1 px-2 text-[10.5px] uppercase tracking-wider text-zinc-400 font-semibold">Audit</div>
+      <a class="sb-item"><i data-lucide="shield-check" class="sb-icon"></i><span>Trazabilidad</span></a>
+      <a class="sb-item"><i data-lucide="users" class="sb-icon"></i><span>Equipos</span></a>
+
+      <div class="pt-3 pb-1 px-2 text-[10.5px] uppercase tracking-wider text-zinc-400 font-semibold">Tools</div>
+      <a class="sb-item"><i data-lucide="hard-drive" class="sb-icon"></i><span>Storage</span></a>
+      <a class="sb-item"><i data-lucide="terminal" class="sb-icon"></i><span>Dev Console</span></a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="border-t border-subtle px-2 py-2 flex items-center gap-1">
+      <button class="flex items-center gap-2 flex-1 px-2 h-8 hover:bg-zinc-50 rounded-md text-[12.5px] text-zinc-700 focus-ring">
+        <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10.5px] font-semibold">AL</div>
+        <span class="truncate">Andres Ladino</span>
+      </button>
+      <button aria-label="Notificaciones" class="w-7 h-7 flex items-center justify-center hover:bg-zinc-100 rounded-md text-zinc-500 focus-ring relative">
+        <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+        <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-500"></span>
+      </button>
+      <button aria-label="Ayuda" class="w-7 h-7 flex items-center justify-center hover:bg-zinc-100 rounded-md text-zinc-500 focus-ring"><i data-lucide="circle-help" class="w-3.5 h-3.5"></i></button>
+      <button aria-label="Colapsar sidebar" class="w-7 h-7 flex items-center justify-center hover:bg-zinc-100 rounded-md text-zinc-500 focus-ring"><i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i></button>
+    </div>
+  </aside>
+
+<!-- =========================  OC PLATFORM  ========================= -->
+<div class="flex-1 flex flex-col min-w-0">
+
+  <!-- OC top sub-nav (4 módulos del Operation Center) -->
+  <div class="surface border-b border-subtle flex items-center h-11 px-4 gap-0.5 text-[13px] shrink-0">
+    <a class="px-2.5 h-8 inline-flex items-center text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-md gap-1.5"><i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>Tableros</a>
+    <a class="px-2.5 h-8 inline-flex items-center text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-md gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5"></i>Pendientes</a>
+    <a class="px-2.5 h-8 inline-flex items-center text-zinc-900 font-medium bg-zinc-100 rounded-md gap-1.5">
+      <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+      Monitoreo
+      <span class="pill bg-zinc-200 text-zinc-700 text-[10px] !px-1.5">Beta</span>
+    </a>
+    <a class="px-2.5 h-8 inline-flex items-center text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-md gap-1.5"><i data-lucide="hard-drive" class="w-3.5 h-3.5"></i>Storage</a>
+  </div>
+
+<!-- =========================  MODULE BODY  ========================= -->
+<div class="flex flex-1 min-h-0">
+
+  <!-- Sidebar de Recursos -->
+  <aside class="w-[280px] surface border-r border-subtle flex flex-col">
+    <!-- Lens tabs (Actividad primero, default landing) -->
+    <div class="flex items-center gap-0.5 px-3 pt-3 pb-2">
+      <button @click="lens='activity'" class="px-2.5 h-8 text-[12.5px] rounded-md flex-1 transition flex items-center justify-center gap-1.5"
+        :class="lens==='activity' ? 'bg-zinc-100 text-zinc-900 font-medium' : 'text-zinc-500 hover:bg-zinc-50'">
+        Actividad
+        <span class="pill bg-red-50 text-red-700 text-[10px] !px-1.5">3</span>
+      </button>
+      <button @click="lens='resources'" class="px-2.5 h-8 text-[12.5px] rounded-md flex-1 transition"
+        :class="lens==='resources' ? 'bg-zinc-100 text-zinc-900 font-medium' : 'text-zinc-500 hover:bg-zinc-50'">
+        Monitores
+      </button>
+    </div>
+
+    <!-- Search · contextual al lente activo -->
+    <div class="px-3 pb-2">
+      <div class="relative">
+        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+        <input :placeholder="lens==='activity' ? 'Buscar por título, recurso o severidad' : 'Buscar monitor'" class="w-full h-8 pl-8 pr-12 text-[12.5px] bg-zinc-50 border border-transparent rounded-md focus:bg-white focus:border-blue-400 focus:outline-none">
+        <span class="kbd absolute right-2 top-1/2 -translate-y-1/2">⌘ K</span>
+      </div>
+    </div>
+
+    <!-- Lens: Monitores (agrupa monitores sobre Fuentes y sobre Tableros) -->
+    <div x-show="lens==='resources'" class="flex-1 overflow-y-auto scrollbar-thin">
+
+      <!-- Favoritos -->
+      <details open class="px-2 pt-1 pb-1">
+        <summary class="flex items-center justify-between text-[11px] uppercase tracking-wider text-zinc-500 font-semibold px-1.5 h-7 hover:text-zinc-900">
+          <span class="flex items-center gap-1"><i data-lucide="chevron-down" class="w-3 h-3"></i>Favoritos</span>
+          <span class="text-zinc-400" x-text="resources.filter(r=>r.fav).length"></span>
+        </summary>
+        <template x-for="r in resources.filter(r=>r.fav)" :key="r.id">
+          <a @click="selected=r.id" class="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-[13px] group"
+            :class="selected===r.id ? 'bg-blue-50 text-blue-900' : 'hover:bg-zinc-50'">
+            <i :data-lucide="r.kind==='source' ? 'hard-drive' : 'layout-dashboard'" class="w-3.5 h-3.5 text-zinc-400 shrink-0"></i>
+            <span class="truncate flex-1" x-text="r.name"></span>
+            <i data-lucide="star" class="w-3 h-3 text-amber-500 fill-amber-500"></i>
+          </a>
+        </template>
+      </details>
+
+      <!-- Sobre fuentes -->
+      <details open class="px-2 py-1">
+        <summary class="flex items-center justify-between text-[11px] uppercase tracking-wider text-zinc-500 font-semibold px-1.5 h-7 hover:text-zinc-900">
+          <span class="flex items-center gap-1"><i data-lucide="chevron-down" class="w-3 h-3"></i>Sobre fuentes</span>
+          <span class="text-zinc-400" x-text="resources.filter(r=>r.kind==='source' && r.monitored && !r.fav).length"></span>
+        </summary>
+        <template x-for="r in resources.filter(r=>r.kind==='source' && r.monitored && !r.fav)" :key="r.id">
+          <a @click="selected=r.id" class="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-[13px]"
+            :class="selected===r.id ? 'bg-blue-50 text-blue-900' : 'hover:bg-zinc-50'">
+            <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-zinc-400 shrink-0"></i>
+            <span class="truncate flex-1" x-text="r.name"></span>
+          </a>
+        </template>
+      </details>
+
+      <!-- Sobre tableros -->
+      <details open class="px-2 py-1">
+        <summary class="flex items-center justify-between text-[11px] uppercase tracking-wider text-zinc-500 font-semibold px-1.5 h-7 hover:text-zinc-900">
+          <span class="flex items-center gap-1"><i data-lucide="chevron-down" class="w-3 h-3"></i>Sobre tableros</span>
+          <span class="text-zinc-400" x-text="resources.filter(r=>r.kind==='dashboard' && r.monitored && !r.fav).length"></span>
+        </summary>
+        <template x-for="r in resources.filter(r=>r.kind==='dashboard' && r.monitored && !r.fav)" :key="r.id">
+          <a @click="selected=r.id" class="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer text-[13px]"
+            :class="selected===r.id ? 'bg-blue-50 text-blue-900' : 'hover:bg-zinc-50'">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 text-zinc-400 shrink-0"></i>
+            <span class="truncate flex-1" x-text="r.name"></span>
+          </a>
+        </template>
+      </details>
+
+      <!-- Sin monitoreo -->
+      <details class="px-2 py-1">
+        <summary class="flex items-center justify-between text-[11px] uppercase tracking-wider text-zinc-500 font-semibold px-1.5 h-7 hover:text-zinc-900">
+          <span class="flex items-center gap-1"><i data-lucide="chevron-right" class="w-3 h-3"></i>Sin monitoreo</span>
+          <span class="text-zinc-400" x-text="resources.filter(r=>!r.monitored).length"></span>
+        </summary>
+        <template x-for="r in resources.filter(r=>!r.monitored)" :key="r.id">
+          <a class="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer hover:bg-zinc-50 text-[13px] text-zinc-500">
+            <i :data-lucide="r.kind==='source' ? 'hard-drive' : 'layout-dashboard'" class="w-3.5 h-3.5 text-zinc-300 shrink-0"></i>
+            <span class="truncate flex-1" x-text="r.name"></span>
+          </a>
+        </template>
+      </details>
+    </div>
+
+    <!-- Lens: Actividad (master de la lista, el detail vive en el área principal) -->
+    <div x-show="lens==='activity'" x-cloak class="flex-1 flex flex-col min-h-0">
+      <div class="px-3 pb-2 flex items-center gap-1.5 text-[11px] flex-wrap">
+        <button class="pill bg-zinc-100 text-zinc-700 hover:bg-zinc-200">Abierto <i data-lucide="x" class="w-3 h-3"></i></button>
+        <button class="pill border border-zinc-200 text-zinc-600 hover:bg-zinc-50">Severidad</button>
+        <button class="pill border border-zinc-200 text-zinc-600 hover:bg-zinc-50">Origen</button>
+      </div>
+      <ul class="flex-1 overflow-y-auto scrollbar-thin divide-y divide-zinc-100">
+        <template x-for="i in incidents" :key="i.id">
+          <li @click="activeIncident=i.id" class="px-3 py-2.5 cursor-pointer transition border-l-2"
+            :class="activeIncident===i.id ? 'bg-blue-50/50 border-l-blue-600' : 'border-l-transparent hover:bg-zinc-50'">
+            <div class="flex items-center justify-between mb-1">
+              <span class="pill" :class="sevClass(i.severity)">
+                <span class="dot" :class="dotClass(i.severity==='Urgente'?'urgent':i.severity==='Alta'?'attention':'healthy')"></span>
+                <span x-text="i.severity"></span>
+              </span>
+              <span class="text-[10.5px] text-zinc-400" x-text="i.time"></span>
+            </div>
+            <p class="text-[12.5px] font-medium text-zinc-900 leading-snug mb-1 line-clamp-2" x-text="i.title"></p>
+            <div class="flex items-center gap-1.5 text-[10.5px] text-zinc-500">
+              <i data-lucide="hard-drive" class="w-3 h-3 shrink-0"></i>
+              <span class="truncate flex-1" x-text="i.resource"></span>
+              <span class="pill bg-zinc-100 text-zinc-600 !px-1.5 !py-0 text-[10px] shrink-0" x-text="i.status"></span>
+            </div>
+          </li>
+        </template>
+      </ul>
+    </div>
+
+    <!-- Footer: AI chat trigger → abre Sheet lateral -->
+    <div class="border-t border-subtle px-2 py-2 flex items-center gap-1">
+      <button @click="aiSheet=true" class="flex items-center gap-2 flex-1 px-2 h-8 hover:bg-zinc-50 rounded-md text-[12.5px] text-zinc-600 focus-ring">
+        <i data-lucide="bot" class="w-3.5 h-3.5 text-zinc-500"></i>
+        Preguntar al Agente IA
+      </button>
+      <button aria-label="Monitorear nuevo recurso" class="w-8 h-8 flex items-center justify-center hover:bg-zinc-50 rounded-md text-zinc-500 focus-ring"><i data-lucide="plus" class="w-4 h-4"></i></button>
+    </div>
+  </aside>
+
+  <!-- =========================  RESOURCE VIEW  ========================= -->
+  <main class="flex-1 overflow-y-auto bg-[var(--bg)]" x-show="lens==='resources'">
+    <template x-if="current">
+      <div>
+
+        <!-- Breadcrumb + header bar -->
+        <div class="surface border-b border-subtle px-6 pt-3 pb-4 sticky top-0 z-10">
+          <nav class="flex items-center gap-1 text-[11.5px] text-zinc-500 mb-2.5">
+            <span>Reconciliación México</span>
+            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span>Monitoreo</span>
+            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span class="text-zinc-700" x-text="current.name"></span>
+            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span class="text-zinc-900 font-medium capitalize" x-text="tab"></span>
+          </nav>
+
+          <div class="flex items-start justify-between gap-4">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <h1 class="text-[20px] font-semibold tracking-tight truncate" x-text="current.name"></h1>
+                <button class="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-amber-500 rounded-md hover:bg-zinc-50" :title="current.fav ? 'Quitar de favoritos' : 'Marcar favorito'">
+                  <i :data-lucide="current.fav ? 'star' : 'star'" class="w-4 h-4" :class="current.fav && 'text-amber-500 fill-amber-500'"></i>
+                </button>
+              </div>
+              <p class="text-[12.5px] text-zinc-500 flex items-center gap-3">
+                <span class="flex items-center gap-1">
+                  <i :data-lucide="current.kind==='source' ? 'hard-drive' : 'layout-dashboard'" class="w-3 h-3"></i>
+                  <span x-text="(current.kind==='source' ? 'Fuente' : 'Tablero') + ' · ID '"></span>
+                  <code class="text-[11.5px]" x-text="current.id"></code>
+                </span>
+                <span>·</span>
+                <span x-text="current.path"></span>
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button class="h-8 text-[12.5px] px-3 rounded-md bg-blue-600 text-white hover:bg-blue-700 font-medium flex items-center gap-1.5">
+                <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+                Editar monitoreo
+              </button>
+              <button aria-label="Más acciones" class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-zinc-100 text-zinc-500"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="flex items-center gap-5 mt-4 -mb-4 text-[13px]">
+            <template x-for="t in tabs" :key="t.id">
+              <button @click="tab=t.id" class="pb-3 -mb-px relative transition"
+                :class="tab===t.id ? 'text-zinc-900 font-medium' : 'text-zinc-500 hover:text-zinc-700'">
+                <span x-text="t.label"></span>
+                <span x-show="t.count" class="pill bg-zinc-100 text-zinc-600 ml-1 !px-1.5 !py-0 text-[10.5px]" x-text="t.count"></span>
+                <span x-show="tab===t.id" class="absolute -bottom-px left-0 right-0 h-0.5 bg-blue-600 rounded-full"></span>
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <!-- ===== TAB: Resumen · vista de la configuración del monitor ===== -->
+        <div x-show="tab==='estado'" class="px-6 py-5 max-w-[1100px] space-y-5">
+
+          <!-- Configuración actual del monitor (read-only summary) -->
+          <section class="surface border border-subtle rounded-lg">
+            <header class="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
+              <div>
+                <h2 class="text-[13.5px] font-semibold">Configuración del monitor</h2>
+                <p class="text-[11.5px] text-zinc-500">Así está parametrizado hoy. Cualquier cambio aplica al próximo ciclo de evaluación.</p>
+              </div>
+              <button @click="tab='configuracion'" class="text-[12px] text-blue-600 hover:text-blue-800 font-medium">Editar configuración →</button>
+            </header>
+
+            <div class="grid grid-cols-2 gap-x-8 gap-y-4 p-4">
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">Frecuencia</p>
+                <p class="text-[13px] text-zinc-900">Diaria</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">Ventana 00:00 a 06:00 UTC</p>
+              </div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">Sensibilidad del agente</p>
+                <p class="text-[13px] text-zinc-900">Balanceado</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">Sugerido por el agente</p>
+              </div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">Umbrales</p>
+                <p class="text-[13px] text-zinc-900 tabular-nums">100 <span class="text-zinc-400">→</span> 200</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">Mínimo y máximo aceptables</p>
+              </div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">Detección</p>
+                <p class="text-[13px] text-zinc-900">Hard threshold + adaptativa</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">Ambos modos activos</p>
+              </div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">KPIs activos</p>
+                <p class="text-[13px] text-zinc-900">5 monitoreados</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">2 tuyos, 3 del sistema</p>
+              </div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">Notificaciones</p>
+                <p class="text-[13px] text-zinc-900">2 canales activos</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">Slack · correo</p>
+              </div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">Activo desde</p>
+                <p class="text-[13px] text-zinc-900">14 de mayo, 2026</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">Hace 12 días</p>
+              </div>
+              <div>
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-1.5">Último cambio</p>
+                <p class="text-[13px] text-zinc-900">Ayer · Andres Ladino</p>
+                <p class="text-[11.5px] text-zinc-500 mt-0.5">Ajustó umbral mínimo de 80 a 100</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Detalle de segmentación · cambia según kind del monitor -->
+          <section class="surface border border-subtle rounded-lg" x-show="current.kind === 'source'">
+            <header class="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
+              <div>
+                <h2 class="text-[13.5px] font-semibold">Ventana de carga y file patterns</h2>
+                <p class="text-[11.5px] text-zinc-500">Cuándo evaluar la fuente y qué archivos cuentan dentro del monitoreo.</p>
+              </div>
+              <button @click="tab='configuracion'" class="text-[12px] text-blue-600 hover:text-blue-800 font-medium">Editar configuración →</button>
+            </header>
+
+            <!-- Days of week + window -->
+            <div class="px-4 py-3.5 border-b border-zinc-100">
+              <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mb-2">Días y horario de evaluación</p>
+              <div class="flex items-center gap-1.5 mb-2">
+                <template x-for="(d,idx) in ['L','M','X','J','V','S','D']" :key="idx">
+                  <span class="w-7 h-7 rounded-md text-[11.5px] font-medium flex items-center justify-center"
+                    :class="idx < 5 ? 'bg-blue-600 text-white' : 'bg-zinc-100 text-zinc-400'"
+                    x-text="d"></span>
+                </template>
+                <span class="text-[11.5px] text-zinc-500 ml-2">Lunes a viernes</span>
+              </div>
+              <p class="text-[12.5px] text-zinc-900 tabular-nums">02:00 → 06:00 <span class="text-zinc-400">UTC-5</span></p>
+            </div>
+
+            <!-- File patterns -->
+            <div class="px-4 py-3.5">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold">Patrones de archivo</p>
+                <span class="pill bg-zinc-100 text-zinc-600">2 activos</span>
+              </div>
+              <div class="space-y-1.5">
+                <div class="border border-zinc-100 rounded-md px-3 py-2 flex items-center gap-3 text-[12.5px]">
+                  <code class="font-mono text-[11.5px] text-zinc-700 flex-1 truncate">bank_stmt_{Date:YYYYMMDD}_{Sequence:3}.csv</code>
+                  <span class="pill bg-emerald-50 text-emerald-700">Activo</span>
+                </div>
+                <div class="border border-zinc-100 rounded-md px-3 py-2 flex items-center gap-3 text-[12.5px]">
+                  <code class="font-mono text-[11.5px] text-zinc-700 flex-1 truncate">bank_stmt_late_{Date:YYYYMMDD}.csv</code>
+                  <span class="pill bg-amber-50 text-amber-700">Tardío</span>
+                </div>
+              </div>
+              <p class="text-[11px] text-zinc-500 mt-2">Entidades: <code class="text-[10.5px]">Date</code> · <code class="text-[10.5px]">Sequence</code></p>
+            </div>
+          </section>
+
+          <!-- Dashboard kind: tabla de series por métrica -->
+          <section class="surface border border-subtle rounded-lg" x-show="current.kind === 'dashboard'" x-cloak>
+            <header class="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
+              <div>
+                <h2 class="text-[13.5px] font-semibold">Series y umbrales por métrica</h2>
+                <p class="text-[11.5px] text-zinc-500">Cada serie del tablero tiene sus propios umbrales mínimo y máximo.</p>
+              </div>
+              <button @click="tab='configuracion'" class="text-[12px] text-blue-600 hover:text-blue-800 font-medium">Editar configuración →</button>
+            </header>
+
+            <!-- Métrica 1 con tabla de series -->
+            <div class="px-4 py-3.5 border-b border-zinc-100">
+              <div class="flex items-center justify-between mb-2.5">
+                <div>
+                  <p class="text-[12.5px] font-medium text-zinc-900">Tasa de conciliación</p>
+                  <p class="text-[11px] text-zinc-500">Agregación: promedio · 5 de 100 series configuradas</p>
+                </div>
+                <span class="pill bg-blue-50 text-blue-700">SUM</span>
+              </div>
+              <table class="w-full text-[12.5px]">
+                <thead>
+                  <tr class="text-[10.5px] uppercase tracking-wider text-zinc-500 border-b border-zinc-100">
+                    <th class="text-left font-semibold py-1.5">País</th>
+                    <th class="text-right font-semibold py-1.5 w-24">Mínimo</th>
+                    <th class="text-right font-semibold py-1.5 w-24">Máximo</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-50">
+                  <tr><td class="py-1.5">COL</td><td class="text-right tabular-nums">95%</td><td class="text-right tabular-nums">100%</td></tr>
+                  <tr><td class="py-1.5">MX</td><td class="text-right tabular-nums">90%</td><td class="text-right tabular-nums">100%</td></tr>
+                  <tr><td class="py-1.5">PER</td><td class="text-right tabular-nums">92%</td><td class="text-right tabular-nums">100%</td></tr>
+                  <tr><td class="py-1.5">CHI</td><td class="text-right tabular-nums">88%</td><td class="text-right tabular-nums">100%</td></tr>
+                  <tr><td class="py-1.5">ARG</td><td class="text-right tabular-nums">85%</td><td class="text-right tabular-nums">100%</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Métrica 2 sin series (global) -->
+            <div class="px-4 py-3.5">
+              <div class="flex items-center justify-between mb-1">
+                <div>
+                  <p class="text-[12.5px] font-medium text-zinc-900">Monto pendiente</p>
+                  <p class="text-[11px] text-zinc-500">Agregación: suma · sin segmentar (umbral global)</p>
+                </div>
+                <span class="pill bg-blue-50 text-blue-700">SUM</span>
+              </div>
+              <div class="flex items-center gap-4 mt-2 text-[12.5px]">
+                <span class="text-zinc-500">Mínimo: <span class="text-zinc-900 tabular-nums font-medium">$ 0</span></span>
+                <span class="text-zinc-500">Máximo: <span class="text-zinc-900 tabular-nums font-medium">$ 50 K</span></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- KPIs del recurso (mismo patrón contenedor: header título + subtítulo) -->
+          <section class="surface border border-subtle rounded-lg">
+            <header class="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
+              <div>
+                <h2 class="text-[13.5px] font-semibold">KPIs del monitor</h2>
+                <p class="text-[11.5px] text-zinc-500">Indicadores que evalúa el agente en cada ciclo.</p>
+              </div>
+              <button @click="tab='kpis'" class="text-[12px] text-blue-600 hover:text-blue-800 font-medium">Ver todos los KPIs →</button>
+            </header>
+            <div class="divide-y divide-zinc-100">
+              <div class="px-4 py-2.5 flex items-center gap-3 text-[13px]">
+                <span class="dot bg-red-500"></span>
+                <span class="flex-1 text-zinc-700">Archivos recibidos por día</span>
+                <span class="tabular-nums font-medium">82 <span class="text-zinc-400 font-normal">/ 120 esp.</span></span>
+                <span class="text-red-700 tabular-nums text-[12px] w-24 text-right">↓ 32% habitual</span>
+              </div>
+              <div class="px-4 py-2.5 flex items-center gap-3 text-[13px]">
+                <span class="dot bg-amber-400"></span>
+                <span class="flex-1 text-zinc-700">Volumen total</span>
+                <span class="tabular-nums font-medium">$ 4.1 M</span>
+                <span class="text-amber-700 tabular-nums text-[12px] w-24 text-right">↓ 11% habitual</span>
+              </div>
+              <div class="px-4 py-2.5 flex items-center gap-3 text-[13px]">
+                <span class="dot bg-emerald-500"></span>
+                <span class="flex-1 text-zinc-700">Latencia de ingesta</span>
+                <span class="tabular-nums font-medium">3.2 <span class="text-zinc-400 font-normal">min</span></span>
+                <span class="text-zinc-500 tabular-nums text-[12px] w-24 text-right">prom. 3.1</span>
+              </div>
+              <div class="px-4 py-2.5 flex items-center gap-3 text-[13px]">
+                <span class="dot bg-emerald-500"></span>
+                <span class="flex-1 text-zinc-700">% completitud</span>
+                <span class="tabular-nums font-medium">99.4 %</span>
+                <span class="text-zinc-500 tabular-nums text-[12px] w-24 text-right">SLA 99%</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Últimos eventos (mismo patrón) -->
+          <section class="surface border border-subtle rounded-lg">
+            <header class="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
+              <div>
+                <h2 class="text-[13.5px] font-semibold">Últimos eventos</h2>
+                <p class="text-[11.5px] text-zinc-500">Cambios, señales e incidentes recientes del monitor.</p>
+              </div>
+              <button @click="tab='historico'" class="text-[12px] text-blue-600 hover:text-blue-800 font-medium">Ver historial →</button>
+            </header>
+            <ul class="divide-y divide-zinc-100">
+              <li class="px-4 py-2.5 flex items-center gap-3">
+                <span class="dot bg-red-500"></span>
+                <p class="text-[12.5px] flex-1"><b>Incidente abierto</b>: archivo no recibido a las 02:00 UTC</p>
+                <span class="text-[11px] text-zinc-400">hace 6 h</span>
+              </li>
+              <li class="px-4 py-2.5 flex items-center gap-3">
+                <span class="dot bg-amber-400"></span>
+                <p class="text-[12.5px] flex-1"><b>Señal de anomalía</b>: volumen por debajo del rango</p>
+                <span class="text-[11px] text-zinc-400">hace 6 h</span>
+              </li>
+              <li class="px-4 py-2.5 flex items-center gap-3">
+                <span class="dot bg-emerald-500"></span>
+                <p class="text-[12.5px] flex-1"><b>Configuración guardada</b>: umbral ajustado por <span class="text-zinc-500">Andres L.</span></p>
+                <span class="text-[11px] text-zinc-400">hace 1 d</span>
+              </li>
+              <li class="px-4 py-2.5 flex items-center gap-3">
+                <span class="dot bg-zinc-300"></span>
+                <p class="text-[12.5px] flex-1">Monitoreo activado</p>
+                <span class="text-[11px] text-zinc-400">hace 14 d</span>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <!-- ===== TAB: KPIs ===== -->
+        <div x-show="tab==='kpis'" x-cloak class="px-6 py-5 max-w-[1100px] space-y-5">
+
+          <!-- Tus KPIs -->
+          <section>
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h2 class="text-[14px] font-semibold flex items-center gap-2">Tus KPIs <span class="pill bg-zinc-100 text-zinc-600">2</span></h2>
+                <p class="text-[12px] text-zinc-500">Definidos por ti sobre datos del tablero</p>
+              </div>
+              <button class="h-8 text-[12px] px-2.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-700 flex items-center gap-1.5">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar KPI
+              </button>
+            </div>
+            <div class="surface border border-subtle rounded-lg divide-y divide-zinc-100">
+              <article class="px-4 py-3.5 flex items-center gap-3">
+                <span class="dot bg-red-500"></span>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[13px] font-medium">Archivos recibidos por día</span>
+                    <span class="pill bg-zinc-100 text-zinc-600">KPI</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-500 mt-0.5">Umbral mínimo: 100 · Ventana: diaria 00:00–06:00 UTC</p>
+                </div>
+                <span class="pill bg-red-50 text-red-700">1 anomalía</span>
+                <button class="w-7 h-7 hover:bg-zinc-50 rounded-md text-zinc-400"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </article>
+              <article class="px-4 py-3.5 flex items-center gap-3">
+                <span class="dot bg-emerald-500"></span>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[13px] font-medium">Monto total conciliado</span>
+                    <span class="pill bg-zinc-100 text-zinc-600">KPI</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-500 mt-0.5">Detección adaptativa · Ventana: diaria</p>
+                </div>
+                <button class="w-7 h-7 hover:bg-zinc-50 rounded-md text-zinc-400"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+              </article>
+            </div>
+          </section>
+
+          <!-- KPIs del sistema -->
+          <section>
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h2 class="text-[14px] font-semibold flex items-center gap-2">KPIs del sistema <span class="pill bg-zinc-100 text-zinc-600">3</span></h2>
+                <p class="text-[12px] text-zinc-500">Generados por Simetrik a partir de tus fuentes. Puedes activarlos o desactivarlos.</p>
+              </div>
+            </div>
+            <div class="surface border border-subtle rounded-lg divide-y divide-zinc-100">
+              <article class="px-4 py-3.5 flex items-center gap-3">
+                <span class="dot bg-amber-400"></span>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[13px] font-medium">Volumen por hora</span>
+                    <span class="pill bg-blue-50 text-blue-700">Sistema</span>
+                    <button class="text-zinc-400 hover:text-zinc-700" title="Se activó automáticamente cuando habilitaste monitoreo en archivos_recibidos">
+                      <i data-lucide="info" class="w-3 h-3"></i>
+                    </button>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-500 mt-0.5">Activo · evaluado cada hora</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer" aria-label="Activar monitoreo de este KPI">
+                  <input type="checkbox" checked class="sr-only peer">
+                  <div class="w-9 h-5 bg-zinc-200 rounded-full peer-checked:bg-blue-600 after:absolute after:left-0.5 after:top-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition peer-checked:after:translate-x-4"></div>
+                </label>
+              </article>
+              <article class="px-4 py-3.5 flex items-center gap-3">
+                <span class="dot bg-emerald-500"></span>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[13px] font-medium">Latencia de ingesta</span>
+                    <span class="pill bg-blue-50 text-blue-700">Sistema</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-500 mt-0.5">Activo · evaluado cada hora</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer" aria-label="Activar monitoreo de este KPI">
+                  <input type="checkbox" checked class="sr-only peer">
+                  <div class="w-9 h-5 bg-zinc-200 rounded-full peer-checked:bg-blue-600 after:absolute after:left-0.5 after:top-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition peer-checked:after:translate-x-4"></div>
+                </label>
+              </article>
+              <article class="px-4 py-3.5 flex items-center gap-3 opacity-60">
+                <span class="dot bg-zinc-300"></span>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[13px] font-medium">Tasa de error</span>
+                    <span class="pill bg-blue-50 text-blue-700">Sistema</span>
+                  </div>
+                  <p class="text-[11.5px] text-zinc-400 mt-0.5">Desactivado</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer">
+                  <div class="w-9 h-5 bg-zinc-200 rounded-full peer-checked:bg-blue-600 after:absolute after:left-0.5 after:top-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition peer-checked:after:translate-x-4"></div>
+                </label>
+              </article>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ===== TAB: Histórico ===== -->
+        <div x-show="tab==='historico'" x-cloak class="px-6 py-5 max-w-[1100px]">
+          <div class="surface border border-subtle rounded-lg p-10 text-center">
+            <div class="w-10 h-10 mx-auto rounded-full bg-zinc-100 flex items-center justify-center mb-3">
+              <i data-lucide="clock-3" class="w-5 h-5 text-zinc-400"></i>
+            </div>
+            <p class="text-[14px] font-medium text-zinc-900">Sin actividad registrada</p>
+            <p class="text-[12.5px] text-zinc-500 mt-1 max-w-md mx-auto">Las anomalías, incidentes y cambios aparecerán aquí en orden cronológico.</p>
+          </div>
+        </div>
+
+        <!-- ===== TAB: Notificaciones ===== -->
+        <div x-show="tab==='notificaciones'" x-cloak class="px-6 py-5 max-w-[1100px]">
+          <p class="text-[12.5px] text-zinc-500 mb-3">Reglas de envío para este recurso. Los cambios se guardan automáticamente.</p>
+
+          <div class="surface border border-subtle rounded-lg divide-y divide-zinc-100">
+            <div class="px-4 py-3.5 flex items-center gap-3">
+              <i data-lucide="hash" class="w-4 h-4 text-zinc-500"></i>
+              <div class="flex-1">
+                <div class="text-[13px] font-medium">Slack · #ops-conciliacion-mx</div>
+                <p class="text-[11.5px] text-zinc-500">Incidentes consolidados, con acciones inline</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer" aria-label="Activar canal Slack">
+                <input type="checkbox" checked class="sr-only peer">
+                <div class="w-9 h-5 bg-zinc-200 rounded-full peer-checked:bg-blue-600 after:absolute after:left-0.5 after:top-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition peer-checked:after:translate-x-4"></div>
+              </label>
+            </div>
+            <div class="px-4 py-3.5 flex items-center gap-3">
+              <i data-lucide="mail" class="w-4 h-4 text-zinc-500"></i>
+              <div class="flex-1">
+                <div class="text-[13px] font-medium">Correo · andres.l@simetrik.com</div>
+                <p class="text-[11.5px] text-zinc-500">Sólo severidad Urgente</p>
+              </div>
+              <span class="pill bg-emerald-50 text-emerald-700">Activo</span>
+            </div>
+          </div>
+          <p class="text-[11px] text-emerald-700 flex items-center gap-1 mt-2"><i data-lucide="check" class="w-3 h-3"></i> Cambios guardados hace 12 s</p>
+        </div>
+
+        <!-- ===== TAB: Configuración ===== -->
+        <div x-show="tab==='configuracion'" x-cloak class="px-6 py-5 max-w-[1100px] space-y-5">
+
+          <section class="surface border border-subtle rounded-lg">
+            <header class="px-4 py-2.5 border-b border-zinc-100 flex items-center justify-between">
+              <div>
+                <h2 class="text-[13.5px] font-semibold">Umbrales</h2>
+                <p class="text-[11.5px] text-zinc-500">Define cuándo una variación se considera anomalía.</p>
+              </div>
+              <p class="text-[11px] text-emerald-700 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> Cambios guardados</p>
+            </header>
+
+            <div class="p-4 space-y-3">
+              <div class="grid grid-cols-2 gap-4">
+                <label class="block">
+                  <span class="text-[12px] font-medium text-zinc-700">Mínimo aceptable</span>
+                  <input value="100" class="mt-1 w-full h-9 text-[13px] border border-zinc-200 rounded-md px-2 bg-white tabular-nums">
+                </label>
+                <label class="block">
+                  <span class="text-[12px] font-medium text-zinc-700">Máximo aceptable</span>
+                  <input value="200" class="mt-1 w-full h-9 text-[13px] border border-zinc-200 rounded-md px-2 bg-white tabular-nums">
+                </label>
+              </div>
+              <label class="block">
+                <span class="text-[12px] font-medium text-zinc-700">Sensibilidad del agente</span>
+                <select class="mt-1 w-full h-9 text-[13px] border border-zinc-200 rounded-md px-2 bg-white">
+                  <option>Balanceado · sugerido por el agente</option>
+                  <option>Estricto · 10%</option>
+                  <option>Tolerante · 50%</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="surface border border-subtle rounded-lg">
+            <header class="px-4 py-2.5 border-b border-zinc-100">
+              <h2 class="text-[13.5px] font-semibold">Ventana de monitoreo</h2>
+              <p class="text-[11.5px] text-zinc-500">El agente evalúa el KPI dentro de esta ventana de horario.</p>
+            </header>
+            <div class="p-4 grid grid-cols-3 gap-4">
+              <label class="block">
+                <span class="text-[12px] font-medium text-zinc-700">Frecuencia</span>
+                <select class="mt-1 w-full h-9 text-[13px] border border-zinc-200 rounded-md px-2 bg-white"><option>Diaria</option><option>Horaria</option></select>
+              </label>
+              <label class="block">
+                <span class="text-[12px] font-medium text-zinc-700">Inicio</span>
+                <input value="00:00" class="mt-1 w-full h-9 text-[13px] border border-zinc-200 rounded-md px-2 bg-white tabular-nums">
+              </label>
+              <label class="block">
+                <span class="text-[12px] font-medium text-zinc-700">Fin</span>
+                <input value="06:00" class="mt-1 w-full h-9 text-[13px] border border-zinc-200 rounded-md px-2 bg-white tabular-nums">
+              </label>
+            </div>
+          </section>
+
+          <!-- Zona peligrosa: acciones destructivas agrupadas con separación visual -->
+          <section class="surface border border-red-200 rounded-lg">
+            <header class="px-4 py-2.5 border-b border-red-100 bg-red-50/30">
+              <h2 class="text-[13.5px] font-semibold text-red-900">Zona peligrosa</h2>
+              <p class="text-[11.5px] text-red-700">Acciones irreversibles o que afectan a otros equipos del Espacio de trabajo.</p>
+            </header>
+            <ul class="divide-y divide-zinc-100">
+              <li class="px-4 py-3 flex items-center gap-3">
+                <div class="flex-1">
+                  <p class="text-[13px] font-medium">Restablecer valores por defecto</p>
+                  <p class="text-[11.5px] text-zinc-500">Vuelve a los umbrales y ventana que sugiere el agente.</p>
+                </div>
+                <button class="h-8 px-3 text-[12.5px] rounded-md text-red-600 hover:bg-red-50 border border-red-200">Restablecer</button>
+              </li>
+              <li class="px-4 py-3 flex items-center gap-3">
+                <div class="flex-1">
+                  <p class="text-[13px] font-medium">Pausar monitor</p>
+                  <p class="text-[11.5px] text-zinc-500">Deja de evaluar y de generar señales. La configuración se conserva.</p>
+                </div>
+                <button class="h-8 px-3 text-[12.5px] rounded-md text-zinc-700 hover:bg-zinc-100 border border-zinc-200">Pausar</button>
+              </li>
+              <li class="px-4 py-3 flex items-center gap-3">
+                <div class="flex-1">
+                  <p class="text-[13px] font-medium">Eliminar monitor</p>
+                  <p class="text-[11.5px] text-zinc-500">Borra esta configuración. Los incidentes históricos quedan en Actividad.</p>
+                </div>
+                <button class="h-8 px-3 text-[12.5px] rounded-md text-red-600 hover:bg-red-50 border border-red-200">Eliminar</button>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+      </div>
+    </template>
+  </main>
+
+  <!-- ===== AiChat Sheet (lateral, no flotante) ===== -->
+  <div x-show="aiSheet" x-cloak @keydown.escape.window="aiSheet=false" class="fixed inset-0 z-30 flex">
+    <div @click="aiSheet=false" class="flex-1 bg-zinc-900/20"></div>
+    <aside class="w-[420px] h-full surface border-l border-subtle flex flex-col shadow-xl">
+      <header class="px-4 h-12 border-b border-subtle flex items-center gap-2.5">
+        <div class="w-6 h-6 rounded-md border border-violet-200 bg-white text-violet-700 flex items-center justify-center">
+          <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[13px] font-medium">Agente IA</p>
+          <p class="text-[11px] text-zinc-500 truncate" x-text="current ? 'En contexto: ' + current.name : 'Modo general'"></p>
+        </div>
+        <button aria-label="Cerrar Agente IA" @click="aiSheet=false" class="w-7 h-7 flex items-center justify-center text-zinc-500 hover:bg-zinc-100 rounded-md focus-ring">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </header>
+      <div class="flex-1 overflow-y-auto p-4 space-y-3">
+        <div class="text-[12.5px] text-zinc-700 leading-relaxed bg-zinc-50 border border-zinc-100 rounded-lg p-3">
+          Hola. Puedo ayudarte con análisis de este recurso, configuración del monitoreo o explicarte cualquier incidente activo. ¿En qué te ayudo?
+        </div>
+        <div class="grid gap-1.5 text-[12px]">
+          <button class="text-left px-3 py-2 border border-zinc-200 rounded-md hover:bg-zinc-50">¿Por qué se generó el incidente de hoy?</button>
+          <button class="text-left px-3 py-2 border border-zinc-200 rounded-md hover:bg-zinc-50">Ajusta los umbrales para este recurso</button>
+          <button class="text-left px-3 py-2 border border-zinc-200 rounded-md hover:bg-zinc-50">Compara con la semana pasada</button>
+        </div>
+      </div>
+      <footer class="border-t border-subtle p-3">
+        <div class="flex items-end gap-2 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2">
+          <textarea rows="1" placeholder="Escribe tu mensaje…" class="flex-1 bg-transparent text-[13px] outline-none resize-none"></textarea>
+          <button aria-label="Enviar mensaje" class="w-7 h-7 rounded-md bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700">
+            <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </footer>
+    </aside>
+  </div>
+
+  <!-- ===== Actividad · detail del hallazgo (la lista vive en el sidebar del módulo) ===== -->
+  <main class="flex-1 overflow-y-auto bg-[var(--bg)]" x-show="lens==='activity'" x-cloak x-data="{ get inc(){ return incidents.find(x=>x.id===activeIncident) || incidents[0] } }">
+    <article class="flex flex-col h-full">
+      <div class="surface border-b border-subtle px-6 pt-3 pb-4 sticky top-0 z-10">
+        <nav class="flex items-center gap-1 text-[11.5px] text-zinc-500 mb-2.5">
+          <span>Monitoreo</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span>Actividad</span>
+          <i data-lucide="chevron-right" class="w-3 h-3"></i>
+          <span class="text-zinc-900 font-medium" x-text="inc.id"></span>
+        </nav>
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="pill" :class="sevClass(inc.severity)">
+                <span class="dot" :class="dotClass(inc.severity==='Urgente'?'urgent':inc.severity==='Alta'?'attention':'healthy')"></span>
+                <span x-text="inc.severity"></span>
+              </span>
+              <span class="pill bg-zinc-100 text-zinc-700" x-text="inc.status"></span>
+              <span class="text-[11.5px] text-zinc-500" x-text="inc.time"></span>
+            </div>
+            <h1 class="text-[18px] font-semibold tracking-tight" x-text="inc.title"></h1>
+            <p class="text-[12.5px] text-zinc-500 mt-1.5 flex items-center gap-1.5">
+              <span>Monitor:</span>
+              <button class="ref-chip" @click.prevent="selected=inc.resourceId; lens='resources'" title="Ir al monitor">
+                <i data-lucide="hard-drive"></i>
+                <span x-text="inc.resource"></span>
+              </button>
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button class="h-8 px-3 text-[12.5px] rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-700 flex items-center gap-1.5">
+              Marcar como Resuelto
+              <i data-lucide="chevron-down" class="w-3 h-3 text-zinc-400"></i>
+            </button>
+            <button class="h-8 px-3 text-[12.5px] rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium">Investigar</button>
+            <button aria-label="Más acciones del incidente" class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-zinc-100 text-zinc-500"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-5 max-w-[900px] space-y-4">
+
+        <!-- AI Hypothesis Card -->
+        <article class="ai-card border border-subtle rounded-xl overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+          <header class="ai-header border-b border-subtle px-4 py-2.5 flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-md border border-violet-200 bg-white text-violet-700 flex items-center justify-center">
+              <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-[12.5px] font-medium text-zinc-900">Resumen del Agente IA</p>
+              <p class="text-[11px] text-zinc-500">Último análisis: hace 4 minutos</p>
+            </div>
+            <button aria-label="Regenerar resumen del Agente IA" class="text-zinc-500 hover:text-zinc-900 w-7 h-7 rounded-md hover:bg-zinc-100 flex items-center justify-center focus-ring" title="Regenerar resumen">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            </button>
+          </header>
+
+          <div class="px-4 py-4">
+            <p class="text-[14px] text-zinc-900 leading-relaxed">
+              Detecté una caída de <b>32%</b> en <button class="ref-chip" title="Ir al KPI"><i data-lucide="activity"></i>archivos recibidos por día</button> durante las últimas 6 horas. Está por debajo del rango habitual de los últimos 30 días.
+            </p>
+            <p class="text-[14px] text-zinc-900 leading-relaxed mt-2">
+              Suele ocurrir cuando una fuente de ingesta deja de cargar archivos a tiempo. Te recomiendo revisar el estado de <button class="ref-chip" title="Ir a la fuente"><i data-lucide="hard-drive"></i>bank_statements_daily</button>.
+            </p>
+
+            <p class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold mt-4 mb-2">Acciones sugeridas</p>
+            <div class="grid gap-1">
+              <button class="flex items-start gap-2.5 p-2.5 rounded-md hover:bg-zinc-50 text-left">
+                <i data-lucide="check-square" class="w-3.5 h-3.5 text-zinc-400 mt-0.5 shrink-0"></i>
+                <p class="text-[12.5px] text-zinc-800 leading-relaxed flex-1">Revisar los envíos de archivos recientes de <span class="ref-chip"><i data-lucide="hard-drive"></i>bank_statements_daily</span> para identificar cargas faltantes</p>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400 mt-1"></i>
+              </button>
+              <button class="flex items-start gap-2.5 p-2.5 rounded-md hover:bg-zinc-50 text-left">
+                <i data-lucide="check-square" class="w-3.5 h-3.5 text-zinc-400 mt-0.5 shrink-0"></i>
+                <p class="text-[12.5px] text-zinc-800 leading-relaxed flex-1">Confirmar con el proveedor SFTP si hay incidente de su lado en la ventana 02:00 a 05:00 UTC</p>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400 mt-1"></i>
+              </button>
+              <button class="flex items-start gap-2.5 p-2.5 rounded-md hover:bg-zinc-50 text-left">
+                <i data-lucide="check-square" class="w-3.5 h-3.5 text-zinc-400 mt-0.5 shrink-0"></i>
+                <p class="text-[12.5px] text-zinc-800 leading-relaxed flex-1">Validar que la <span class="ref-chip"><i data-lucide="git-branch"></i>Conciliación bancaria del 25-may</span> quedó completa</p>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400 mt-1"></i>
+              </button>
+            </div>
+
+            <!-- Acciones secundarias del incidente (las primarias viven en el header) -->
+            <div class="flex flex-wrap items-center gap-1 mt-4 pt-3 border-t border-zinc-100">
+              <button class="h-8 px-3 text-[12.5px] rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-700">Asignar</button>
+              <button class="h-8 px-3 text-[12.5px] rounded-md text-zinc-500 hover:bg-zinc-100 flex items-center gap-1.5">
+                <i data-lucide="bell-off" class="w-3.5 h-3.5"></i>
+                Silenciar 1 hora
+              </button>
+              <div class="ml-auto flex items-center gap-0.5">
+                <button class="h-8 px-3 text-[12.5px] rounded-md text-zinc-500 hover:bg-zinc-100">Marcar falso positivo</button>
+                <span class="w-px h-4 bg-zinc-200 mx-0.5"></span>
+                <button class="h-8 px-3 text-[12.5px] rounded-md text-red-600 hover:bg-red-50">Descartar</button>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- Timeline mini del incidente (mismo patrón título + subtítulo) -->
+        <section class="surface border border-subtle rounded-lg">
+          <header class="px-4 py-2.5 border-b border-zinc-100">
+            <h2 class="text-[13.5px] font-semibold">Línea de tiempo</h2>
+            <p class="text-[11.5px] text-zinc-500">Señales agrupadas y eventos del incidente en orden cronológico.</p>
+          </header>
+          <ul class="divide-y divide-zinc-100 text-[12.5px]">
+            <li class="px-4 py-2.5 flex items-center gap-3">
+              <span class="dot bg-red-500"></span>
+              <p class="flex-1"><b>Incidente abierto</b>: agrupó 3 señales en 02:14 UTC</p>
+              <span class="text-zinc-400 text-[11px]">hace 6 h</span>
+            </li>
+            <li class="px-4 py-2.5 flex items-center gap-3">
+              <span class="dot bg-amber-400"></span>
+              <p class="flex-1"><b>Señal #3</b>: dato faltante en ventana de las 02:00 UTC</p>
+              <span class="text-zinc-400 text-[11px]">hace 6 h</span>
+            </li>
+            <li class="px-4 py-2.5 flex items-center gap-3">
+              <span class="dot bg-amber-400"></span>
+              <p class="flex-1"><b>Señal #2</b>: caída en archivos recibidos por día (32%)</p>
+              <span class="text-zinc-400 text-[11px]">hace 6 h</span>
+            </li>
+            <li class="px-4 py-2.5 flex items-center gap-3">
+              <span class="dot bg-amber-400"></span>
+              <p class="flex-1"><b>Señal #1</b>: variación de volumen sobre baseline (18%)</p>
+              <span class="text-zinc-400 text-[11px]">hace 6 h</span>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </article>
+  </main>
+
+</div><!-- /MODULE BODY -->
+</div><!-- /OC PLATFORM -->
+</div><!-- /SHELL -->
+
+<script>
+function state() {
+  return {
+    lens: 'activity',
+    selected: 'res_207941',
+    activeIncident: 'INC-2026-05-018',
+    tab: 'estado',
+    aiSheet: false,
+    tabs: [
+      { id:'estado',         label:'Resumen',         count:null },
+      { id:'kpis',           label:'KPIs',            count:5    },
+      { id:'historico',      label:'Histórico',       count:null },
+      { id:'notificaciones', label:'Notificaciones',  count:null },
+      { id:'configuracion',  label:'Configuración',   count:null }
+    ],
+    resources: [
+      { id:'res_207941', kind:'source',    name:'bank_statements_daily',   path:'/storage/banco/mx/',  monitored:true,  fav:true,  health:'urgent',    incidents:1, kpis:5 },
+      { id:'res_207936', kind:'source',    name:'tbk_settlement_daily',    path:'/storage/transbank/', monitored:true,  fav:true,  health:'urgent',    incidents:2, kpis:4 },
+      { id:'res_208012', kind:'source',    name:'visa_dispute_files',      path:'/storage/visa/',      monitored:true,  fav:false, health:'attention', incidents:0, kpis:3 },
+      { id:'res_208044', kind:'source',    name:'mastercard_clearing',     path:'/storage/mc/',        monitored:true,  fav:false, health:'healthy',   incidents:0, kpis:3 },
+      { id:'res_208091', kind:'source',    name:'paypal_payouts_hourly',   path:'/storage/paypal/',    monitored:true,  fav:false, health:'healthy',   incidents:0, kpis:2 },
+      { id:'dash_4421',  kind:'dashboard', name:'Conciliación bancaria MX',path:'Tableros / Operación',monitored:true,  fav:false, health:'attention', incidents:0, kpis:3 },
+      { id:'dash_4438',  kind:'dashboard', name:'Settlement diario VISA',  path:'Tableros / Pagos',    monitored:true,  fav:false, health:'healthy',   incidents:0, kpis:2 },
+      { id:'dash_4502',  kind:'dashboard', name:'Tasa de match por canal', path:'Tableros / Operación',monitored:true,  fav:false, health:'healthy',   incidents:0, kpis:2 },
+      { id:'res_208203', kind:'source',    name:'kushki_settlements',      path:'/storage/kushki/',    monitored:false, fav:false, health:'off',       incidents:0, kpis:0 },
+      { id:'res_208244', kind:'source',    name:'culqi_disputes',          path:'/storage/culqi/',     monitored:false, fav:false, health:'off',       incidents:0, kpis:0 },
+      { id:'dash_4611',  kind:'dashboard', name:'Aging de pendientes',     path:'Tableros / Auditoría',monitored:false, fav:false, health:'off',       incidents:0, kpis:0 }
+    ],
+    incidents: [
+      { id:'INC-2026-05-018', resourceId:'res_207941', severity:'Urgente', title:'Archivo faltante en bank_statements_daily', context:'Volumen de transacciones por debajo en 32% durante las últimas 6 horas', resource:'bank_statements_daily', time:'hace 6 h',  status:'Abierto',           active:true },
+      { id:'INC-2026-05-017', resourceId:'res_207936', severity:'Urgente', title:'Archivo faltante en tbk_settlement_daily',  context:'No se recibió cargue en ventana 02:00 a 04:00 UTC',                       resource:'tbk_settlement_daily',  time:'hace 8 h',  status:'En investigación', active:false },
+      { id:'INC-2026-05-016', resourceId:'res_207936', severity:'Alta',    title:'Variación de volumen en tbk_settlement',     context:'Monto total 18% bajo el rango habitual',                                  resource:'tbk_settlement_daily',  time:'hace 1 d',  status:'Abierto',           active:false },
+      { id:'INC-2026-05-014', resourceId:'res_208012', severity:'Media',   title:'Latencia elevada en visa_dispute_files',     context:'Tiempo de ingesta promedio creció a 7 min',                               resource:'visa_dispute_files',    time:'hace 2 d',  status:'Resuelto',          active:false }
+    ],
+    get current() { return this.resources.find(r => r.id === this.selected); },
+    dotClass(h) {
+      return {
+        healthy:   'bg-emerald-500',
+        attention: 'bg-amber-400',
+        urgent:    'bg-red-500',
+        off:       'bg-zinc-300'
+      }[h] || 'bg-zinc-300';
+    },
+    badgeClass(h) {
+      return {
+        healthy:   'bg-emerald-50 text-emerald-700',
+        attention: 'bg-amber-50 text-amber-700',
+        urgent:    'bg-red-50 text-red-700',
+        off:       'bg-zinc-100 text-zinc-600'
+      }[h] || 'bg-zinc-100 text-zinc-600';
+    },
+    badgeLabel(h) {
+      return {
+        healthy:   'Sin anomalías',
+        attention: 'Variación detectada',
+        urgent:    'Anomalía activa',
+        off:       'Sin monitoreo'
+      }[h] || 'Sin estado';
+    },
+    sevClass(s) {
+      return {
+        'Urgente': 'bg-red-50 text-red-700',
+        'Alta':    'bg-orange-50 text-orange-700',
+        'Media':   'bg-amber-50 text-amber-700',
+        'Baja':    'bg-zinc-100 text-zinc-700'
+      }[s] || 'bg-zinc-100 text-zinc-700';
+    }
+  };
+}
+document.addEventListener('alpine:initialized', () => lucide.createIcons());
+setTimeout(() => lucide.createIcons(), 100);
+</script>
+</body>
+</html>
