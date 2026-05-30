@@ -23,11 +23,11 @@ comas, dos puntos, paréntesis o puntos. No usar tildes incorrectamente.
 El monitoreo de una fuente se deriva de la agregación de KPIs de BADS. En el UI
 se exponen **3 estados** (de los 6 internos del BE):
 
-| Estado UI | Origen BADS | Cuándo aplica | Visual |
-|---|---|---|---|
-| **Sin configurar** | No hay KPIs registrados (`resources[i].status === 'empty'`) | Fuente nueva, sin monitor activado | Badge gris, dot muted |
-| **Aprendiendo** | KPIs en `COLLECTING` (baseline no listo) | Activado pero sin historial suficiente | Badge **info azul**, dot `hsl(var(--info))` |
-| **Monitoreado** | Todos los KPIs en `READY` (baseline completo) | Healthy, scoring activo | Badge **success verde**, dot `hsl(var(--success))` |
+| Estado UI          | Origen BADS                                                 | Cuándo aplica                          | Visual                                             |
+| ------------------ | ----------------------------------------------------------- | -------------------------------------- | -------------------------------------------------- |
+| **Sin configurar** | No hay KPIs registrados (`resources[i].status === 'empty'`) | Fuente nueva, sin monitor activado     | Badge gris, dot muted                              |
+| **Aprendiendo**    | KPIs en `COLLECTING` (baseline no listo)                    | Activado pero sin historial suficiente | Badge **info azul**, dot `hsl(var(--info))`        |
+| **Monitoreado**    | Todos los KPIs en `READY` (baseline completo)               | Healthy, scoring activo                | Badge **success verde**, dot `hsl(var(--success))` |
 
 **Estados internos BADS (referencia)** — `src/bads/models/kpi.py:28`:
 - `REGISTERED` → `COLLECTING` → `READY`
