@@ -638,8 +638,8 @@
       cursor: pointer; transition: background 0.15s ease-out, border-color 0.15s ease-out;
     }
     .ds-ai-btn:hover { background: hsl(var(--muted) / 0.5); border-color: hsl(var(--primary) / 0.3); }
-    .ds-ai-btn .ai-spark {
-      width: 14px; height: 14px; display: inline-flex;
+    .ai-spark {
+      width: 14px; height: 14px; display: inline-flex; flex-shrink: 0;
       background: linear-gradient(135deg, hsl(var(--ai-purple)) 0%, hsl(var(--primary)) 100%);
       mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z' fill='black'/></svg>") center/contain no-repeat;
       -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z' fill='black'/></svg>") center/contain no-repeat;
@@ -1403,41 +1403,21 @@
       color: hsl(var(--muted-foreground)); font-style: italic;
     }
 
-    /* Hallazgo adaptativo (vacíos / duplicados / fallidos): Simetrik ya calculó el
-       patrón a partir del histórico; el usuario solo decide si es normal o un problema.
-       El TÍTULO es el hecho hallado; el selector vive al extremo derecho. */
-    .ds-finding {
-      padding: 16px; background: #fafafa; border-radius: 12px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px 16px; flex-wrap: wrap;
-    }
-    .ds-finding-info { flex: 1 1 280px; min-width: 0; }
-    .ds-finding-title {
+    /* Encabezado de sub-sección dentro del formulario (ej. "Otros comportamientos"). */
+    .ds-subsection-title {
       font-size: 14px; font-weight: 600; line-height: 20px; color: hsl(var(--foreground)); margin: 0;
     }
-    .ds-finding-title b { font-weight: 700; }
-    .ds-finding-sub {
-      margin: 2px 0 0; font-size: 12px; font-weight: 400; line-height: 16px;
-      color: hsl(var(--muted-foreground));
+    .ds-subsection-sub {
+      margin: 2px 0 0; font-size: 12px; font-weight: 400; line-height: 16px; color: hsl(var(--muted-foreground));
     }
-    /* Selector segmentado: Es normal / Es un problema. */
-    .ds-verdict {
-      display: inline-flex; flex-shrink: 0; gap: 4px; padding: 4px;
-      background: hsl(var(--muted) / 0.5); border-radius: 10px;
+    /* Traducción concreta del umbral % a su efecto, bajo el input del hallazgo. */
+    .ds-finding-effect {
+      display: flex; align-items: flex-start; gap: 6px;
+      margin: 10px 0 0; padding: 8px 10px;
+      background: hsl(var(--muted) / 0.5); border-radius: 8px;
+      font-size: 12px; line-height: 16px; color: hsl(var(--muted-foreground));
     }
-    .ds-verdict-opt {
-      padding: 8px 14px; border: none; background: transparent; border-radius: 7px;
-      font-size: 13px; font-weight: 500; line-height: 18px; color: hsl(var(--muted-foreground));
-      cursor: pointer; white-space: nowrap;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-      transition: background 0.15s ease-out, color 0.15s ease-out, box-shadow 0.15s ease-out;
-    }
-    .ds-verdict-opt:hover:not(.is-active-normal):not(.is-active-problem) { color: hsl(var(--foreground)); }
-    .ds-verdict-opt.is-active-normal,
-    .ds-verdict-opt.is-active-problem {
-      background: white; color: hsl(var(--foreground)); font-weight: 600;
-      box-shadow: 0 1px 2px rgba(16,24,40,0.08);
-    }
+    .ds-finding-effect svg { flex-shrink: 0; margin-top: 1px; color: hsl(var(--muted-foreground)); }
 
     /* Card unificada: indicador (top, #fafafa) + franja de grupos (footer, azul claro).
        Figma 51:5650. flex-shrink:0 por el mismo motivo que .ds-analysis. */
@@ -15748,11 +15728,12 @@
           return {
             fileCount: { active: true, min: 10, max: 13, _sMin: 10, _sMax: 13 },
             rowCount: { active: true, min: 1000, max: 1200, _sMin: 1000, _sMax: 1200 },
-            // Hallazgos adaptativos (vacíos / duplicados / fallidos): Simetrik ya calculó
-            // el patrón; el usuario solo decide el veredicto. Default = 'problem'.
-            emptyFiles: { metric: 'pct', value: 2, days: 7, verdict: 'problem' },
-            duplicateFiles: { metric: 'pct', value: 5, days: 7, verdict: 'problem' },
-            failedFiles: { metric: 'count', value: 30, days: 7, verdict: 'problem' },
+            // Hallazgos (vacíos / duplicados / fallidos): mismo patrón que fileCount/rowCount.
+            // toggle active → revela un solo input (umbral máximo en %). _sMax = sugerencia IA
+            // (= tasa histórica detectada). Off por default: si no se activa, no se monitorea.
+            emptyFiles: { active: false, max: 2, _sMax: 2 },
+            duplicateFiles: { active: false, max: 5, _sMax: 5 },
+            failedFiles: { active: false, max: 20, _sMax: 20 },
             notes: { open: false, tags: [], detail: '' }
           };
         },
@@ -15765,29 +15746,33 @@
         // Las tres claves son objetos { metric, value, days, verdict }. Estos helpers
         // arman el copy a partir del fact precalculado por Simetrik.
         dsFindingKeys: ['emptyFiles', 'duplicateFiles', 'failedFiles'],
-        // El título ES el hecho hallado (no la etiqueta del KPI).
-        dsFindingTitle(key, f, scope) {
+        dsFindingNoun(key) {
+          return { emptyFiles: 'vacíos', duplicateFiles: 'duplicados', failedFiles: 'fallidos' }[key] || '';
+        },
+        dsFindingTitle(key) {
+          return { emptyFiles: 'Archivos vacíos', duplicateFiles: 'Archivos duplicados', failedFiles: 'Archivos fallidos' }[key] || key;
+        },
+        // Contexto natural (sub): tasa histórica detectada por el análisis. Siempre visible,
+        // aun con el toggle apagado, para que el usuario sepa qué encontramos.
+        dsFindingCtx(key, f, scope) {
+          const where = scope === 'grupo' ? 'este grupo' : 'esta fuente';
+          const pct = f ? f._sMax : 0;
+          return 'Cerca del ' + pct + '% de los archivos de ' + where + ' llegan ' + this.dsFindingNoun(key) + '.';
+        },
+        dsFindingTip(key) {
+          return 'Simetrik generará una anomalía cuando el porcentaje de archivos ' + this.dsFindingNoun(key) + ' supere este valor.';
+        },
+        // Traduce el umbral % a un efecto concreto (base 100). Reactivo al valor editado.
+        dsFindingEffect(key, f) {
           if (!f) return '';
-          const noun = { emptyFiles: 'vacíos', duplicateFiles: 'duplicados', failedFiles: 'fallidos' }[key];
-          if (f.metric === 'pct') {
-            const where = scope === 'grupo' ? 'este grupo' : 'esta fuente';
-            return 'El <b>' + f.value + '%</b> de los archivos de ' + where + ' llegan ' + noun + '.';
-          }
-          // Conteo (fallidos): el hecho se expresa como volumen recibido.
-          const subject = scope === 'grupo' ? 'Este grupo' : 'Esta fuente';
-          return subject + ' recibe en promedio <b>' + f.value + ' archivos ' + noun + '</b>.';
+          return 'Generaremos una anomalía si más de ' + f.max + ' de cada 100 archivos llegan ' + this.dsFindingNoun(key) + '.';
         },
-        // Sub del hecho: aclara que el valor proviene del análisis inteligente.
-        dsFindingDesc(key, f, scope) {
-          const subject = f && f.metric === 'count' ? 'Este valor' : 'Este porcentaje';
-          const where = scope === 'grupo' ? 'del grupo' : 'de la fuente';
-          return subject + ' fue detectado en el análisis inteligente ' + where + '.';
-        },
-        // Coerción: si un seed trae el valor como boolean (modelo viejo), lo migra al objeto.
-        dsCoerceFinding(obj, key, metric, value) {
+        // Coerción: migra modelos viejos (boolean o {verdict}) al patrón { active, max, _sMax }.
+        dsCoerceFinding(obj, key, sMax) {
           if (!obj) return;
-          if (obj[key] === undefined || typeof obj[key] === 'boolean') {
-            obj[key] = { metric: metric, value: value, days: 7, verdict: obj[key] === false ? 'normal' : 'problem' };
+          const o = obj[key];
+          if (!o || typeof o !== 'object' || o.max === undefined) {
+            obj[key] = { active: o === true || (o && o.verdict === 'problem') || false, max: sMax, _sMax: sMax };
           }
         },
         // Devuelve el objeto simple que el formulario debe editar:
@@ -15885,9 +15870,9 @@
           if (cfg) {
             if (cfg.fileCount && cfg.fileCount.active) out.push('Cantidad de archivos');
             if (cfg.rowCount && cfg.rowCount.active) out.push('Cantidad de registros');
-            if (cfg.emptyFiles && cfg.emptyFiles.verdict === 'problem') out.push('Archivos vacíos');
-            if (cfg.duplicateFiles && cfg.duplicateFiles.verdict === 'problem') out.push('Archivos duplicados');
-            if (cfg.failedFiles && cfg.failedFiles.verdict === 'problem') out.push('Archivos fallidos');
+            if (cfg.emptyFiles && cfg.emptyFiles.active) out.push('Archivos vacíos');
+            if (cfg.duplicateFiles && cfg.duplicateFiles.active) out.push('Archivos duplicados');
+            if (cfg.failedFiles && cfg.failedFiles.active) out.push('Archivos fallidos');
             if (cfg.notes && ((cfg.notes.tags && cfg.notes.tags.length) || (cfg.notes.detail && cfg.notes.detail.trim()))) out.push('Notas adicionales');
           } else if (r.kpis) {
             if (r.kpis.file === 'ok') out.push('Cantidad de archivos');
@@ -16039,10 +16024,10 @@
             timezone: 'America/Bogota',
             fileCount: { min: 1, max: 1, _sMin: 1, _sMax: 1 },
             rowCount: { min: 1000, max: 5000, _sMin: 1000, _sMax: 5000 },
-            // Hallazgos adaptativos por grupo (cálculo específico del patrón del grupo).
-            emptyFiles: { metric: 'pct', value: 2, days: 7, verdict: 'problem' },
-            duplicateFiles: { metric: 'pct', value: 5, days: 7, verdict: 'problem' },
-            failedFiles: { metric: 'count', value: 30, days: 7, verdict: 'problem' },
+            // Hallazgos por grupo (umbral % específico del patrón del grupo).
+            emptyFiles: { active: false, max: 2, _sMax: 2 },
+            duplicateFiles: { active: false, max: 5, _sMax: 5 },
+            failedFiles: { active: false, max: 20, _sMax: 20 },
             notes: { open: false, tags: [], detail: '' },
             // Expandido por default solo el primer grupo del día (Figma).
             expanded: false
@@ -16056,10 +16041,10 @@
           if (g.rowCount && g.rowCount._sMin === undefined) g.rowCount._sMin = g.rowCount.min;
           if (g.rowCount && g.rowCount._sMax === undefined) g.rowCount._sMax = g.rowCount.max;
           if (!g.notes) g.notes = { open: false, tags: [], detail: '' };
-          // Migra hallazgos legacy (boolean) al modelo adaptativo { metric, value, days, verdict }.
-          this.dsCoerceFinding(g, 'emptyFiles', 'pct', 2);
-          this.dsCoerceFinding(g, 'duplicateFiles', 'pct', 5);
-          this.dsCoerceFinding(g, 'failedFiles', 'count', 30);
+          // Migra hallazgos legacy al patrón { active, max, _sMax }.
+          this.dsCoerceFinding(g, 'emptyFiles', 2);
+          this.dsCoerceFinding(g, 'duplicateFiles', 5);
+          this.dsCoerceFinding(g, 'failedFiles', 20);
           // Deriva la "cadena" (estructura del nombre) del patrón: parte fija + token
           // variable (la fecha) + extensión. El * del glob marca dónde varía.
           if ((!g.chain || !g.chain.length) && g.pattern && g.pattern.indexOf('*') !== -1) {
@@ -22491,23 +22476,55 @@
                                   </div>
                                 </div>
 
-                                <!-- Hallazgos adaptativos: vacíos / duplicados / fallidos. Simetrik muestra
-                                     el patrón ya calculado y el usuario decide si es normal o un problema. -->
+                                <!-- Otros comportamientos: vacíos / duplicados / fallidos. Simetrik trae
+                                     la tasa detectada; el usuario activa la alerta y ajusta el umbral. -->
+                                <div>
+                                  <p class="ds-subsection-title">Otros comportamientos</p>
+                                  <p class="ds-subsection-sub">Comportamientos que detectamos en el análisis de la fuente.</p>
+                                </div>
                                 <template x-for="fk in dsFindingKeys" :key="fk">
-                                  <div class="ds-finding">
-                                    <div class="ds-finding-info">
-                                      <p class="ds-finding-title" x-html="dsFindingTitle(fk, dsActiveSimple()[fk], 'fuente')"></p>
-                                      <p class="ds-finding-sub" x-text="dsFindingDesc(fk, dsActiveSimple()[fk], 'fuente')"></p>
+                                  <div class="ds-indicator">
+                                    <div class="ds-indicator-head">
+                                      <div>
+                                        <div class="ds-indicator-title">
+                                          <span x-text="dsFindingTitle(fk)"></span>
+                                          <span class="ds-help" tabindex="0" :data-tip="dsFindingTip(fk)">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                              <circle cx="12" cy="12" r="10" />
+                                              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                              <line x1="12" y1="17" x2="12.01" y2="17" />
+                                            </svg>
+                                          </span>
+                                        </div>
+                                        <div class="ds-indicator-sub" style="display:flex; align-items:flex-start; gap:6px;">
+                                          <span class="ai-spark" style="margin-top:1px;" aria-hidden="true"></span>
+                                          <span x-text="dsFindingCtx(fk, dsActiveSimple()[fk], 'fuente')"></span>
+                                        </div>
+                                      </div>
+                                      <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="dsActiveSimple()[fk].active && 'on'"
+                                        @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple()[fk].active = !dsActiveSimple()[fk].active; }"
+                                        :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
                                     </div>
-                                    <div class="ds-verdict" :style="daySetupReadonly && 'opacity:0.75;'">
-                                      <button type="button" class="ds-verdict-opt"
-                                        :class="dsActiveSimple()[fk].verdict === 'normal' && 'is-active-normal'"
-                                        @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple()[fk].verdict = 'normal'; }"
-                                        :style="daySetupReadonly && 'cursor:default;'">Es normal</button>
-                                      <button type="button" class="ds-verdict-opt"
-                                        :class="dsActiveSimple()[fk].verdict === 'problem' && 'is-active-problem'"
-                                        @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple()[fk].verdict = 'problem'; }"
-                                        :style="daySetupReadonly && 'cursor:default;'">Es un problema</button>
+                                    <div class="config-grid cols-2 ds-indicator-grid" x-show="dsActiveSimple()[fk].active" x-cloak>
+                                      <div class="config-field">
+                                        <label class="config-label">Alertar si supera</label>
+                                        <div class="ds-input-with-suffix">
+                                          <input type="number" min="0" max="100" class="config-input"
+                                            x-model.number="dsActiveSimple()[fk].max"
+                                            :disabled="daySetupReadonly"
+                                            @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
+                                          <span class="ds-input-suffix-badge">%</span>
+                                        </div>
+                                        <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="dsActiveSimple()[fk].max !== dsActiveSimple()[fk]._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple()[fk].max !== dsActiveSimple()[fk]._sMax) dsActiveSimple()[fk].max = dsActiveSimple()[fk]._sMax"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple()[fk].max, dsActiveSimple()[fk]._sMax) + '%'"></span></span>
+                                      </div>
+                                      <p class="ds-finding-effect" style="margin-top:24px;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+                                        </svg>
+                                        <span x-text="dsFindingEffect(fk, dsActiveSimple()[fk])"></span>
+                                      </p>
                                     </div>
                                   </div>
                                 </template>
@@ -22813,23 +22830,53 @@
                                         </div>
                                       </div>
 
-                                      <!-- Hallazgos adaptativos por grupo: vacíos / duplicados / fallidos.
-                                           Cálculo específico del patrón del grupo; el usuario da el veredicto. -->
+                                      <!-- Otros comportamientos por grupo: vacíos / duplicados / fallidos.
+                                           Tasa detectada específica del patrón del grupo. -->
+                                      <div style="margin-bottom:12px;">
+                                        <p class="ds-subsection-title">Otros comportamientos</p>
+                                        <p class="ds-subsection-sub">Comportamientos que detectamos en el análisis de este grupo.</p>
+                                      </div>
                                       <template x-for="fk in dsFindingKeys" :key="fk">
-                                        <div class="ds-finding" style="background:hsl(var(--muted) / 0.3); margin-bottom:12px;">
-                                          <div class="ds-finding-info">
-                                            <p class="ds-finding-title" x-html="dsFindingTitle(fk, g[fk], 'grupo')"></p>
-                                            <p class="ds-finding-sub" x-text="dsFindingDesc(fk, g[fk], 'grupo')"></p>
+                                        <div class="ds-indicator" style="background:hsl(var(--muted) / 0.3); margin-bottom:12px;">
+                                          <div class="ds-indicator-head">
+                                            <div>
+                                              <div class="ds-indicator-title">
+                                                <span x-text="dsFindingTitle(fk)"></span>
+                                                <span class="ds-help" tabindex="0" :data-tip="dsFindingTip(fk)">
+                                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10" />
+                                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                                                  </svg>
+                                                </span>
+                                              </div>
+                                              <div class="ds-indicator-sub" style="display:flex; align-items:flex-start; gap:6px;">
+                                                <span class="ai-spark" style="margin-top:1px;" aria-hidden="true"></span>
+                                                <span x-text="dsFindingCtx(fk, g[fk], 'grupo')"></span>
+                                              </div>
+                                            </div>
+                                            <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="g[fk].active && 'on'"
+                                              @click="if(!daySetupReadonly) g[fk].active = !g[fk].active"
+                                              :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
                                           </div>
-                                          <div class="ds-verdict" :style="daySetupReadonly && 'opacity:0.75;'">
-                                            <button type="button" class="ds-verdict-opt"
-                                              :class="g[fk].verdict === 'normal' && 'is-active-normal'"
-                                              @click="if(!daySetupReadonly) g[fk].verdict = 'normal'"
-                                              :style="daySetupReadonly && 'cursor:default;'">Es normal</button>
-                                            <button type="button" class="ds-verdict-opt"
-                                              :class="g[fk].verdict === 'problem' && 'is-active-problem'"
-                                              @click="if(!daySetupReadonly) g[fk].verdict = 'problem'"
-                                              :style="daySetupReadonly && 'cursor:default;'">Es un problema</button>
+                                          <div class="config-grid cols-2 ds-indicator-grid" x-show="g[fk].active" x-cloak>
+                                            <div class="config-field">
+                                              <label class="config-label">Alertar si supera</label>
+                                              <div class="ds-input-with-suffix">
+                                                <input type="number" min="0" max="100" class="config-input"
+                                                  x-model.number="g[fk].max" :disabled="daySetupReadonly">
+                                                <span class="ds-input-suffix-badge">%</span>
+                                              </div>
+                                              <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="g[fk].max !== g[fk]._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && g[fk].max !== g[fk]._sMax) g[fk].max = g[fk]._sMax"><span class="dot"></span><span x-text="dsChipText(g[fk].max, g[fk]._sMax) + '%'"></span></span>
+                                            </div>
+                                            <p class="ds-finding-effect" style="margin-top:24px;">
+                                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+                                              </svg>
+                                              <span x-text="dsFindingEffect(fk, g[fk])"></span>
+                                            </p>
                                           </div>
                                         </div>
                                       </template>
