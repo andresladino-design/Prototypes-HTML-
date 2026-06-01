@@ -15706,7 +15706,7 @@
         // changeFeedback: bandera transitoria para retroalimentar "pasaste a Family".
         daySetup: {
           monitorMode: 'igual',
-          activeDay: 'lun',
+          activeDay: 'overall',
           window: null,
           shared: null,
           useGroupsAll: false,
@@ -15766,7 +15766,7 @@
           return 'Cerca del ' + f._sMax + '% de los archivos de ' + where + ' llegan ' + noun + '.';
         },
         dsFindingTip(key) {
-          return 'Simetrik generará una anomalía cuando el porcentaje de archivos ' + this.dsFindingNoun(key) + ' supere este valor.';
+          return 'Este dato proviene del análisis inteligente que Simetrik hizo sobre el histórico de la fuente. Generaremos una anomalía cuando el porcentaje de archivos ' + this.dsFindingNoun(key) + ' supere el valor que definas.';
         },
         // Traduce el umbral a un efecto concreto. max 0 → cualquier archivo dispara la anomalía.
         dsFindingEffect(key, f) {
@@ -15794,6 +15794,56 @@
         // Día activo (helper compartido con el legacy).
         dsActiveDay() {
           return this.daySetup.days.find(d => d.key === this.daySetup.activeDay) || null;
+        },
+        // Vista "Resumen": agregado editable sobre los días configurados.
+        // Por cada métrica devuelve el envelope: mínimo más bajo y máximo más alto
+        // (ej. Lu 8–10 + Ma 9–11 → 8–11). active = algún día lo tiene prendido.
+        dsOverall() {
+          const cfgs = this.dsOverallTargets();
+          const out = { any: cfgs.length > 0, fileCount: { active: false }, rowCount: { active: false } };
+          this.dsFindingKeys.forEach(k => { out[k] = { active: false }; });
+          if (!cfgs.length) return out;
+          const range = (key) => {
+            const withVals = cfgs.filter(c => c[key] && c[key].min != null);
+            if (!withVals.length) return { active: false };
+            return {
+              active: cfgs.some(c => c[key] && c[key].active),
+              min: Math.min(...withVals.map(c => c[key].min)),
+              max: Math.max(...withVals.map(c => c[key].max))
+            };
+          };
+          out.fileCount = range('fileCount');
+          out.rowCount = range('rowCount');
+          this.dsFindingKeys.forEach(k => {
+            const maxes = cfgs.map(c => c[k] && c[k].max).filter(v => v != null);
+            const sMaxes = cfgs.map(c => c[k] && c[k]._sMax).filter(v => v);
+            out[k] = {
+              active: cfgs.some(c => c[k] && c[k].active),
+              max: maxes.length ? Math.max(...maxes) : 0,
+              _sMax: sMaxes.length ? Math.max(...sMaxes) : null
+            };
+          });
+          return out;
+        },
+        // Destinos de edición del Resumen: shared (igual) o cada día monitoreado (por-día).
+        dsOverallTargets() {
+          if (this.daySetup.monitorMode === 'igual') return [this.daySetup.shared].filter(Boolean);
+          return this.daySetup.days.filter(d => d.monitorEnabled && d.simple).map(d => d.simple);
+        },
+        dsOverallSet(metric, bound, value) {
+          const v = Number(value);
+          if (isNaN(v)) return;
+          this.dsOverallTargets().forEach(c => { if (c[metric]) c[metric][bound] = v; });
+        },
+        dsOverallSetFinding(key, value) {
+          const v = Number(value);
+          if (isNaN(v)) return;
+          this.dsOverallTargets().forEach(c => { if (c[key]) c[key].max = v; });
+        },
+        dsOverallToggle(key) {
+          const targets = this.dsOverallTargets();
+          const anyOn = targets.some(c => c[key] && c[key].active);
+          targets.forEach(c => { if (c[key]) c[key].active = !anyOn; });
         },
         // Transición Low → Family con retroalimentación.
         //   reason: 'dropdown' | 'edit' | 'toggle' | 'lock'
@@ -16105,7 +16155,7 @@
           this.inlineActiveMode = 'daysetup';
           this.daySetupReadonly = false;
           this.daySetup.monitorMode = 'igual';
-          this.daySetup.activeDay = 'lun';
+          this.daySetup.activeDay = 'overall';
           this.daySetup.window = this.daySetupMakeWindow();
           this.daySetup.shared = this.daySetupMakeSimple();
           this.daySetup.useGroupsAll = false;
@@ -16132,7 +16182,7 @@
           this.daySetup.loading = false;
           this.daySetup.changeFeedback = null;
           this.daySetup.monitorMenuOpen = false;
-          this.daySetup.activeDay = (this.daySetup.days[0] || { key: 'lun' }).key;
+          this.daySetup.activeDay = 'overall';
           this.inlineActiveMode = 'daysetup';
         },
         daySetupEdit() {
@@ -22255,6 +22305,10 @@
                               </template>
                             </span>
                             <div class="tm-tabs" role="tablist">
+                              <!-- Tab Resumen: panorama de toda la semana (Granola: vista overall). -->
+                              <button type="button" class="tm-tab" role="tab"
+                                :class="daySetup.activeDay === 'overall' && 'is-active'"
+                                @click="daySetup.activeDay = 'overall'">Resumen</button>
                               <template x-for="d in daySetup.days" :key="d.key">
                                 <button type="button" class="tm-tab" role="tab"
                                   :class="daySetup.activeDay === d.key && 'is-active'"
@@ -22282,8 +22336,9 @@
                         </div>
 
                         <!-- Header del día + toggle de monitoreo en una sola fila (figma 51:6117).
-                             Izquierda: título + badge del día. Derecha: estado + switch. -->
-                        <div class="ds-day-bar">
+                             Izquierda: título + badge del día. Derecha: estado + switch.
+                             Se oculta en Resumen (overall), que trae su propio encabezado y vista agregada. -->
+                        <div class="ds-day-bar" x-show="daySetup.activeDay !== 'overall'" x-cloak>
                           <div class="ds-day-bar-left">
                             <span class="ds-day-bar-title">Comportamiento de la fuente</span>
                             <span class="ds-day-chip" x-text="dsActiveDay() && dsActiveDay().label"></span>
@@ -22306,6 +22361,111 @@
                               @click="if(!daySetupReadonly && dsActiveDay()) dsToggleDayMonitor()"></div>
                           </div>
                         </div>
+
+                        <!-- Vista "Resumen": agregado editable. Muestra el envelope (min más bajo,
+                             max más alto) y al editar propaga a todos los días configurados. -->
+                        <template x-if="daySetup.activeDay === 'overall'">
+                          <div class="ds-stack-24">
+                            <div>
+                              <p class="ds-subsection-title">Todos los días</p>
+                              <p class="ds-subsection-sub">Aplica a todos los días configurados. Los valores muestran el rango agregado (mínimo más bajo, máximo más alto).</p>
+                            </div>
+
+                            <!-- Cantidad de archivos -->
+                            <div class="ds-indicator">
+                              <div class="ds-indicator-head">
+                                <div>
+                                  <div class="ds-indicator-title"><span>Cantidad de archivos</span></div>
+                                  <div class="ds-indicator-sub">Rango habitual de archivos por ejecución.</div>
+                                </div>
+                                <div class="ds-switch" :class="dsOverall().fileCount.active && 'on'" @click="dsOverallToggle('fileCount')"></div>
+                              </div>
+                              <div class="config-grid cols-2 ds-indicator-grid" x-show="dsOverall().fileCount.active" x-cloak>
+                                <div class="config-field"><label class="config-label">Como mínimo</label>
+                                  <div class="ds-input-with-suffix">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().fileCount.min" @change="dsOverallSet('fileCount','min',$event.target.value)">
+                                    <span class="ds-input-suffix-badge">Archivos</span>
+                                  </div>
+                                </div>
+                                <div class="config-field"><label class="config-label">Como máximo</label>
+                                  <div class="ds-input-with-suffix">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().fileCount.max" @change="dsOverallSet('fileCount','max',$event.target.value)">
+                                    <span class="ds-input-suffix-badge">Archivos</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Cantidad de registros -->
+                            <div class="ds-indicator">
+                              <div class="ds-indicator-head">
+                                <div>
+                                  <div class="ds-indicator-title"><span>Cantidad de registros</span></div>
+                                  <div class="ds-indicator-sub">Rango habitual de filas por ejecución.</div>
+                                </div>
+                                <div class="ds-switch" :class="dsOverall().rowCount.active && 'on'" @click="dsOverallToggle('rowCount')"></div>
+                              </div>
+                              <div class="config-grid cols-2 ds-indicator-grid" x-show="dsOverall().rowCount.active" x-cloak>
+                                <div class="config-field"><label class="config-label">Como mínimo</label>
+                                  <div class="ds-input-with-suffix">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().rowCount.min" @change="dsOverallSet('rowCount','min',$event.target.value)">
+                                    <span class="ds-input-suffix-badge">Registros</span>
+                                  </div>
+                                </div>
+                                <div class="config-field"><label class="config-label">Como máximo</label>
+                                  <div class="ds-input-with-suffix">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().rowCount.max" @change="dsOverallSet('rowCount','max',$event.target.value)">
+                                    <span class="ds-input-suffix-badge">Registros</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Otros comportamientos -->
+                            <div>
+                              <p class="ds-subsection-title">Otros comportamientos</p>
+                              <p class="ds-subsection-sub">Comportamientos que detectamos en el análisis de la fuente.</p>
+                            </div>
+                            <template x-for="fk in dsFindingKeys" :key="fk">
+                              <div class="ds-indicator">
+                                <div class="ds-indicator-head">
+                                  <div>
+                                    <div class="ds-indicator-title">
+                                      <span x-text="dsFindingTitle(fk)"></span>
+                                      <span class="ds-help" tabindex="0" :data-tip="dsFindingTip(fk)">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                                        </svg>
+                                      </span>
+                                    </div>
+                                    <div class="ds-indicator-sub" style="display:flex; align-items:flex-start; gap:6px;">
+                                      <span class="ai-spark" style="margin-top:1px;" aria-hidden="true"></span>
+                                      <span x-text="dsFindingCtx(fk, dsOverall()[fk], 'fuente')"></span>
+                                    </div>
+                                  </div>
+                                  <div class="ds-switch" :class="dsOverall()[fk].active && 'on'" @click="dsOverallToggle(fk)"></div>
+                                </div>
+                                <div class="config-grid cols-2 ds-indicator-grid" x-show="dsOverall()[fk].active" x-cloak>
+                                  <div class="config-field">
+                                    <label class="config-label">Alertar si supera</label>
+                                    <div class="ds-input-with-suffix">
+                                      <input type="number" min="0" max="100" class="config-input" :value="dsOverall()[fk].max" @change="dsOverallSetFinding(fk,$event.target.value)">
+                                      <span class="ds-input-suffix-badge">%</span>
+                                    </div>
+                                  </div>
+                                  <p class="ds-finding-effect" style="margin-top:24px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                      <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+                                    </svg>
+                                    <span x-text="dsFindingEffect(fk, dsOverall()[fk])"></span>
+                                  </p>
+                                </div>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
 
                         <!-- Contenido del día activo (Low/Family — Capa 4 agrega High). -->
                         <template x-if="dsActiveDay()">
