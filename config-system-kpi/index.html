@@ -1403,6 +1403,42 @@
       color: hsl(var(--muted-foreground)); font-style: italic;
     }
 
+    /* Hallazgo adaptativo (vacíos / duplicados / fallidos): Simetrik ya calculó el
+       patrón a partir del histórico; el usuario solo decide si es normal o un problema.
+       El TÍTULO es el hecho hallado; el selector vive al extremo derecho. */
+    .ds-finding {
+      padding: 16px; background: #fafafa; border-radius: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px 16px; flex-wrap: wrap;
+    }
+    .ds-finding-info { flex: 1 1 280px; min-width: 0; }
+    .ds-finding-title {
+      font-size: 14px; font-weight: 600; line-height: 20px; color: hsl(var(--foreground)); margin: 0;
+    }
+    .ds-finding-title b { font-weight: 700; }
+    .ds-finding-sub {
+      margin: 2px 0 0; font-size: 12px; font-weight: 400; line-height: 16px;
+      color: hsl(var(--muted-foreground));
+    }
+    /* Selector segmentado: Es normal / Es un problema. */
+    .ds-verdict {
+      display: inline-flex; flex-shrink: 0; gap: 4px; padding: 4px;
+      background: hsl(var(--muted) / 0.5); border-radius: 10px;
+    }
+    .ds-verdict-opt {
+      padding: 8px 14px; border: none; background: transparent; border-radius: 7px;
+      font-size: 13px; font-weight: 500; line-height: 18px; color: hsl(var(--muted-foreground));
+      cursor: pointer; white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background 0.15s ease-out, color 0.15s ease-out, box-shadow 0.15s ease-out;
+    }
+    .ds-verdict-opt:hover:not(.is-active-normal):not(.is-active-problem) { color: hsl(var(--foreground)); }
+    .ds-verdict-opt.is-active-normal,
+    .ds-verdict-opt.is-active-problem {
+      background: white; color: hsl(var(--foreground)); font-weight: 600;
+      box-shadow: 0 1px 2px rgba(16,24,40,0.08);
+    }
+
     /* Card unificada: indicador (top, #fafafa) + franja de grupos (footer, azul claro).
        Figma 51:5650. flex-shrink:0 por el mismo motivo que .ds-analysis. */
     .ds-vol-card {
@@ -15712,16 +15748,47 @@
           return {
             fileCount: { active: true, min: 10, max: 13, _sMin: 10, _sMax: 13 },
             rowCount: { active: true, min: 1000, max: 1200, _sMin: 1000, _sMax: 1200 },
-            // Alertas solo-switch (sin rango): archivos vacíos / duplicados / fallidos. Off por default.
-            emptyFiles: false,
-            duplicateFiles: false,
-            failedFiles: false,
+            // Hallazgos adaptativos (vacíos / duplicados / fallidos): Simetrik ya calculó
+            // el patrón; el usuario solo decide el veredicto. Default = 'problem'.
+            emptyFiles: { metric: 'pct', value: 2, days: 7, verdict: 'problem' },
+            duplicateFiles: { metric: 'pct', value: 5, days: 7, verdict: 'problem' },
+            failedFiles: { metric: 'count', value: 30, days: 7, verdict: 'problem' },
             notes: { open: false, tags: [], detail: '' }
           };
         },
         // Ventana de tiempo con suggestion tracking.
         daySetupMakeWindow() {
-          return { arrivesAt: '08:00', warnIfPast: '09:00', _sArrivesAt: '08:00', _sWarnIfPast: '09:00' };
+          // timezone: arranca con la zona del usuario (editable). Sin suggestion tracking.
+          return { arrivesAt: '08:00', warnIfPast: '09:00', timezone: 'CO', _sArrivesAt: '08:00', _sWarnIfPast: '09:00' };
+        },
+        // ----- Hallazgos adaptativos (vacíos / duplicados / fallidos) -----
+        // Las tres claves son objetos { metric, value, days, verdict }. Estos helpers
+        // arman el copy a partir del fact precalculado por Simetrik.
+        dsFindingKeys: ['emptyFiles', 'duplicateFiles', 'failedFiles'],
+        // El título ES el hecho hallado (no la etiqueta del KPI).
+        dsFindingTitle(key, f, scope) {
+          if (!f) return '';
+          const noun = { emptyFiles: 'vacíos', duplicateFiles: 'duplicados', failedFiles: 'fallidos' }[key];
+          if (f.metric === 'pct') {
+            const where = scope === 'grupo' ? 'este grupo' : 'esta fuente';
+            return 'El <b>' + f.value + '%</b> de los archivos de ' + where + ' llegan ' + noun + '.';
+          }
+          // Conteo (fallidos): el hecho se expresa como volumen recibido.
+          const subject = scope === 'grupo' ? 'Este grupo' : 'Esta fuente';
+          return subject + ' recibe en promedio <b>' + f.value + ' archivos ' + noun + '</b>.';
+        },
+        // Sub del hecho: aclara que el valor proviene del análisis inteligente.
+        dsFindingDesc(key, f, scope) {
+          const subject = f && f.metric === 'count' ? 'Este valor' : 'Este porcentaje';
+          const where = scope === 'grupo' ? 'del grupo' : 'de la fuente';
+          return subject + ' fue detectado en el análisis inteligente ' + where + '.';
+        },
+        // Coerción: si un seed trae el valor como boolean (modelo viejo), lo migra al objeto.
+        dsCoerceFinding(obj, key, metric, value) {
+          if (!obj) return;
+          if (obj[key] === undefined || typeof obj[key] === 'boolean') {
+            obj[key] = { metric: metric, value: value, days: 7, verdict: obj[key] === false ? 'normal' : 'problem' };
+          }
         },
         // Devuelve el objeto simple que el formulario debe editar:
         //   Low → daySetup.shared (uno solo para toda la semana)
@@ -15818,9 +15885,9 @@
           if (cfg) {
             if (cfg.fileCount && cfg.fileCount.active) out.push('Cantidad de archivos');
             if (cfg.rowCount && cfg.rowCount.active) out.push('Cantidad de registros');
-            if (cfg.emptyFiles) out.push('Archivos vacíos');
-            if (cfg.duplicateFiles) out.push('Archivos duplicados');
-            if (cfg.failedFiles) out.push('Archivos fallidos');
+            if (cfg.emptyFiles && cfg.emptyFiles.verdict === 'problem') out.push('Archivos vacíos');
+            if (cfg.duplicateFiles && cfg.duplicateFiles.verdict === 'problem') out.push('Archivos duplicados');
+            if (cfg.failedFiles && cfg.failedFiles.verdict === 'problem') out.push('Archivos fallidos');
             if (cfg.notes && ((cfg.notes.tags && cfg.notes.tags.length) || (cfg.notes.detail && cfg.notes.detail.trim()))) out.push('Notas adicionales');
           } else if (r.kpis) {
             if (r.kpis.file === 'ok') out.push('Cantidad de archivos');
@@ -15972,10 +16039,10 @@
             timezone: 'America/Bogota',
             fileCount: { min: 1, max: 1, _sMin: 1, _sMax: 1 },
             rowCount: { min: 1000, max: 5000, _sMin: 1000, _sMax: 5000 },
-            // Alertas solo-switch (sin rango) por grupo. Off por default.
-            emptyFiles: false,
-            duplicateFiles: false,
-            failedFiles: false,
+            // Hallazgos adaptativos por grupo (cálculo específico del patrón del grupo).
+            emptyFiles: { metric: 'pct', value: 2, days: 7, verdict: 'problem' },
+            duplicateFiles: { metric: 'pct', value: 5, days: 7, verdict: 'problem' },
+            failedFiles: { metric: 'count', value: 30, days: 7, verdict: 'problem' },
             notes: { open: false, tags: [], detail: '' },
             // Expandido por default solo el primer grupo del día (Figma).
             expanded: false
@@ -15989,6 +16056,10 @@
           if (g.rowCount && g.rowCount._sMin === undefined) g.rowCount._sMin = g.rowCount.min;
           if (g.rowCount && g.rowCount._sMax === undefined) g.rowCount._sMax = g.rowCount.max;
           if (!g.notes) g.notes = { open: false, tags: [], detail: '' };
+          // Migra hallazgos legacy (boolean) al modelo adaptativo { metric, value, days, verdict }.
+          this.dsCoerceFinding(g, 'emptyFiles', 'pct', 2);
+          this.dsCoerceFinding(g, 'duplicateFiles', 'pct', 5);
+          this.dsCoerceFinding(g, 'failedFiles', 'count', 30);
           // Deriva la "cadena" (estructura del nombre) del patrón: parte fija + token
           // variable (la fecha) + extensión. El * del glob marca dónde varía.
           if ((!g.chain || !g.chain.length) && g.pattern && g.pattern.indexOf('*') !== -1) {
@@ -16061,6 +16132,7 @@
           this.daySetup.days = JSON.parse(JSON.stringify(r.dayConfig));
           this.daySetup.shared = r.dayConfigShared ? JSON.parse(JSON.stringify(r.dayConfigShared)) : this.daySetupMakeSimple();
           this.daySetup.window = r.dayConfigWindow ? JSON.parse(JSON.stringify(r.dayConfigWindow)) : this.daySetupMakeWindow();
+          if (this.daySetup.window && !this.daySetup.window.timezone) this.daySetup.window.timezone = 'CO';
           this.daySetup.monitorMode = r.dayConfigMonitorMode || 'igual';
           this.daySetup.useGroupsAll = !!r.dayConfigUseGroupsAll;
           this.daySetupReadonly = true;
@@ -22130,7 +22202,7 @@
                           <div class="ds-card-sub">Cuándo esperas que se actualice esta fuente y a qué hora deberíamos
                             avisarte si no se actualizó.</div>
                         </div>
-                        <div class="config-grid cols-2">
+                        <div class="config-grid cols-3">
                           <div class="config-field">
                             <label class="config-label">Llega a las</label>
                             <input type="time" class="config-input" x-model="daySetup.window.arrivesAt"
@@ -22145,6 +22217,16 @@
                             <input type="time" class="config-input" x-model="daySetup.window.warnIfPast"
                               :disabled="daySetupReadonly">
                             <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="daySetup.window.warnIfPast !== daySetup.window._sWarnIfPast && 'is-suggestion'" @click="if(!daySetupReadonly && daySetup.window.warnIfPast !== daySetup.window._sWarnIfPast) daySetup.window.warnIfPast = daySetup.window._sWarnIfPast"><span class="dot"></span><span x-text="dsChipText(daySetup.window.warnIfPast, daySetup.window._sWarnIfPast)"></span></span>
+                          </div>
+                          <div class="config-field">
+                            <label class="config-label">Zona horaria</label>
+                            <select class="config-input" x-model="daySetup.window.timezone" :disabled="daySetupReadonly">
+                              <option value="CO">CO · Bogotá</option>
+                              <option value="BO">BO · La Paz</option>
+                              <option value="MX">MX · CDMX</option>
+                              <option value="AR">AR · Buenos Aires</option>
+                              <option value="UTC">UTC</option>
+                            </select>
                           </div>
                         </div>
                         <div class="ds-card-footer">
@@ -22214,9 +22296,11 @@
                             <span class="ds-day-chip" x-text="dsActiveDay() && dsActiveDay().label"></span>
                           </div>
                           <div class="ds-day-bar-right" x-show="!daySetupReadonly && dsActiveDay()" x-cloak>
-                            <span class="ds-day-bar-label">Este día no espero que llegue el archivo</span>
+                            <!-- Label dinámico que reafirma la acción del switch (resuelve el doble negativo). -->
+                            <span class="ds-day-bar-label"
+                              x-text="dsActiveDay() && dsActiveDay().monitorEnabled ? 'Este día espero que lleguen archivos' : 'Este día no espero que lleguen archivos'"></span>
                             <span class="ds-help" tabindex="0"
-                              data-tip="Selecciona los días en los que se debe evaluar la fuente. Los días no marcados se omiten del monitoreo.">
+                              data-tip="Indica si este día esperas recibir archivos. Si los esperas, configuras sus rangos. Si no, el monitor sigue activo: cualquier archivo que llegue se marcará como incidencia.">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
@@ -22224,8 +22308,8 @@
                                 <line x1="12" y1="17" x2="12.01" y2="17" />
                               </svg>
                             </span>
-                            <!-- Switch invertido: ON = "no espero archivo" (monitorEnabled false). -->
-                            <div class="ds-switch" :class="dsActiveDay() && !dsActiveDay().monitorEnabled && 'on'"
+                            <!-- Switch directo: ON = "espero archivos" (monitorEnabled true). -->
+                            <div class="ds-switch" :class="dsActiveDay() && dsActiveDay().monitorEnabled && 'on'"
                               @click="if(!daySetupReadonly && dsActiveDay()) dsToggleDayMonitor()"></div>
                           </div>
                         </div>
@@ -22407,40 +22491,26 @@
                                   </div>
                                 </div>
 
-                                <!-- Alertas solo-switch (sin rango): archivos vacíos / duplicados / fallidos. -->
-                                <div class="ds-indicator">
-                                  <div class="ds-indicator-head">
-                                    <div>
-                                      <div class="ds-indicator-title"><span>Avisar por archivos vacíos</span></div>
-                                      <div class="ds-indicator-sub">Cuando recibas un archivo vacío se generará un incidente.</div>
+                                <!-- Hallazgos adaptativos: vacíos / duplicados / fallidos. Simetrik muestra
+                                     el patrón ya calculado y el usuario decide si es normal o un problema. -->
+                                <template x-for="fk in dsFindingKeys" :key="fk">
+                                  <div class="ds-finding">
+                                    <div class="ds-finding-info">
+                                      <p class="ds-finding-title" x-html="dsFindingTitle(fk, dsActiveSimple()[fk], 'fuente')"></p>
+                                      <p class="ds-finding-sub" x-text="dsFindingDesc(fk, dsActiveSimple()[fk], 'fuente')"></p>
                                     </div>
-                                    <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="dsActiveSimple().emptyFiles && 'on'"
-                                      @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple().emptyFiles = !dsActiveSimple().emptyFiles; }"
-                                      :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
-                                  </div>
-                                </div>
-                                <div class="ds-indicator">
-                                  <div class="ds-indicator-head">
-                                    <div>
-                                      <div class="ds-indicator-title"><span>Avisar por archivos duplicados</span></div>
-                                      <div class="ds-indicator-sub">Define cuántos archivos se pueden duplicar antes de ser detectado como incidente.</div>
+                                    <div class="ds-verdict" :style="daySetupReadonly && 'opacity:0.75;'">
+                                      <button type="button" class="ds-verdict-opt"
+                                        :class="dsActiveSimple()[fk].verdict === 'normal' && 'is-active-normal'"
+                                        @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple()[fk].verdict = 'normal'; }"
+                                        :style="daySetupReadonly && 'cursor:default;'">Es normal</button>
+                                      <button type="button" class="ds-verdict-opt"
+                                        :class="dsActiveSimple()[fk].verdict === 'problem' && 'is-active-problem'"
+                                        @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple()[fk].verdict = 'problem'; }"
+                                        :style="daySetupReadonly && 'cursor:default;'">Es un problema</button>
                                     </div>
-                                    <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="dsActiveSimple().duplicateFiles && 'on'"
-                                      @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple().duplicateFiles = !dsActiveSimple().duplicateFiles; }"
-                                      :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
                                   </div>
-                                </div>
-                                <div class="ds-indicator">
-                                  <div class="ds-indicator-head">
-                                    <div>
-                                      <div class="ds-indicator-title"><span>Avisar por archivos fallidos</span></div>
-                                      <div class="ds-indicator-sub">Si falla la ingesta de un archivo de la fuente se detectará un incidente.</div>
-                                    </div>
-                                    <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="dsActiveSimple().failedFiles && 'on'"
-                                      @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple().failedFiles = !dsActiveSimple().failedFiles; }"
-                                      :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
-                                  </div>
-                                </div>
+                                </template>
 
                                 <!-- Notas adicionales (colapsado por default, mismo comportamiento que High).
                                      En config existente, solo se muestra si el usuario cargó notas. -->
@@ -22449,7 +22519,7 @@
                                     <div>
                                       <div class="ds-notes-title">
                                         <span>Notas adicionales</span>
-                                        <span class="ds-help" tabindex="0" data-tip="Selecciona los comportamientos adicionales que son normales en esta fuente.">
+                                        <span class="ds-help" tabindex="0" data-tip="Describe en texto libre cualquier comportamiento adicional que Simetrik deba tener en cuenta para esta fuente.">
                                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="12" cy="12" r="10" />
@@ -22458,8 +22528,8 @@
                                           </svg>
                                         </span>
                                       </div>
-                                      <div class="ds-notes-sub">Selecciona los comportamientos adicionales que son
-                                        normales en esta fuente.</div>
+                                      <div class="ds-notes-sub">Anota cualquier comportamiento adicional que Simetrik
+                                        deba tener en cuenta para esta fuente.</div>
                                     </div>
                                     <button type="button" class="ds-notes-add"
                                       :class="dsActiveSimple().notes.open && 'is-open'"
@@ -22482,21 +22552,6 @@
                                     </button>
                                   </div>
                                   <div x-show="dsActiveSimple().notes.open" x-cloak x-transition class="ds-stack-24">
-                                    <div class="ds-notes-tags">
-                                      <template x-for="tag in ['Llega con retraso', 'Volumen variable', 'Archivo dividido']" :key="tag">
-                                        <button type="button" class="ds-notes-tag"
-                                          :class="dsActiveSimple().notes.tags.includes(tag) && 'is-selected'"
-                                          @click="if(!daySetupReadonly){ const arr = dsActiveSimple().notes.tags; const i = arr.indexOf(tag); if(i>=0) arr.splice(i,1); else arr.push(tag); }">
-                                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="12" cy="12" r="10" />
-                                            <line x1="12" y1="8" x2="12" y2="16" />
-                                            <line x1="8" y1="12" x2="16" y2="12" />
-                                          </svg>
-                                          <span x-text="tag"></span>
-                                        </button>
-                                      </template>
-                                    </div>
                                     <div class="ds-notes-textarea-group">
                                       <div class="ds-notes-label">
                                         <span>Detalle</span>
@@ -22758,47 +22813,33 @@
                                         </div>
                                       </div>
 
-                                      <!-- Alertas solo-switch por grupo: vacíos / duplicados / fallidos. -->
-                                      <div class="ds-indicator" style="background:hsl(var(--muted) / 0.3); margin-bottom:12px;">
-                                        <div class="ds-indicator-head">
-                                          <div>
-                                            <div class="ds-indicator-title"><span>Avisar por archivos vacíos</span></div>
-                                            <div class="ds-indicator-sub">Cuando recibas un archivo vacío se generará un incidente.</div>
+                                      <!-- Hallazgos adaptativos por grupo: vacíos / duplicados / fallidos.
+                                           Cálculo específico del patrón del grupo; el usuario da el veredicto. -->
+                                      <template x-for="fk in dsFindingKeys" :key="fk">
+                                        <div class="ds-finding" style="background:hsl(var(--muted) / 0.3); margin-bottom:12px;">
+                                          <div class="ds-finding-info">
+                                            <p class="ds-finding-title" x-html="dsFindingTitle(fk, g[fk], 'grupo')"></p>
+                                            <p class="ds-finding-sub" x-text="dsFindingDesc(fk, g[fk], 'grupo')"></p>
                                           </div>
-                                          <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="g.emptyFiles && 'on'"
-                                            @click="if(!daySetupReadonly) g.emptyFiles = !g.emptyFiles"
-                                            :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
-                                        </div>
-                                      </div>
-                                      <div class="ds-indicator" style="background:hsl(var(--muted) / 0.3); margin-bottom:12px;">
-                                        <div class="ds-indicator-head">
-                                          <div>
-                                            <div class="ds-indicator-title"><span>Avisar por archivos duplicados</span></div>
-                                            <div class="ds-indicator-sub">Define cuántos archivos se pueden duplicar antes de ser detectado como incidente.</div>
+                                          <div class="ds-verdict" :style="daySetupReadonly && 'opacity:0.75;'">
+                                            <button type="button" class="ds-verdict-opt"
+                                              :class="g[fk].verdict === 'normal' && 'is-active-normal'"
+                                              @click="if(!daySetupReadonly) g[fk].verdict = 'normal'"
+                                              :style="daySetupReadonly && 'cursor:default;'">Es normal</button>
+                                            <button type="button" class="ds-verdict-opt"
+                                              :class="g[fk].verdict === 'problem' && 'is-active-problem'"
+                                              @click="if(!daySetupReadonly) g[fk].verdict = 'problem'"
+                                              :style="daySetupReadonly && 'cursor:default;'">Es un problema</button>
                                           </div>
-                                          <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="g.duplicateFiles && 'on'"
-                                            @click="if(!daySetupReadonly) g.duplicateFiles = !g.duplicateFiles"
-                                            :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
                                         </div>
-                                      </div>
-                                      <div class="ds-indicator" style="background:hsl(var(--muted) / 0.3); margin-bottom:12px;">
-                                        <div class="ds-indicator-head">
-                                          <div>
-                                            <div class="ds-indicator-title"><span>Avisar por archivos fallidos</span></div>
-                                            <div class="ds-indicator-sub">Si falla la ingesta de un archivo de la fuente se detectará un incidente.</div>
-                                          </div>
-                                          <div class="ds-switch" x-show="!daySetupReadonly" x-cloak :class="g.failedFiles && 'on'"
-                                            @click="if(!daySetupReadonly) g.failedFiles = !g.failedFiles"
-                                            :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
-                                        </div>
-                                      </div>
+                                      </template>
 
                                       <div class="ds-notes" style="background:hsl(var(--muted) / 0.3);" x-show="!daySetupReadonly || dsGroupHasNotes(g)" x-cloak>
                                         <div class="ds-notes-head">
                                           <div>
                                             <div class="ds-notes-title">
                                               <span>Notas adicionales</span>
-                                              <span class="ds-help" tabindex="0" data-tip="Selecciona los comportamientos adicionales que son normales en esta fuente.">
+                                              <span class="ds-help" tabindex="0" data-tip="Describe en texto libre cualquier comportamiento adicional que Simetrik deba tener en cuenta para este grupo.">
                                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="12" cy="12" r="10" />
@@ -22807,8 +22848,8 @@
                                           </svg>
                                         </span>
                                             </div>
-                                            <div class="ds-notes-sub">Selecciona los comportamientos adicionales que
-                                              son normales en este grupo.</div>
+                                            <div class="ds-notes-sub">Anota cualquier comportamiento adicional que
+                                              Simetrik deba tener en cuenta para este grupo.</div>
                                           </div>
                                           <button type="button" class="ds-notes-add"
                                             :class="g.notes.open && 'is-open'"
@@ -22831,20 +22872,6 @@
                                           </button>
                                         </div>
                                         <div x-show="g.notes.open" x-cloak x-transition>
-                                          <div class="ds-notes-tags">
-                                            <template x-for="tag in ['Llega con retraso', 'Volumen variable', 'Archivo dividido']" :key="tag">
-                                              <button type="button" class="ds-notes-tag"
-                                                :class="g.notes.tags.includes(tag) && 'is-selected'"
-                                                @click="if(!daySetupReadonly){ const arr = g.notes.tags; const i = arr.indexOf(tag); if(i>=0) arr.splice(i,1); else arr.push(tag); }">
-                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                  stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                                  <line x1="12" y1="5" x2="12" y2="19" />
-                                                  <line x1="5" y1="12" x2="19" y2="12" />
-                                                </svg>
-                                                <span x-text="tag"></span>
-                                              </button>
-                                            </template>
-                                          </div>
                                           <label class="config-label" style="margin-top:4px;">Detalle
                                             <span style="color:hsl(var(--destructive));">*</span></label>
                                           <textarea class="ds-notes-textarea" maxlength="250"
