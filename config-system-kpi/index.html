@@ -15940,6 +15940,28 @@
         },
         // Selector de métrica del header de la narrativa (ingesta). Las opciones son las
         // métricas que el usuario configuró (subconjunto de las 5); si no hay, muestra todas.
+        // ----- Navegación por día en el Análisis inteligente (vista de monitoreo) -----
+        aiRdyDay: 'resumen',
+        aiRdyDays: [
+          { key: 'lun', label: 'Lunes' }, { key: 'mar', label: 'Martes' }, { key: 'mie', label: 'Miércoles' },
+          { key: 'jue', label: 'Jueves' }, { key: 'vie', label: 'Viernes' }, { key: 'sab', label: 'Sábado' }, { key: 'dom', label: 'Domingo' }
+        ],
+        // Mock del prototipo: martes configurado sin archivos y sin actividad detectada;
+        // miércoles configurado sin archivos pero SÍ llegaron (anomalía). Resto, normal.
+        aiRdyDayStatus(key) {
+          if (key === 'mar') return 'silent';
+          if (key === 'mie') return 'unexpected';
+          return 'normal';
+        },
+        // True solo cuando el día no tiene nada que analizar (sin actividad). La llegada
+        // inesperada SÍ muestra la narrativa completa (su propio análisis del evento).
+        aiRdySpecial() {
+          return this.aiRdyDayStatus(this.aiRdyDay) === 'silent';
+        },
+        aiRdyDayLabel() {
+          const d = this.aiRdyDays.find(x => x.key === this.aiRdyDay);
+          return d ? d.label : '';
+        },
         aiRdyMetric: '',
         aiRdyMetricOptions() {
           const METRICS = ['Cantidad de archivos', 'Cantidad de registros', 'Archivos vacíos', 'Archivos duplicados', 'Archivos fallidos'];
@@ -15955,6 +15977,21 @@
         // Alimenta TODAS las secciones: Resumen, Límites, Tendencia, Distribución, Perfil.
         // Cada serie trae sus valores; la ventana tiene 2 series, el resto 1.
         aiRdyData() {
+          // Día con llegada inesperada: narrativa completa del evento (no hay línea base).
+          if (this.aiRdyDayStatus(this.aiRdyDay) === 'unexpected') {
+            const dia = this.aiRdyDayLabel().toLowerCase();
+            return {
+              seasonality: 'El resto de los ' + dia + ' del período no registró actividad, como se esperaba según la configuración.',
+              series: [{
+                pill: 'Cantidad de archivos', cls: 'is-a',
+                text: 'El <strong>' + dia + ' 22 de abril</strong> llegaron <strong>3 archivos</strong> a una fuente configurada para <em>no recibir nada</em> ese día. Como contradice lo configurado, el evento se registró como <strong>anomalía</strong>. No existe una línea base para los ' + dia + ', así que cualquier llegada se considera inesperada hasta que ajustes la configuración.',
+                limits: { min: '—', max: '—', ci: 'Sin línea base: día sin recepción esperada' },
+                trend: { outliers: 'Llegada aislada de <strong>3 archivos</strong> el <strong>22 de abril</strong>, único evento registrado en ' + dia + '.', gaps: 'El resto de los ' + dia + ' no registró actividad, como se esperaba.' },
+                dist: { p25: '—', p50: '—', p75: '—', p95: '—' },
+                profile: { mean: '—', std: '—', cv: '—', median: '—' }
+              }]
+            };
+          }
           const data = {
             'Hora de llegada': {
               seasonality: 'Se observa <strong>estacionalidad semanal</strong>: los <strong>jueves</strong> concentran las ocurrencias de volumen cero, mientras los <strong>lunes</strong> presentan el comportamiento más estable de la semana.',
@@ -21896,8 +21933,9 @@
                     <div class="ai-rdy-head-sub">Conoce cómo se comporta tu métrica y el modelo que detecta sus anomalías</div>
                   </div>
                 </div>
-                <!-- Selector de métrica: opciones = las métricas que el usuario configuró. -->
-                <div class="ai-rdy-select-wrap" x-data="{ open: false }" @click.outside="open = false">
+                <!-- Selector de métrica: opciones = las métricas que el usuario configuró.
+                     Se oculta en días especiales (sin actividad / llegada inesperada). -->
+                <div class="ai-rdy-select-wrap" x-data="{ open: false }" @click.outside="open = false" x-show="!aiRdySpecial()" x-cloak>
                   <button type="button" class="ai-rdy-select" @click="open = !open" :aria-expanded="open">
                     <span x-text="aiRdyMetricCurrent()"></span>
                     <svg class="ai-rdy-select-chev" :class="open && 'is-open'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -21916,6 +21954,37 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Switcher de día: Resumen + Lu→Do (vista de monitoreo). -->
+              <div class="ds-tabs-row" style="margin:4px 0 16px;">
+                <div class="ds-tabs-wrap">
+                  <div class="tm-tabs" role="tablist">
+                    <button type="button" class="tm-tab" role="tab" :class="aiRdyDay === 'resumen' && 'is-active'" @click="aiRdyDay = 'resumen'">Resumen</button>
+                    <template x-for="d in aiRdyDays" :key="d.key">
+                      <button type="button" class="tm-tab" role="tab" :class="aiRdyDay === d.key && 'is-active'" @click="aiRdyDay = d.key">
+                        <span x-text="d.label.slice(0, 2)"></span>
+                        <span class="ds-tab-dot" aria-hidden="true" x-show="aiRdyDayStatus(d.key) === 'unexpected'" x-cloak></span>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Día sin actividad (configurado sin archivos, no llegó nada). -->
+              <div class="ds-noexpect-card" x-show="aiRdySpecial() && aiRdyDayStatus(aiRdyDay) === 'silent'" x-cloak>
+                <span class="ds-noexpect-icon" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 2v4M16 2v4M3 10h18" /><rect x="3" y="4" width="18" height="18" rx="2" /><path d="m9 16 6-6" />
+                  </svg>
+                </span>
+                <div>
+                  <div class="ds-noexpect-title">Sin actividad este día</div>
+                  <div class="ds-noexpect-sub">Configuraste esta fuente para no recibir archivos los <span x-text="aiRdyDayLabel()"></span>, y durante el período evaluado no llegó ninguno. No hay comportamiento que analizar este día.</div>
+                </div>
+              </div>
+
+              <!-- Análisis por métrica (Resumen, días normales) y narrativa del evento (día inesperado). -->
+              <div x-show="!aiRdySpecial()" x-cloak>
 
               <!-- 1 · Resumen -->
               <div class="ai-rdy-section" :class="open && 'is-open'" x-data="{ open: true }">
@@ -22083,6 +22152,7 @@
                   </div>
                 </div>
               </div>
+              </div><!-- /análisis por métrica -->
             </div>
 
 
