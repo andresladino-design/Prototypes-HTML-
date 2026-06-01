@@ -15733,7 +15733,7 @@
             // (= tasa histórica detectada). Off por default: si no se activa, no se monitorea.
             emptyFiles: { active: false, max: 2, _sMax: 2 },
             duplicateFiles: { active: false, max: 5, _sMax: 5 },
-            failedFiles: { active: false, max: 20, _sMax: 20 },
+            failedFiles: { active: false, max: 0, _sMax: null },
             notes: { open: false, tags: [], detail: '' }
           };
         },
@@ -15752,27 +15752,35 @@
         dsFindingTitle(key) {
           return { emptyFiles: 'Archivos vacíos', duplicateFiles: 'Archivos duplicados', failedFiles: 'Archivos fallidos' }[key] || key;
         },
-        // Contexto natural (sub): tasa histórica detectada por el análisis. Siempre visible,
-        // aun con el toggle apagado, para que el usuario sepa qué encontramos.
+        // Sin baseline: tasa detectada 0 o sin datos. Ambos se tratan IGUAL: no hay porcentaje
+        // que sugerir y el comportamiento, en la práctica, no se registra en la fuente.
+        dsFindingNoData(f) { return !f || !f._sMax; },
+        // Contexto natural (sub): tasa histórica detectada. Siempre visible, aun con el toggle
+        // apagado. Si no hay registro (0 o sin datos), lo decimos en vez de inventar un valor.
         dsFindingCtx(key, f, scope) {
+          const noun = this.dsFindingNoun(key);
           const where = scope === 'grupo' ? 'este grupo' : 'esta fuente';
-          const pct = f ? f._sMax : 0;
-          return 'Cerca del ' + pct + '% de los archivos de ' + where + ' llegan ' + this.dsFindingNoun(key) + '.';
+          if (this.dsFindingNoData(f)) {
+            return 'No registramos archivos ' + noun + ' en ' + where + '.';
+          }
+          return 'Cerca del ' + f._sMax + '% de los archivos de ' + where + ' llegan ' + noun + '.';
         },
         dsFindingTip(key) {
           return 'Simetrik generará una anomalía cuando el porcentaje de archivos ' + this.dsFindingNoun(key) + ' supere este valor.';
         },
-        // Traduce el umbral % a un efecto concreto (base 100). Reactivo al valor editado.
+        // Traduce el umbral a un efecto concreto. max 0 → cualquier archivo dispara la anomalía.
         dsFindingEffect(key, f) {
           if (!f) return '';
-          return 'Generaremos una anomalía si más de ' + f.max + ' de cada 100 archivos llegan ' + this.dsFindingNoun(key) + '.';
+          const noun = this.dsFindingNoun(key);
+          if (f.max <= 0) return 'Generaremos una anomalía apenas llegue un archivo ' + noun + '.';
+          return 'Generaremos una anomalía si más de ' + f.max + ' de cada 100 archivos llegan ' + noun + '.';
         },
         // Coerción: migra modelos viejos (boolean o {verdict}) al patrón { active, max, _sMax }.
         dsCoerceFinding(obj, key, sMax) {
           if (!obj) return;
           const o = obj[key];
           if (!o || typeof o !== 'object' || o.max === undefined) {
-            obj[key] = { active: o === true || (o && o.verdict === 'problem') || false, max: sMax, _sMax: sMax };
+            obj[key] = { active: o === true || (o && o.verdict === 'problem') || false, max: (sMax == null ? 0 : sMax), _sMax: sMax };
           }
         },
         // Devuelve el objeto simple que el formulario debe editar:
@@ -16027,7 +16035,7 @@
             // Hallazgos por grupo (umbral % específico del patrón del grupo).
             emptyFiles: { active: false, max: 2, _sMax: 2 },
             duplicateFiles: { active: false, max: 5, _sMax: 5 },
-            failedFiles: { active: false, max: 20, _sMax: 20 },
+            failedFiles: { active: false, max: 0, _sMax: null },
             notes: { open: false, tags: [], detail: '' },
             // Expandido por default solo el primer grupo del día (Figma).
             expanded: false
@@ -16044,7 +16052,7 @@
           // Migra hallazgos legacy al patrón { active, max, _sMax }.
           this.dsCoerceFinding(g, 'emptyFiles', 2);
           this.dsCoerceFinding(g, 'duplicateFiles', 5);
-          this.dsCoerceFinding(g, 'failedFiles', 20);
+          this.dsCoerceFinding(g, 'failedFiles', null);
           // Deriva la "cadena" (estructura del nombre) del patrón: parte fija + token
           // variable (la fecha) + extensión. El * del glob marca dónde varía.
           if ((!g.chain || !g.chain.length) && g.pattern && g.pattern.indexOf('*') !== -1) {
@@ -22506,6 +22514,7 @@
                                         @click="if(!daySetupReadonly){ if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit'); dsActiveSimple()[fk].active = !dsActiveSimple()[fk].active; }"
                                         :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
                                     </div>
+                                    <!-- Input de umbral siempre presente; el copy (sub + chip) se adapta al caso. -->
                                     <div class="config-grid cols-2 ds-indicator-grid" x-show="dsActiveSimple()[fk].active" x-cloak>
                                       <div class="config-field">
                                         <label class="config-label">Alertar si supera</label>
@@ -22516,7 +22525,7 @@
                                             @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                           <span class="ds-input-suffix-badge">%</span>
                                         </div>
-                                        <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="dsActiveSimple()[fk].max !== dsActiveSimple()[fk]._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple()[fk].max !== dsActiveSimple()[fk]._sMax) dsActiveSimple()[fk].max = dsActiveSimple()[fk]._sMax"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple()[fk].max, dsActiveSimple()[fk]._sMax) + '%'"></span></span>
+                                        <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="dsActiveSimple()[fk]._sMax && dsActiveSimple()[fk].max !== dsActiveSimple()[fk]._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple()[fk]._sMax && dsActiveSimple()[fk].max !== dsActiveSimple()[fk]._sMax) dsActiveSimple()[fk].max = dsActiveSimple()[fk]._sMax"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple()[fk].max, dsActiveSimple()[fk]._sMax) + '%'"></span></span>
                                       </div>
                                       <p class="ds-finding-effect" style="margin-top:24px;">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -22860,6 +22869,7 @@
                                               @click="if(!daySetupReadonly) g[fk].active = !g[fk].active"
                                               :style="daySetupReadonly && 'opacity:0.6; cursor:default;'"></div>
                                           </div>
+                                          <!-- Input de umbral siempre presente; el copy se adapta al caso. -->
                                           <div class="config-grid cols-2 ds-indicator-grid" x-show="g[fk].active" x-cloak>
                                             <div class="config-field">
                                               <label class="config-label">Alertar si supera</label>
@@ -22868,7 +22878,7 @@
                                                   x-model.number="g[fk].max" :disabled="daySetupReadonly">
                                                 <span class="ds-input-suffix-badge">%</span>
                                               </div>
-                                              <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="g[fk].max !== g[fk]._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && g[fk].max !== g[fk]._sMax) g[fk].max = g[fk]._sMax"><span class="dot"></span><span x-text="dsChipText(g[fk].max, g[fk]._sMax) + '%'"></span></span>
+                                              <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="g[fk]._sMax && g[fk].max !== g[fk]._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && g[fk]._sMax && g[fk].max !== g[fk]._sMax) g[fk].max = g[fk]._sMax"><span class="dot"></span><span x-text="dsChipText(g[fk].max, g[fk]._sMax) + '%'"></span></span>
                                             </div>
                                             <p class="ds-finding-effect" style="margin-top:24px;">
                                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
