@@ -15951,6 +15951,88 @@
           const opts = this.aiRdyMetricOptions();
           return opts.includes(this.aiRdyMetric) ? this.aiRdyMetric : (opts[0] || '');
         },
+        // Datos del Análisis inteligente por métrica seleccionada (mock para ejemplificar).
+        // Alimenta TODAS las secciones: Resumen, Límites, Tendencia, Distribución, Perfil.
+        // Cada serie trae sus valores; la ventana tiene 2 series, el resto 1.
+        aiRdyData() {
+          const data = {
+            'Hora de llegada': {
+              seasonality: 'Se observa <strong>estacionalidad semanal</strong>: los <strong>jueves</strong> concentran las ocurrencias de volumen cero, mientras los <strong>lunes</strong> presentan el comportamiento más estable de la semana.',
+              series: [
+                { pill: 'Inicio de ventana de carga', cls: 'is-a',
+                  text: 'El inicio de carga suele caer en la madrugada, con media de <strong>04:51</strong> y variabilidad alta (CV <strong>1.42</strong>). Seis de las últimas diez observaciones llegaron muy temprano o cerca de cero, indicando adelantos frecuentes que conviene vigilar.',
+                  limits: { min: '00:00', max: '16:53', ci: '01:02 – 07:10' },
+                  trend: { outliers: 'Se detectaron <strong>5 días</strong> de inicio anómalo, todos en <strong>jueves</strong>. Patrón sistemático, no aleatorio.', gaps: 'Sin brechas en la ventana de línea base: la cadencia es limpia.' },
+                  dist: { p25: '01:42', p50: '04:18', p75: '09:55', p95: '17:11' },
+                  profile: { mean: '04:51', std: '03:38', cv: '1.42', median: '04:18' } },
+                { pill: 'Fin de ventana de carga', cls: 'is-b',
+                  text: 'El fin de carga es mucho más estable (CV <strong>0.31</strong>), con media de <strong>16:42</strong>. La ventana de cierre es predecible salvo días puntuales con retraso.',
+                  limits: { min: '07:56', max: '23:45', ci: '13:54 – 19:24' },
+                  trend: { outliers: 'Colapso sostenido desde el <strong>6 de abril</strong> con cierres tardíos atípicos.', gaps: '<strong>4 días faltantes</strong> (24 a 26, 28 de abril) durante la peor ventana.' },
+                  dist: { p25: '12:08', p50: '16:31', p75: '20:02', p95: '23:16' },
+                  profile: { mean: '16:42', std: '02:51', cv: '0.31', median: '16:31' } }
+              ]
+            },
+            'Cantidad de registros': {
+              seasonality: 'Lunes y miércoles concentran el mayor volumen de filas; los fines de semana caen como es esperable.',
+              series: [
+                { pill: 'Cantidad de registros', cls: 'is-a',
+                  text: 'La cantidad de registros se mantiene estable alrededor de la media histórica de <strong>1.080</strong> filas por carga. Las últimas <strong>15</strong> cargas se ubicaron dentro del rango esperado (<strong>1.000 a 1.200</strong>), sin caídas a cero ni picos atípicos.',
+                  limits: { min: '1.000', max: '1.200', ci: '1.020 – 1.180' },
+                  trend: { outliers: 'Sin valores atípicos relevantes en el período.', gaps: 'Sin brechas: la recolección es limpia.' },
+                  dist: { p25: '1.040', p50: '1.080', p75: '1.130', p95: '1.190' },
+                  profile: { mean: '1.080', std: '62', cv: '0.06', median: '1.078' } }
+              ]
+            },
+            'Cantidad de archivos': {
+              seasonality: 'El volumen de archivos se mantiene parejo a lo largo de la semana, sin estacionalidad marcada.',
+              series: [
+                { pill: 'Cantidad de archivos', cls: 'is-a',
+                  text: 'El conteo de archivos por carga oscila entre <strong>10 y 13</strong>, consistente con la integración configurada. En las últimas <strong>15</strong> ejecuciones no hubo faltantes ni excesos relevantes.',
+                  limits: { min: '10', max: '13', ci: '10 – 12' },
+                  trend: { outliers: 'Sin faltantes ni excesos relevantes.', gaps: 'Sin brechas de recolección.' },
+                  dist: { p25: '10', p50: '11', p75: '12', p95: '13' },
+                  profile: { mean: '11.2', std: '0.9', cv: '0.08', median: '11' } }
+              ]
+            },
+            'Archivos vacíos': {
+              seasonality: 'Mayor incidencia de archivos vacíos en los primeros días del mes.',
+              series: [
+                { pill: 'Archivos vacíos', cls: 'is-a',
+                  text: 'Cerca del <strong>2%</strong> de los archivos de esta fuente llegan vacíos, un patrón recurrente y estable en los últimos <strong>30 días</strong>. El modelo lo incorporó como comportamiento esperado.',
+                  limits: { min: '0%', max: '2%', ci: '0% – 2%' },
+                  trend: { outliers: 'Los vacíos aparecen de forma esporádica, sin acumularse.', gaps: 'Sin brechas en el período.' },
+                  dist: { p25: '0%', p50: '1%', p75: '2%', p95: '2%' },
+                  profile: { mean: '1.8%', std: '0.6%', cv: '0.33', median: '2%' } }
+              ]
+            },
+            'Archivos duplicados': {
+              seasonality: 'Picos de duplicados los lunes, asociados a reintentos del origen.',
+              series: [
+                { pill: 'Archivos duplicados', cls: 'is-a',
+                  text: 'Alrededor del <strong>5%</strong> de los archivos llegan duplicados, en general por reintentos de la integración de origen. El patrón es estable y se concentra en las primeras horas de la ventana.',
+                  limits: { min: '0%', max: '5%', ci: '2% – 5%' },
+                  trend: { outliers: 'Los duplicados se concentran en las primeras horas de la ventana.', gaps: 'Sin brechas en el período.' },
+                  dist: { p25: '2%', p50: '4%', p75: '5%', p95: '6%' },
+                  profile: { mean: '4.6%', std: '1.1%', cv: '0.24', median: '5%' } }
+              ]
+            },
+            'Archivos fallidos': {
+              seasonality: 'Sin datos de estacionalidad: no se registran archivos fallidos.',
+              series: [
+                { pill: 'Archivos fallidos', cls: 'is-a',
+                  text: 'No se registran archivos fallidos en el histórico de esta fuente. Por ser un evento inusual, su aparición se tratará como anomalía: te avisaremos apenas llegue el primer archivo fallido.',
+                  limits: { min: '—', max: '—', ci: 'Sin datos' },
+                  trend: { outliers: 'No se registran fallidos en el histórico.', gaps: 'Datos insuficientes para evaluar brechas.' },
+                  dist: { p25: '—', p50: '—', p75: '—', p95: '—' },
+                  profile: { mean: '—', std: '—', cv: '—', median: '—' } }
+              ]
+            }
+          };
+          return data[this.aiRdyMetricCurrent()] || data['Cantidad de archivos'];
+        },
+        // Wrapper para la sección Resumen (cada serie = un bloque de narrativa).
+        aiRdyNarrative() { return this.aiRdyData().series; },
         // Path de la serie del preview del Análisis inteligente (colapsable inline).
         // Se llama vía x-init en el <path> porque el elemento lo clona x-if al abrir el diálogo.
         // ~90 registros centrados en ~1130 dentro de la banda min/máx, con picos/caídas. y: 0..2100 → 196..16.
@@ -21858,14 +21940,12 @@
                       <span class="ai-rdy-badge">15</span>
                     </div>
                   </div>
-                  <div class="ai-rdy-series-block">
-                    <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                    <p class="ai-rdy-narrative">El KPI muestra <em>ninguna mejora significativa</em> respecto a la evaluación anterior. El desempeño permanece <em>persistentemente débil</em>: la actividad reciente continúa con tendencia <em>muy por debajo</em> de la media histórica de <strong>246.0</strong>, con seis de las últimas diez observaciones registrando valores en o cerca de cero. El pico aislado de <strong>480.0</strong> del <strong>27 de abril</strong> (martes) se alinea con el patrón histórico de los martes pero fue seguido inmediatamente por días con valor cero, indicando que el pico no se sostuvo. El valor más reciente de <strong>30.0</strong> del <strong>30 de abril</strong> representa solo un <em>ligero repunte</em> desde los ceros consecutivos del <strong>29, 23, 22 y 21 de abril</strong>. Las operaciones deben continuar investigando las causas fundamentales de este período prolongado de baja actividad y monitorear si la lectura de <strong>30.0</strong> representa el inicio de una recuperación genuina o simplemente ruido intermitente.</p>
-                  </div>
-                  <div class="ai-rdy-series-block">
-                    <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                    <p class="ai-rdy-narrative"><strong>ACCIÓN URGENTE REQUERIDA:</strong> La situación se ha <em>deteriorado más allá de la evaluación anterior</em>—el valor del <strong>30 de abril</strong> de <strong>465.0</strong> rompe el piso anterior, confirmando que la disminución se está <em>acelerando</em> en lugar de estabilizarse. <strong>CAMBIO DESDE LA EVALUACIÓN ANTERIOR:</strong> En lugar de estabilizarse en <strong>765.0</strong>, los valores han caído un <strong>-39%</strong> adicional, con el nuevo mínimo representando una brecha del <strong>-64%</strong> respecto a las operaciones normales. Este <strong>colapso sostenido de 11 días</strong> (20–30 de abril) con <em>cero señales de recuperación</em> indica una <em>falla crítica del sistema</em>: investigue inmediatamente interrupciones de la pasarela de pagos, suspensiones de cuentas de comerciantes, errores de enrutamiento de divisas o corrupción de la canalización de datos. El patrón descarta la volatilidad temporal—esto es un <em>evento de continuidad del negocio</em>.</p>
-                  </div>
+                  <template x-for="b in aiRdyNarrative()" :key="b.pill">
+                    <div class="ai-rdy-series-block">
+                      <span class="ai-rdy-series-pill" :class="b.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="b.pill"></span></span>
+                      <p class="ai-rdy-narrative" x-html="b.text"></p>
+                    </div>
+                  </template>
                 </div>
               </div>
 
@@ -21883,22 +21963,16 @@
                 </button>
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mín. aprendido (p5)</span><span class="ai-rdy-stat-value">00:00</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Máx. aprendido (p95)</span><span class="ai-rdy-stat-value">16:53</span></div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div class="ai-rdy-grid-2">
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mín. aprendido (p5)</span><span class="ai-rdy-stat-value" x-text="s.limits.min"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Máx. aprendido (p95)</span><span class="ai-rdy-stat-value" x-text="s.limits.max"></span></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Intervalo de confianza</span><span class="ai-rdy-stat-value" x-text="s.limits.ci"></span></div>
                       </div>
-                      <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Intervalo de confianza</span><span class="ai-rdy-stat-value">01:02 – 07:10</span></div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mín. aprendido (p5)</span><span class="ai-rdy-stat-value">07:56</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Máx. aprendido (p95)</span><span class="ai-rdy-stat-value">23:45</span></div>
-                      </div>
-                      <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Intervalo de confianza</span><span class="ai-rdy-stat-value">13:54 – 19:24</span></div>
-                    </div>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -21917,27 +21991,25 @@
                 </button>
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div><div class="ai-rdy-subhead">Valores atípicos</div><p class="ai-rdy-narrative">Se detectaron <strong>5 días</strong> de volumen cero — todos en <strong>jueves</strong>. Patrón sistemático, no aleatorio.</p></div>
-                      <div><div class="ai-rdy-subhead">Brechas de datos</div><p class="ai-rdy-narrative">Sin brechas en la ventana de línea base — la cadencia de recolección es limpia.</p></div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div><div class="ai-rdy-subhead">Valores atípicos</div><p class="ai-rdy-narrative">Colapso sostenido desde el <strong>6 de abril</strong>; mínimo histórico de <strong>480.0</strong>.</p></div>
-                      <div><div class="ai-rdy-subhead">Brechas de datos</div><p class="ai-rdy-narrative"><strong>4 días faltantes</strong> (24–26, 28 de abril) durante la peor ventana de rendimiento.</p></div>
-                    </div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div><div class="ai-rdy-subhead">Valores atípicos</div><p class="ai-rdy-narrative" x-html="s.trend.outliers"></p></div>
+                        <div><div class="ai-rdy-subhead">Brechas de datos</div><p class="ai-rdy-narrative" x-html="s.trend.gaps"></p></div>
+                      </div>
+                    </template>
                   </div>
                   <svg class="ai-rdy-chart" viewBox="0 0 640 160" aria-hidden="true">
                     <line x1="20" y1="20" x2="620" y2="20" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="80" x2="620" y2="80" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="140" x2="620" y2="140" stroke="hsl(var(--border))" stroke-width="1"/>
                     <path x-init="$el.setAttribute('d', aiRdyPath(0))" d="" fill="none" stroke="rgb(115,100,216)" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path x-init="$el.setAttribute('d', aiRdyPath(1.7))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path x-show="aiRdyData().series.length > 1" x-init="$el.setAttribute('d', aiRdyPath(1.7))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
                   </svg>
-                  <div class="ai-rdy-legend">
-                    <span class="ai-rdy-legend-item"><span class="dot" style="background:rgb(115,100,216);"></span>Inicio de ventana de carga</span>
-                    <span class="ai-rdy-legend-item"><span class="dot" style="background:rgb(213,109,143);"></span>Fin de ventana de carga</span>
+                  <div class="ai-rdy-legend" x-show="aiRdyData().series.length > 1" x-cloak>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <span class="ai-rdy-legend-item"><span class="dot" :style="'background:' + (s.cls === 'is-b' ? 'rgb(213,109,143)' : 'rgb(115,100,216)')"></span><span x-text="s.pill"></span></span>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -21957,35 +22029,28 @@
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-subhead">Distribución de percentiles</div>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p25</span><span class="ai-rdy-stat-value">01:42</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p50</span><span class="ai-rdy-stat-value">04:18</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p75</span><span class="ai-rdy-stat-value">09:55</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p95</span><span class="ai-rdy-stat-value">17:11</span></div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div class="ai-rdy-grid-2">
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p25</span><span class="ai-rdy-stat-value" x-text="s.dist.p25"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p50</span><span class="ai-rdy-stat-value" x-text="s.dist.p50"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p75</span><span class="ai-rdy-stat-value" x-text="s.dist.p75"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p95</span><span class="ai-rdy-stat-value" x-text="s.dist.p95"></span></div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p25</span><span class="ai-rdy-stat-value">12:08</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p50</span><span class="ai-rdy-stat-value">16:31</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p75</span><span class="ai-rdy-stat-value">20:02</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p95</span><span class="ai-rdy-stat-value">23:16</span></div>
-                      </div>
-                    </div>
+                    </template>
                   </div>
                   <div class="ai-rdy-series-block">
                     <div class="ai-rdy-subhead">Estacionalidad</div>
-                    <p class="ai-rdy-narrative">Se observa <strong>estacionalidad semanal</strong>: los <strong>jueves</strong> concentran las ocurrencias de volumen cero, mientras los <strong>lunes</strong> presentan el comportamiento más estable y predecible de la semana.</p>
+                    <p class="ai-rdy-narrative" x-html="aiRdyData().seasonality"></p>
                   </div>
                   <svg class="ai-rdy-chart" viewBox="0 0 640 160" aria-hidden="true">
                     <line x1="20" y1="20" x2="620" y2="20" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="80" x2="620" y2="80" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="140" x2="620" y2="140" stroke="hsl(var(--border))" stroke-width="1"/>
                     <path x-init="$el.setAttribute('d', aiRdyPath(0.8))" d="" fill="none" stroke="rgb(115,100,216)" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path x-init="$el.setAttribute('d', aiRdyPath(2.4))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path x-show="aiRdyData().series.length > 1" x-init="$el.setAttribute('d', aiRdyPath(2.4))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
                   </svg>
                 </div>
               </div>
@@ -22004,24 +22069,17 @@
                 </button>
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Media aprendida</span><span class="ai-rdy-stat-value">04:51</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Desv. estándar</span><span class="ai-rdy-stat-value">03:38</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Coef. variación</span><span class="ai-rdy-stat-value">1.42</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mediana</span><span class="ai-rdy-stat-value">04:18</span></div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div class="ai-rdy-grid-2">
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Media aprendida</span><span class="ai-rdy-stat-value" x-text="s.profile.mean"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Desv. estándar</span><span class="ai-rdy-stat-value" x-text="s.profile.std"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Coef. variación</span><span class="ai-rdy-stat-value" x-text="s.profile.cv"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mediana</span><span class="ai-rdy-stat-value" x-text="s.profile.median"></span></div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Media aprendida</span><span class="ai-rdy-stat-value">16:42</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Desv. estándar</span><span class="ai-rdy-stat-value">02:51</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Coef. variación</span><span class="ai-rdy-stat-value">0.31</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mediana</span><span class="ai-rdy-stat-value">16:31</span></div>
-                      </div>
-                    </div>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -23997,14 +24055,12 @@
                       <span class="ai-rdy-badge">15</span>
                     </div>
                   </div>
-                  <div class="ai-rdy-series-block">
-                    <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                    <p class="ai-rdy-narrative">El KPI muestra <em>ninguna mejora significativa</em> respecto a la evaluación anterior. El desempeño permanece <em>persistentemente débil</em>: la actividad reciente continúa con tendencia <em>muy por debajo</em> de la media histórica de <strong>246.0</strong>, con seis de las últimas diez observaciones registrando valores en o cerca de cero. El pico aislado de <strong>480.0</strong> del <strong>27 de abril</strong> (martes) se alinea con el patrón histórico de los martes pero fue seguido inmediatamente por días con valor cero, indicando que el pico no se sostuvo. El valor más reciente de <strong>30.0</strong> del <strong>30 de abril</strong> representa solo un <em>ligero repunte</em> desde los ceros consecutivos del <strong>29, 23, 22 y 21 de abril</strong>. Las operaciones deben continuar investigando las causas fundamentales de este período prolongado de baja actividad y monitorear si la lectura de <strong>30.0</strong> representa el inicio de una recuperación genuina o simplemente ruido intermitente.</p>
-                  </div>
-                  <div class="ai-rdy-series-block">
-                    <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                    <p class="ai-rdy-narrative"><strong>ACCIÓN URGENTE REQUERIDA:</strong> La situación se ha <em>deteriorado más allá de la evaluación anterior</em>—el valor del <strong>30 de abril</strong> de <strong>465.0</strong> rompe el piso anterior, confirmando que la disminución se está <em>acelerando</em> en lugar de estabilizarse. <strong>CAMBIO DESDE LA EVALUACIÓN ANTERIOR:</strong> En lugar de estabilizarse en <strong>765.0</strong>, los valores han caído un <strong>-39%</strong> adicional, con el nuevo mínimo representando una brecha del <strong>-64%</strong> respecto a las operaciones normales. Este <strong>colapso sostenido de 11 días</strong> (20–30 de abril) con <em>cero señales de recuperación</em> indica una <em>falla crítica del sistema</em>: investigue inmediatamente interrupciones de la pasarela de pagos, suspensiones de cuentas de comerciantes, errores de enrutamiento de divisas o corrupción de la canalización de datos. El patrón descarta la volatilidad temporal—esto es un <em>evento de continuidad del negocio</em>.</p>
-                  </div>
+                  <template x-for="b in aiRdyNarrative()" :key="b.pill">
+                    <div class="ai-rdy-series-block">
+                      <span class="ai-rdy-series-pill" :class="b.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="b.pill"></span></span>
+                      <p class="ai-rdy-narrative" x-html="b.text"></p>
+                    </div>
+                  </template>
                 </div>
               </div>
 
@@ -24022,22 +24078,16 @@
                 </button>
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mín. aprendido (p5)</span><span class="ai-rdy-stat-value">00:00</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Máx. aprendido (p95)</span><span class="ai-rdy-stat-value">16:53</span></div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div class="ai-rdy-grid-2">
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mín. aprendido (p5)</span><span class="ai-rdy-stat-value" x-text="s.limits.min"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Máx. aprendido (p95)</span><span class="ai-rdy-stat-value" x-text="s.limits.max"></span></div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Intervalo de confianza</span><span class="ai-rdy-stat-value" x-text="s.limits.ci"></span></div>
                       </div>
-                      <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Intervalo de confianza</span><span class="ai-rdy-stat-value">01:02 – 07:10</span></div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mín. aprendido (p5)</span><span class="ai-rdy-stat-value">07:56</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Máx. aprendido (p95)</span><span class="ai-rdy-stat-value">23:45</span></div>
-                      </div>
-                      <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Intervalo de confianza</span><span class="ai-rdy-stat-value">13:54 – 19:24</span></div>
-                    </div>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -24056,27 +24106,25 @@
                 </button>
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div><div class="ai-rdy-subhead">Valores atípicos</div><p class="ai-rdy-narrative">Se detectaron <strong>5 días</strong> de volumen cero — todos en <strong>jueves</strong>. Patrón sistemático, no aleatorio.</p></div>
-                      <div><div class="ai-rdy-subhead">Brechas de datos</div><p class="ai-rdy-narrative">Sin brechas en la ventana de línea base — la cadencia de recolección es limpia.</p></div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div><div class="ai-rdy-subhead">Valores atípicos</div><p class="ai-rdy-narrative">Colapso sostenido desde el <strong>6 de abril</strong>; mínimo histórico de <strong>480.0</strong>.</p></div>
-                      <div><div class="ai-rdy-subhead">Brechas de datos</div><p class="ai-rdy-narrative"><strong>4 días faltantes</strong> (24–26, 28 de abril) durante la peor ventana de rendimiento.</p></div>
-                    </div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div><div class="ai-rdy-subhead">Valores atípicos</div><p class="ai-rdy-narrative" x-html="s.trend.outliers"></p></div>
+                        <div><div class="ai-rdy-subhead">Brechas de datos</div><p class="ai-rdy-narrative" x-html="s.trend.gaps"></p></div>
+                      </div>
+                    </template>
                   </div>
                   <svg class="ai-rdy-chart" viewBox="0 0 640 160" aria-hidden="true">
                     <line x1="20" y1="20" x2="620" y2="20" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="80" x2="620" y2="80" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="140" x2="620" y2="140" stroke="hsl(var(--border))" stroke-width="1"/>
                     <path x-init="$el.setAttribute('d', aiRdyPath(0))" d="" fill="none" stroke="rgb(115,100,216)" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path x-init="$el.setAttribute('d', aiRdyPath(1.7))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path x-show="aiRdyData().series.length > 1" x-init="$el.setAttribute('d', aiRdyPath(1.7))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
                   </svg>
-                  <div class="ai-rdy-legend">
-                    <span class="ai-rdy-legend-item"><span class="dot" style="background:rgb(115,100,216);"></span>Inicio de ventana de carga</span>
-                    <span class="ai-rdy-legend-item"><span class="dot" style="background:rgb(213,109,143);"></span>Fin de ventana de carga</span>
+                  <div class="ai-rdy-legend" x-show="aiRdyData().series.length > 1" x-cloak>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <span class="ai-rdy-legend-item"><span class="dot" :style="'background:' + (s.cls === 'is-b' ? 'rgb(213,109,143)' : 'rgb(115,100,216)')"></span><span x-text="s.pill"></span></span>
+                    </template>
                   </div>
                 </div>
               </div>
@@ -24096,35 +24144,28 @@
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-subhead">Distribución de percentiles</div>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p25</span><span class="ai-rdy-stat-value">01:42</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p50</span><span class="ai-rdy-stat-value">04:18</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p75</span><span class="ai-rdy-stat-value">09:55</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p95</span><span class="ai-rdy-stat-value">17:11</span></div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div class="ai-rdy-grid-2">
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p25</span><span class="ai-rdy-stat-value" x-text="s.dist.p25"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p50</span><span class="ai-rdy-stat-value" x-text="s.dist.p50"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p75</span><span class="ai-rdy-stat-value" x-text="s.dist.p75"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p95</span><span class="ai-rdy-stat-value" x-text="s.dist.p95"></span></div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p25</span><span class="ai-rdy-stat-value">12:08</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p50</span><span class="ai-rdy-stat-value">16:31</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p75</span><span class="ai-rdy-stat-value">20:02</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">p95</span><span class="ai-rdy-stat-value">23:16</span></div>
-                      </div>
-                    </div>
+                    </template>
                   </div>
                   <div class="ai-rdy-series-block">
                     <div class="ai-rdy-subhead">Estacionalidad</div>
-                    <p class="ai-rdy-narrative">Se observa <strong>estacionalidad semanal</strong>: los <strong>jueves</strong> concentran las ocurrencias de volumen cero, mientras los <strong>lunes</strong> presentan el comportamiento más estable y predecible de la semana.</p>
+                    <p class="ai-rdy-narrative" x-html="aiRdyData().seasonality"></p>
                   </div>
                   <svg class="ai-rdy-chart" viewBox="0 0 640 160" aria-hidden="true">
                     <line x1="20" y1="20" x2="620" y2="20" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="80" x2="620" y2="80" stroke="hsl(var(--border))" stroke-dasharray="2,3" stroke-width="1"/>
                     <line x1="20" y1="140" x2="620" y2="140" stroke="hsl(var(--border))" stroke-width="1"/>
                     <path x-init="$el.setAttribute('d', aiRdyPath(0.8))" d="" fill="none" stroke="rgb(115,100,216)" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path x-init="$el.setAttribute('d', aiRdyPath(2.4))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path x-show="aiRdyData().series.length > 1" x-init="$el.setAttribute('d', aiRdyPath(2.4))" d="" fill="none" stroke="rgb(213,109,143)" stroke-width="1.8" stroke-linejoin="round"/>
                   </svg>
                 </div>
               </div>
@@ -24143,24 +24184,17 @@
                 </button>
                 <div class="ai-rdy-body" x-show="open" x-collapse>
                   <div class="ai-rdy-grid-2">
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-a"><span class="dot"></span>Inicio de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Media aprendida</span><span class="ai-rdy-stat-value">04:51</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Desv. estándar</span><span class="ai-rdy-stat-value">03:38</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Coef. variación</span><span class="ai-rdy-stat-value">1.42</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mediana</span><span class="ai-rdy-stat-value">04:18</span></div>
+                    <template x-for="s in aiRdyData().series" :key="s.pill">
+                      <div class="ai-rdy-series-block">
+                        <span class="ai-rdy-series-pill" :class="s.cls" x-show="aiRdyData().series.length > 1" x-cloak><span class="dot"></span><span x-text="s.pill"></span></span>
+                        <div class="ai-rdy-grid-2">
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Media aprendida</span><span class="ai-rdy-stat-value" x-text="s.profile.mean"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Desv. estándar</span><span class="ai-rdy-stat-value" x-text="s.profile.std"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Coef. variación</span><span class="ai-rdy-stat-value" x-text="s.profile.cv"></span></div>
+                          <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mediana</span><span class="ai-rdy-stat-value" x-text="s.profile.median"></span></div>
+                        </div>
                       </div>
-                    </div>
-                    <div class="ai-rdy-series-block">
-                      <span class="ai-rdy-series-pill is-b"><span class="dot"></span>Fin de ventana de carga</span>
-                      <div class="ai-rdy-grid-2">
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Media aprendida</span><span class="ai-rdy-stat-value">16:42</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Desv. estándar</span><span class="ai-rdy-stat-value">02:51</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Coef. variación</span><span class="ai-rdy-stat-value">0.31</span></div>
-                        <div style="display:flex;flex-direction:column;gap:2px;"><span class="ai-rdy-stat-label">Mediana</span><span class="ai-rdy-stat-value">16:31</span></div>
-                      </div>
-                    </div>
+                    </template>
                   </div>
                 </div>
               </div>
