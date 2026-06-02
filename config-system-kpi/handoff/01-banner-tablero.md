@@ -32,6 +32,8 @@ Las tres llevan a `currentView = 'tablero-monitoreo'` con `tmTab = 'metricas'`. 
 | **Banner promocional** (pedagógico, descartable) | Encima del grid de gráficos | `.tm-banner.col-span-3`, `x-show="!monitoringActive && !dashBannerDismissed"` | Push de activación. 2 variantes (estable / recién modificado). Detalle abajo |
 | **Menú contextual del tablero** (⋮) | Item del menú del tablero en el panel izquierdo | `.dashboard-menu-item` con `@click="currentView = 'tablero-monitoreo'; tmTab = 'metricas'; closeDashboardMenu()"` | Atajo desde la lista de tableros |
 
+**Problema que resuelve tener 3 entradas:** distintos usuarios llegan al monitoreo en momentos distintos. El **banner** activa a quien nunca configuró (push pedagógico, descartable). El **botón del header** es la entrada/salida canónica y además **muestra el estado** del monitoreo de un vistazo. El **menú ⋮** es un atajo para entrar sin abrir el tablero primero. Que el banner sea descartable sin perder las otras dos evita el callejón de "cerré el banner y ya no sé cómo entrar".
+
 ## Anatomía
 
 > Esta sección detalla el **banner promocional**. El botón de modo del header se documenta arriba (Entradas) y su contraparte "Volver al tablero" en `02-vista-monitoreo`.

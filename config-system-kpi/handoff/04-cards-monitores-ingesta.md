@@ -35,6 +35,8 @@ component_areas: [monitoring-view, cards-grid]
 | Footer | `.tm-chart-card-foot` con `.tm-chart-card-deps` | Conteo de grupos detectados + chips (`tm-dep-badge`) |
 
 > ⚠️ **Cambio vs versión anterior**: las cards van en un **grid único** (`.tm-cards-grid`), sin secciones "Monitoreado / Sin monitoreo". El estado se lee en el badge de cada card.
+>
+> **Problema que resuelve el grid único:** las secciones por estado fragmentaban la lista y obligaban a saltar entre bloques (y a recolocar cards cuando cambiaban de estado). Un grid único mantiene las fuentes en un solo lugar estable; el badge de cada card comunica el estado sin partir la vista.
 
 ## Estados
 

@@ -21,6 +21,17 @@ component_areas: [shell, monitoring-view]
 - **Por qué existe**: el monitoreo es un proceso de cuatro etapas y el usuario necesita un mapa mental para saber dónde está parado. La barra de tabs lo orienta y el banner "Conceptos clave" funciona como onboarding plegable estilo Datadog adaptado a violeta Simetrik.
 - **Modelo de navegación (clave)**: el monitoreo es un modo, no una navegación con stack. El tab global "Tableros" del header superior **se mantiene activo** en ambos modos. El header de la entidad (nombre del tablero) es estable y de **altura igualada** entre Tablero y Monitoreo (`.entity-header`, evita saltos). En modo monitoreo se **ocultan** las acciones de tablero (Editar / Descargar / Compartir) y aparece una **señal de chrome**: un glow azul (`.tm-mode-glow`) bajo el header. Ver `01-banner-tablero` para las entradas y el botón de modo.
 
+**Problema que resuelve cada pieza del modo:**
+
+| Pieza | Problema que resuelve |
+|---|---|
+| Botón "Volver al tablero" (en vez de breadcrumb) | El breadcrumb intermedio hacía sentir que el monitoreo era otra página ("¿cómo me devuelvo?"). El botón es la salida explícita, mismo control que la entrada |
+| Tab "Tableros" activo en monitoreo | Antes se apagaba, contradiciendo que seguís en la sección Tableros |
+| Header de altura igualada (`.entity-header`) | Los dos modos saltaban ~3px al conmutar; ahora el nombre del tablero no se mueve |
+| Ocultar acciones de tablero | Editar/Descargar no aplican en monitoreo: mostrarlas era ruido |
+| Glow azul (`.tm-mode-glow`) | Sin breadcrumb/badge, nada señalaba el modo de forma persistente (sobre todo al cerrar el banner de conceptos) |
+| Acciones en `.tm-tabs-actions` (no en cada tab) | Las acciones de etapa estaban dispersas en el contenido; al borde derecho de los tabs ganan jerarquía y la vista no crece de alto |
+
 ## Anatomía
 
 Orden vertical de la vista: **header de entidad → banner conceptos → barra de tabs (con acciones a la derecha) → contenido del tab activo**.

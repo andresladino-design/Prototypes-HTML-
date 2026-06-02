@@ -32,6 +32,8 @@ component_areas: [monitoring-view, bulk-modal]
 
 > ⚠️ **Cambio vs versión anterior**: ya NO hay agrupación "Monitoreado / Sin monitoreo" (`.bulk-list-section-header`) en la lista. Las fuentes se muestran en un **grid único** y el estado lo refleja el badge de cada card (ver `04`). El CSS de sección existe pero no se usa.
 
+**Problema que resuelve mover la acción a `.tm-tabs-actions`:** tener el buscador y el botón "Activar las N" dentro del contenido del tab empujaba la lista hacia abajo y restaba jerarquía a la acción. Anclados al extremo derecho de la barra de tabs quedan siempre visibles y a la mano, sin robar alto a la lista de fuentes.
+
 ## Estados
 
 | Estado | Condición | Visual |
