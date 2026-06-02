@@ -160,6 +160,64 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
+    /* Header de entidad: altura igualada entre Tablero y Monitoreo (evita saltos)
+       + cue de chrome (borde inferior tintado) cuando estás en monitoreo. */
+    .entity-header {
+      min-height: 65px;
+      transition: border-color 0.18s ease-out;
+    }
+
+    /* Glow de modo monitoreo: sombra interna azul SOLO en el borde superior del área
+       de contenido (réplica del dashboard-edit-mode-glow del producto, pero top-only).
+       Overlay fijo (no scrollea), no captura clicks. Empieza tras el panel de tableros. */
+    .tm-mode-glow {
+      position: absolute;
+      top: 65px;          /* debajo del header de la entidad (entity-header min-height) */
+      left: 268px;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 20;
+      box-shadow: inset 0 9px 18px -8px hsl(var(--info) / 0.75);
+    }
+
+    /* Subheader persistente del monitoreo: vive arriba de los tabs y sostiene la
+       narrativa (qué es esta área y sus etapas). Reemplaza al chip; aguanta el
+       contexto aunque se cierre el banner de conceptos. */
+    .tm-subheader {
+      padding: 18px 32px 12px;
+      background: white;
+    }
+
+    .tm-subheader-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: hsl(var(--primary));
+      margin-bottom: 4px;
+    }
+
+    .tm-subheader-eyebrow svg { flex-shrink: 0; }
+
+    .tm-subheader-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      letter-spacing: -0.01em;
+    }
+
+    .tm-subheader-desc {
+      margin-top: 3px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: hsl(var(--muted-foreground));
+      max-width: 72ch;
+    }
+
     .dashboard-item {
       display: flex;
       align-items: center;
@@ -15077,6 +15135,9 @@
     .tm-tab-header-sub { font-size: 12.5px; color: #5B5775; line-height: 1.5; margin-top: 4px; max-width: 540px; }
     .tm-tab-header-search { max-width: 280px; width: 100%; flex-shrink: 0; }
     .tm-tab-header-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    /* Acciones de la etapa activa, ancladas al extremo derecho de la fila de tabs. */
+    .tm-tabs-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .tm-tabs-actions .tm-tab-header-search { max-width: 260px; }
 
     .tm-cards-section-title {
       font-size: 13px; font-weight: 600; color: #1F1B2E;
@@ -19135,8 +19196,8 @@
         </div>
 
         <nav class="nav-tabs-container" aria-label="Vistas principales">
-          <button type="button" class="nav-tab" :class="currentView === 'dashboard' && 'active'"
-            :aria-current="currentView === 'dashboard' ? 'page' : false" @click="currentView = 'dashboard'">
+          <button type="button" class="nav-tab" :class="(currentView === 'dashboard' || currentView === 'tablero-monitoreo') && 'active'"
+            :aria-current="(currentView === 'dashboard' || currentView === 'tablero-monitoreo') ? 'page' : false" @click="currentView = 'dashboard'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7" />
@@ -19181,8 +19242,15 @@
       <!-- Body: Left list + Main content.
            El sidebar de Tableros es persistente: se comparte entre la vista dashboard
            y la vista de monitoreo (tablero-monitoreo). El contenido a la derecha cambia. -->
-      <div class="flex flex-1 overflow-hidden"
+      <div class="relative flex flex-1 overflow-hidden"
         x-show="currentView === 'dashboard' || currentView === 'tablero-monitoreo'">
+
+        <!-- Glow azul de modo monitoreo (sombra interna superior). Fade de 500ms al entrar. -->
+        <div aria-hidden="true" class="tm-mode-glow" x-show="currentView === 'tablero-monitoreo'" x-cloak
+          x-transition:enter="transition ease-out duration-500"
+          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+          x-transition:leave="transition ease-in duration-200"
+          x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 
         <!-- Panel izquierdo de tableros -->
         <aside class="flex flex-col flex-shrink-0 border-r bg-white" style="width:268px; border-color:hsl(var(--border));">
@@ -19227,7 +19295,7 @@
 
             <div class="px-2 space-y-0.5">
               <div class="dashboard-item" :class="tableroName === 'Tablero de pruebas anomalías' && 'active'"
-                @click="tableroName = 'Tablero de pruebas anomalías'; dashboardRecentlyModified = true; dashBannerDismissed = false">
+                @click="tableroName = 'Tablero de pruebas anomalías'; dashboardRecentlyModified = true; dashBannerDismissed = false; currentView = 'dashboard'">
                 <span class="grip">⋮⋮</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19252,7 +19320,7 @@
                 </svg>
               </div>
               <div class="dashboard-item" :class="tableroName === 'Test anomalias y pendientes' && 'active'"
-                @click="tableroName = 'Test anomalias y pendientes'; dashboardRecentlyModified = false; dashBannerDismissed = false">
+                @click="tableroName = 'Test anomalias y pendientes'; dashboardRecentlyModified = false; dashBannerDismissed = false; currentView = 'dashboard'">
                 <span class="grip">⋮⋮</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19277,7 +19345,7 @@
                 </svg>
               </div>
               <div class="dashboard-item" :class="tableroName === 'T' && 'active'"
-                @click="tableroName = 'T'">
+                @click="tableroName = 'T'; currentView = 'dashboard'">
                 <span class="grip">⋮⋮</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19481,7 +19549,7 @@
         <main class="flex-1 overflow-y-auto" style="background:hsl(var(--muted) / 0.5);" x-show="currentView === 'dashboard'">
 
           <!-- Dashboard header -->
-          <div class="px-6 pt-5 pb-3 flex items-center justify-between bg-white border-b" style="border-color:hsl(var(--border));">
+          <div class="entity-header px-6 pt-5 pb-3 flex items-center justify-between bg-white border-b" style="border-color:hsl(var(--border));">
             <div class="flex items-center gap-3">
               <h1 class="font-semibold" style="font-size:17px; color:hsl(var(--foreground));" x-text="tableroName">Tablero de pruebas anomalías</h1>
               <button class="icon-btn" style="width:26px; height:26px;">
@@ -19516,19 +19584,6 @@
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                 </svg>
               </button>
-              <!-- Paso 2: botón Monitoreo + pill de estado. Convive con "Editar tablero" porque son funcionalidades distintas. -->
-              <button class="secondary-btn" @click="currentView = 'tablero-monitoreo'; tmTab = 'metricas'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                <span x-text="monitoringActive ? 'Monitoreando' : 'Monitoreo'">Monitoreo</span>
-                <span class="tm-card-badge" :class="monitoringActive && 'is-monitored'" style="margin-left: 4px;">
-                  <span class="tm-card-badge-dot"></span>
-                  <span x-text="monitoringActive ? 'Monitoreando' : 'Sin configurar'">Sin configurar</span>
-                </span>
-              </button>
               <button class="primary-btn">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19536,6 +19591,21 @@
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
                 Editar tablero
+              </button>
+
+              <!-- Botón de modo: ÚLTIMO (anclado al borde derecho) para que al entrar a
+                   monitoreo las demás acciones desaparezcan a su izquierda y este botón
+                   se quede en su lugar, solo cambiando a "Volver al tablero". -->
+              <button class="secondary-btn" @click="currentView = 'tablero-monitoreo'; tmTab = tmTab || 'metricas'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                </svg>
+                Monitoreo
+                <span class="tm-card-badge" :class="monitoringActive && 'is-monitored'" style="margin-left:4px;">
+                  <span class="tm-card-badge-dot"></span>
+                  <span x-text="monitoringActive ? 'Monitoreando' : 'Sin configurar'">Sin configurar</span>
+                </span>
               </button>
             </div>
           </div>
@@ -19831,51 +19901,24 @@
            ============================================================ -->
         <div class="tm-body" x-show="currentView === 'tablero-monitoreo'" x-cloak>
 
-        <!-- Breadcrumb -->
-        <div class="tm-breadcrumb">
-          <button class="tm-breadcrumb-link" @click="currentView = 'dashboard'">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        <!-- Header de la entidad (estable entre modos). Mismo patrón que el header
+             del dashboard: el nombre del tablero NO se mueve al cambiar de modo, para
+             que el usuario sienta que sigue en el mismo lugar. Las acciones de tablero
+             (Editar, Descargar, Compartir) se ocultan: no aplican en modo monitoreo. -->
+        <div class="entity-header is-monitor px-6 pt-5 pb-3 flex items-center justify-between bg-white border-b" style="border-color:hsl(var(--border));">
+          <div class="flex items-center gap-3">
+            <h1 class="font-semibold" style="font-size:17px; color:hsl(var(--foreground));" x-text="tableroName">Tablero de pruebas anomalías</h1>
+          </div>
+
+          <!-- Botón de modo en estado "monitoreo": misma posición que el botón Monitoreo
+               del dashboard (borde derecho), ahora transformado en la salida. -->
+          <button class="secondary-btn" @click="currentView = 'dashboard'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
-            Tableros
+            Volver al tablero
           </button>
-          <span class="tm-breadcrumb-sep">/</span>
-          <span x-text="tableroName">Tablero de pruebas anomalías</span>
-          <span class="tm-breadcrumb-sep">/</span>
-          <span class="tm-breadcrumb-current">Monitoreo</span>
-        </div>
-
-        <!-- Header de la vista. El nombre del tablero ya vive en el breadcrumb. -->
-        <div class="tm-page-header">
-          <h1 class="tm-page-title" style="margin-bottom: 0;">Monitoreo · <span x-text="tableroName">Tablero de pruebas anomalías</span></h1>
-        </div>
-
-        <!-- Tabs del proceso de monitoreo. Cada tab es una etapa del monitoreo de una ingesta:
-             ingesta (recursos) · calidad · conciliación (próximamente) · métricas (gráficos). -->
-        <div class="tm-tabs-bar">
-          <div class="tm-tabs" role="tablist">
-            <button class="tm-tab" :class="tmTab === 'ingesta' && 'is-active'" @click="tmTab = 'ingesta'; loadIngesta()" role="tab">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-              </svg>
-              Ingesta de datos
-            </button>
-            <button class="tm-tab" :class="tmTab === 'calidad' && 'is-active'" @click="tmTab = 'calidad'" role="tab">
-              Calidad de datos
-              <span class="tm-tab-soon">Pronto</span>
-            </button>
-            <button class="tm-tab" :class="tmTab === 'conciliacion' && 'is-active'" @click="tmTab = 'conciliacion'" role="tab">
-              Salud de conciliaciones
-              <span class="tm-tab-soon">Pronto</span>
-            </button>
-            <button class="tm-tab" :class="tmTab === 'metricas' && 'is-active'" @click="tmTab = 'metricas'" role="tab">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-              </svg>
-              Métricas de gráficos
-            </button>
-          </div>
         </div>
 
         <!-- Banner educativo "Conceptos clave" (onboarding superior, cerrable con X).
@@ -19984,6 +20027,63 @@
           </div>
         </div>
 
+        <!-- Subheader persistente del monitoreo: sostiene la narrativa arriba de las
+             etapas (tabs). Queda visible aunque se cierre el banner de conceptos. -->
+        <!-- Tabs del proceso de monitoreo. Cada tab = una etapa: ingesta · calidad ·
+             conciliación (pronto) · métricas. Al extremo derecho: buscador + acción
+             de la etapa activa. -->
+        <div class="tm-tabs-bar">
+          <div class="tm-tabs" role="tablist">
+            <button class="tm-tab" :class="tmTab === 'ingesta' && 'is-active'" @click="tmTab = 'ingesta'; loadIngesta()" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+              </svg>
+              Ingesta de datos
+            </button>
+            <button class="tm-tab" :class="tmTab === 'calidad' && 'is-active'" @click="tmTab = 'calidad'" role="tab">
+              Calidad de datos
+              <span class="tm-tab-soon">Pronto</span>
+            </button>
+            <button class="tm-tab" :class="tmTab === 'conciliacion' && 'is-active'" @click="tmTab = 'conciliacion'" role="tab">
+              Salud de conciliaciones
+              <span class="tm-tab-soon">Pronto</span>
+            </button>
+            <button class="tm-tab" :class="tmTab === 'metricas' && 'is-active'" @click="tmTab = 'metricas'" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+              Métricas de gráficos
+            </button>
+          </div>
+
+          <!-- Acciones de la etapa activa, ancladas al extremo derecho de la fila de tabs. -->
+          <div class="tm-tabs-actions" x-show="tmTab === 'ingesta' || tmTab === 'metricas'" x-cloak>
+            <!-- Ingesta: buscar fuente + activación bulk -->
+            <div class="tm-search tm-tab-header-search" x-show="tmTab === 'ingesta'" x-cloak>
+              <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" class="tm-search-input" x-model="resourceSearch" placeholder="Buscar fuente…">
+            </div>
+            <button class="bulk-list-section-action" type="button"
+              x-show="tmTab === 'ingesta' && resources.filter(r => r.status === 'empty').length > 0" x-cloak
+              @click="openBulkActivate()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" />
+              </svg>
+              <span x-show="resources.filter(r => r.status === 'empty').length === 1">Activar 1 a la vez</span>
+              <span x-show="resources.filter(r => r.status === 'empty').length > 1">Activar las <span x-text="resources.filter(r => r.status === 'empty').length"></span> a la vez</span>
+            </button>
+            <!-- Métricas: buscar gráfico -->
+            <div class="tm-search tm-tab-header-search" x-show="tmTab === 'metricas'" x-cloak>
+              <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" class="tm-search-input" x-model="tmSearch" placeholder="Buscar gráfico…">
+            </div>
+          </div>
+        </div>
+
         <!-- Sección Gráficos -->
         <!-- Vista de monitoreo: grid de cards de gráficos + split master-detail.
              Cada card refleja un gráfico del tablero (mini-preview) + "depende de N recursos".
@@ -19996,13 +20096,6 @@
               <div class="tm-tab-header-text">
                 <h2 class="tm-tab-header-title">Métricas de gráficos</h2>
                 <p class="tm-tab-header-sub">Activa el monitoreo de cada gráfico para que Simetrik te avise cuando el resultado se sale de los límites que definiste.</p>
-              </div>
-              <div class="tm-search tm-tab-header-search">
-                <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input type="text" class="tm-search-input" x-model="tmSearch" placeholder="Buscar gráfico…">
               </div>
             </div>
 
@@ -20286,29 +20379,6 @@
                 <div class="tm-tab-header-text">
                   <h2 class="tm-tab-header-title">Ingesta de datos</h2>
                   <p class="tm-tab-header-sub">Monitorea las fuentes que alimentan tu tablero para detectar a tiempo datos que llegan tarde, incompletos o con un volumen fuera de lo esperado.</p>
-                </div>
-                <div class="tm-tab-header-actions">
-                  <div class="tm-search tm-tab-header-search">
-                    <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <input type="text" class="tm-search-input" x-model="resourceSearch" placeholder="Buscar fuente…">
-                  </div>
-                  <!-- Activación bulk: aparece solo cuando hay fuentes sin configurar. -->
-                  <button class="bulk-list-section-action" type="button"
-                    x-show="resources.filter(r => r.status === 'empty').length > 0" x-cloak
-                    @click="openBulkActivate()">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="12 2 2 7 12 12 22 7 12 2" />
-                      <polyline points="2 17 12 22 22 17" />
-                      <polyline points="2 12 12 17 22 12" />
-                    </svg>
-                    <span x-show="resources.filter(r => r.status === 'empty').length === 1">Activar 1 a la vez</span>
-                    <span x-show="resources.filter(r => r.status === 'empty').length > 1">Activar las <span
-                        x-text="resources.filter(r => r.status === 'empty').length"></span> a la vez</span>
-                  </button>
                 </div>
               </div>
 
