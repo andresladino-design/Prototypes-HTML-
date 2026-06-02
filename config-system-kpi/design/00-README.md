@@ -15,6 +15,7 @@ Monitorear un tablero no te lleva a otro lado: **enciende una lente sobre el mis
 | [03-wireframes-lowfi.md](./03-wireframes-lowfi.md) | Wireframes ASCII del header, el conmutador, el glow, los tabs + acciones |
 | [04-copy-recomendaciones.md](./04-copy-recomendaciones.md) | Copy real del prototipo + remisión al glosario canónico |
 | [05-implementation-summary.md](./05-implementation-summary.md) | Qué se construyó en el rediseño de navegación de esta sesión |
+| [06-metricas-experiencia.md](./06-metricas-experiencia.md) | Métricas de UX para validar el rediseño (problema → solución → métrica), instrumentación y plan de medición |
 
 ## Relación con el handoff
 
