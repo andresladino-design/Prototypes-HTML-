@@ -87,7 +87,7 @@ Stepper visual: cada step muestra el número, o un check cuando `bulkActivateSta
 | Calculando | 2 | Steps 0 y 1 done, step 2 con spinner |
 | Listo | 3 | Los 3 done. Cierra y abre `_enterConfigSource(r)` |
 
-Timing canónico (líneas 15161-15171):
+Timing canónico (en `openActivationLoader`):
 
 ```
 0ms     openActivationLoader(r)
@@ -129,7 +129,7 @@ ACTIVATION LOADER (2.9s) ──► DAYSETUP MODAL (edit)
   5. Leo el banner "Análisis inteligente" que me confirma que puedo editar después.
   6. Pulso "Activar monitores". Se va a stage 3.
   7. Veo cada fuente con spinner, luego check verde (success) o warning ámbar (partial).
-  8. Cuando todas terminan, el botón "Activando" cambia a "Cerrar". Cierro y veo las cards moverse a la sección "Monitoreado".
+  8. Cuando todas terminan, el botón "Activando" cambia a "Cerrar". Cierro y veo las cards en el grid de fuentes con su badge actualizado a "Monitoreado"/"Aprendiendo" (grid único, sin secciones).
 
 **Flujo B · Activar una sola fuente (con activation loader)**
 - **Como** usuario que quiere configurar una fuente puntual
@@ -354,14 +354,15 @@ Endpoints sugeridos:
 5. Expandir una card y validar ventana de tiempo, grupos (o single) y baseline.
 6. Click "Activar monitores". Validar stage 3 con progresión 700ms por fuente.
 7. Validar que la última fuente queda en `partial` (ámbar).
-8. Click "Cerrar" cuando termine. Validar cierre y cards movidas a sección "Monitoreado".
+8. Click "Cerrar" cuando termine. Validar cierre y cards en el grid de fuentes con badge actualizado (grid único, sin secciones).
 9. Probar el activation loader individual: click en una card `empty` y validar 2.9s de loader → daysetup en edición.
 
 ## References
 
-- **HTML**: `../index.html` líneas 20520-20607 (activation loader), 20613-20922 (bulk modal: header 20617-20641, stepper 20644-20677, stage 1 20683-20709, stage 2 20712-20839, stage 3 20842-20880, footer 20885-20919).
-- **CSS**: líneas 9122-9525 (bulk modal styles), 14913-15047 (activation loader styles).
-- **JS**: líneas 15151-15172 (`openActivationLoader`), 15191-15198 (`selectConfigSource`), 16109-16234 (`openBulkActivate`, `bulkBuildPreview`, `bulkProceedToReview`, `bulkRunActivation`, `bulkActivationComplete` getter).
+> ⚠️ Ubicar por selector (los números de línea cambian con cada iteración).
+- **HTML** (por selector): activation loader `<div class="activation-loader-panel" ...>` (buscar `activationLoaderOpen`); bulk modal `<div class="bulk-modal-panel" ...>` (buscar `bulkActivateOpen`) con stepper `.bulk-modal-step`, stages por `bulkActivateStage` (1 selección, 2 revisión, 3 activación) y footer.
+- **CSS** (por selector): estilos del bulk modal (`.bulk-modal-*`) y del activation loader (`.activation-loader-*`).
+- **JS** (helpers en `appData()`): `openActivationLoader`, `selectConfigSource`, `openBulkActivate`, `bulkBuildPreview`, `bulkProceedToReview`, `bulkRunActivation`, `bulkActivationComplete`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[03-banner-monitorear-tablero.md](./03-banner-monitorear-tablero.md)`, `[04-cards-monitores-ingesta.md](./04-cards-monitores-ingesta.md)`, `[05-modal-configuracion.md](./05-modal-configuracion.md)`.
 
@@ -377,7 +378,7 @@ Endpoints sugeridos:
 
 **Camino**:
 
-1. **Estado inicial**: en tab Ingesta, sección "Sin monitoreo" con N >= 1 cards `status === 'empty'`. Botón visible en el header del tab con copy "Activar las N a la vez".
+1. **Estado inicial**: en tab Ingesta, grid de fuentes con N >= 1 cards `status === 'empty'`. Botón visible en `.tm-tabs-actions` (extremo derecho de la barra de tabs) con copy "Activar las N a la vez".
    - *Visual*: `.bulk-list-section-action` activo con icono apilado de tres capas y label dinámico.
 
 2. **Click "Activar las N a la vez"**: `openBulkActivate()`.
@@ -420,7 +421,7 @@ Endpoints sugeridos:
 
 8. **Click "Cerrar"**: `closeBulkActivate()` cierra el modal.
    - *Side effect*: tras 200ms el estado interno se resetea (`bulkActivateStage = 1`, listas vacías).
-   - *Visual*: las cards activadas aparecen en la sección "Monitoreado" del tab Ingesta.
+   - *Visual*: las cards activadas quedan en el grid de fuentes del tab Ingesta con su badge actualizado a "Monitoreado"/"Aprendiendo" (grid único, sin secciones).
 
 **Copy esperado clave**:
 - Header: "Activar monitores en bloque" / subtitle "Selecciona las fuentes, revisa el análisis y actívalas todas a la vez."
@@ -438,7 +439,7 @@ Endpoints sugeridos:
 
 - **Por qué**: el bulk modal está diseñado para **activación** (de `empty` a monitoreado con baseline AI), no para edición. Editar config existente requiere ver y modificar valores ya guardados, lo cual no es bien soportado por el formato de preview cards colapsables.
 - **Workaround actual**: la edición sigue siendo **uno-a-uno** desde la lista. El usuario debe:
-  1. Identificar la card monitoreada en la sección "Monitoreado".
+  1. Identificar la card monitoreada en el grid de fuentes (badge verde/azul).
   2. Click → abre daysetup en `daySetupReadonly === true`.
   3. Click "Editar" en el footer → habilita edición.
   4. Modificar valores → click "Guardar".

@@ -157,8 +157,7 @@ El prototipo HTML actual solo tiene algunos empty states (loaders, casos puntual
 
 ## References
 
-- **HTML Low/Family**: `../index.html` líneas 21455-21529.
-- **HTML High (por grupo)**: líneas 21765-21826.
-- **JS**: `dsSimpleHasNotes()` (línea 17408), `dsGroupHasNotes()` (línea 17413).
+- **HTML** (por selector, los números de línea cambian): card de notas (`.ds-notes`) dentro del modal `.resource-config-panel`. En Low/Family en el slot compartido; en High se repite por cada `.ds-group`.
+- **JS** (helpers en `appData()`): `dsSimpleHasNotes()`, `dsGroupHasNotes()`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[08-contenedor-comportamiento-dia.md](./08-contenedor-comportamiento-dia.md)` (padre), `[12-contenedor-grupos-high.md](./12-contenedor-grupos-high.md)` (replicación High).

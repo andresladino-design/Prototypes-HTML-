@@ -339,9 +339,10 @@ Endpoints sugeridos:
 
 ## References
 
-- **HTML**: `../index.html` líneas 20956-21880 (modal completo). Topbar 21037-21094. Ventana 21096-21135. Tab switcher 21141-21188. Toggle día 21203-21226. Loader grupos 21230-21238. Banner grupos 21246-21347. Indicadores Low/Family 21349-21451. Notas 21455-21529. Grupos High 21534-21832. Footer 21841-21870. Modal análisis 20139-20525.
-- **CSS**: `.ds-mode`, `.ds-card`, `.ds-indicator`, `.ds-notes`, `.ds-group`, `.ds-peek-card`, `.ds-ai-chip`, `.ds-feedback`, `.ds-low-chip` (bloques 610-613, 9123-9525, 14913-15046).
-- **JS**: `daySetup` y helpers en líneas 15121-15500 (`dsPromoteToFamily`, `dsActivateGroups`, `daySetupSave`, `daySetupMakeSimple`, `daySetupMakeWindow`).
+> ⚠️ Las referencias por número de línea no son confiables: el archivo se reordenó (el modal de configuración hoy vive **después** del bulk modal / activation loader, no antes). Ubicar por selector.
+- **HTML** (por selector): modal `<div class="resource-config-panel" ...>` (buscar `selectedConfigSource`). Dentro: topbar del modal, `<section class="ds-card has-hanging-footer">` "Ventana de tiempo", tab switcher Lu-Do (`.ds-day-tabs`), toggle día (`.ds-day-toggle`), banner grupos (`.ds-groups-banner`), indicadores Low/Family (`.ds-indicator`), notas (`.ds-notes`), grupos High (`.ds-group`), footer del modal. Modal de análisis: `<div class="ai-analysis-panel" ...>` (buscar `aiAnalysisOpen`).
+- **CSS** (por selector): `.ds-mode`, `.ds-card`, `.ds-indicator`, `.ds-notes`, `.ds-group`, `.ds-peek-card`, `.ds-ai-chip`, `.ds-feedback`, `.ds-low-chip`.
+- **JS** (helpers en `appData()`): `dsPromoteToFamily`, `dsActivateGroups`, `daySetupSave`, `daySetupMakeSimple`, `daySetupMakeWindow`, `selectConfigSource`, `enterDaySetup`, `enterDayView`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[06-activacion-masiva.md](./06-activacion-masiva.md)`, `[07-contenedor-ventana-de-tiempo.md](./07-contenedor-ventana-de-tiempo.md)`, `[08-contenedor-comportamiento-dia.md](./08-contenedor-comportamiento-dia.md)`, `[13-journey-low-family-high.md](./13-journey-low-family-high.md)`.
 - **Backend**:
@@ -360,7 +361,7 @@ Endpoints sugeridos:
 
 **Camino**:
 
-1. **Estado inicial**: estoy en `tablero-monitoreo` / tab Ingesta. La card de la fuente está en la sección "Sin monitoreo" con badge gris "Sin configurar".
+1. **Estado inicial**: estoy en `tablero-monitoreo` / tab Ingesta. La card de la fuente está en el grid de fuentes con badge gris "Sin configurar".
    - *Visual*: `.tm-chart-card` sin clases `is-active` ni `is-monitored`.
 
 2. **Click en la card**: se ejecuta `selectConfigSource(r)`.
@@ -387,7 +388,7 @@ Endpoints sugeridos:
 
 7. **Click "Guardar"**: `daySetupSave()` persiste `r.dayConfig`, `r.dayConfigShared`, `r.dayConfigWindow`, `r.dayConfigMonitorMode`, `r.dayConfigUseGroupsAll`.
    - *Side effect*: cierra modal (`selectedConfigSource = null`), `r.status` pasa a `'monitored'` (o `'learning'` si BADS está en `COLLECTING`).
-   - *Visual*: card vuelve a la lista, ahora en sección "Monitoreado" con badge verde o azul.
+   - *Visual*: la card vuelve al grid de fuentes con su badge actualizado a verde ("Monitoreado") o azul ("Aprendiendo"). No hay secciones: es un grid único.
 
 **Copy esperado clave**:
 - Activation loader subtitle: "Simetrik está analizando tu fuente..."
@@ -406,7 +407,7 @@ Endpoints sugeridos:
 
 **Camino**:
 
-1. **Estado inicial**: la card está en la sección "Monitoreado" con badge verde (o azul si aprendiendo). El footer muestra grupos detectados si aplica.
+1. **Estado inicial**: la card está en el grid de fuentes con badge verde (o azul si aprendiendo). El footer muestra grupos detectados si aplica.
 
 2. **Click en la card**: `selectConfigSource(r)` detecta `r.dayConfig` existente → NO dispara activation loader → llama directo `_enterConfigSource(r)` → `enterDayView()`.
    - *Estado*: `inlineActiveMode === 'daysetup'`, `daySetupReadonly === true`, `daySetupHasConfig === true`.

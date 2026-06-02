@@ -1,116 +1,68 @@
-# Implementation summary — Cirugía sobre `index 2.html`
+# 05 · Implementation summary — rediseño de navegación del monitoreo
 
-Cambios aplicados al prototipo en este pase de `craft`. Todos son **in-place y reversibles** (el código viejo del popover se conserva con `display:none`).
+> Cambios aplicados a `../index.html` en la sesión de rediseño de navegación. Todos in-place sobre el modelo de modo + tabs ya existente.
 
-## Cambios visibles
+## Contexto
 
-### 1 · Health Banner del tablero (NUEVO)
+El disparador fueron dos reuniones (Granola, 01-jun) donde se detectó que la navegación al monitoreo se sentía como "irse a otra página" (breadcrumb intermedio `Tableros / {tablero} / Monitoreo`), entraba en fricción con los tabs globales y perdía contexto. La conclusión: **el monitoreo es un modo del tablero, no una página aparte** (ver `01` y `02`).
 
-**Qué**: Banner persistente entre el header del tablero y los sub-tabs, con 3 bloques:
-- Estado verbal narrativo ("2 KPIs podrían retrasarse hoy")
-- Pipeline horizontal Ingesta → Calidad → Conciliación → KPIs
-- CTAs "Ver incidentes (1)" + "Configurar monitoreo"
+## Cambios aplicados
 
-**Estados** soportados vía clase: `is-warn`, `is-critical`, `is-ok` (default), `is-idle` (sin monitoreo).
+### 1 · Botón de modo contextual (reemplaza breadcrumb)
+- Un solo botón en el header: dice **"Monitoreo"** (con badge "Sin configurar" / "Monitoreando") en modo Tablero, y **"Volver al tablero"** en modo Monitoreo.
+- Anclado al **borde derecho** del cluster de acciones, para quedar fijo cuando las demás acciones se ocultan.
+- Se eliminó el breadcrumb intermedio.
 
-**Reemplaza a**: el popover "Recursos monitoreados" del header (queda oculto, no eliminado).
+### 2 · Tab global "Tableros" activo en ambos modos
+- Antes solo se marcaba activo con `currentView === 'dashboard'`; ahora también en `'tablero-monitoreo'`. Corrige el bug de "el sidebar se salía de Tableros".
 
-### 2 · Reorganización del sidebar de monitoreo
+### 3 · Header de entidad estable
+- Clase `.entity-header` con `min-height` igualado entre Tablero y Monitoreo → el nombre del tablero no salta al conmutar.
 
-Antes (Salud de los datos colapsable):
-```
-Incidencias
-Historial
-Configuración ▾
-  Salud de los datos
-    · Ingesta
-    · Calidad (próx.)
-    · Conciliación (próx.)
-  Monitoreo en gráficos
-```
+### 4 · Acciones contextuales por modo
+- En modo Monitoreo se ocultan "Editar tablero" / "Descargar" / "Compartir" (no aplican).
 
-Después (IA tablero-first):
-```
-Estado del monitoreo  ← NUEVO landing
-Incidentes (1)        ← renombrado, ahora con counter
-Historial
-Configuración ▾
-  KPIs monitoreados   ← subido al top (era "Monitoreo en gráficos")
-  Dependencias        ← renombrado de "Salud de los datos"
-    · Fuentes         ← renombrado de "Ingesta"
-    · Calidad (próx.)
-    · Conciliación (próx.)
-  Notificaciones (próx.)  ← NUEVO
-  Overrides (próx.)       ← NUEVO
-```
+### 5 · Glow azul de modo (`.tm-mode-glow`)
+- Sombra interna azul (`--info`) solo en el **borde superior** del área de contenido, **debajo del header** (`top: 65px`).
+- Overlay fijo (no scrollea), `pointer-events: none`, fade-in 500ms (mismo timing que el `dashboard-edit-mode-glow` del producto real).
+- Es la única señal de modo (se quitó un tinte de borde violeta que competía).
 
-### 3 · Landing "Estado del monitoreo" (NUEVA vista)
+### 6 · Reset de modo por entidad
+- Al elegir otro tablero en el panel izquierdo, `currentView` vuelve a `'dashboard'`.
 
-**Qué**: Template Alpine que aparece cuando `anomaliesNav === 'monitoring.landing'` (default al entrar a la sección).
+### 7 · Banner "Conceptos clave" arriba de los tabs
+- Se movió el banner (`.tm-concepts`) para que quede **encima** de la barra de tabs.
 
-Contenido:
-- Resumen actionable (callout) con CTA directo al incidente activo.
-- Pipeline visual full (4 stages) con click en cada una para ir a su sub-sección.
-- Lista de 5 KPIs monitoreados con estado individual + chip de override / aprendizaje.
+### 8 · Buscador + activación masiva a la barra de tabs (`.tm-tabs-actions`)
+- El buscador y el botón "Activar las N a la vez" se movieron desde el header de cada tab (`.tm-tab-header-actions`) al **extremo derecho de la barra de tabs**, contextuales por etapa (Ingesta: buscar fuente + activar; Métricas: buscar gráfico).
+- El contenido de cada tab conserva solo título + descripción.
 
-### 4 · Copy actualizado en vistas bulk existentes
+## Decisiones de diseño (qué se probó y descartó)
 
-- **"Monitoreo de ingesta"** → **"Fuentes que alimentan tu tablero"** (header + sub-copy reescritos).
-- **"Monitoreo en gráficos"** → **"KPIs monitoreados"** (header + sub-copy reescritos).
-- **Wizard paso 1** → "¿Cómo querés monitorear esta Fuente?" (era "recurso").
-- **`currentSectionTitle`** ahora soporta los 7 estados nuevos.
+El control de cambio de modo pasó por varias iteraciones antes de aterrizar en el botón contextual:
 
-### 5 · Default state del prototipo
+| Intento | Por qué se descartó |
+|---|---|
+| Segmented `[Tablero \| Monitoreo]` como fila propia | Sumaba una **tercera tira de tabs** (global + modo + etapas): demasiados tabs |
+| Toggle switch on/off "Vista de monitoreo" | Leía como **activar/desactivar el feature**, no como cambiar de vista |
+| Mode pill centrado / al borde (estilo Figma) | Mejor, pero seguía sin resolver el estado y generaba saltos al togglear |
+| Subheader persistente sobre los tabs | Redundante con el banner de conceptos |
+| **Botón contextual "Monitoreo ↔ Volver al tablero"** | **Adoptado**: es acción (no tab, no on/off), conserva el badge de estado, y la vuelta es el mismo botón reetiquetado |
 
-`anomaliesNav` inicial = `'monitoring.landing'` (era `'incidents'`). Al hacer clic en el tab "Incidentes" del header global o el CTA "Configurar monitoreo" del banner, el usuario aterriza en la nueva landing.
+## Lo que se mantuvo
 
-## Líneas tocadas (aprox)
+- Modelo `currentView: 'dashboard' | 'tablero-monitoreo'` y `tmTab`.
+- Tabs por etapa (Ingesta · Calidad · Conciliación · Métricas) y el modal Low/Family/High.
+- Grid único de fuentes (sin secciones "Monitoreado / Sin monitoreo").
+- Tokens y shell del Op Center.
 
-| Bloque | Líneas (aprox) | Tipo |
-|---|---|---|
-| CSS `.tb-health-*` + `.tm-*` | añadidas antes de `</style>` | nuevo |
-| Botón group "Recursos monitoreados" | header del tablero | oculto (`display:none`) |
-| Health Banner del tablero | inserción entre header y sub-tabs | nuevo |
-| Sidebar de monitoreo (anomalies-nav-panel) | bloque navegación lateral | rewrite |
-| Default `anomaliesNav` | inicialización JS de Alpine | cambio de valor |
-| `currentSectionTitle` switch | helper JS | expandido |
-| Wizard paso 1 título/subtítulo | dentro del setup wizard | copy update |
-| Vista bulk Ingesta | header del bulk | copy update |
-| Vista bulk Charts | header del bulk | copy update |
-| Landing template (monitoring.landing) | inicio del `.anomaly-detail-area` | nuevo |
+## Pendientes / próximos pasos
 
-## Lo que se mantuvo (compatibilidad)
+- **Navegación por día + vista Resumen** dentro del detalle de fuente (pedido en las 2 reuniones): tab por día + panorama de patrones. No implementado aún.
+- **Banner verde `tm-dash-secured`** ("monitoreado"): existe en CSS, sin markup. Decidir si se implementa o se descarta (hoy el estado vive en el badge del botón).
+- **Alinear paddings**: el contenido bajo el header arranca a 24px en Tablero y 32px en Monitoreo (corrimiento de ~8px al conmutar). Pendiente menor.
+- **Intensidad del glow**: validar si queda bien o conviene más sutil.
 
-- Shell Op Center (sidebar dark 48px + header tabs principales).
-- Lista de tableros del panel izquierdo (`width:268px`).
-- Wizard de setup completo (solo cambió copy del paso 1).
-- Componentes desyk usados (botones, popovers, sheets — todos legacy).
-- Tokens HSL del prototipo.
-- AI gradient (--ai-purple → --ai-blue) — preservado, podrá usarse cuando aparezca el agente recomendador en pasos siguientes.
+## Verificación
 
-## Lo que NO se implementó en este pase
-
-Diferido por ser estructural (requiere más sesiones de design + dev):
-
-- **Diagrama de lineage del Paso 2** del wizard (Fuentes → KPIs). Hoy aparece como texto. Necesita componente custom (candidato para `extract` después).
-- **Modal de override** del flujo secundario. Diseñado en `02-user-flow.md` pero no implementado.
-- **Modo prudente** con countdown. Diseñado en copy, no en lógica de estado.
-- **Reescritura del wizard de 5 pasos** del brief. Hoy el wizard tiene su propia secuencia legacy (treatment → groups → cadencia → indicadores). Hay overlap parcial con los 5 pasos del brief pero requiere mapeo más fino.
-- **Vista "Notificaciones"** y **"Overrides"** — están en el nav como `próx.`, sin templates de contenido.
-
-## Próximos pasos sugeridos
-
-1. **Validar en browser** abriendo `index 2.html` y navegando: dashboard view → click "Configurar monitoreo" del banner → debería caer en "Estado del monitoreo" landing.
-2. **`/simetrik-ui critique`** sobre el banner para review heurístico independiente.
-3. **`/simetrik-ui polish`** del banner si la jerarquía visual necesita ajustes finos.
-4. **Diseñar el wizard de 5 pasos** como sesión separada (puede ser `shape` + `craft` enfocado solo en el wizard).
-5. **`/simetrik-ui extract`** del pipeline component (`.tb-health-pipeline` + `.tm-pipeline-full`) como candidato a desyk-components nuevo (`<DataPipeline />`).
-
-## Componentes custom introducidos (candidatos a extract)
-
-| Componente | Selector | Reutilización potencial |
-|---|---|---|
-| Tablero Health Banner | `.tb-health` + `.tb-stage` + `.tb-health-actions` | Cualquier vista que necesite estado de un proceso multi-stage |
-| Data Pipeline visualization | `.tm-pipeline-full` + `.tm-pipeline-stage` + `.tm-pipeline-arrow` | Vistas de lineage, ETL status, flujos de conciliación |
-| KPI Row con estado + chip | `.tm-kpi-row` + `.tm-kpi-state` + `.tm-kpi-chip` | Listas de KPIs en cualquier dashboard |
-| Summary callout actionable | `.tm-summary` con `tm-summary-link` | Banners de alertas en otras secciones |
+`open ../index.html` → entrar a un tablero → "Monitoreo" (glow aparece, "Tableros" sigue activo, sin breadcrumb) → recorrer tabs (buscador/acciones a la derecha) → "Volver al tablero" → cambiar de tablero (resetea a Tablero).

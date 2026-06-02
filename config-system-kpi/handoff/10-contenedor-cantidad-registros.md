@@ -148,7 +148,6 @@ El prototipo HTML actual solo tiene algunos empty states (loaders, casos puntual
 
 ## References
 
-- **HTML Low/Family**: `../index.html` líneas 21402-21451.
-- **HTML High (por grupo)**: líneas 21713-21763.
+- **HTML** (por selector, los números de línea cambian): indicador de cantidad de registros (`.ds-indicator`, hermano del de volumen) dentro del modal `.resource-config-panel`. En Low/Family vive en el slot compartido; en High se repite por cada `.ds-group`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[09-contenedor-volumen-archivos.md](./09-contenedor-volumen-archivos.md)` (gemelo), `[08-contenedor-comportamiento-dia.md](./08-contenedor-comportamiento-dia.md)` (padre), `[12-contenedor-grupos-high.md](./12-contenedor-grupos-high.md)` (modo High).
