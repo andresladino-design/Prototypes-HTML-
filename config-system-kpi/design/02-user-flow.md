@@ -1,240 +1,59 @@
-# User flow — Configurar monitoreo del tablero
+# 02 · User flow — entrar, recorrer, volver
 
-> 5 pasos del brief, materializados como flujo concreto sobre el prototipo.
+> Cómo el usuario entra al monitoreo de un tablero, recorre sus etapas y vuelve. El monitoreo es un modo (ver `01`), así que "entrar" y "volver" son conmutar una lente, no navegar con stack.
 
-## Flujo principal — Primera configuración
+## Las 3 entradas al monitoreo
 
-### Entrada al tablero
+Las tres dejan al usuario en `currentView = 'tablero-monitoreo'`, `tmTab = 'metricas'`, con el tab global "Tableros" aún activo y el glow azul encendido.
 
-```
-Cliente entra al tablero "Cobranzas Q2"
-        ↓
-Ve el banner de salud (persistente arriba):
-  ◐ "Tu tablero todavía no tiene monitoreo activo"
-        ↓
-CTA "Configurar monitoreo"
-        ↓
-[ aterriza en la landing del monitoreo · vista "Estado del monitoreo" ]
-```
+| # | Entrada | Dónde | Cuándo conviene |
+|---|---|---|---|
+| 1 | **Botón "Monitoreo"** (principal, persistente) | Borde derecho del header del tablero; lleva el badge de estado ("Sin configurar" / "Monitoreando") | Siempre disponible. Es la entrada/salida canónica |
+| 2 | **Banner zero-state** (pedagógico, descartable) | Encima del grid de gráficos, solo si no hay monitoreo | Push de activación para quien nunca configuró |
+| 3 | **Menú contextual ⋮** | Item "Monitoreo" del tablero en el panel izquierdo | Atajo desde la lista, sin abrir el tablero antes |
 
-### Landing → KPIs
+## Flujo principal
 
 ```
-Estado del monitoreo (landing)
-  └─ Mensaje del agente IA:
-     "Detecté 5 KPIs en este tablero y 12 Fuentes que los
-      alimentan. ¿Querés que arme una configuración inicial?"
-        ↓
-     [Sí, propone una configuración]  [Configurar yo mismo]
-        ↓
-     (Si Sí) → la IA pre-llena Pasos 1-4 y lleva a Resumen
-     (Si No) → entra a Paso 1 manual
+[Modo Tablero]
+   │  click "Monitoreo" (o banner / menú ⋮)
+   ▼
+[Modo Monitoreo]  ── glow azul aparece (fade 500ms), acciones de tablero se ocultan,
+   │                  el botón pasa a "Volver al tablero", "Tableros" sigue activo
+   │
+   ├─ aterrizo en Métricas (default). Leo el banner "Conceptos clave" (cerrable).
+   ├─ recorro etapas con los tabs: Ingesta · Calidad(pronto) · Conciliación(pronto) · Métricas
+   ├─ en Ingesta: buscador + "Activar las N a la vez" al borde derecho de los tabs
+   │     └─ configuro una fuente → modal Low/Family/High (ver handoff/05)
+   │
+   │  click "Volver al tablero"
+   ▼
+[Modo Tablero]  ── glow desaparece, reaparecen acciones, el botón vuelve a "Monitoreo"
 ```
 
-## Paso 1 — Activar KPIs a monitorear
+## Por qué "volver" es un botón y no un breadcrumb
 
-```
-┌──────────────────────────────────────────────────┐
-│ Paso 1 de 4 · ¿Qué KPIs querés vigilar?          │
-├──────────────────────────────────────────────────┤
-│                                                  │
-│  🤖 La IA recomienda monitorear los 5 KPIs.      │
-│                                                  │
-│  [☑] Saldo neto día           ← analítico, alta  │
-│      Frecuencia: diaria       crítico            │
-│                                                  │
-│  [☑] Conciliación bancaria    ← crítico          │
-│  [☑] Cartera vencida          ← analítico        │
-│  [☑] Asientos del día         ← analítico        │
-│  [☐] Margen operativo         ← solo gerencial   │
-│      ⚠ Dataset con 14 días de historial          │
-│        (esperá 16 días para evitar falsos)       │
-│                                                  │
-│           [← Atrás]  [Siguiente: Dependencias →] │
-└──────────────────────────────────────────────────┘
-```
+El dolor del modelo anterior era *"¿cómo me devuelvo, dónde estoy?"*: el breadcrumb intermedio hacía sentir que el monitoreo era otra página. Al modelarlo como modo, la vuelta es el **mismo control** que la entrada, solo que reetiquetado. El botón vive anclado al **borde derecho** del header en ambos modos: al entrar a monitoreo, las demás acciones desaparecen *a su izquierda* y el botón se queda en su lugar, cambiando "Monitoreo" → "Volver al tablero". Eso comunica "es el mismo lugar, otra lente".
 
-**Reglas**:
-- Toggle on/off por KPI.
-- Recomendación de la IA pre-marcada (toggle activado).
-- KPIs con datasets inmaduros (<30 días) muestran inline el callout amarillo del Paso 5 del brief.
+## Benchmark (resumen)
 
-## Paso 2 — Dependencias auto-detectadas (lineage visual)
+Para elegir el control de cambio de modo se compararon patrones reales:
 
-```
-┌────────────────────────────────────────────────────────┐
-│ Paso 2 de 4 · Estas Fuentes alimentan tus KPIs         │
-├────────────────────────────────────────────────────────┤
-│  🤖 La IA mapeó automáticamente el lineage:            │
-│                                                        │
-│  Mov. BBVA  ──┐                                        │
-│              ├─► Conciliación bancaria ─┬─► Saldo neto │
-│  Mov. Bcol. ──┘                          │             │
-│                                          │             │
-│  Cartera SAP ────► Cartera vencida ─────┘              │
-│                                                        │
-│  Plan cuentas ────► Asientos del día                   │
-│                                                        │
-│  ☑ Vigilar todas las Fuentes detectadas (4)            │
-│  [Ajustar selección manualmente]                       │
-│                                                        │
-│           [← Atrás]  [Siguiente: Tipos de alerta →]    │
-└────────────────────────────────────────────────────────┘
-```
+| Patrón | Ejemplo | Veredicto para nuestro caso |
+|---|---|---|
+| **Mode switcher** (modo, no tab) | Figma Diseño/Dev Mode | El más cercano: misma entidad, otra lente, chrome teñido. **Adoptado** como concepto |
+| View switcher (representación) | Linear List/Board, Notion | Medio: nuestras vistas no son la misma data en otro formato |
+| Toggle on/off | settings | Descartado: lee como "activar el feature", no "cambiar de vista" |
+| Tab más de la entidad | GitHub Code/Issues | Descartado: re-mezcla página con modo (el problema original) |
 
-**Reglas**:
-- Diagrama de lineage navegable (hover → highlight de la cadena).
-- Auto-selección, opción manual escondida bajo "Ajustar".
-- Si una Fuente alimenta varios KPIs, se marca como prioritaria.
+Implementación final: un **botón de modo contextual** ("Monitoreo" ↔ "Volver al tablero") con badge de estado, + glow azul como chrome. Es la forma más simple que cumple "no es página / no es on/off / no es tab".
 
-## Paso 3 — Tipos de alerta a activar
+## Flujos de borde
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ Paso 3 de 4 · ¿Qué problemas querés que te avisemos?   │
-├─────────────────────────────────────────────────────────┤
-│  🤖 Recomendado para tu caso · todo activo              │
-│                                                         │
-│  Ingesta                                                │
-│  [☑] Archivo faltante         "No llegó hoy"            │
-│  [☑] Llegada tardía            "Llegó >2h tarde"        │
-│                                                         │
-│  Calidad                                                │
-│  [☑] Volumen anómalo           "Llegaron muy pocas      │
-│                                  filas vs lo normal"    │
-│  [☑] Cambios estructurales     "Apareció/desapareció    │
-│                                  una columna"           │
-│                                                         │
-│  Conciliación                                           │
-│  [☑] Desalineación             "Diferencias inesperadas │
-│                                  entre Fuentes"         │
-│                                                         │
-│  KPI                                                    │
-│  [☑] Desvío del KPI            "El valor se aleja       │
-│                                  del comportamiento     │
-│                                  normal"                │
-│                                                         │
-│           [← Atrás]  [Siguiente: Notificaciones →]     │
-└─────────────────────────────────────────────────────────┘
-```
+- **Cambiar de tablero mientras estoy en monitoreo** → vuelvo a Modo Tablero del nuevo tablero (reset de modo por entidad).
+- **Cerrar el banner de conceptos** → no se pierde contexto: el modo sigue señalado por el botón y el glow; las etapas siguen en los tabs.
+- **Etapa "Pronto"** (Calidad / Conciliación) → placeholder, sin acciones a la derecha.
 
-**Reglas**:
-- Agrupado por etapa de pipeline (mismo orden visual del banner).
-- Cada chequeo tiene **descripción en lenguaje de negocio** (frase entre comillas).
-- Sin umbrales numéricos visibles — la IA los calcula.
+## Estados de activación (resumen)
 
-## Paso 4 — Notificaciones y horarios
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Paso 4 de 4 · ¿Quién y cómo recibe los avisos?         │
-├─────────────────────────────────────────────────────────┤
-│  Canales                                                │
-│   [☑] Email a:                                          │
-│       finanzas@empresa.com                              │
-│   [☑] Slack a:                                          │
-│       #cobranzas-alerts                                 │
-│   [☐] Webhook custom        [Configurar]                │
-│                                                         │
-│  Horarios                                               │
-│   No notificar entre las  [22:00] y [07:00]            │
-│   Días sin avisos:  ☑ Sábado  ☑ Domingo                │
-│                                                         │
-│   ⓘ Los problemas críticos se notifican igual,         │
-│     fuera de horario.                                   │
-│                                                         │
-│           [← Atrás]    [Revisar y activar →]            │
-└─────────────────────────────────────────────────────────┘
-```
-
-## Paso 5 (cierre) — Disclaimer de madurez + activación
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Casi listo — antes de activar                           │
-├─────────────────────────────────────────────────────────┤
-│  Vas a monitorear:                                      │
-│  ✓ 4 KPIs                                               │
-│  ✓ 4 Fuentes                                            │
-│  ✓ 6 tipos de problema                                  │
-│  ✓ 2 canales de notificación                            │
-│                                                         │
-│  ⚠ Tené en cuenta                                       │
-│     Margen operativo no está incluido todavía:          │
-│     su Fuente lleva 14 días recibiendo datos y el       │
-│     monitoreo necesita 30 días para no generar          │
-│     avisos falsos. Te lo recuerdo el 12 de junio.       │
-│                                                         │
-│  [☑] Empezar en modo prudente los primeros 7 días       │
-│      (te avisamos sin enviar a Slack/Email hasta        │
-│       validar que las alertas son precisas)             │
-│                                                         │
-│        [Volver a editar]    [Activar monitoreo]         │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Reglas**:
-- Lista lo que se está activando en términos concretos del cliente (no jerga).
-- Modo prudente (silencioso) para los primeros 7 días → reduce miedo, alineado con principio Simetrik "microinteracciones pedagógicas, reducen miedo".
-- Disclaimer de madurez explícito sobre datasets inmaduros (Paso 5 brief).
-
-## Flujo secundario — Editar override por caso específico
-
-Desde la landing → click en un KPI específico → modal/Sheet lateral:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Saldo neto día — ajustes propios                        │
-├─────────────────────────────────────────────────────────┤
-│  Configuración general del tablero:                     │
-│  · Notifica a finanzas@empresa.com                      │
-│  · No notifica entre 22:00 y 07:00                      │
-│                                                         │
-│  Sobrescribir para este KPI:                            │
-│  [☑] Notificar también a:  [cfo@empresa.com]            │
-│  [☑] Notificar siempre, incluso fuera de horario        │
-│      (es un KPI crítico para Tesorería)                 │
-│                                                         │
-│  [Quitar overrides]   [Cancelar]   [Guardar]            │
-└─────────────────────────────────────────────────────────┘
-```
-
-**Reglas críticas** (alineado con "editar caso puntual sin perder configuración general"):
-- Siempre muestra la regla heredada en gris.
-- El override se marca visualmente como override (no se mezcla con la regla general).
-- Botón "Quitar overrides" devuelve a la regla heredada.
-
-## Flujo secundario — Ver incidentes filtrados del tablero
-
-```
-Banner del tablero → CTA "Ver incidentes (1)"
-        ↓
-Landing → Incidentes (panel intermedio)
-        ↓
-Lista filtrada SOLO por incidentes que afectan este tablero
-        ↓
-Click en uno → detalle (panel derecho)
-  · ¿Qué pasó? (lenguaje natural)
-  · ¿Qué KPIs afecta?
-  · ¿Cuándo se resuelve?
-  · CTA: Snooze · Resolver · Escalar
-```
-
-Diferencia con la vista global "Incidentes" del header principal: ahí ves todos los de la cuenta. Acá solo los del tablero activo. Persistencia visual: el breadcrumb muestra siempre `Tablero X › Incidentes`.
-
-## Estados especiales
-
-| Estado | Qué ve el cliente |
-|---|---|
-| Tablero **sin monitoreo activo** | Banner gris neutro + CTA grande "Configurar monitoreo" |
-| Tablero en **modo prudente** (primeros 7 días) | Banner azul + chip "Aprendiendo · 4 días restantes" |
-| Tablero **estable, todo verde** | Banner verde fino + "Listo para operar" |
-| Tablero con **1 KPI en riesgo** | Banner amarillo + nombre del problema |
-| Tablero con **incidente crítico activo** | Banner rojo + CTA prominente "Ver incidente" |
-| Tablero con **Fuente inmadura** | Chip "Aprendiendo" en la stage Ingesta del pipeline |
-
-## Transiciones
-
-- Configuración inicial → confirmar → ir directo a la landing con banner verde.
-- Edición de override → guardar → toast inferior + estado actualizado en la lista.
-- Activación → modo prudente activo → countdown visible en banner.
+Una fuente puede estar **Sin configurar** → **Aprendiendo** (BADS recolectando) → **Monitoreado**. Detalle de estados y del modal de configuración en `../handoff/04-cards-monitores-ingesta.md` y `../handoff/05-modal-configuracion.md`.

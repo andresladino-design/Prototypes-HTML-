@@ -195,7 +195,7 @@ El prototipo HTML actual solo tiene algunos empty states (loaders, casos puntual
 
 ## References
 
-- **HTML**: `../index.html` líneas 21534-21832 (slot High y cards `ds-group`).
-- **JS**: `dsActivateGroups()` (línea 15280), `dsSeedGroupsFor()` (línea 15300), `dsPatternTokens()` (línea 15324).
+- **HTML** (por selector, los números de línea cambian): slot High con las cards de grupo (`.ds-group`) dentro del modal `.resource-config-panel`.
+- **JS** (helpers en `appData()`): `dsActivateGroups()`, `dsSeedGroupsFor()`, `dsPatternTokens()`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[08-contenedor-comportamiento-dia.md](./08-contenedor-comportamiento-dia.md)` (padre), `[09-contenedor-volumen-archivos.md](./09-contenedor-volumen-archivos.md)`, `[10-contenedor-cantidad-registros.md](./10-contenedor-cantidad-registros.md)`, `[11-contenedor-notas-adicionales.md](./11-contenedor-notas-adicionales.md)`, `[13-journey-low-family-high.md](./13-journey-low-family-high.md)`.

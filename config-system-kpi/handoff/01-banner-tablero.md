@@ -9,18 +9,34 @@ blocks: [02-vista-monitoreo]
 component_areas: [shell, dashboard]
 ---
 
-# 01 · Banner promocional del tablero
+# 01 · Entrada al monitoreo desde el tablero (banner + botón de modo)
 
-> Banner del dashboard que invita al usuario a activar el monitoreo del tablero. Vive en la vista principal del tablero (`currentView === 'dashboard'`), encima del grid de gráficos.
+> Cómo se entra al monitoreo de un tablero. El monitoreo es un **modo** del mismo tablero (ver `02-vista-monitoreo`), no una página aparte. Hay **3 entradas** desde la vista `currentView === 'dashboard'`. La principal pedagógica es el banner promocional encima del grid; las otras dos son persistentes (botón en el header y item en el menú contextual del tablero).
 
 ## Resumen
 
-- **Quién lo ve**: usuarios que abren un tablero donde el monitoreo todavía no está activo (`!monitoringActive`). Si el usuario lo descarta, queda oculto hasta refrescar (`dashBannerDismissed`).
-- **Cuándo**: al cargar el tablero, antes de que exista monitoreo.
+- **Quién lo ve**: usuarios que abren un tablero donde el monitoreo todavía no está activo (`!monitoringActive`). El banner se puede descartar (`dashBannerDismissed`); las otras dos entradas (botón header + menú ⋮) son siempre visibles.
+- **Cuándo**: al abrir el tablero. El banner es un push pedagógico de activación; las otras dos entradas están siempre disponibles para entrar/salir del modo.
 - **Qué decisión habilita**: empezar a configurar el monitoreo de la ingesta y las métricas del tablero, o posponerlo si el tablero fue modificado recientemente.
-- **Por qué existe**: el monitoreo necesita ver datos estables para aprender qué es lo normal. El banner es un push pedagógico que cambia su tono según si el tablero está estable o si fue modificado hace poco. Cuando el monitoreo ya está activo, el banner se reemplaza por una confirmación verde (`tm-dash-secured`) para devolver tranquilidad.
+- **Por qué existe**: el monitoreo necesita ver datos estables para aprender qué es lo normal. El banner cambia su tono según si el tablero está estable o fue modificado hace poco. El **estado del monitoreo** ("Sin configurar" / "Monitoreando") vive como badge en el **botón "Monitoreo" del header** (ver Entradas, abajo).
+
+> **Nota de implementación**: el banner verde de confirmación `tm-dash-secured` (estado "Monitoreado") está **diseñado en CSS pero NO implementado en el HTML** (no se renderiza ningún elemento con esa clase). El estado se comunica hoy vía el badge del botón "Monitoreo". Mantener `tm-dash-secured` como propuesta pendiente, no como algo presente en el prototipo.
+
+## Entradas al monitoreo (3)
+
+Las tres llevan a `currentView = 'tablero-monitoreo'` con `tmTab = 'metricas'`. El tab global "Tableros" del header superior queda activo; no hay breadcrumb.
+
+| Entrada | Dónde | Selector / trigger | Notas |
+|---|---|---|---|
+| **Botón de modo** (principal, persistente) | Cluster de acciones del header del tablero, anclado al **borde derecho** | `.secondary-btn` con `@click="currentView = 'tablero-monitoreo'; tmTab = tmTab \|\| 'metricas'"`; label "Monitoreo" + badge de estado `.tm-card-badge` ("Sin configurar" / "Monitoreando") | Es el mismo botón que en modo monitoreo se transforma en "Volver al tablero" (ver `02`). Lleva el estado del monitoreo. Es el último elemento del cluster para quedar fijo cuando las demás acciones se ocultan |
+| **Banner promocional** (pedagógico, descartable) | Encima del grid de gráficos | `.tm-banner.col-span-3`, `x-show="!monitoringActive && !dashBannerDismissed"` | Push de activación. 2 variantes (estable / recién modificado). Detalle abajo |
+| **Menú contextual del tablero** (⋮) | Item del menú del tablero en el panel izquierdo | `.dashboard-menu-item` con `@click="currentView = 'tablero-monitoreo'; tmTab = 'metricas'; closeDashboardMenu()"` | Atajo desde la lista de tableros |
+
+**Problema que resuelve tener 3 entradas:** distintos usuarios llegan al monitoreo en momentos distintos. El **banner** activa a quien nunca configuró (push pedagógico, descartable). El **botón del header** es la entrada/salida canónica y además **muestra el estado** del monitoreo de un vistazo. El **menú ⋮** es un atajo para entrar sin abrir el tablero primero. Que el banner sea descartable sin perder las otras dos evita el callejón de "cerré el banner y ya no sé cómo entrar".
 
 ## Anatomía
+
+> Esta sección detalla el **banner promocional**. El botón de modo del header se documenta arriba (Entradas) y su contraparte "Volver al tablero" en `02-vista-monitoreo`.
 
 | Componente | Clase / selector | Función |
 |---|---|---|
@@ -29,7 +45,7 @@ component_areas: [shell, dashboard]
 | Stack de iconos | `.tm-banner-icon-stack` (back + front + dot) | Composición visual con sombra y punto AI |
 | Texto | `.tm-banner-text` con `.tm-banner-title` y `.tm-banner-subtitle` | Título y subtítulo educativo |
 | CTA | `.tm-banner-cta` con `.tm-banner-cta-icon` | Botón primario que lleva al monitoreo |
-| Banner de éxito | `.tm-dash-secured` + `.tm-dash-secured-icon` + `.tm-dash-secured-link` | Reemplazo cuando `monitoringActive === true` |
+| Banner de éxito ⚠️ **NO implementado** | `.tm-dash-secured` + `.tm-dash-secured-icon` + `.tm-dash-secured-link` | Reemplazo propuesto cuando `monitoringActive === true`. Solo existe el CSS; no hay markup que lo renderice. Hoy el estado se ve en el badge del botón "Monitoreo" |
 
 ## Estados
 
@@ -37,16 +53,16 @@ component_areas: [shell, dashboard]
 |---|---|---|
 | **Estable** | `!monitoringActive && !dashboardRecentlyModified` | Icono de gráfico de líneas. Title "Buen momento para empezar a monitorear". CTA "Empezar a monitorear". |
 | **Recién modificado** | `!monitoringActive && dashboardRecentlyModified` | Icono de reloj. Title "Dale unos días antes de monitorear este tablero". CTA "Configurar de todos modos". |
-| **Descartado** | `dashBannerDismissed === true` | Banner oculto. |
-| **Monitoreado** | `monitoringActive === true` | Banner verde `tm-dash-secured` con escudo y link "Ver monitoreo". |
+| **Descartado** | `dashBannerDismissed === true` | Banner oculto. Las otras 2 entradas (botón header, menú ⋮) siguen visibles. |
+| **Monitoreado** | `monitoringActive === true` | El banner promocional no se muestra. El estado "Monitoreando" se ve en el badge del botón "Monitoreo" del header. *(El banner verde `tm-dash-secured` está propuesto pero NO implementado.)* |
 
 Máquina de estados:
 
 ```
-ESTABLE ────────────► (click CTA) ──► vista monitoreo
-RECIEN_MODIFICADO ──► (click CTA) ──► vista monitoreo
-ESTABLE / MOD ──────► (close X)   ──► DESCARTADO
-MONITOREADO ────────► (click link)──► vista monitoreo
+ESTABLE ────────────► (click CTA / botón header / menú ⋮) ──► modo monitoreo
+RECIEN_MODIFICADO ──► (click CTA / botón header / menú ⋮) ──► modo monitoreo
+ESTABLE / MOD ──────► (close X)                            ──► DESCARTADO (botón header y ⋮ siguen)
+MONITOREADO ────────► estado en el badge del botón "Monitoreo"
 ```
 
 ## Flujos de usuario (Experience-Driven User Story)
@@ -71,10 +87,12 @@ MONITOREADO ────────► (click link)──► vista monitoreo
 
 | Trigger | Resultado | Side effects |
 |---|---|---|
+| Click en botón "Monitoreo" del header (`.secondary-btn`) | Entra al modo: `currentView = 'tablero-monitoreo'`, `tmTab = tmTab \|\| 'metricas'` | Aparece glow azul, se ocultan acciones de tablero, el botón pasa a "Volver al tablero" |
+| Click en item "Monitoreo" del menú ⋮ (`.dashboard-menu-item`) | Igual que arriba + `closeDashboardMenu()` | — |
 | Click en `.tm-banner-cta` | Navega a `tablero-monitoreo` y selecciona `tmTab = 'metricas'` | Cambia `currentView` y `tmTab` |
 | Click en `.tm-banner-close` | Oculta el banner | `dashBannerDismissed = true` |
-| Click en `.tm-dash-secured-link` | Navega a `tablero-monitoreo` con `tmTab = 'metricas'` | Misma navegación que CTA |
-| Cambio en `monitoringActive` | El banner se reemplaza por la confirmación verde | Re-render por Alpine |
+| Click en `.tm-dash-secured-link` ⚠️ **no implementado** | (propuesto) navegaría a `tablero-monitoreo` | El elemento no existe en el HTML |
+| Cambio en `monitoringActive` | Cambia el badge del botón "Monitoreo" (Sin configurar ↔ Monitoreando) | Re-render por Alpine |
 
 ## Data contracts
 
@@ -161,9 +179,9 @@ El prototipo HTML actual solo tiene algunos empty states. Esta historia debe enu
 2. **Given** el mismo tablero con `dashboardRecentlyModified = true`, **When** el usuario lo abre, **Then** el title es "Dale unos días antes de monitorear este tablero" y el CTA dice "Configurar de todos modos".
 3. **Given** el banner visible, **When** el usuario hace click en la X, **Then** el banner se oculta y `dashBannerDismissed` queda en `true`.
 4. **Given** el banner visible, **When** el usuario hace click en el CTA, **Then** la vista cambia a `tablero-monitoreo` con `tmTab = 'metricas'`.
-5. **Given** `monitoringActive === true`, **When** se renderiza el dashboard, **Then** se muestra el banner verde `tm-dash-secured` y no el banner promocional.
+5. **Given** `monitoringActive === true`, **When** se renderiza el dashboard, **Then** el badge del botón "Monitoreo" del header dice "Monitoreando" y el banner promocional no se muestra. *(El banner verde `tm-dash-secured` queda como propuesta, no implementado.)*
 6. El banner ocupa tres columnas del grid (`col-span-3`).
-7. El cierre del banner no debe afectar el banner de éxito (`tm-dash-secured`) que aparece cuando hay monitoreo.
+7. **Given** el dashboard, **Then** existen 3 entradas al monitoreo: botón "Monitoreo" (header, con badge de estado), banner promocional (descartable) e item "Monitoreo" del menú ⋮. Descartar el banner no oculta las otras dos.
 8. Los textos no deben usar em-dashes ni slang regional (verificar copy contra glosario).
 
 ## Dependencies
@@ -179,13 +197,13 @@ El prototipo HTML actual solo tiene algunos empty states. Esta historia debe enu
 3. Forzar `dashboardRecentlyModified = true`. Verificar copy "Dale unos días antes de monitorear este tablero" y CTA "Configurar de todos modos".
 4. Hacer click en el CTA. Verificar navegación a `tablero-monitoreo` con `tmTab === 'metricas'`.
 5. Hacer click en la X. Verificar `dashBannerDismissed = true` y banner oculto.
-6. Forzar `monitoringActive = true`. Verificar render del banner verde `tm-dash-secured` con link "Ver monitoreo".
+6. Forzar `monitoringActive = true`. Verificar que el badge del botón "Monitoreo" del header pasa a "Monitoreando" y el banner promocional desaparece. *(El banner verde `tm-dash-secured` no se renderiza: no está implementado.)*
 7. Probar el banner en viewport angosto (< 1024px) para verificar `col-span-3` no rompa layout.
 
 ## References
 
-- **HTML**: `../index.html` líneas 18597-18676 (banner zero-state) y 18660-18676 (banner monitoreado).
-- **CSS**: líneas 14289-14457 (`.tm-banner`, `.tm-banner-icon-stack`, `.tm-banner-cta`).
+- **HTML** (ubicar por selector): banner `<div class="tm-banner col-span-3" x-show="!monitoringActive && !dashBannerDismissed">`; botón de modo del header `<button class="secondary-btn" @click="currentView = 'tablero-monitoreo'; tmTab = tmTab || 'metricas'">` (con `.tm-card-badge`); item del menú `<div class="dashboard-menu-item" @click="currentView = 'tablero-monitoreo'; ...">`.
+- **CSS** (por selector): `.tm-banner`, `.tm-banner-icon-stack`, `.tm-banner-cta`, `.tm-card-badge`. `.tm-dash-secured` existe en CSS pero sin markup (no implementado).
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[00-CONTEXT.md](./00-CONTEXT.md)`, `[02-vista-monitoreo.md](./02-vista-monitoreo.md)`.
 - **Backend**:

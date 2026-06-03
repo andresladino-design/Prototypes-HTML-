@@ -15,10 +15,10 @@ component_areas: [monitoring-view, cards-grid]
 
 ## Resumen
 
-- **Quién lo ve**: usuario en `tmTab === 'ingesta'`, debajo del header y las acciones bulk.
+- **Quién lo ve**: usuario en `tmTab === 'ingesta'`, debajo de la barra de tabs (el buscador y la acción bulk viven a la derecha de los tabs, en `.tm-tabs-actions`; ver `03`).
 - **Cuándo**: durante el monitoreo del tablero, tanto cuando todavía hay pendientes como cuando ya está todo configurado.
 - **Qué decisión habilita**: entrar al detalle de una fuente para configurarla, revisarla o editarla.
-- **Por qué existe**: la lista de fuentes es la unidad operativa del monitoreo de ingesta. Las cards comprimen identificación (nombre, tipo, workspace), estado (badge de monitoreo) y enriquecimiento (grupos detectados) en un objeto clickable. Se separa visualmente lo "Monitoreado" de lo "Sin monitoreo" para guiar el foco hacia los pendientes.
+- **Por qué existe**: la lista de fuentes es la unidad operativa del monitoreo de ingesta. Las cards comprimen identificación (nombre, tipo, workspace), estado (badge de monitoreo) y enriquecimiento (grupos detectados) en un objeto clickable. **Todas las fuentes se muestran en un grid único** (sin agrupar por estado); el estado lo comunica el badge de cada card.
 
 ## Anatomía
 
@@ -33,6 +33,10 @@ component_areas: [monitoring-view, cards-grid]
 | Subtype | `.tm-chart-card-subtype` | `ingestionTypeFor(r)` + workspace (`workspaceFor(r)`) separados por punto |
 | Badge | `.tm-card-badge` con `.tm-card-badge-dot` + label | Estado del monitoreo |
 | Footer | `.tm-chart-card-foot` con `.tm-chart-card-deps` | Conteo de grupos detectados + chips (`tm-dep-badge`) |
+
+> ⚠️ **Cambio vs versión anterior**: las cards van en un **grid único** (`.tm-cards-grid`), sin secciones "Monitoreado / Sin monitoreo". El estado se lee en el badge de cada card.
+>
+> **Problema que resuelve el grid único:** las secciones por estado fragmentaban la lista y obligaban a saltar entre bloques (y a recolocar cards cuando cambiaban de estado). Un grid único mantiene las fuentes en un solo lugar estable; el badge de cada card comunica el estado sin partir la vista.
 
 ## Estados
 
@@ -63,7 +67,7 @@ MONITOREADO ────► (eliminar monitoreo) ──► SIN_CONFIGURAR
 - **Quiero** entrar al detalle de una fuente
 - **Para** activar su monitoreo y definir su comportamiento esperado
 - **Camino**:
-  1. Veo la sección "Sin monitoreo" con su contador.
+  1. Veo el grid de fuentes; las pendientes muestran badge gris "Sin configurar".
   2. Hago click en una card. Como `r.status === 'empty'`, `selectConfigSource(r)` dispara el activation loader (ver doc 06) y luego abre el modal daysetup en modo edición.
 
 **Flujo B · Revisar una fuente ya monitoreada**
@@ -71,7 +75,7 @@ MONITOREADO ────► (eliminar monitoreo) ──► SIN_CONFIGURAR
 - **Quiero** ver y eventualmente editar su configuración
 - **Para** ajustar valores si el comportamiento de la fuente cambió
 - **Camino**:
-  1. Veo la sección "Monitoreado" con su contador.
+  1. Veo el grid de fuentes; las monitoreadas muestran badge azul ("Aprendiendo") o verde ("Monitoreado").
   2. La card muestra el nombre, tipo de ingesta, workspace, badge "Monitoreado" o "Aprendiendo" y un footer con "N grupos detectados" cuando aplica.
   3. Hago click. Como ya tiene `dayConfig`, `selectConfigSource(r)` abre el modal daysetup en modo solo-lectura (`daySetupReadonly = true`).
   4. Puedo pulsar "Editar" para entrar a modo edición o "Eliminar monitoreo" para limpiar.
@@ -135,8 +139,7 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` y `GET /sources/{id}/monitorin
 | Escenario | Condición | Copy propuesto | CTA | Implementado en HTML? |
 |---|---|---|---|---|
 | Tablero sin fuentes | `resources.length === 0` | "Este tablero todavía no tiene fuentes asociadas." con ilustración | Link "Agregar fuente" | ❌ pendiente |
-| Sin fuentes monitoreadas todavía | Sección "Monitoreado" con `length === 0` | Sección oculta (no se renderiza el header) | (ninguno) | ✅ implementado |
-| Sin fuentes pendientes | Sección "Sin monitoreo" con `length === 0` | Sección oculta (no se renderiza el header) | (ninguno) | ✅ implementado |
+| Todas las fuentes en el mismo grid | siempre | No hay agrupación por estado: grid único, el badge de cada card comunica su estado | (ninguno) | ✅ implementado |
 | Búsqueda sin resultados | `resources.filter(...).length === 0` | "Sin resultados para [query]" en `.bulk-search-empty` | "Limpiar búsqueda" | ✅ implementado parcial (revisar CTA) |
 | Loading | Fetch `dashboards/{id}/sources` en curso | Skeleton grid de 6 cards con shimmer (rect 80px + 24px badge) | (ninguno) | ❌ pendiente |
 | Error al cargar | Fetch falló | "No pudimos cargar las fuentes." card con icono `alert-triangle` | Botón "Reintentar" | ❌ pendiente |
@@ -208,7 +211,7 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` y `GET /sources/{id}/monitorin
 7. El footer con grupos solo aparece si existen grupos detectados.
 8. El subtype combina tipo de ingesta y workspace separados por punto, con omitir workspace si no existe.
 9. La lista se filtra correctamente con `resourceSearch` por nombre (case-insensitive).
-10. La sección "Sin monitoreo" se oculta cuando no hay pendientes.
+10. Las fuentes se muestran en un grid único (sin agrupación "Monitoreado / Sin monitoreo"); el estado lo comunica el badge de cada card.
 
 ## Dependencies
 
@@ -229,9 +232,9 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` y `GET /sources/{id}/monitorin
 
 ## References
 
-- **HTML**: `../index.html` líneas 19438-19500 (cards monitoreadas), 19502-19540 (cards sin configurar).
-- **CSS**: líneas 14643-14685 (`.tm-cards-grid`, `.tm-chart-card`, `.tm-card-badge`), 15050-15072 (footer con grupos).
-- **JS**: líneas 15191-15198 (`selectConfigSource`), 15155-15172 (`openActivationLoader`).
+- **HTML** (ubicar por selector): grid `<div class="tm-cards-grid" ...>` dentro del tab Ingesta (comentario "Sin agrupación: todos los recursos en un solo grid"); card `<div class="tm-chart-card" role="button" tabindex="0" ...>`.
+- **CSS** (por selector): `.tm-cards-grid`, `.tm-chart-card`, `.tm-card-badge`, `.tm-chart-card-foot`, `.tm-dep-badge`.
+- **JS** (helpers en `appData()`): `selectConfigSource`, `openActivationLoader`, `monitoringStateFor`, `ingestionTypeFor`, `workspaceFor`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[03-banner-monitorear-tablero.md](./03-banner-monitorear-tablero.md)`, `[05-modal-configuracion.md](./05-modal-configuracion.md)`, `[06-activacion-masiva.md](./06-activacion-masiva.md)`.
 - **Backend**:

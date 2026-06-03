@@ -9,27 +9,30 @@ blocks: [06-activacion-masiva]
 component_areas: [monitoring-view, bulk-modal]
 ---
 
-# 03 · Banner para monitorear todo el tablero
+# 03 · Activación masiva de fuentes (acción del tab Ingesta)
 
-> Acción bulk dentro del tab Ingesta. Aparece junto al buscador cuando todavía hay fuentes sin configurar. Permite activar el monitoreo de todas las fuentes pendientes en una sola operación.
+> Acción bulk de la etapa Ingesta. Vive junto al buscador en el **extremo derecho de la barra de tabs** (`.tm-tabs-actions`), no dentro del contenido del tab. Aparece cuando todavía hay fuentes sin configurar. Permite activar el monitoreo de todas las fuentes pendientes en una sola operación.
 
 ## Resumen
 
 - **Quién lo ve**: usuario en la vista `tmTab === 'ingesta'` mientras haya fuentes con `status === 'empty'`.
 - **Cuándo**: durante la configuración del monitoreo del tablero, antes de tenerlo todo cubierto.
 - **Qué decisión habilita**: abrir el modal bulk (`openBulkActivate()`) para activar varias fuentes con un solo flujo.
-- **Por qué existe**: configurar el monitoreo de una fuente puede ser demorado. La promesa del producto es "tu tablero está monitoreado de extremo a extremo" y eso requiere reducir la fricción de N configuraciones a 1 acción. El botón vive al lado del buscador para estar siempre visible cuando hay pendientes.
+- **Por qué existe**: configurar el monitoreo de una fuente puede ser demorado. La promesa del producto es "tu tablero está monitoreado de extremo a extremo" y eso requiere reducir la fricción de N configuraciones a 1 acción. El botón vive en `.tm-tabs-actions` (junto al buscador "Buscar fuente", al extremo derecho de la barra de tabs) para estar siempre visible cuando hay pendientes en la etapa Ingesta.
 
 ## Anatomía
 
 | Componente | Clase / selector | Función |
 |---|---|---|
-| Header del tab | `.tm-tab-header` con `.tm-tab-header-text` y `.tm-tab-header-actions` | Título "Ingesta de datos" + subtitle + acciones |
+| Grupo de acciones | `.tm-tabs-actions` (extremo derecho de `.tm-tabs-bar`), `x-show="tmTab === 'ingesta'"` para este caso | Contiene el buscador + el botón bulk de la etapa Ingesta |
 | Buscador | `.tm-search.tm-tab-header-search` con `input.tm-search-input` x-model="resourceSearch" | Filtro por nombre de fuente |
-| Botón bulk | `.bulk-list-section-action` con `x-show="resources.filter(r => r.status === 'empty').length > 0"` | Acción primaria para activar en bloque |
+| Botón bulk | `.bulk-list-section-action` con `x-show="tmTab === 'ingesta' && resources.filter(r => r.status === 'empty').length > 0"` | Acción primaria para activar en bloque |
 | Icono | SVG inline (apilado de tres capas) | Visual del botón |
 | Label dinámico | Dos `span` con `x-show` por cantidad | "Activar 1 a la vez" o "Activar las N a la vez" |
-| Encabezados de sección | `.bulk-list-section-header` con `.bulk-list-section-label` y `.bulk-list-section-counter` | Agrupa cards por estado: Monitoreado / Sin monitoreo |
+
+> ⚠️ **Cambio vs versión anterior**: ya NO hay agrupación "Monitoreado / Sin monitoreo" (`.bulk-list-section-header`) en la lista. Las fuentes se muestran en un **grid único** y el estado lo refleja el badge de cada card (ver `04`). El CSS de sección existe pero no se usa.
+
+**Problema que resuelve mover la acción a `.tm-tabs-actions`:** tener el buscador y el botón "Activar las N" dentro del contenido del tab empujaba la lista hacia abajo y restaba jerarquía a la acción. Anclados al extremo derecho de la barra de tabs quedan siempre visibles y a la mano, sin robar alto a la lista de fuentes.
 
 ## Estados
 
@@ -38,14 +41,14 @@ component_areas: [monitoring-view, bulk-modal]
 | Oculto | `resources.filter(r => r.status === 'empty').length === 0` | Botón no se renderiza |
 | Singular | exactamente 1 fuente sin configurar | Label "Activar 1 a la vez" |
 | Plural | 2 o más fuentes sin configurar | Label "Activar las N a la vez" (con `<span x-text>` para el número) |
-| Hover | mouse encima | Estilo `:hover` definido en línea 7682 |
-| Focus visible | foco por teclado | Outline definido en línea 7689 |
+| Hover | mouse encima | Estilo `:hover` de `.bulk-list-section-action` |
+| Focus visible | foco por teclado | Outline de `.bulk-list-section-action:focus-visible` |
 
-Máquina de estados de la sección Sin monitoreo:
+Máquina de estados del botón bulk:
 
 ```
 N > 0 ──► (click Activar N) ──► abre bulk-modal stage 1
-N == 0 ─► oculta sección "Sin monitoreo" y botón bulk
+N == 0 ─► oculta el botón bulk (la lista sigue siendo un grid único)
 ```
 
 ## Flujos de usuario (Experience-Driven User Story)
@@ -55,7 +58,7 @@ N == 0 ─► oculta sección "Sin monitoreo" y botón bulk
 - **Quiero** activar el monitoreo de todas las fuentes pendientes sin configurar una por una
 - **Para** garantizar que mi tablero esté completamente monitoreado en un solo flujo
 - **Camino**:
-  1. Veo el header del tab con título "Ingesta de datos", subtitle pedagógico y a la derecha el buscador con el botón "Activar las N a la vez".
+  1. En la barra de tabs, a la derecha (`.tm-tabs-actions`), veo el buscador "Buscar fuente" y el botón "Activar las N a la vez". El contenido del tab abajo muestra el título "Ingesta de datos" + subtítulo y el grid de fuentes.
   2. Hago click en el botón. Se abre el modal bulk (`bulkActivateOpen = true`) con stage 1 (selección).
   3. Continúo el flujo en el doc 06 (Activación masiva).
 
@@ -72,7 +75,7 @@ N == 0 ─► oculta sección "Sin monitoreo" y botón bulk
 | Trigger | Resultado | Side effects |
 |---|---|---|
 | Click en `.bulk-list-section-action` | Llama `openBulkActivate()` | Abre el modal bulk, preselecciona todas las fuentes `status === 'empty'`, set `bulkActivateStage = 1` |
-| Input en `.tm-search-input` | Actualiza `resourceSearch` | Filtra ambas secciones (Monitoreado y Sin monitoreo) |
+| Input en `.tm-search-input` | Actualiza `resourceSearch` | Filtra el grid de fuentes por nombre |
 | Cambio en `resources[i].status` | Re-renderiza el botón bulk si la cantidad llega a 0 | Botón se oculta |
 
 ## Data contracts
@@ -84,7 +87,7 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` que devuelva la lista completa
 
 ## Edge cases
 
-- **Cero pendientes**: el botón y la sección "Sin monitoreo" no se muestran.
+- **Cero pendientes**: el botón bulk no se muestra (la lista sigue siendo un grid único de fuentes).
 - **Una sola pendiente**: el copy cambia a singular ("Activar 1 a la vez").
 - **Cargando**: si `resources` viene undefined o vacío durante el fetch, el botón no debe parpadear (verificar con `x-cloak`).
 - **Búsqueda sin resultados**: se muestra el bloque `.bulk-search-empty` con mensaje "Sin resultados".
@@ -118,13 +121,10 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` que devuelva la lista completa
 
 | Elemento del prototipo | Componente desyk | Variants / props | Notas de uso |
 |---|---|---|---|
-| `.tm-tab-header` (header del tab Ingesta) | Layout custom con `flex` (no es componente desyk) | — | Contenedor del título + acciones del tab |
-| Título del tab + subtítulo pedagógico | Tipografía custom (heading + muted-foreground) | — | Texto plano, sin componente desyk especifico |
+| `.tm-tabs-actions` (acciones a la derecha de la barra de tabs) | Layout custom con `flex` (no es componente desyk) | — | Contenedor del buscador + botón bulk de la etapa activa |
 | `.tm-search` + `input.tm-search-input` (buscador de fuentes) | `Input` | `type="search"` con ícono `Search` de Lucide como prefix | Filtro por nombre de fuente |
 | `.bulk-list-section-action` (botón "Activar N a la vez") | `Button` | `variant="default" size="default"` con ícono leading | Acción primaria de activación bulk |
 | Icono del botón bulk (apilado de tres capas) | SVG inline o ícono custom de Lucide | — | Visual decorativo del botón |
-| `.bulk-list-section-header` (encabezado de sección Monitoreado / Sin monitoreo) | Layout custom con tipografía + `Badge` | `Badge variant="secondary"` para el counter | Agrupa cards por estado |
-| `.bulk-list-section-counter` (contador "N fuentes") | `Badge` | `variant="secondary"` | Contador junto al label |
 | `.bulk-search-empty` (mensaje "Sin resultados") | Componente custom (compuesto) | — | Empty state simple para búsqueda |
 
 **Componentes compuestos (no existen en desyk, hay que componerlos):**
@@ -138,7 +138,7 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` que devuelva la lista completa
 ## Implementation notes
 
 - **Helpers Alpine ya existentes**: `resources`, `resourceSearch`, `openBulkActivate()`.
-- **CSS/clases**: `.tm-tab-header`, `.tm-tab-header-actions`, `.tm-search`, `.bulk-list-section-action`.
+- **CSS/clases**: `.tm-tabs-actions` (contenedor a la derecha de la barra de tabs), `.tm-search`, `.bulk-list-section-action`.
 - **Endpoints BE**: `GET /dashboards/{id}/sources` que devuelva lista completa con `status` derivado de BADS + op-center.
 - **Tokens desyk**: `hsl(var(--primary))` para fondo del botón bulk, `hsl(var(--primary-foreground))` para el texto.
 - **Animation / motion**: hover `transform: translateY(-1px)` + sombra, 120ms ease-out.
@@ -157,7 +157,7 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` que devuelva la lista completa
 4. **When** el usuario hace click en el botón, **Then** se ejecuta `openBulkActivate()` y se abre el modal bulk en stage 1.
 5. **Given** el botón visible, **When** ocurre hover o focus por teclado, **Then** se aplica el estilo definido en CSS sin saltos visuales.
 6. La búsqueda no debe afectar el conteo del botón bulk: este siempre refleja el total global.
-7. El botón vive al lado del buscador en `.tm-tab-header-actions`, no dentro de las secciones de la lista.
+7. El botón vive junto al buscador en `.tm-tabs-actions` (extremo derecho de la barra de tabs), no en el header del contenido del tab ni dentro de la lista. Solo se muestra en la etapa Ingesta (`tmTab === 'ingesta'`).
 8. El copy no debe usar em-dashes ni "monitorear" como verbo en contextos donde debería ser sustantivo (verificar contra glosario `00-CONTEXT.md`).
 
 ## Dependencies
@@ -178,8 +178,8 @@ Endpoint sugerido: `GET /dashboards/{id}/sources` que devuelva la lista completa
 
 ## References
 
-- **HTML**: `../index.html` líneas 19398-19432 (header + acción bulk), 19438-19500 (sección Monitoreado), 19502-19540 (sección Sin monitoreo), 19541-19553 (búsqueda vacía).
-- **CSS**: líneas 7666-7694 (`.bulk-list-section-action`), 7700+ (contadores y headers).
-- **JS**: línea 16116 (`openBulkActivate`).
+- **HTML** (ubicar por selector): grupo de acciones `<div class="tm-tabs-actions" ...>` dentro de `<div class="tm-tabs-bar">`; botón `<button class="bulk-list-section-action" ... @click="openBulkActivate()">`; buscador `input.tm-search-input` con `x-model="resourceSearch"`. La lista es un grid único (comentario "Sin agrupación: todos los recursos en un solo grid").
+- **CSS** (por selector): `.bulk-list-section-action`, `.tm-tabs-actions`, `.tm-search-input`. `.bulk-list-section-header` existe pero ya no se usa.
+- **JS**: helper `openBulkActivate` (buscar por nombre en el `appData()`).
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[02-vista-monitoreo.md](./02-vista-monitoreo.md)`, `[04-cards-monitores-ingesta.md](./04-cards-monitores-ingesta.md)`, `[06-activacion-masiva.md](./06-activacion-masiva.md)`.

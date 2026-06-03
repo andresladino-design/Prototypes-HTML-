@@ -11,7 +11,7 @@ component_areas: [modal-config, daysetup, day-behavior, tab-switcher]
 
 # 08 · Contenedor Comportamiento de la fuente
 
-> Card que aloja el tab switcher Lu-Do, el subtítulo del día activo y el toggle de monitoreo del día. Es el chasis sobre el que se montan los indicadores y, en High, las cards de grupo. Vive en `<section class="ds-card">` (línea HTML ~21138).
+> Card que aloja el tab switcher Lu-Do, el subtítulo del día activo y el toggle de monitoreo del día. Es el chasis sobre el que se montan los indicadores y, en High, las cards de grupo. Vive en `<section class="ds-card">` dentro del modal `.resource-config-panel`.
 
 ## Propósito
 - Concentra todo lo que cambia día por día: qué día estoy viendo, si lo monitoreo o no, y cómo. Es el contenedor donde se materializa el modelo Low / Family / High.
@@ -158,7 +158,7 @@ El prototipo HTML actual solo tiene algunos empty states (loaders, casos puntual
 
 ## References
 
-- **HTML**: `../index.html` líneas 21138-21837 (`<section class="ds-card">` con tabs y comportamiento).
-- **JS**: `dsToggleDayMonitor()` (línea 15343), `dsPromoteToFamily()` (línea 15259), `dsActivateGroups()` (línea 15280).
+- **HTML** (por selector): `<section class="ds-card">` con el tab switcher Lu-Do (`.ds-day-tabs`) y el toggle de día, dentro de `.resource-config-panel`.
+- **JS** (helpers en `appData()`): `dsToggleDayMonitor()`, `dsPromoteToFamily()`, `dsActivateGroups()`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[09-contenedor-volumen-archivos.md](./09-contenedor-volumen-archivos.md)`, `[10-contenedor-cantidad-registros.md](./10-contenedor-cantidad-registros.md)`, `[11-contenedor-notas-adicionales.md](./11-contenedor-notas-adicionales.md)`, `[12-contenedor-grupos-high.md](./12-contenedor-grupos-high.md)`, `[13-journey-low-family-high.md](./13-journey-low-family-high.md)`.

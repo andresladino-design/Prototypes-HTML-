@@ -1,201 +1,58 @@
-# Copy — Recomendaciones
+# 04 · Copy y recomendaciones
 
-> Microcopy que materializa la relación **KPI ↔ Dependencia ↔ Fuente ↔ Proceso** en lenguaje de negocio.
-> Sigue el glosario obligatorio del skill `ux-writer` Simetrik. **Sin em-dashes (—)**. Sin "Powered by AI".
+> Copy real del prototipo (modelo modo + tabs) y reglas de redacción. El **glosario canónico** vive en [`../handoff/00-CONTEXT.md`](../handoff/00-CONTEXT.md) (consolidado desde el companion skill `ux-writer`). Este doc no lo duplica: lo aplica.
 
-## 1 · Glosario aplicado a este flujo
+## 1 · Reglas de voz (recordatorio)
 
-| Concepto técnico (banned) | Término del cliente (usar) | Por qué |
+- **Español neutro**, sin slang regional. Sin em-dashes (—) ni `--`; usar comas, dos puntos, paréntesis, puntos.
+- **Glosario obligatorio** (Op Center v2.8): Fuente/Dataset, Monitoreo, Anomalía, Señal de anomalía, Incidente, Tablero, KPI, Agente IA, BADS. No traducir ni sinonimizar.
+- **Sin "Powered by AI" / sparkles**: la IA es core, no feature opcional.
+
+## 2 · Copy del modo (navegación)
+
+| Elemento | Copy | Notas |
 |---|---|---|
-| Recurso monitoreado | **Fuente** | "Recurso" es opaco. "Fuente" sí está en el glosario Simetrik y el cliente lo reconoce. |
-| Dataset (en config de monitoreo) | **Fuente** | En el módulo Op Center "dataset" sí existe como término oficial, pero acá hablamos del nivel ingesta = Fuente. |
-| Pipeline | **Cadena del tablero** | "Pipeline" es jerga. "Cadena" es metáfora natural ya que el flujo tiene etapas. |
-| Stage | **Etapa** | Más natural en español. |
-| Lineage | **Cómo se construye** | Cliente no piensa en "lineage". Sí piensa en "de dónde viene". |
-| Anomalía | **Aviso** o **incidente** según severidad | Anomalía la usa el equipo Op Center, no el cliente. Cliente piensa en "algo raro pasó". |
-| Threshold / umbral | **Margen** o **rango habitual** | "Umbral" suena técnico. "Margen" es de negocio. |
-| Severity | **Importancia** o **prioridad** | Más legible. |
-| Dismiss | **Marcar como esperado** | "Dismiss" no traduce. Cliente quiere decir "esto era esperable, no es problema". |
-| Schedule / cron | **Horarios** | Plain. |
-| Webhook | **Webhook** | Se mantiene (es término técnico que el integrador conoce). |
-| Alert rule | **Aviso** | Como entidad: "configurar un aviso", "agregar otro aviso". |
+| Botón de modo (en Tablero) | **Monitoreo** + badge "Sin configurar" / "Monitoreando" | El badge refleja `monitoringActive` |
+| Botón de modo (en Monitoreo) | **Volver al tablero** | Mismo botón, reetiquetado; es la salida |
+| Tabs de etapa | **Ingesta de datos** · **Calidad de datos** · **Salud de conciliaciones** · **Métricas de gráficos** | Calidad y Conciliación con badge **Pronto** |
 
-## 2 · Banner del tablero
+## 3 · Banner zero-state del tablero (entrada pedagógica)
 
-| Estado | Headline | Sub-line |
-|---|---|---|
-| Verde | **Tablero listo para analizar** | Última ingesta hace 12 min · 5 KPIs vigilados |
-| Verde sin monitoreo | **Este tablero todavía no tiene monitoreo activo** | Activá el monitoreo para enterarte si una Fuente no llega o si un KPI se aleja de lo normal. |
-| Amarillo (1 problema) | **1 KPI podría retrasarse hoy** | Falta una Fuente de Banco BBVA · esperada a las 06:30, sin recibir |
-| Amarillo (N problemas) | **{N} KPIs podrían retrasarse hoy** | Falta una Fuente de Banco BBVA · esperada a las 06:30, sin recibir |
-| Rojo (crítico) | **Tablero con incidente crítico** | El Asiento contable de Tesorería no se conciliará hoy si no llega Mov. BBVA |
-| Aprendiendo | **Tu tablero está aprendiendo** | Modo prudente · 4 días para empezar a notificar al equipo |
+Dos variantes según `dashboardRecentlyModified`:
 
-**CTAs del banner**:
-- Verde: `Ver historial` · `Configurar`
-- Amarillo o rojo: `Ver incidentes ({N})` · `Configurar`
-- Sin monitoreo: solo `Configurar monitoreo →` (grande)
-
-**Pattern del sub-line**: siempre incluir **qué Fuente o KPI específico** está afectado. Nunca decir "hay problemas" sin nombrar.
-
-## 3 · Pipeline visual — labels de cada etapa
-
-| Etapa | Label corto | Sub-label (count) | Estado del cliente |
+| Variante | Título | Subtítulo (resumen) | CTA |
 |---|---|---|---|
-| Ingesta | **Ingesta** | "11 de 12 Fuentes ok" | Llegan los archivos del día |
-| Calidad | **Calidad** | "1 problema" | Los archivos son válidos |
-| Conciliación | **Conciliación** | "al día" | Las Fuentes cruzan bien entre sí |
-| KPIs | **KPIs** | "2 de 5 en riesgo" | Tus números están sanos |
+| Estable | **Buen momento para empezar a monitorear** | "Este tablero no ha tenido cambios en los últimos días... el monitoreo puede aprender qué es lo normal y avisarte si algo se desvía." | **Empezar a monitorear** |
+| Recién modificado | **Dale unos días antes de monitorear este tablero** | "Cambiaste sus gráficos o los datos que lo alimentan hace pocos días. El monitoreo necesita ver cómo se comporta cuando ya no cambia..." | **Configurar de todos modos** |
 
-**Tooltip al hover de cada etapa** (educativo, no obligatorio leerlo):
+## 4 · Banner "Conceptos clave" (onboarding del modo monitoreo)
 
-- Ingesta: "Vigilamos que tus archivos lleguen a tiempo y con el volumen normal."
-- Calidad: "Revisamos que los archivos tengan la estructura esperada y no traigan datos raros."
-- Conciliación: "Cruzamos tus Fuentes entre sí para detectar diferencias inesperadas."
-- KPIs: "Avisamos si un KPI se aleja del comportamiento normal."
+- Eyebrow: **Monitorea tu tablero**
+- Título: **Asegura que todo el proceso esté monitoreado**
+- Texto: "Tus gráficos se alimentan de fuentes usadas en los dataset. Monitorea todo el proceso desde ingesta de datos hasta el resultado para confiar en lo que ves en tu tablero."
+- Cards: **Ingesta de datos** · **Métricas de gráficos** · **Gestión de anomalías** (showcase con pill "Anomalía detectada").
+- Cerrable (✕). Es onboarding; al cerrarlo el contexto del modo se mantiene por el botón y el glow.
 
-## 4 · Wizard de configuración
+## 5 · Acciones de etapa (barra de tabs)
 
-### Paso 1 — Activar KPIs
-
-- Título: **¿Qué KPIs querés vigilar?**
-- Subtítulo: "Activá los que querés que monitoreemos. Podés ajustar después."
-- Recomendación IA: **Te recomiendo monitorear los {N} KPIs de este tablero**.
-- Por KPI: nombre + frecuencia ("se calcula cada día") + criticidad ("uso analítico" / "uso para Tesorería" / "uso gerencial").
-- Disclaimer madurez: ⚠ **{Fuente} todavía está aprendiendo · 14 días de los 30 necesarios. Activar ahora puede generar avisos falsos.**
-
-### Paso 2 — Dependencias detectadas
-
-- Título: **Estas Fuentes alimentan tus KPIs**
-- Subtítulo: "Detecté el lineage automáticamente. Si querés ajustarlo manualmente, podés."
-- Diagrama: nombres de Fuentes → nombres de KPIs (sin "node", "edge", "vertex").
-- Toggle: **Vigilar todas las Fuentes detectadas ({N})**.
-- Link secundario: "Ajustar selección manualmente".
-
-### Paso 3 — Tipos de aviso
-
-- Título: **¿Qué problemas querés que te avisemos?**
-- Subtítulo: "Cada aviso está en lenguaje claro · sin umbrales técnicos."
-- Agrupado por etapa, una línea por aviso:
-
-| Etapa | Aviso | Descripción que ve el cliente |
+| Etapa | Buscador (placeholder) | Acción |
 |---|---|---|
-| Ingesta | Archivo faltante | "Una Fuente no llegó en el horario esperado" |
-| Ingesta | Llegada tardía | "Una Fuente llegó más de {tiempo} tarde" |
-| Calidad | Volumen anómalo | "Llegaron muy pocas filas comparado con lo normal" |
-| Calidad | Cambios estructurales | "Apareció o desapareció una columna" |
-| Conciliación | Desalineación | "Encontramos diferencias inesperadas entre dos Fuentes" |
-| KPI | Desvío del KPI | "El valor se alejó del comportamiento habitual" |
+| Ingesta | "Buscar fuente…" | **Activar 1 a la vez** / **Activar las N a la vez** (singular/plural por cantidad de fuentes sin configurar) |
+| Métricas | "Buscar gráfico…" | (sin acción bulk) |
 
-### Paso 4 — Notificaciones
+## 6 · Estados de una fuente (cards de Ingesta)
 
-- Título: **¿Quién y cómo recibe los avisos?**
-- Sub-sección "Canales": "Elegí por dónde llegan los avisos".
-- Sub-sección "Horarios": "Configurá cuándo no avisar (los problemas críticos llegan igual)".
-- Microcopy clave: **"Los problemas críticos se notifican igual, fuera de horario."** (transparente sobre que el silenciamiento tiene límite).
+| Estado | Label del badge | Color |
+|---|---|---|
+| Sin configurar | **Sin configurar** | gris |
+| Aprendiendo | **Aprendiendo** | azul (info) |
+| Monitoreado | **Monitoreado** | verde (success) |
 
-### Paso 5 — Resumen y activación
+## 7 · Modal de configuración (Low/Family/High)
 
-- Título: **Casi listo · antes de activar**
-- Lista de lo que se activa en términos de cliente ("4 KPIs · 4 Fuentes · 6 tipos de aviso").
-- Disclaimer madurez ⚠: "Margen operativo no se incluye todavía. Su Fuente lleva 14 días recibiendo datos y el monitoreo necesita 30 días para evitar avisos falsos. Te lo recuerdo el 12 de junio."
-- Toggle "Empezar en modo prudente los primeros 7 días": "Te avisamos sin enviar a Slack o Email, mientras validamos que los avisos son precisos."
+Copy clave (ver `../handoff/05` y contenedores `07`-`12` para el detalle): loader "Simetrik está analizando tu fuente…", feedback "Cambiaste a configuración por día de la semana", chip IA "Autocompletado por el agente" / "Sugerencia: …". El switch de día cambia su label según estado (afirma la acción): "este día espero que lleguen archivos" / "este día no espero que lleguen archivos".
 
-## 5 · Incidentes — copy del detalle
+## 8 · Pendientes de copy
 
-### Cabecera
-
-```
-{Fuente o KPI afectado} {verbo en presente o pretérito reciente}
-```
-
-Ejemplos:
-- "Mov. BBVA no llegó hoy"
-- "Saldo neto día se alejó del rango habitual"
-- "Cartera SAP llegó con muy pocas filas"
-
-### Bloques
-
-**¿Qué pasó?** — explica el hecho concreto en 1-2 frases. Mencionar fecha/hora.
-> El archivo de Movimientos BBVA debía llegar a las 06:30 y no llegó. Es la primera vez en 30 días.
-
-**¿Qué KPIs afecta?** — lista de KPIs impactados con consecuencia esperada.
-> · Saldo neto día · puede atrasarse
-> · Conciliación bancaria · puede no completarse hoy
-
-**¿Qué hacer?** — micro-playbook de 1-3 acciones contextuales, no genéricas.
-> · Si sabés que el banco está caído, snoozeá 2h y reintentamos.
-> · Si esperás carga manual, marcalo como resuelto cuando suba el archivo.
-
-### Acciones (verbo + qué pasa)
-
-| Botón | Tooltip / descripción |
-|---|---|
-| **Snooze 2h** | "Volvemos a avisarte si sigue el problema en 2h" |
-| **Resolver** | "Marcalo como resuelto · queda en el historial" |
-| **Escalar** | "Notifica a la persona responsable del tablero" |
-
-## 6 · Overrides — copy clave
-
-**Header del modal/Sheet**:
-> {Nombre del KPI o Fuente} — ajustes propios
-
-**Subtítulo**:
-> Estos ajustes solo aplican a {nombre}. La configuración general del tablero sigue activa para el resto.
-
-**Sección "Configuración heredada"** (en gris, no editable):
-> Configuración general del tablero:
-> · Notifica a finanzas@empresa.com
-> · No notifica entre 22:00 y 07:00
-
-**Sección "Sobrescribir para este KPI"** (editable, marca visualmente que es override):
-> [☑] Notificar también a: cfo@empresa.com
-> [☑] Notificar siempre, incluso fuera de horario
->     "Tesorería necesita saberlo en cualquier momento"
-
-**Botón "Quitar overrides"**:
-> Vuelve a la configuración general del tablero.
-
-## 7 · Toasts y feedback
-
-| Acción | Toast |
-|---|---|
-| Activar monitoreo | ✓ Monitoreo activado · empezamos a aprender |
-| Activar en modo prudente | ✓ Monitoreo activado en modo prudente · 7 días |
-| Guardar override | ✓ Override guardado para {nombre} |
-| Quitar override | ✓ {nombre} vuelve a la configuración general |
-| Snooze incidente | ✓ Snoozeado · te avisamos a las {hora} si sigue |
-| Resolver incidente | ✓ Resuelto · queda en el historial |
-| Escalar incidente | ✓ Notificamos a {persona/canal} |
-
-## 8 · Empty states
-
-| Vista | Headline | Sub-headline | CTA |
-|---|---|---|---|
-| Sin monitoreo activo | **Empezá a vigilar tu tablero** | El agente IA puede proponerte una configuración inicial en menos de un minuto. | "Configurar con la IA" / "Configurar yo mismo" |
-| Sin KPIs vigilados | **No tenés KPIs vigilados todavía** | Activá los que querés que monitoreemos. | "Activar primer KPI" |
-| Sin Fuentes vigiladas (KPIs vigilados) | **Aún no se detectaron Fuentes** | Mientras llegan los primeros archivos, no podemos mostrar dependencias. | (sin CTA) |
-| Sin incidentes | **Sin incidentes · todo bajo control** | Cuando algo se salga de lo normal te lo mostramos acá. | "Ver historial" |
-| Sin historial | **Tu tablero todavía no ha tenido incidentes** | Tu tablero estaba bien todo el período seleccionado. | (sin CTA) |
-
-## 9 · Voz del agente IA
-
-**Tono**: colaborador, no autoritario. Habla en primera persona ("yo detecté", "te recomiendo") cuando hace acciones específicas. Plural editorial ("vigilamos", "te avisamos") cuando habla del sistema.
-
-**Cuándo aparece**:
-- En recomendaciones de configuración: "Te recomiendo monitorear estos 5 KPIs."
-- En explicaciones del lineage: "Detecté que esta Fuente alimenta 2 KPIs."
-- En disclaimers de madurez: "Esta Fuente todavía está aprendiendo · 14 días de los 30 necesarios."
-
-**Cuándo NO aparece**:
-- En errores del sistema (eso es el sistema, no la IA).
-- En confirmaciones de acciones del usuario ("Override guardado" no necesita IA voice).
-- Como mascota / personaje. **No hay nombre de bot, no hay avatar de IA.**
-
-**Banned phrases**:
-- "Powered by AI"
-- "Tu asistente inteligente"
-- "Magia"
-- "Inteligente" como adjetivo solo (todo es inteligente)
-- "Smart alerts" / "Smart rules"
-- Cualquier ✨ sparkle emoji
+- **Banner verde de "monitoreado"** (`tm-dash-secured`, "Ver monitoreo"): copy propuesto pero **no implementado** (ver `../handoff/01`). Si se implementa, alinear con el glosario.
+- **Empty states** sin copy definitivo (tablero sin fuentes, errores de carga, sin permisos): listados en los handoff `01`/`02`/`03`/`04` como pendientes.

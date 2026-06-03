@@ -1,149 +1,63 @@
-# Arquitectura de información — Config monitoreo "tablero-first"
+# 01 · Arquitectura de información
 
-> Reframe del prototipo `config-system-kpi/index 2.html`. Punto de partida: **el tablero/KPI**, no "recursos monitoreados".
+> Cómo se estructura la navegación del monitoreo de tableros y por qué. El concepto central: **monitoreo = modo de la entidad tablero**, no una sección hermana.
 
-## Mapa conceptual
+## Jerarquía de navegación
 
 ```
-Tablero (entidad raíz para el cliente)
-│
-├── [Vista analítica del tablero]                ← donde ya vive (gráficos)
-│   └── Banner de salud (persistente)            ← NUEVO: nace en el header
-│
-└── [Estado de monitoreo del tablero]            ← NUEVA landing dedicada
-    │
-    ├── Cadena de proceso (pipeline visual)      ← Ingesta → Calidad → Conciliación → KPIs
-    │
-    ├── KPIs monitoreados (1)
-    │   └── KPI individual
-    │       ├── Estado actual
-    │       ├── Dependencias que lo alimentan
-    │       └── Reglas y overrides propios
-    │
-    ├── Dependencias monitoreadas (2)
-    │   ├── Fuentes (archivos que entran)        ← antes: "Recursos"
-    │   ├── Calidad de los datos
-    │   └── Conciliación entre Fuentes
-    │
-    ├── Notificaciones y horarios (3)
-    │   ├── Canales (Slack, Email, Webhook)
-    │   ├── Horarios de silencio
-    │   └── Por quién recibe qué
-    │
-    ├── Overrides (4)                            ← excepciones a la regla general
-    │   ├── por KPI
-    │   └── por Fuente
-    │
-    └── Incidentes de este tablero               ← lista filtrada, NO global
+N1  Rail global (Op Center)            icon rail oscuro, persistente
+      └ Centro de Operaciones
+N2  Nav global (header superior)       Tableros · Incidentes · Pendientes · Almacenamiento
+      └ "Tableros" activo
+N3  Panel de tableros (268px, izq.)    lista de Tableros / Conjuntos de datos  → cambia de ENTIDAD
+N4  Entidad {Tablero}                  header estable + 2 MODOS:
+      ├─ Modo Tablero (default)        acciones (Editar/Descargar) + páginas (Anomalías 1/2/3) + grid de gráficos
+      └─ Modo Monitoreo                tabs por etapa + contenido de la etapa
+N5  Etapa del monitoreo (tabs)         Ingesta · Calidad(pronto) · Conciliación(pronto) · Métricas
+N6  Detalle / configuración            modal de config por fuente (Low/Family/High) · split master-detail por gráfico
 ```
 
-## Decisiones IA
+## La decisión clave: monitoreo es un modo, no una página
 
-### D1 · El tablero es la entidad raíz, no la cuenta
+El monitoreo **no es una entidad relacionada** del tablero (como sí lo son sus páginas o sus gráficos). Es **otra forma de ver la misma entidad** — una lente. Esto evita el anti-patrón que teníamos antes: presentarlo como una página separada con su propio breadcrumb (`Tableros / {tablero} / Monitoreo`), lo que hacía sentir al usuario que "se había ido a otro lado" y entraba en fricción con los tabs globales.
 
-**Cambio**: la vista de monitoreo se accede **desde dentro del tablero** (sub-navegación), no desde un módulo global "Configuración de anomalías".
+Implicaciones de modelarlo como modo:
 
-**Por qué**: el cliente piensa en su tablero (un objeto que ya conoce y opera). "Configuración de anomalías" es un módulo abstracto que no conecta con su mental model.
+- **El tab global "Tableros" se mantiene activo** en ambos modos (`currentView: 'dashboard' | 'tablero-monitoreo'`). No se pierde la ubicación de nivel N2.
+- **No hay breadcrumb intermedio.** La vuelta es un botón explícito ("Volver al tablero"), no un nivel de migas.
+- **El header de la entidad es estable** entre modos (`.entity-header`, altura igualada para que no salte el nombre del tablero al conmutar).
+- **Las acciones se ocultan por modo**: en Monitoreo no aplican "Editar tablero" / "Descargar" / "Compartir", así que desaparecen.
+- **Una señal de chrome** marca el modo: un glow azul (`.tm-mode-glow`) en el borde superior del contenido, debajo del header.
 
-**Implementación**: la nav lateral del tablero (`anomalies-nav-panel`) deja de llamarse "Anomalías" y pasa a ser **"Monitoreo del tablero"** con dos secciones:
+> Referencia de patrón: es el mismo modelo que el "Dev Mode" de Figma (misma entidad, otra lente, conmutador prominente, chrome teñido), no un toggle on/off ni un tab más. Ver `02` (benchmark resumido) y `_archive/` para el modelo descartado.
 
-| Sección | Items |
+## Single source of truth de navegación
+
+| Pregunta del usuario | Lo responde |
 |---|---|
-| Operación | Estado del monitoreo · Incidentes · Historial |
-| Configuración | KPIs · Dependencias · Notificaciones · Overrides |
+| ¿A dónde puedo ir? | Nav global (N2) + panel de tableros (N3) |
+| ¿Dónde estoy? | El tab "Tableros" activo + el nombre del tablero en el header + el botón de modo |
+| ¿En qué modo estoy? | El botón ("Monitoreo" vs "Volver al tablero") + el glow azul |
+| ¿Qué etapa estoy viendo? | Los tabs (N5) |
 
-### D2 · Pipeline visual como columna vertebral
+## Cambio de entidad vs cambio de modo
 
-**Decisión**: la "cadena de proceso" deja de ser texto explicativo y se convierte en **componente visual persistente** en 3 lugares:
+Son dos ejes ortogonales:
 
-1. **Banner del tablero** (mini, horizontal, 4 chips colored) → siempre visible en la vista analítica.
-2. **Landing de monitoreo** (full, con counts y estados) → protagonista.
-3. **Detalle de KPI** (sub-pipeline propio del KPI) → solo las stages que lo alimentan, con badges de problema.
+- **Cambiar de tablero** (panel izquierdo, N3) **resetea el modo a Tablero** (`currentView = 'dashboard'`). Cada tablero abre en su lente default. Decisión: lo más predecible es que entrar a una entidad nueva no herede el modo de la anterior.
+- **Cambiar de modo** (botón) mantiene la entidad.
 
-**Por qué**: materializa el principio "monitoreo como historia de proceso" del brief. El cliente ve dónde nace el problema y a qué KPI llega.
+## Etapas del monitoreo (N5)
 
-### D3 · "Recursos monitoreados" muere como concepto top-level
+El monitoreo cubre el proceso que alimenta el tablero, en orden:
 
-**Cambio**:
-- "Recursos monitoreados" (label actual, abstracto) → desaparece del header.
-- En su lugar viven 3 conceptos concretos en **Dependencias**:
-  - **Fuentes** (archivos que entran al sistema — antes "recursos")
-  - **Calidad** (validación de los archivos)
-  - **Conciliación** (cruce entre Fuentes)
+1. **Ingesta de datos** — las fuentes que alimentan el tablero (disponible).
+2. **Calidad de datos** — *Pronto*.
+3. **Salud de conciliaciones** — *Pronto*.
+4. **Métricas de gráficos** — las series de cada gráfico (disponible).
 
-**Por qué**: el brief dice literalmente "recursos monitoreados se siente demasiado abstracto". La cadena de proceso tiene 3 etapas técnicas; nombrarlas explícitamente es más claro que esconderlas en una palabra paraguas.
+Default al entrar: **Métricas** (`tmTab = 'metricas'`). Las etapas "Pronto" se muestran con un badge gris y un placeholder.
 
-**Glosario obligatorio**: "Recursos" → **Fuentes** (alineado con desyk-design-laws Simetrik).
+## Glosario aplicado (resumen)
 
-### D4 · Separación dura: ver vs configurar
-
-**Cambio**: dos affordances de entrada distintos en el banner de salud del tablero:
-
-- **"Ver incidentes de este tablero"** → lleva a la lista filtrada.
-- **"Configurar monitoreo"** → lleva a la landing.
-
-**Por qué**: el brief separa explícitamente "crear gráficos" de "activar/configurar monitoreo". No deben mezclarse en un mismo CTA ni en una misma pantalla.
-
-### D5 · Configuración a nivel tablero, overrides por excepción
-
-**Patrón**: una sola regla general aplica a todo el tablero. Cualquier ajuste fino vive en la sección **Overrides** y no contamina el flujo general.
-
-**Por qué**: el brief lo pide explícitamente ("aplicar a todo el tablero" + "overrides por caso específico"). Resuelve el "no quiero entrar gráfico por gráfico".
-
-### D6 · La IA recomienda, el humano confirma
-
-**Rol del agente**: al activar un KPI, el agente IA pre-llena:
-- Qué dependencias vigilar (las que alimentan ese KPI, deducido del lineage).
-- Qué tipos de problema activar (deducidos del tipo de Fuente).
-- Qué umbrales son sensatos (basados en histórico del dataset).
-
-**El humano nunca llena desde cero**. Solo confirma o ajusta. Esto es el patrón agentizado Simetrik.
-
-### D7 · Disclaimer de madurez en setup
-
-Si el dataset que alimenta un KPI tiene menos de 30 días de historial, la UI muestra un **callout amarillo** antes de activar:
-
-> "Esta Fuente todavía está aprendiendo. Activar monitoreo ahora puede generar avisos falsos. Recomendado: esperar 14 días más o usar solo alertas de archivo faltante."
-
-Con dos opciones: "Activar de todas formas" o "Activar solo alertas básicas".
-
-## Navegación final del tablero
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Op Center  ›  Tableros  ›  Tablero pruebas anomalías    │
-├─────────────────────────────────────────────────────────┤
-│  [Banner de salud — persistente]                        │
-│  ◐ 2 KPIs en riesgo · Falta Fuente BBVA                 │
-│  ✓Ingesta ⚠Calidad ✓Conciliación ◐KPIs                 │
-│  [Ver incidentes (1)]  [Configurar monitoreo]           │
-├─────────────────────────────────────────────────────────┤
-│  Tabs: │ Vista analítica │ Monitoreo │                  │
-└─────────────────────────────────────────────────────────┘
-```
-
-Cuando el usuario hace clic en "Monitoreo" o en "Configurar monitoreo", entra a la landing con sidebar:
-
-```
-Operación
-  · Estado del monitoreo  ← landing (default)
-  · Incidentes (1)
-  · Historial
-
-Configuración
-  · KPIs monitoreados
-  · Dependencias
-    · Fuentes
-    · Calidad
-    · Conciliación
-  · Notificaciones
-  · Overrides
-```
-
-## Lo que NO cambia (compatibilidad)
-
-- Estructura del shell Op Center (sidebar dark 48px + header con tabs principales).
-- Lista de tableros del panel izquierdo (`width:268px`).
-- Componentes desyk usados (Button, Tabs, Sheet, Popover).
-- Tokens HSL (`--primary`, `--success`, `--warning`, etc).
-- AI gradient (--ai-purple → --ai-blue) cuando el agente IA aparece.
+Fuente / Dataset, Monitoreo, Anomalía, Incidente, Tablero. Definiciones completas y reglas de uso en `../handoff/00-CONTEXT.md` y `04-copy-recomendaciones.md`.

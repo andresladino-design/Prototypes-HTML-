@@ -160,6 +160,64 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
+    /* Header de entidad: altura igualada entre Tablero y Monitoreo (evita saltos)
+       + cue de chrome (borde inferior tintado) cuando estás en monitoreo. */
+    .entity-header {
+      min-height: 65px;
+      transition: border-color 0.18s ease-out;
+    }
+
+    /* Glow de modo monitoreo: sombra interna azul SOLO en el borde superior del área
+       de contenido (réplica del dashboard-edit-mode-glow del producto, pero top-only).
+       Overlay fijo (no scrollea), no captura clicks. Empieza tras el panel de tableros. */
+    .tm-mode-glow {
+      position: absolute;
+      top: 65px;          /* debajo del header de la entidad (entity-header min-height) */
+      left: 268px;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 20;
+      box-shadow: inset 0 9px 18px -8px hsl(var(--info) / 0.75);
+    }
+
+    /* Subheader persistente del monitoreo: vive arriba de los tabs y sostiene la
+       narrativa (qué es esta área y sus etapas). Reemplaza al chip; aguanta el
+       contexto aunque se cierre el banner de conceptos. */
+    .tm-subheader {
+      padding: 18px 32px 12px;
+      background: white;
+    }
+
+    .tm-subheader-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: hsl(var(--primary));
+      margin-bottom: 4px;
+    }
+
+    .tm-subheader-eyebrow svg { flex-shrink: 0; }
+
+    .tm-subheader-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      letter-spacing: -0.01em;
+    }
+
+    .tm-subheader-desc {
+      margin-top: 3px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: hsl(var(--muted-foreground));
+      max-width: 72ch;
+    }
+
     .dashboard-item {
       display: flex;
       align-items: center;
@@ -1398,6 +1456,36 @@
       color: hsl(var(--muted-foreground));
     }
     .ds-indicator-grid { margin: 0; }
+    /* Checkbox por límite (min/max): el usuario elige monitorear cada bound de forma
+       independiente. Al desmarcar, el input queda deshabilitado y atenuado (conserva su valor).
+       El <label> NO se envuelve ni se modifica: sigue siendo hijo directo del config-field,
+       idéntico al original. El layout (checkbox + label arriba, input abajo) se resuelve con
+       grid sobre el propio config-field, sin tocar el markup del label. */
+    .config-field.ds-bound-field {
+      display: grid; grid-template-columns: auto 1fr;
+      grid-auto-rows: min-content; align-content: start; align-items: center;
+      column-gap: 6px; row-gap: 8px;
+    }
+    /* Estilo del label fijado explícitamente para que Resumen y días se vean IDÉNTICOS,
+       sin depender del contexto (.ds-card vs base). Mayor especificidad que ambas reglas. */
+    .config-field.ds-bound-field > .config-label {
+      justify-self: start !important;
+      margin: 0 !important; display: flex !important; align-items: center !important;
+      height: 16px !important; line-height: 1 !important;
+      font-family: inherit !important;
+      font-size: 14px !important; font-weight: 500 !important;
+      color: hsl(var(--foreground)) !important;
+      letter-spacing: normal !important;
+    }
+    .config-field.ds-bound-field > .ds-input-with-suffix,
+    .config-field.ds-bound-field > .ds-ai-chip { grid-column: 1 / -1; }
+    .ds-bound-checkbox {
+      width: 14px; height: 14px; margin: 0; flex: none;
+      accent-color: hsl(var(--primary)); cursor: pointer;
+    }
+    .ds-bound-checkbox:disabled { cursor: default; opacity: 0.6; }
+    /* Solo se atenúa el input; la sugerencia (ds-ai-chip) sigue visible al deseleccionar. */
+    .config-field.is-bound-off .ds-input-with-suffix { opacity: 0.45; pointer-events: none; }
     .ds-indicator-off-hint {
       margin: 0; font-size: 12px; line-height: 16px;
       color: hsl(var(--muted-foreground)); font-style: italic;
@@ -15077,6 +15165,9 @@
     .tm-tab-header-sub { font-size: 12.5px; color: #5B5775; line-height: 1.5; margin-top: 4px; max-width: 540px; }
     .tm-tab-header-search { max-width: 280px; width: 100%; flex-shrink: 0; }
     .tm-tab-header-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    /* Acciones de la etapa activa, ancladas al extremo derecho de la fila de tabs. */
+    .tm-tabs-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .tm-tabs-actions .tm-tab-header-search { max-width: 260px; }
 
     .tm-cards-section-title {
       font-size: 13px; font-weight: 600; color: #1F1B2E;
@@ -15726,8 +15817,8 @@
         // muestra "Sugerencia: X" y puede revertir clickeándolo.
         daySetupMakeSimple() {
           return {
-            fileCount: { active: true, min: 10, max: 13, _sMin: 10, _sMax: 13 },
-            rowCount: { active: true, min: 1000, max: 1200, _sMin: 1000, _sMax: 1200 },
+            fileCount: { active: true, min: 10, max: 13, minOn: true, maxOn: true, _sMin: 10, _sMax: 13 },
+            rowCount: { active: true, min: 1000, max: 1200, minOn: true, maxOn: true, _sMin: 1000, _sMax: 1200 },
             // Hallazgos (vacíos / duplicados / fallidos): mismo patrón que fileCount/rowCount.
             // toggle active → revela un solo input (umbral máximo en %). _sMax = sugerencia IA
             // (= tasa histórica detectada). Off por default: si no se activa, no se monitorea.
@@ -15809,7 +15900,14 @@
             return {
               active: cfgs.some(c => c[key] && c[key].active),
               min: Math.min(...withVals.map(c => c[key].min)),
-              max: Math.max(...withVals.map(c => c[key].max))
+              max: Math.max(...withVals.map(c => c[key].max)),
+              // minOn/maxOn agregados: el bound se considera monitoreado si algún día lo tiene activo.
+              minOn: cfgs.some(c => c[key] && c[key].minOn !== false),
+              maxOn: cfgs.some(c => c[key] && c[key].maxOn !== false),
+              // Sugerencia agregada (envelope): mínima _sMin y máxima _sMax entre los días.
+              // Alimenta el badge "Valor sugerido" del Resumen, igual que en días/grupos.
+              _sMin: Math.min(...withVals.map(c => c[key]._sMin != null ? c[key]._sMin : c[key].min)),
+              _sMax: Math.max(...withVals.map(c => c[key]._sMax != null ? c[key]._sMax : c[key].max))
             };
           };
           out.fileCount = range('fileCount');
@@ -15844,6 +15942,26 @@
           const targets = this.dsOverallTargets();
           const anyOn = targets.some(c => c[key] && c[key].active);
           targets.forEach(c => { if (c[key]) c[key].active = !anyOn; });
+        },
+        // Por-bound (Resumen): activa/desactiva el monitoreo de un límite (min|max) de una
+        // métrica de rango en todos los destinos del agregado. Permite monitorear solo mínimo,
+        // solo máximo, o ambos.
+        dsOverallToggleBound(metric, bound) {
+          const targets = this.dsOverallTargets();
+          const k = bound + 'On';
+          const anyOn = targets.some(c => c[metric] && c[metric][k] !== false);
+          targets.forEach(c => { if (c[metric]) c[metric][k] = !anyOn; });
+        },
+        // Normaliza una config "simple" o de grupo: garantiza que fileCount/rowCount tengan
+        // los flags minOn/maxOn (default true) para configs sembradas sin ellos.
+        dsEnsureBounds(cfg) {
+          if (!cfg) return;
+          ['fileCount', 'rowCount'].forEach(k => {
+            if (cfg[k] && typeof cfg[k] === 'object') {
+              if (cfg[k].minOn === undefined) cfg[k].minOn = true;
+              if (cfg[k].maxOn === undefined) cfg[k].maxOn = true;
+            }
+          });
         },
         // Transición Low → Family con retroalimentación.
         //   reason: 'dropdown' | 'edit' | 'toggle' | 'lock'
@@ -15953,11 +16071,6 @@
           if (key === 'mie') return 'unexpected';
           return 'normal';
         },
-        // True solo cuando el día no tiene nada que analizar (sin actividad). La llegada
-        // inesperada SÍ muestra la narrativa completa (su propio análisis del evento).
-        aiRdySpecial() {
-          return this.aiRdyDayStatus(this.aiRdyDay) === 'silent';
-        },
         aiRdyDayLabel() {
           const d = this.aiRdyDays.find(x => x.key === this.aiRdyDay);
           return d ? d.label : '';
@@ -15977,16 +16090,32 @@
         // Alimenta TODAS las secciones: Resumen, Límites, Tendencia, Distribución, Perfil.
         // Cada serie trae sus valores; la ventana tiene 2 series, el resto 1.
         aiRdyData() {
-          // Día con llegada inesperada: narrativa completa del evento (no hay línea base).
-          if (this.aiRdyDayStatus(this.aiRdyDay) === 'unexpected') {
-            const dia = this.aiRdyDayLabel().toLowerCase();
+          const status = this.aiRdyDayStatus(this.aiRdyDay);
+          const dia = this.aiRdyDayLabel().toLowerCase();
+          const metrica = this.aiRdyMetricCurrent();
+          // Día sin actividad: todos los contenedores indican que no se reportó nada ese día.
+          if (status === 'silent') {
             return {
-              seasonality: 'El resto de los ' + dia + ' del período no registró actividad, como se esperaba según la configuración.',
+              seasonality: 'No aplica: los ' + dia + ' esta fuente no recibe archivos.',
               series: [{
-                pill: 'Cantidad de archivos', cls: 'is-a',
-                text: 'El <strong>' + dia + ' 22 de abril</strong> llegaron <strong>3 archivos</strong> a una fuente configurada para <em>no recibir nada</em> ese día. Como contradice lo configurado, el evento se registró como <strong>anomalía</strong>. No existe una línea base para los ' + dia + ', así que cualquier llegada se considera inesperada hasta que ajustes la configuración.',
+                pill: metrica, cls: 'is-a',
+                text: 'El <strong>' + dia + '</strong> esta fuente está configurada para no recibir archivos y, en el período evaluado, no llegó ninguno. No hay datos de <strong>' + metrica + '</strong> para analizar este día.',
+                limits: { min: '—', max: '—', ci: 'No se reportó nada este día' },
+                trend: { outliers: 'No se reportó actividad este ' + dia + '.', gaps: 'No se esperan archivos este día: no hay nada que reportar.' },
+                dist: { p25: '—', p50: '—', p75: '—', p95: '—' },
+                profile: { mean: '—', std: '—', cv: '—', median: '—' }
+              }]
+            };
+          }
+          // Día con llegada inesperada: narrativa del evento para la métrica elegida.
+          if (status === 'unexpected') {
+            return {
+              seasonality: 'El resto de los ' + dia + ' del período no registró actividad, como se esperaba.',
+              series: [{
+                pill: metrica, cls: 'is-a',
+                text: 'El <strong>' + dia + ' 22 de abril</strong> llegaron <strong>3 archivos</strong> a una fuente configurada para <em>no recibir nada</em> ese día. Para <strong>' + metrica + '</strong>, el evento se registró como <strong>anomalía</strong> porque contradice lo configurado. No hay línea base para los ' + dia + ', así que cualquier llegada se considera inesperada.',
                 limits: { min: '—', max: '—', ci: 'Sin línea base: día sin recepción esperada' },
-                trend: { outliers: 'Llegada aislada de <strong>3 archivos</strong> el <strong>22 de abril</strong>, único evento registrado en ' + dia + '.', gaps: 'El resto de los ' + dia + ' no registró actividad, como se esperaba.' },
+                trend: { outliers: 'Llegada aislada de <strong>3 archivos</strong> el <strong>22 de abril</strong>, único evento registrado en ' + dia + '.', gaps: 'El resto de los ' + dia + ' no registró actividad.' },
                 dist: { p25: '—', p50: '—', p75: '—', p95: '—' },
                 profile: { mean: '—', std: '—', cv: '—', median: '—' }
               }]
@@ -16212,6 +16341,8 @@
           // Cada indicador puede encenderse/apagarse por grupo. Default: activo.
           if (g.fileCount && g.fileCount.active === undefined) g.fileCount.active = true;
           if (g.rowCount && g.rowCount.active === undefined) g.rowCount.active = true;
+          // Flags por límite (min/max): default activo si la config no los trae.
+          this.dsEnsureBounds(g);
           // Suggestion tracking: si vienen de seed sin _sMin/_sMax, los rellenamos.
           if (g.fileCount && g.fileCount._sMin === undefined) g.fileCount._sMin = g.fileCount.min;
           if (g.fileCount && g.fileCount._sMax === undefined) g.fileCount._sMax = g.fileCount.max;
@@ -16297,6 +16428,12 @@
           if (this.daySetup.window && !this.daySetup.window.timezone) this.daySetup.window.timezone = 'CO';
           this.daySetup.monitorMode = r.dayConfigMonitorMode || 'igual';
           this.daySetup.useGroupsAll = !!r.dayConfigUseGroupsAll;
+          // Garantiza flags minOn/maxOn en configs guardadas sin ellos (shared + días + grupos).
+          this.dsEnsureBounds(this.daySetup.shared);
+          this.daySetup.days.forEach(d => {
+            if (d.simple) this.dsEnsureBounds(d.simple);
+            (d.groups || []).forEach(g => this.dsEnsureBounds(g));
+          });
           this.daySetupReadonly = true;
           this.daySetup.loading = false;
           this.daySetup.changeFeedback = null;
@@ -19124,8 +19261,8 @@
         </div>
 
         <nav class="nav-tabs-container" aria-label="Vistas principales">
-          <button type="button" class="nav-tab" :class="currentView === 'dashboard' && 'active'"
-            :aria-current="currentView === 'dashboard' ? 'page' : false" @click="currentView = 'dashboard'">
+          <button type="button" class="nav-tab" :class="(currentView === 'dashboard' || currentView === 'tablero-monitoreo') && 'active'"
+            :aria-current="(currentView === 'dashboard' || currentView === 'tablero-monitoreo') ? 'page' : false" @click="currentView = 'dashboard'">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7" />
@@ -19170,8 +19307,15 @@
       <!-- Body: Left list + Main content.
            El sidebar de Tableros es persistente: se comparte entre la vista dashboard
            y la vista de monitoreo (tablero-monitoreo). El contenido a la derecha cambia. -->
-      <div class="flex flex-1 overflow-hidden"
+      <div class="relative flex flex-1 overflow-hidden"
         x-show="currentView === 'dashboard' || currentView === 'tablero-monitoreo'">
+
+        <!-- Glow azul de modo monitoreo (sombra interna superior). Fade de 500ms al entrar. -->
+        <div aria-hidden="true" class="tm-mode-glow" x-show="currentView === 'tablero-monitoreo'" x-cloak
+          x-transition:enter="transition ease-out duration-500"
+          x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+          x-transition:leave="transition ease-in duration-200"
+          x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
 
         <!-- Panel izquierdo de tableros -->
         <aside class="flex flex-col flex-shrink-0 border-r bg-white" style="width:268px; border-color:hsl(var(--border));">
@@ -19216,7 +19360,7 @@
 
             <div class="px-2 space-y-0.5">
               <div class="dashboard-item" :class="tableroName === 'Tablero de pruebas anomalías' && 'active'"
-                @click="tableroName = 'Tablero de pruebas anomalías'; dashboardRecentlyModified = true; dashBannerDismissed = false">
+                @click="tableroName = 'Tablero de pruebas anomalías'; dashboardRecentlyModified = true; dashBannerDismissed = false; currentView = 'dashboard'">
                 <span class="grip">⋮⋮</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19241,7 +19385,7 @@
                 </svg>
               </div>
               <div class="dashboard-item" :class="tableroName === 'Test anomalias y pendientes' && 'active'"
-                @click="tableroName = 'Test anomalias y pendientes'; dashboardRecentlyModified = false; dashBannerDismissed = false">
+                @click="tableroName = 'Test anomalias y pendientes'; dashboardRecentlyModified = false; dashBannerDismissed = false; currentView = 'dashboard'">
                 <span class="grip">⋮⋮</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19266,7 +19410,7 @@
                 </svg>
               </div>
               <div class="dashboard-item" :class="tableroName === 'T' && 'active'"
-                @click="tableroName = 'T'">
+                @click="tableroName = 'T'; currentView = 'dashboard'">
                 <span class="grip">⋮⋮</span>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--muted-foreground))" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19470,7 +19614,7 @@
         <main class="flex-1 overflow-y-auto" style="background:hsl(var(--muted) / 0.5);" x-show="currentView === 'dashboard'">
 
           <!-- Dashboard header -->
-          <div class="px-6 pt-5 pb-3 flex items-center justify-between bg-white border-b" style="border-color:hsl(var(--border));">
+          <div class="entity-header px-6 pt-5 pb-3 flex items-center justify-between bg-white border-b" style="border-color:hsl(var(--border));">
             <div class="flex items-center gap-3">
               <h1 class="font-semibold" style="font-size:17px; color:hsl(var(--foreground));" x-text="tableroName">Tablero de pruebas anomalías</h1>
               <button class="icon-btn" style="width:26px; height:26px;">
@@ -19505,19 +19649,6 @@
                   <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
                 </svg>
               </button>
-              <!-- Paso 2: botón Monitoreo + pill de estado. Convive con "Editar tablero" porque son funcionalidades distintas. -->
-              <button class="secondary-btn" @click="currentView = 'tablero-monitoreo'; tmTab = 'metricas'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                <span x-text="monitoringActive ? 'Monitoreando' : 'Monitoreo'">Monitoreo</span>
-                <span class="tm-card-badge" :class="monitoringActive && 'is-monitored'" style="margin-left: 4px;">
-                  <span class="tm-card-badge-dot"></span>
-                  <span x-text="monitoringActive ? 'Monitoreando' : 'Sin configurar'">Sin configurar</span>
-                </span>
-              </button>
               <button class="primary-btn">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -19525,6 +19656,21 @@
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                 </svg>
                 Editar tablero
+              </button>
+
+              <!-- Botón de modo: ÚLTIMO (anclado al borde derecho) para que al entrar a
+                   monitoreo las demás acciones desaparezcan a su izquierda y este botón
+                   se quede en su lugar, solo cambiando a "Volver al tablero". -->
+              <button class="secondary-btn" @click="currentView = 'tablero-monitoreo'; tmTab = tmTab || 'metricas'">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                </svg>
+                Monitoreo
+                <span class="tm-card-badge" :class="monitoringActive && 'is-monitored'" style="margin-left:4px;">
+                  <span class="tm-card-badge-dot"></span>
+                  <span x-text="monitoringActive ? 'Monitoreando' : 'Sin configurar'">Sin configurar</span>
+                </span>
               </button>
             </div>
           </div>
@@ -19820,51 +19966,24 @@
            ============================================================ -->
         <div class="tm-body" x-show="currentView === 'tablero-monitoreo'" x-cloak>
 
-        <!-- Breadcrumb -->
-        <div class="tm-breadcrumb">
-          <button class="tm-breadcrumb-link" @click="currentView = 'dashboard'">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        <!-- Header de la entidad (estable entre modos). Mismo patrón que el header
+             del dashboard: el nombre del tablero NO se mueve al cambiar de modo, para
+             que el usuario sienta que sigue en el mismo lugar. Las acciones de tablero
+             (Editar, Descargar, Compartir) se ocultan: no aplican en modo monitoreo. -->
+        <div class="entity-header is-monitor px-6 pt-5 pb-3 flex items-center justify-between bg-white border-b" style="border-color:hsl(var(--border));">
+          <div class="flex items-center gap-3">
+            <h1 class="font-semibold" style="font-size:17px; color:hsl(var(--foreground));" x-text="tableroName">Tablero de pruebas anomalías</h1>
+          </div>
+
+          <!-- Botón de modo en estado "monitoreo": misma posición que el botón Monitoreo
+               del dashboard (borde derecho), ahora transformado en la salida. -->
+          <button class="secondary-btn" @click="currentView = 'dashboard'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>
-            Tableros
+            Volver al tablero
           </button>
-          <span class="tm-breadcrumb-sep">/</span>
-          <span x-text="tableroName">Tablero de pruebas anomalías</span>
-          <span class="tm-breadcrumb-sep">/</span>
-          <span class="tm-breadcrumb-current">Monitoreo</span>
-        </div>
-
-        <!-- Header de la vista. El nombre del tablero ya vive en el breadcrumb. -->
-        <div class="tm-page-header">
-          <h1 class="tm-page-title" style="margin-bottom: 0;">Monitoreo · <span x-text="tableroName">Tablero de pruebas anomalías</span></h1>
-        </div>
-
-        <!-- Tabs del proceso de monitoreo. Cada tab es una etapa del monitoreo de una ingesta:
-             ingesta (recursos) · calidad · conciliación (próximamente) · métricas (gráficos). -->
-        <div class="tm-tabs-bar">
-          <div class="tm-tabs" role="tablist">
-            <button class="tm-tab" :class="tmTab === 'ingesta' && 'is-active'" @click="tmTab = 'ingesta'; loadIngesta()" role="tab">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-              </svg>
-              Ingesta de datos
-            </button>
-            <button class="tm-tab" :class="tmTab === 'calidad' && 'is-active'" @click="tmTab = 'calidad'" role="tab">
-              Calidad de datos
-              <span class="tm-tab-soon">Pronto</span>
-            </button>
-            <button class="tm-tab" :class="tmTab === 'conciliacion' && 'is-active'" @click="tmTab = 'conciliacion'" role="tab">
-              Salud de conciliaciones
-              <span class="tm-tab-soon">Pronto</span>
-            </button>
-            <button class="tm-tab" :class="tmTab === 'metricas' && 'is-active'" @click="tmTab = 'metricas'" role="tab">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-              </svg>
-              Métricas de gráficos
-            </button>
-          </div>
         </div>
 
         <!-- Banner educativo "Conceptos clave" (onboarding superior, cerrable con X).
@@ -19973,6 +20092,63 @@
           </div>
         </div>
 
+        <!-- Subheader persistente del monitoreo: sostiene la narrativa arriba de las
+             etapas (tabs). Queda visible aunque se cierre el banner de conceptos. -->
+        <!-- Tabs del proceso de monitoreo. Cada tab = una etapa: ingesta · calidad ·
+             conciliación (pronto) · métricas. Al extremo derecho: buscador + acción
+             de la etapa activa. -->
+        <div class="tm-tabs-bar">
+          <div class="tm-tabs" role="tablist">
+            <button class="tm-tab" :class="tmTab === 'ingesta' && 'is-active'" @click="tmTab = 'ingesta'; loadIngesta()" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" /><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+              </svg>
+              Ingesta de datos
+            </button>
+            <button class="tm-tab" :class="tmTab === 'calidad' && 'is-active'" @click="tmTab = 'calidad'" role="tab">
+              Calidad de datos
+              <span class="tm-tab-soon">Pronto</span>
+            </button>
+            <button class="tm-tab" :class="tmTab === 'conciliacion' && 'is-active'" @click="tmTab = 'conciliacion'" role="tab">
+              Salud de conciliaciones
+              <span class="tm-tab-soon">Pronto</span>
+            </button>
+            <button class="tm-tab" :class="tmTab === 'metricas' && 'is-active'" @click="tmTab = 'metricas'" role="tab">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+              Métricas de gráficos
+            </button>
+          </div>
+
+          <!-- Acciones de la etapa activa, ancladas al extremo derecho de la fila de tabs. -->
+          <div class="tm-tabs-actions" x-show="tmTab === 'ingesta' || tmTab === 'metricas'" x-cloak>
+            <!-- Ingesta: buscar fuente + activación bulk -->
+            <div class="tm-search tm-tab-header-search" x-show="tmTab === 'ingesta'" x-cloak>
+              <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" class="tm-search-input" x-model="resourceSearch" placeholder="Buscar fuente…">
+            </div>
+            <button class="bulk-list-section-action" type="button"
+              x-show="tmTab === 'ingesta' && resources.filter(r => r.status === 'empty').length > 0" x-cloak
+              @click="openBulkActivate()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" />
+              </svg>
+              <span x-show="resources.filter(r => r.status === 'empty').length === 1">Activar 1 a la vez</span>
+              <span x-show="resources.filter(r => r.status === 'empty').length > 1">Activar las <span x-text="resources.filter(r => r.status === 'empty').length"></span> a la vez</span>
+            </button>
+            <!-- Métricas: buscar gráfico -->
+            <div class="tm-search tm-tab-header-search" x-show="tmTab === 'metricas'" x-cloak>
+              <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" class="tm-search-input" x-model="tmSearch" placeholder="Buscar gráfico…">
+            </div>
+          </div>
+        </div>
+
         <!-- Sección Gráficos -->
         <!-- Vista de monitoreo: grid de cards de gráficos + split master-detail.
              Cada card refleja un gráfico del tablero (mini-preview) + "depende de N recursos".
@@ -19985,13 +20161,6 @@
               <div class="tm-tab-header-text">
                 <h2 class="tm-tab-header-title">Métricas de gráficos</h2>
                 <p class="tm-tab-header-sub">Activa el monitoreo de cada gráfico para que Simetrik te avise cuando el resultado se sale de los límites que definiste.</p>
-              </div>
-              <div class="tm-search tm-tab-header-search">
-                <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input type="text" class="tm-search-input" x-model="tmSearch" placeholder="Buscar gráfico…">
               </div>
             </div>
 
@@ -20275,29 +20444,6 @@
                 <div class="tm-tab-header-text">
                   <h2 class="tm-tab-header-title">Ingesta de datos</h2>
                   <p class="tm-tab-header-sub">Monitorea las fuentes que alimentan tu tablero para detectar a tiempo datos que llegan tarde, incompletos o con un volumen fuera de lo esperado.</p>
-                </div>
-                <div class="tm-tab-header-actions">
-                  <div class="tm-search tm-tab-header-search">
-                    <svg class="tm-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="11" cy="11" r="8" />
-                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <input type="text" class="tm-search-input" x-model="resourceSearch" placeholder="Buscar fuente…">
-                  </div>
-                  <!-- Activación bulk: aparece solo cuando hay fuentes sin configurar. -->
-                  <button class="bulk-list-section-action" type="button"
-                    x-show="resources.filter(r => r.status === 'empty').length > 0" x-cloak
-                    @click="openBulkActivate()">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                      <polygon points="12 2 2 7 12 12 22 7 12 2" />
-                      <polyline points="2 17 12 22 22 17" />
-                      <polyline points="2 12 12 17 22 12" />
-                    </svg>
-                    <span x-show="resources.filter(r => r.status === 'empty').length === 1">Activar 1 a la vez</span>
-                    <span x-show="resources.filter(r => r.status === 'empty').length > 1">Activar las <span
-                        x-text="resources.filter(r => r.status === 'empty').length"></span> a la vez</span>
-                  </button>
                 </div>
               </div>
 
@@ -21935,7 +22081,7 @@
                 </div>
                 <!-- Selector de métrica: opciones = las métricas que el usuario configuró.
                      Se oculta en días especiales (sin actividad / llegada inesperada). -->
-                <div class="ai-rdy-select-wrap" x-data="{ open: false }" @click.outside="open = false" x-show="!aiRdySpecial()" x-cloak>
+                <div class="ai-rdy-select-wrap" x-data="{ open: false }" @click.outside="open = false">
                   <button type="button" class="ai-rdy-select" @click="open = !open" :aria-expanded="open">
                     <span x-text="aiRdyMetricCurrent()"></span>
                     <svg class="ai-rdy-select-chev" :class="open && 'is-open'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -21970,21 +22116,8 @@
                 </div>
               </div>
 
-              <!-- Día sin actividad (configurado sin archivos, no llegó nada). -->
-              <div class="ds-noexpect-card" x-show="aiRdySpecial() && aiRdyDayStatus(aiRdyDay) === 'silent'" x-cloak>
-                <span class="ds-noexpect-icon" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M8 2v4M16 2v4M3 10h18" /><rect x="3" y="4" width="18" height="18" rx="2" /><path d="m9 16 6-6" />
-                  </svg>
-                </span>
-                <div>
-                  <div class="ds-noexpect-title">Sin actividad este día</div>
-                  <div class="ds-noexpect-sub">Configuraste esta fuente para no recibir archivos los <span x-text="aiRdyDayLabel()"></span>, y durante el período evaluado no llegó ninguno. No hay comportamiento que analizar este día.</div>
-                </div>
-              </div>
-
-              <!-- Análisis por métrica (Resumen, días normales) y narrativa del evento (día inesperado). -->
-              <div x-show="!aiRdySpecial()" x-cloak>
+              <!-- Cruce día × métrica: el contenido de las secciones es la narrativa de (día, métrica). -->
+              <div>
 
               <!-- 1 · Resumen -->
               <div class="ai-rdy-section" :class="open && 'is-open'" x-data="{ open: true }">
@@ -22312,49 +22445,6 @@
                       <div class="ds-locked-region" :class="thinking && 'is-locked'" :inert="thinking"
                         x-show="selectedConfigSource && !daySetupReadonly">
 
-                      <!-- Cómo se monitorea · radio cards (figma 51:5475). Reemplaza el selector dropdown:
-                           dos opciones excluyentes que el usuario selecciona directamente. -->
-                      <section class="ds-card">
-                        <div class="ds-card-head">
-                          <div class="ds-card-title">
-                            <span>Cómo se monitorea</span>
-                            <span class="ds-help" tabindex="0"
-                              data-tip="Elige si aplicas una sola configuración para todos los días o defines un comportamiento distinto por día de la semana.">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                <line x1="12" y1="17" x2="12.01" y2="17" />
-                              </svg>
-                            </span>
-                          </div>
-                          <div class="ds-card-sub">Aplica una sola configuración o define un comportamiento distinto por
-                            día de la semana.</div>
-                        </div>
-                        <div class="ds-radio-row">
-                          <button type="button" class="ds-radio-item"
-                            :class="daySetup.monitorMode === 'igual' && 'is-selected'"
-                            :disabled="daySetupReadonly"
-                            @click="daySetup.monitorMode = 'igual'">
-                            <span class="ds-radio-dot" aria-hidden="true"></span>
-                            <span class="ds-radio-text">
-                              <span class="ds-radio-label">Igual todos los días</span>
-                              <span class="ds-radio-sub">Aplica una configuración</span>
-                            </span>
-                          </button>
-                          <button type="button" class="ds-radio-item"
-                            :class="daySetup.monitorMode === 'por-dia' && 'is-selected'"
-                            :disabled="daySetupReadonly"
-                            @click="if(daySetup.monitorMode !== 'por-dia'){ daySetup.monitorMode = 'por-dia'; dsPromoteToFamily('dropdown'); }">
-                            <span class="ds-radio-dot" aria-hidden="true"></span>
-                            <span class="ds-radio-text">
-                              <span class="ds-radio-label">Por día de la semana</span>
-                              <span class="ds-radio-sub">Cada día un comportamiento diferente</span>
-                            </span>
-                          </button>
-                        </div>
-                      </section>
-
                       <!-- Card: Ventana de tiempo (transversal a los 3 perfiles) -->
                       <section class="ds-card has-hanging-footer">
                         <div class="ds-card-head">
@@ -22403,6 +22493,49 @@
                         <div class="ds-card-footer">
                           <span>Configurar ventana por día</span>
                           <span class="ds-prox-chip">Próx.</span>
+                        </div>
+                      </section>
+
+                      <!-- Cómo se monitorea · radio cards (figma 51:5475). Reemplaza el selector dropdown:
+                           dos opciones excluyentes que el usuario selecciona directamente. -->
+                      <section class="ds-card">
+                        <div class="ds-card-head">
+                          <div class="ds-card-title">
+                            <span>Cómo se monitorea</span>
+                            <span class="ds-help" tabindex="0"
+                              data-tip="Elige si aplicas una sola configuración para todos los días o defines un comportamiento distinto por día de la semana.">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                              </svg>
+                            </span>
+                          </div>
+                          <div class="ds-card-sub">Aplica una sola configuración o define un comportamiento distinto por
+                            día de la semana.</div>
+                        </div>
+                        <div class="ds-radio-row">
+                          <button type="button" class="ds-radio-item"
+                            :class="daySetup.monitorMode === 'igual' && 'is-selected'"
+                            :disabled="daySetupReadonly"
+                            @click="daySetup.monitorMode = 'igual'">
+                            <span class="ds-radio-dot" aria-hidden="true"></span>
+                            <span class="ds-radio-text">
+                              <span class="ds-radio-label">Igual todos los días</span>
+                              <span class="ds-radio-sub">Aplica una configuración</span>
+                            </span>
+                          </button>
+                          <button type="button" class="ds-radio-item"
+                            :class="daySetup.monitorMode === 'por-dia' && 'is-selected'"
+                            :disabled="daySetupReadonly"
+                            @click="if(daySetup.monitorMode !== 'por-dia'){ daySetup.monitorMode = 'por-dia'; dsPromoteToFamily('dropdown'); }">
+                            <span class="ds-radio-dot" aria-hidden="true"></span>
+                            <span class="ds-radio-text">
+                              <span class="ds-radio-label">Por día de la semana</span>
+                              <span class="ds-radio-sub">Cada día un comportamiento diferente</span>
+                            </span>
+                          </button>
                         </div>
                       </section>
 
@@ -22509,17 +22642,23 @@
                                 <div class="ds-switch" :class="dsOverall().fileCount.active && 'on'" @click="dsOverallToggle('fileCount')"></div>
                               </div>
                               <div class="config-grid cols-2 ds-indicator-grid" x-show="dsOverall().fileCount.active" x-cloak>
-                                <div class="config-field"><label class="config-label">Como mínimo</label>
+                                <div class="config-field ds-bound-field" :class="!dsOverall().fileCount.minOn && 'is-bound-off'">
+                                  <input type="checkbox" class="ds-bound-checkbox" :checked="dsOverall().fileCount.minOn" @change="dsOverallToggleBound('fileCount','min')">
+                                  <label class="config-label">Como mínimo</label>
                                   <div class="ds-input-with-suffix">
-                                    <input type="number" min="0" class="config-input" :value="dsOverall().fileCount.min" @change="dsOverallSet('fileCount','min',$event.target.value)">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().fileCount.min" :disabled="!dsOverall().fileCount.minOn" @change="dsOverallSet('fileCount','min',$event.target.value)">
                                     <span class="ds-input-suffix-badge">Archivos</span>
                                   </div>
+                                  <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsOverall().fileCount.minOn || dsOverall().fileCount.min !== dsOverall().fileCount._sMin) && 'is-suggestion'" @click="if(dsOverall().fileCount.min !== dsOverall().fileCount._sMin) dsOverallSet('fileCount','min', dsOverall().fileCount._sMin)"><span class="dot"></span><span x-text="dsChipText(dsOverall().fileCount.min, dsOverall().fileCount._sMin)"></span></span>
                                 </div>
-                                <div class="config-field"><label class="config-label">Como máximo</label>
+                                <div class="config-field ds-bound-field" :class="!dsOverall().fileCount.maxOn && 'is-bound-off'">
+                                  <input type="checkbox" class="ds-bound-checkbox" :checked="dsOverall().fileCount.maxOn" @change="dsOverallToggleBound('fileCount','max')">
+                                  <label class="config-label">Como máximo</label>
                                   <div class="ds-input-with-suffix">
-                                    <input type="number" min="0" class="config-input" :value="dsOverall().fileCount.max" @change="dsOverallSet('fileCount','max',$event.target.value)">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().fileCount.max" :disabled="!dsOverall().fileCount.maxOn" @change="dsOverallSet('fileCount','max',$event.target.value)">
                                     <span class="ds-input-suffix-badge">Archivos</span>
                                   </div>
+                                  <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsOverall().fileCount.maxOn || dsOverall().fileCount.max !== dsOverall().fileCount._sMax) && 'is-suggestion'" @click="if(dsOverall().fileCount.max !== dsOverall().fileCount._sMax) dsOverallSet('fileCount','max', dsOverall().fileCount._sMax)"><span class="dot"></span><span x-text="dsChipText(dsOverall().fileCount.max, dsOverall().fileCount._sMax)"></span></span>
                                 </div>
                               </div>
                             </div>
@@ -22534,17 +22673,23 @@
                                 <div class="ds-switch" :class="dsOverall().rowCount.active && 'on'" @click="dsOverallToggle('rowCount')"></div>
                               </div>
                               <div class="config-grid cols-2 ds-indicator-grid" x-show="dsOverall().rowCount.active" x-cloak>
-                                <div class="config-field"><label class="config-label">Como mínimo</label>
+                                <div class="config-field ds-bound-field" :class="!dsOverall().rowCount.minOn && 'is-bound-off'">
+                                  <input type="checkbox" class="ds-bound-checkbox" :checked="dsOverall().rowCount.minOn" @change="dsOverallToggleBound('rowCount','min')">
+                                  <label class="config-label">Al menos</label>
                                   <div class="ds-input-with-suffix">
-                                    <input type="number" min="0" class="config-input" :value="dsOverall().rowCount.min" @change="dsOverallSet('rowCount','min',$event.target.value)">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().rowCount.min" :disabled="!dsOverall().rowCount.minOn" @change="dsOverallSet('rowCount','min',$event.target.value)">
                                     <span class="ds-input-suffix-badge">Registros</span>
                                   </div>
+                                  <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsOverall().rowCount.minOn || dsOverall().rowCount.min !== dsOverall().rowCount._sMin) && 'is-suggestion'" @click="if(dsOverall().rowCount.min !== dsOverall().rowCount._sMin) dsOverallSet('rowCount','min', dsOverall().rowCount._sMin)"><span class="dot"></span><span x-text="dsChipText(dsOverall().rowCount.min, dsOverall().rowCount._sMin)"></span></span>
                                 </div>
-                                <div class="config-field"><label class="config-label">Como máximo</label>
+                                <div class="config-field ds-bound-field" :class="!dsOverall().rowCount.maxOn && 'is-bound-off'">
+                                  <input type="checkbox" class="ds-bound-checkbox" :checked="dsOverall().rowCount.maxOn" @change="dsOverallToggleBound('rowCount','max')">
+                                  <label class="config-label">No más de</label>
                                   <div class="ds-input-with-suffix">
-                                    <input type="number" min="0" class="config-input" :value="dsOverall().rowCount.max" @change="dsOverallSet('rowCount','max',$event.target.value)">
+                                    <input type="number" min="0" class="config-input" :value="dsOverall().rowCount.max" :disabled="!dsOverall().rowCount.maxOn" @change="dsOverallSet('rowCount','max',$event.target.value)">
                                     <span class="ds-input-suffix-badge">Registros</span>
                                   </div>
+                                  <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsOverall().rowCount.maxOn || dsOverall().rowCount.max !== dsOverall().rowCount._sMax) && 'is-suggestion'" @click="if(dsOverall().rowCount.max !== dsOverall().rowCount._sMax) dsOverallSet('rowCount','max', dsOverall().rowCount._sMax)"><span class="dot"></span><span x-text="dsChipText(dsOverall().rowCount.max, dsOverall().rowCount._sMax)"></span></span>
                                 </div>
                               </div>
                             </div>
@@ -22665,27 +22810,29 @@
                                     </div>
                                     <div class="config-grid cols-2 ds-indicator-grid"
                                       x-show="dsActiveSimple().fileCount.active" x-cloak>
-                                      <div class="config-field">
+                                      <div class="config-field ds-bound-field" :class="!dsActiveSimple().fileCount.minOn && 'is-bound-off'">
+                                        <input type="checkbox" class="ds-bound-checkbox" x-model="dsActiveSimple().fileCount.minOn" :disabled="daySetupReadonly" @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                         <label class="config-label">Como mínimo</label>
                                         <div class="ds-input-with-suffix">
                                           <input type="number" min="0" class="config-input"
                                             x-model.number="dsActiveSimple().fileCount.min"
-                                            :disabled="daySetupReadonly"
+                                            :disabled="daySetupReadonly || !dsActiveSimple().fileCount.minOn"
                                             @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                           <span class="ds-input-suffix-badge">Archivos</span>
                                         </div>
-                                        <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="dsActiveSimple().fileCount.min !== dsActiveSimple().fileCount._sMin && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().fileCount.min !== dsActiveSimple().fileCount._sMin) dsActiveSimple().fileCount.min = dsActiveSimple().fileCount._sMin"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().fileCount.min, dsActiveSimple().fileCount._sMin)"></span></span>
+                                        <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsActiveSimple().fileCount.minOn || dsActiveSimple().fileCount.min !== dsActiveSimple().fileCount._sMin) && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().fileCount.min !== dsActiveSimple().fileCount._sMin) dsActiveSimple().fileCount.min = dsActiveSimple().fileCount._sMin"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().fileCount.min, dsActiveSimple().fileCount._sMin)"></span></span>
                                       </div>
-                                      <div class="config-field">
+                                      <div class="config-field ds-bound-field" :class="!dsActiveSimple().fileCount.maxOn && 'is-bound-off'">
+                                        <input type="checkbox" class="ds-bound-checkbox" x-model="dsActiveSimple().fileCount.maxOn" :disabled="daySetupReadonly" @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                         <label class="config-label">Como máximo</label>
                                         <div class="ds-input-with-suffix">
                                           <input type="number" min="0" class="config-input"
                                             x-model.number="dsActiveSimple().fileCount.max"
-                                            :disabled="daySetupReadonly"
+                                            :disabled="daySetupReadonly || !dsActiveSimple().fileCount.maxOn"
                                             @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                           <span class="ds-input-suffix-badge">Archivos</span>
                                         </div>
-                                        <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="dsActiveSimple().fileCount.max !== dsActiveSimple().fileCount._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().fileCount.max !== dsActiveSimple().fileCount._sMax) dsActiveSimple().fileCount.max = dsActiveSimple().fileCount._sMax"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().fileCount.max, dsActiveSimple().fileCount._sMax)"></span></span>
+                                        <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsActiveSimple().fileCount.maxOn || dsActiveSimple().fileCount.max !== dsActiveSimple().fileCount._sMax) && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().fileCount.max !== dsActiveSimple().fileCount._sMax) dsActiveSimple().fileCount.max = dsActiveSimple().fileCount._sMax"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().fileCount.max, dsActiveSimple().fileCount._sMax)"></span></span>
                                       </div>
                                     </div>
                                   </div>
@@ -22747,27 +22894,29 @@
                                   </div>
                                   <div class="config-grid cols-2 ds-indicator-grid"
                                     x-show="dsActiveSimple().rowCount.active" x-cloak>
-                                    <div class="config-field">
+                                    <div class="config-field ds-bound-field" :class="!dsActiveSimple().rowCount.minOn && 'is-bound-off'">
+                                      <input type="checkbox" class="ds-bound-checkbox" x-model="dsActiveSimple().rowCount.minOn" :disabled="daySetupReadonly" @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                       <label class="config-label">Al menos</label>
                                       <div class="ds-input-with-suffix">
                                         <input type="number" min="0" class="config-input"
                                           x-model.number="dsActiveSimple().rowCount.min"
-                                          :disabled="daySetupReadonly"
+                                          :disabled="daySetupReadonly || !dsActiveSimple().rowCount.minOn"
                                           @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                         <span class="ds-input-suffix-badge">Registros</span>
                                       </div>
-                                      <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="dsActiveSimple().rowCount.min !== dsActiveSimple().rowCount._sMin && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().rowCount.min !== dsActiveSimple().rowCount._sMin) dsActiveSimple().rowCount.min = dsActiveSimple().rowCount._sMin"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().rowCount.min, dsActiveSimple().rowCount._sMin)"></span></span>
+                                      <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsActiveSimple().rowCount.minOn || dsActiveSimple().rowCount.min !== dsActiveSimple().rowCount._sMin) && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().rowCount.min !== dsActiveSimple().rowCount._sMin) dsActiveSimple().rowCount.min = dsActiveSimple().rowCount._sMin"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().rowCount.min, dsActiveSimple().rowCount._sMin)"></span></span>
                                     </div>
-                                    <div class="config-field">
+                                    <div class="config-field ds-bound-field" :class="!dsActiveSimple().rowCount.maxOn && 'is-bound-off'">
+                                      <input type="checkbox" class="ds-bound-checkbox" x-model="dsActiveSimple().rowCount.maxOn" :disabled="daySetupReadonly" @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                       <label class="config-label">No más de</label>
                                       <div class="ds-input-with-suffix">
                                         <input type="number" min="0" class="config-input"
                                           x-model.number="dsActiveSimple().rowCount.max"
-                                          :disabled="daySetupReadonly"
+                                          :disabled="daySetupReadonly || !dsActiveSimple().rowCount.maxOn"
                                           @change="if(daySetup.monitorMode === 'igual') dsPromoteToFamily('edit')">
                                         <span class="ds-input-suffix-badge">Registros</span>
                                       </div>
-                                      <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="dsActiveSimple().rowCount.max !== dsActiveSimple().rowCount._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().rowCount.max !== dsActiveSimple().rowCount._sMax) dsActiveSimple().rowCount.max = dsActiveSimple().rowCount._sMax"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().rowCount.max, dsActiveSimple().rowCount._sMax)"></span></span>
+                                      <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!dsActiveSimple().rowCount.maxOn || dsActiveSimple().rowCount.max !== dsActiveSimple().rowCount._sMax) && 'is-suggestion'" @click="if(!daySetupReadonly && dsActiveSimple().rowCount.max !== dsActiveSimple().rowCount._sMax) dsActiveSimple().rowCount.max = dsActiveSimple().rowCount._sMax"><span class="dot"></span><span x-text="dsChipText(dsActiveSimple().rowCount.max, dsActiveSimple().rowCount._sMax)"></span></span>
                                     </div>
                                   </div>
                                 </div>
@@ -23053,27 +23202,29 @@
                                         </div>
                                         <div class="config-grid cols-2 ds-indicator-grid"
                                           x-show="g.fileCount.active" x-cloak>
-                                          <div class="config-field">
+                                          <div class="config-field ds-bound-field" :class="!g.fileCount.minOn && 'is-bound-off'">
+                                            <input type="checkbox" class="ds-bound-checkbox" x-model="g.fileCount.minOn" :disabled="daySetupReadonly">
                                             <label class="config-label">Como mínimo</label>
                                             <div class="ds-input-with-suffix">
 
                                               <input type="number" min="0" class="config-input"
 
-                                                x-model.number="g.fileCount.min" :disabled="daySetupReadonly">
+                                                x-model.number="g.fileCount.min" :disabled="daySetupReadonly || !g.fileCount.minOn">
                                               <span class="ds-input-suffix-badge">Archivos</span>
                                             </div>
-                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="g.fileCount.min !== g.fileCount._sMin && 'is-suggestion'" @click="if(!daySetupReadonly && g.fileCount.min !== g.fileCount._sMin) g.fileCount.min = g.fileCount._sMin"><span class="dot"></span><span x-text="dsChipText(g.fileCount.min, g.fileCount._sMin)"></span></span>
+                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!g.fileCount.minOn || g.fileCount.min !== g.fileCount._sMin) && 'is-suggestion'" @click="if(!daySetupReadonly && g.fileCount.min !== g.fileCount._sMin) g.fileCount.min = g.fileCount._sMin"><span class="dot"></span><span x-text="dsChipText(g.fileCount.min, g.fileCount._sMin)"></span></span>
                                           </div>
-                                          <div class="config-field">
+                                          <div class="config-field ds-bound-field" :class="!g.fileCount.maxOn && 'is-bound-off'">
+                                            <input type="checkbox" class="ds-bound-checkbox" x-model="g.fileCount.maxOn" :disabled="daySetupReadonly">
                                             <label class="config-label">Como máximo</label>
                                             <div class="ds-input-with-suffix">
 
                                               <input type="number" min="0" class="config-input"
 
-                                                x-model.number="g.fileCount.max" :disabled="daySetupReadonly">
+                                                x-model.number="g.fileCount.max" :disabled="daySetupReadonly || !g.fileCount.maxOn">
                                               <span class="ds-input-suffix-badge">Archivos</span>
                                             </div>
-                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="g.fileCount.max !== g.fileCount._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && g.fileCount.max !== g.fileCount._sMax) g.fileCount.max = g.fileCount._sMax"><span class="dot"></span><span x-text="dsChipText(g.fileCount.max, g.fileCount._sMax)"></span></span>
+                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!g.fileCount.maxOn || g.fileCount.max !== g.fileCount._sMax) && 'is-suggestion'" @click="if(!daySetupReadonly && g.fileCount.max !== g.fileCount._sMax) g.fileCount.max = g.fileCount._sMax"><span class="dot"></span><span x-text="dsChipText(g.fileCount.max, g.fileCount._sMax)"></span></span>
                                           </div>
                                         </div>
                                       </div>
@@ -23102,27 +23253,29 @@
                                         </div>
                                         <div class="config-grid cols-2 ds-indicator-grid"
                                           x-show="g.rowCount.active" x-cloak>
-                                          <div class="config-field">
+                                          <div class="config-field ds-bound-field" :class="!g.rowCount.minOn && 'is-bound-off'">
+                                            <input type="checkbox" class="ds-bound-checkbox" x-model="g.rowCount.minOn" :disabled="daySetupReadonly">
                                             <label class="config-label">Al menos</label>
                                             <div class="ds-input-with-suffix">
 
                                               <input type="number" min="0" class="config-input"
 
-                                                x-model.number="g.rowCount.min" :disabled="daySetupReadonly">
+                                                x-model.number="g.rowCount.min" :disabled="daySetupReadonly || !g.rowCount.minOn">
                                               <span class="ds-input-suffix-badge">Registros</span>
                                             </div>
-                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="g.rowCount.min !== g.rowCount._sMin && 'is-suggestion'" @click="if(!daySetupReadonly && g.rowCount.min !== g.rowCount._sMin) g.rowCount.min = g.rowCount._sMin"><span class="dot"></span><span x-text="dsChipText(g.rowCount.min, g.rowCount._sMin)"></span></span>
+                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!g.rowCount.minOn || g.rowCount.min !== g.rowCount._sMin) && 'is-suggestion'" @click="if(!daySetupReadonly && g.rowCount.min !== g.rowCount._sMin) g.rowCount.min = g.rowCount._sMin"><span class="dot"></span><span x-text="dsChipText(g.rowCount.min, g.rowCount._sMin)"></span></span>
                                           </div>
-                                          <div class="config-field">
+                                          <div class="config-field ds-bound-field" :class="!g.rowCount.maxOn && 'is-bound-off'">
+                                            <input type="checkbox" class="ds-bound-checkbox" x-model="g.rowCount.maxOn" :disabled="daySetupReadonly">
                                             <label class="config-label">No más de</label>
                                             <div class="ds-input-with-suffix">
 
                                               <input type="number" min="0" class="config-input"
 
-                                                x-model.number="g.rowCount.max" :disabled="daySetupReadonly">
+                                                x-model.number="g.rowCount.max" :disabled="daySetupReadonly || !g.rowCount.maxOn">
                                               <span class="ds-input-suffix-badge">Registros</span>
                                             </div>
-                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="g.rowCount.max !== g.rowCount._sMax && 'is-suggestion'" @click="if(!daySetupReadonly && g.rowCount.max !== g.rowCount._sMax) g.rowCount.max = g.rowCount._sMax"><span class="dot"></span><span x-text="dsChipText(g.rowCount.max, g.rowCount._sMax)"></span></span>
+                                            <span class="ds-ai-chip" x-show="!daySetupHasConfig" x-cloak :class="(!g.rowCount.maxOn || g.rowCount.max !== g.rowCount._sMax) && 'is-suggestion'" @click="if(!daySetupReadonly && g.rowCount.max !== g.rowCount._sMax) g.rowCount.max = g.rowCount._sMax"><span class="dot"></span><span x-text="dsChipText(g.rowCount.max, g.rowCount._sMax)"></span></span>
                                           </div>
                                         </div>
                                       </div>

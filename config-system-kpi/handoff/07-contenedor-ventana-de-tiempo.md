@@ -11,7 +11,7 @@ component_areas: [modal-config, daysetup, time-window]
 
 # 07 · Contenedor Ventana de tiempo
 
-> Card transversal al modal de configuración del monitor. Define la franja horaria esperada para la llegada de la fuente. Vive arriba en el modal (línea HTML ~21097) y se mantiene igual en Low, Family y High.
+> Card transversal al modal de configuración del monitor. Define la franja horaria esperada para la llegada de la fuente. Vive arriba en el modal (`<section class="ds-card has-hanging-footer">` con title "Ventana de tiempo") y se mantiene igual en Low, Family y High.
 
 ## Propósito
 - Permite acordar con la fuente dos horas: cuándo se espera que llegue y a partir de qué hora considerar que llegó tarde.
@@ -141,6 +141,6 @@ El prototipo HTML actual solo tiene algunos empty states (loaders, casos puntual
 
 ## References
 
-- **HTML**: `../index.html` líneas 21096-21135 (`<section class="ds-card has-hanging-footer">` con title "Ventana de tiempo").
+- **HTML** (por selector, los números de línea cambian): `<section class="ds-card has-hanging-footer">` con title "Ventana de tiempo", dentro del modal `.resource-config-panel`.
 - **Figma**: (pendiente de link)
 - **Docs hermanos**: `[05-modal-configuracion.md](./05-modal-configuracion.md)` (shell del modal), `[13-journey-low-family-high.md](./13-journey-low-family-high.md)` (por qué es transversal).
