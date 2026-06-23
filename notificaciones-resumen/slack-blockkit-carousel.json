@@ -1,0 +1,101 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "📊 Resumen diario · 21 de junio",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "Estos incidentes siguen abiertos en *Tablero de pruebas anomalias* del día anterior.\n:red_circle: *2* abiertos   ·   :white_check_mark: *1* resuelto   ·   *86* señales"
+      }
+    },
+    {
+      "type": "carousel",
+      "elements": [
+        {
+          "type": "card",
+          "block_id": "incidente-1",
+          "title": {
+            "type": "mrkdwn",
+            "text": "🔴 Caída en CONTEO_DE_REGISTROS",
+            "verbatim": false
+          },
+          "subtitle": {
+            "type": "mrkdwn",
+            "text": "Activo · Line Chart · Dataset de fuentes automatizadas",
+            "verbatim": false
+          },
+          "body": {
+            "type": "mrkdwn",
+            "text": "El valor cayó por debajo del rango esperado a las *14:20* y se mantiene fuera de los límites.",
+            "verbatim": false
+          },
+          "actions": [
+            {
+              "type": "button",
+              "text": { "type": "plain_text", "text": "Ver en el tablero", "emoji": false },
+              "style": "primary",
+              "action_id": "ver_tablero_1",
+              "url": "https://REEMPLAZAR.simetrik.com/oc/tableros/tablero-pruebas-anomalias?chart=line-chart"
+            },
+            {
+              "type": "button",
+              "text": { "type": "plain_text", "text": "Ver incidente", "emoji": false },
+              "action_id": "ver_incidente_1",
+              "url": "https://REEMPLAZAR.simetrik.com/oc/anomalias/INC-1"
+            }
+          ]
+        },
+        {
+          "type": "card",
+          "block_id": "incidente-2",
+          "title": {
+            "type": "mrkdwn",
+            "text": "🟡 Volumen fuera de rango",
+            "verbatim": false
+          },
+          "subtitle": {
+            "type": "mrkdwn",
+            "text": "Activo · Bar Chart · Visa_Acquiring",
+            "verbatim": false
+          },
+          "body": {
+            "type": "mrkdwn",
+            "text": "El conteo superó el rango esperado de forma sostenida desde las *09:10*.",
+            "verbatim": false
+          },
+          "actions": [
+            {
+              "type": "button",
+              "text": { "type": "plain_text", "text": "Ver en el tablero", "emoji": false },
+              "style": "primary",
+              "action_id": "ver_tablero_2",
+              "url": "https://REEMPLAZAR.simetrik.com/oc/tableros/tablero-pruebas-anomalias?chart=bar-chart"
+            },
+            {
+              "type": "button",
+              "text": { "type": "plain_text", "text": "Ver incidente", "emoji": false },
+              "action_id": "ver_incidente_2",
+              "url": "https://REEMPLAZAR.simetrik.com/oc/anomalias/INC-2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": ":white_check_mark:  1 incidente notificado ayer ya se resolvió: *Archivo faltante en fiserv*.   ·   Incluye lo que sigue abierto del día anterior.   ·   <https://REEMPLAZAR.simetrik.com/oc/configuracion/notificaciones|Configurar o desactivar>"
+        }
+      ]
+    }
+  ]
+}

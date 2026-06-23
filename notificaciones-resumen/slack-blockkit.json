@@ -1,0 +1,84 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": ":bar_chart: Resumen diario · 21 de junio",
+        "emoji": true
+      }
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "*Tablero de pruebas anomalias*"
+        }
+      ]
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": ":red_circle: *2* abiertos   ·   :white_check_mark: *1* resuelto   ·   *86* señales"
+        }
+      ]
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":red_circle:  *Caída en CONTEO_DE_REGISTROS*   `Activo`\nLine Chart · Dataset de fuentes automatizadas\nEl valor cayó por debajo del rango esperado a las *14:20* y sigue activo."
+      },
+      "accessory": {
+        "type": "overflow",
+        "action_id": "inc_1_overflow",
+        "options": [
+          { "text": { "type": "plain_text", "text": "Ver en el tablero" }, "value": "tablero_1" },
+          { "text": { "type": "plain_text", "text": "Ver incidente" }, "value": "incidente_1" }
+        ]
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":large_yellow_circle:  *Volumen fuera de rango*   `Activo`\nBar Chart · Visa_Acquiring\nEl conteo superó el rango esperado de forma sostenida desde las *09:10*."
+      },
+      "accessory": {
+        "type": "overflow",
+        "action_id": "inc_2_overflow",
+        "options": [
+          { "text": { "type": "plain_text", "text": "Ver en el tablero" }, "value": "tablero_2" },
+          { "text": { "type": "plain_text", "text": "Ver incidente" }, "value": "incidente_2" }
+        ]
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": ":white_check_mark:  1 incidente notificado ayer ya se resolvió: *Archivo faltante en fiserv*."
+        }
+      ]
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "Incluye lo que sigue abierto del día anterior, con el estado actual de cada incidente al momento del envío.   ·   <https://REEMPLAZAR.simetrik.com/oc/configuracion/notificaciones|Configurar o desactivar>"
+        }
+      ]
+    }
+  ]
+}
