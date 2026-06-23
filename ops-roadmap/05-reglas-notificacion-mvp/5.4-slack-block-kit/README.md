@@ -7,6 +7,15 @@
 
 Migrar las notificaciones de Slack de **texto plano / `mrkdwn`** a **Block Kit** (UI framework oficial de Slack: header, section, divider, actions, context, buttons).
 
+## Assets de referencia (Block Kit)
+
+- [`slack-blockkit.json`](./slack-blockkit.json) — Block Kit base de una alerta.
+- [`slack-blockkit-carousel.json`](./slack-blockkit-carousel.json) — Variante con tarjetas/carrusel.
+- [`slack-blockkit.README.md`](./slack-blockkit.README.md) — Notas de uso y parámetros.
+- [`slack-alternativas.html`](./slack-alternativas.html) — Exploración visual de alternativas de layout.
+
+> Pendiente: pedir a Santi Quintero los Block Kits del equipo de IA (Agent Factory) para alinear parámetros y consistencia.
+
 ## Estado en Linear
 
 ### Slice activo (SWAT-1381 — In Progress)
