@@ -12,6 +12,7 @@ Repositorio de prototipos HTML del equipo de UX. Cada carpeta es un prototipo in
 |-----------|-------------|----------------------|------|
 | [Monitor Anomaly Recon](./monitor-anomaly-recon/) | Monitor de anomalías de conciliación para Operation Center | 2026-05-25 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/monitor-anomaly-recon/) |
 | [Config System KPI](./config-system-kpi/) | Configuración de KPIs del sistema en Operation Center | 2026-05-25 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/config-system-kpi/) |
+| [Notificaciones Resumen](./notificaciones-resumen/) | Configuración de notificaciones, ventana de monitoreo y métricas de gráficos (K Cast) | 2026-06-23 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/notificaciones-resumen/) |
 
 ---
 

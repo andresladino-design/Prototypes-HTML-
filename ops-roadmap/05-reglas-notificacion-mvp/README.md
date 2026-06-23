@@ -7,16 +7,7 @@
 
 MVP de **reglas de notificación**: que el usuario pueda configurar cuándo, cómo y por qué canal recibe alertas de anomalías.
 
-## Mock UX
-
-- [`mock.html`](./mock.html) — Diálogo "Monitoreo inteligente" (Programación · Notificaciones · K Cast · Fuente).
-  - **¿Cuándo notificar?** con slider animado (*Todo el tiempo* vs *Solo al cierre*) y resumen visual de la ventana de monitoreo; se habilita solo al activar un canal (Email/Slack).
-  - **3 modos de hard limit** por bound (on/off + valor sugerido) en user KPIs, replicando el patrón de System KPIs.
-  - **Sensibilidad** configurable (nula/media/alta) a nivel de KPI.
-- [`templates.html`](./templates.html) — Vista de templates de alerta (email MJML + Slack).
-- Block Kit de Slack: ver [`5.4-slack-block-kit/`](./5.4-slack-block-kit/).
-
-> Basado en feedback de la reunión del 23-jun (notificaciones, métricas y templates de alertas).
+> Mock UX en progreso en el prototipo [`notificaciones-resumen/`](../../notificaciones-resumen/) (config de notificaciones, ventana de monitoreo, hard limits y Slack Block Kit). Basado en feedback de la reunión del 23-jun.
 
 ## Sub-temas (todos 🟢 P1)
 
