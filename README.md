@@ -15,6 +15,16 @@ Repositorio de prototipos HTML del equipo de UX. Cada carpeta es un prototipo in
 
 ---
 
+## Roadmap
+
+Backlog UX del Operation Center v2.8 (Anomaly Management), navegable por item — cada uno con su brief (`README.md`) y, cuando existe, un `mock.html`.
+
+🔗 **Ver roadmap online:** https://andresladino-design.github.io/Prototypes-HTML-/ops-roadmap/ · carpeta [`ops-roadmap/`](./ops-roadmap/)
+
+Incluye, entre otros: reglas de notificación MVP ([item 5](./ops-roadmap/05-reglas-notificacion-mvp/), con Slack Block Kit en [5.4](./ops-roadmap/05-reglas-notificacion-mvp/5.4-slack-block-kit/)) y notificaciones para System KPIs ([item 10](./ops-roadmap/10-notifications-system-kpis/)).
+
+---
+
 ## Cómo agregar un nuevo prototipo
 
 1. Crear carpeta en kebab-case: `nuevo-prototipo/`
