@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simetrik · Plantillas · Resumen diario consolidado</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* Tokens canónicos desyk (light) */
+      --background: 0 0% 100%;
+      --foreground: 240 6% 10%;
+      --card: 0 0% 100%;
+      --primary-hsl: 240 94% 60%;
+      --muted: 240 5% 96%;
+      --muted-foreground: 0 0% 55%;
+      --accent: 240 5% 96%;
+      --success: 138 76% 36%;
+      --success-foreground: 138 76% 97%;
+      --warning: 41 96% 40%;
+      --warning-foreground: 55 92% 95%;
+      --destructive: 360 72% 51%;
+      --destructive-foreground: 0 86% 97%;
+      --border: 0 0% 85%;
+      --sidebar-border: 240 6% 90%;
+      --ai-purple: 280 100% 61%;
+      --ai-blue: 222 97% 66%;
+
+      --text-primary: hsl(var(--foreground));
+      --text-secondary: hsl(240 5% 26%);
+      --text-tertiary: hsl(240 4% 46%);
+      --text-muted: hsl(var(--muted-foreground));
+      --border-default: hsl(var(--sidebar-border));
+      --border-strong: hsl(var(--border));
+      --bg-pill: hsl(var(--muted));
+      --primary: hsl(var(--primary-hsl));
+      --primary-soft: hsl(240 94% 96%);
+      --primary-text: hsl(240 72% 56%);
+      --red-text: hsl(var(--destructive));
+      --red-soft: hsl(var(--destructive-foreground));
+      --amber-text: hsl(var(--warning));
+      --amber-soft: hsl(var(--warning-foreground));
+      --green-text: hsl(var(--success));
+      --green-soft: hsl(var(--success-foreground));
+      --chart-line: #3c4452;
+    }
+
+    html, body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: hsl(240 6% 94%);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      font-feature-settings: 'cv02','cv03','cv04','cv11';
+    }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .lucide { stroke-width: 1.75; }
+
+    /* Galería de plantillas (lado a lado, responsive) */
+    .gallery { display: flex; flex-wrap: wrap; gap: 44px; justify-content: center; align-items: flex-start; }
+    .tpl-col { display: flex; flex-direction: column; gap: 12px; }
+    .tpl-cap { display: flex; align-items: center; gap: 7px; padding-left: 4px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
+    .tpl-cap .lucide { width: 14px; height: 14px; }
+
+    /* Nota de implementación (handoff) */
+    .spec { max-width: 720px; margin: 44px auto 0; background: #fff; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px 22px; }
+    .spec-h { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
+    .spec-h .lucide { width: 16px; height: 16px; color: var(--primary-text); }
+    .spec-p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .spec-list { margin-top: 14px; padding-left: 20px; list-style: decimal; display: flex; flex-direction: column; gap: 10px; }
+    .spec-list li { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; padding-left: 2px; }
+    .spec-list strong { color: var(--text-primary); }
+    .spec code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; background: var(--bg-pill); padding: 1px 5px; border-radius: 4px; color: var(--text-primary); }
+
+    /* Toggle */
+    .seg { display: inline-flex; gap: 2px; padding: 3px; background: hsl(240 5% 90%); border-radius: 9px; }
+    .seg-opt { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 14px; border: none; background: transparent; border-radius: 7px; font-size: 13.5px; font-weight: 500; color: var(--text-tertiary); cursor: pointer; transition: all .12s ease-out; font-family: inherit; }
+    .seg-opt .lucide { width: 15px; height: 15px; }
+    .seg-opt.sel { background: #fff; color: var(--text-primary); box-shadow: 0 1px 2px rgba(20,20,30,.1), 0 0 0 1px var(--border-default); }
+
+    .badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 600; line-height: 1; }
+    .badge .lucide { width: 12px; height: 12px; stroke-width: 2.4; }
+
+    /* ===== EMAIL ===== */
+    .mail-frame { width: 600px; max-width: 100%; margin: 0 auto; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(20,20,30,.10); border: 1px solid var(--border-default); }
+    .mail-clienthead { padding: 16px 20px; border-bottom: 1px solid var(--border-default); display: flex; align-items: center; gap: 12px; background: #fff; }
+    .mail-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700;
+      background: linear-gradient(135deg, hsl(var(--ai-purple)) 0%, hsl(var(--primary-hsl)) 60%, hsl(var(--ai-blue)) 100%); }
+    .mail-subject { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .mail-meta { font-size: 12.5px; color: var(--text-muted); margin-top: 1px; }
+
+    .mail-brandbar { display: flex; align-items: center; gap: 10px; padding: 16px 24px; background: hsl(240 30% 99%); border-bottom: 1px solid var(--border-default); }
+    .mail-logo { width: 26px; height: 26px; border-radius: 7px; display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, hsl(var(--ai-purple)) 0%, hsl(var(--primary-hsl)) 60%, hsl(var(--ai-blue)) 100%); }
+    .mail-brandname { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .mail-brandsub { font-size: 12px; color: var(--text-muted); }
+
+    .mail-body { padding: 24px; }
+    .mail-h1 { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+    .mail-intro { font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+
+    .mail-stats { display: flex; gap: 12px; margin: 20px 0 8px; }
+    .mail-stat { flex: 1; border: 1px solid var(--border-default); border-radius: 11px; padding: 14px; }
+    .mail-stat-n { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+    .mail-stat-l { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+    .mail-section-label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .04em; margin: 24px 0 12px; }
+
+    .inc { border: 1px solid var(--border-default); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .inc-top { display: flex; align-items: flex-start; gap: 10px; }
+    .inc-top .badge { flex-shrink: 0; }
+    .inc-title { font-size: 14.5px; font-weight: 600; color: var(--text-primary); }
+    .inc-source { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+    .inc-chart { margin: 12px 0; border: 1px solid var(--border-default); border-radius: 9px; padding: 8px 10px 4px; background: hsl(240 20% 99%); }
+    .inc-chart-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+    .inc-narr { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+    .inc-narr strong { color: var(--text-primary); font-weight: 600; }
+    .inc-links { display: flex; gap: 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid hsl(var(--sidebar-border)); }
+    .inc-link { font-size: 12.5px; font-weight: 600; color: var(--primary-text); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+    .inc-link .lucide { width: 13px; height: 13px; }
+    .inc-ts { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+
+    .mail-disc { display: flex; gap: 8px; font-size: 12px; color: var(--text-muted); background: var(--bg-pill); border-radius: 9px; padding: 12px; margin-top: 8px; line-height: 1.5; }
+    .mail-disc .lucide { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; }
+    .mail-foot { padding: 16px 24px; border-top: 1px solid var(--border-default); font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.6; }
+    .mail-foot a { color: var(--primary-text); font-weight: 600; text-decoration: none; }
+
+    /* ===== SLACK ===== */
+    .slack-frame { width: 560px; max-width: 100%; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 24px rgba(20,20,30,.10); border: 1px solid var(--border-default); }
+    .slack-top { display: flex; gap: 10px; padding: 16px 16px 10px; }
+    .slack-app-logo { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, hsl(var(--ai-purple)) 0%, hsl(var(--primary-hsl)) 60%, hsl(var(--ai-blue)) 100%); }
+    .slack-name { font-size: 14px; font-weight: 700; color: #1d1c1d; }
+    .slack-tag { font-size: 10px; font-weight: 700; background: #e8e8e8; color: #616061; padding: 1px 5px; border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+    .slack-time { font-size: 12px; color: #616061; margin-left: 6px; }
+    .slack-msg { padding: 0 16px 16px 62px; }
+    .slack-card { border-left: 4px solid hsl(var(--primary-hsl)); padding-left: 14px; }
+    .slack-h { font-size: 15px; font-weight: 700; color: #1d1c1d; }
+    .slack-ctx { font-size: 13px; color: #616061; margin: 2px 0 12px; }
+    .slack-line { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: #1d1c1d; padding: 5px 0; border-top: 1px solid #f0f0f0; }
+    .slack-line:first-of-type { border-top: none; }
+    .slack-state { margin-left: auto; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
+    .slack-btns { margin-top: 14px; display: flex; gap: 8px; }
+    .slack-btn { font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 7px; border: 1px solid #d9d9d9; color: #1d1c1d; background: #fff; }
+    .slack-btn.primary { background: hsl(var(--primary-hsl)); color: #fff; border: none; }
+    .slack-stats { font-size: 13px; color: #1d1c1d; margin: 2px 0 12px; }
+    .slack-inc { padding: 11px 0; border-top: 1px solid #f0f0f0; }
+    .slack-inc:first-of-type { border-top: none; padding-top: 2px; }
+    .slack-inc-h { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: #1d1c1d; }
+    .slack-inc-h b { font-weight: 700; }
+    .slack-inc-h .slack-state { margin-left: auto; }
+    .slack-inc-meta { font-size: 12px; color: #868686; margin-top: 3px; }
+    .slack-inc-narr { font-size: 13px; color: #1d1c1d; margin-top: 4px; line-height: 1.45; }
+    .slack-inc-links { font-size: 12.5px; font-weight: 600; color: hsl(var(--primary-hsl)); margin-top: 7px; }
+    .slack-resolved { font-size: 12.5px; color: #616061; margin-top: 12px; padding-top: 11px; border-top: 1px solid #f0f0f0; }
+    .slack-disc { font-size: 11.5px; color: #868686; margin-top: 12px; }
+
+    /* Slack carousel (cards deslizables) */
+    .car { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 8px; scroll-snap-type: x mandatory; margin: 6px 0 2px; }
+    .car::-webkit-scrollbar { height: 6px; }
+    .car::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
+    .car-card { flex: 0 0 244px; scroll-snap-align: start; border: 1px solid #e2e2e2; border-radius: 10px; padding: 12px; background: #fff; display: flex; flex-direction: column; gap: 5px; box-shadow: 0 1px 2px rgba(20,20,30,.05); }
+    .car-title { font-size: 13.5px; font-weight: 700; color: #1d1c1d; display: flex; align-items: center; gap: 6px; line-height: 1.3; }
+    .car-sub { font-size: 11.5px; color: #868686; }
+    .car-body { font-size: 12.5px; color: #1d1c1d; line-height: 1.45; flex: 1; margin: 2px 0 4px; }
+    .car-actions { display: flex; gap: 6px; }
+    .car-btn { font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 7px; border: 1px solid #d9d9d9; background: #fff; color: #1d1c1d; }
+    .car-btn.pri { background: hsl(var(--primary-hsl)); color: #fff; border: none; }
+    .car-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 2px 0 4px; }
+    .car-dot { width: 6px; height: 6px; border-radius: 50%; background: #d0d0d0; }
+    .car-dot.on { background: hsl(var(--primary-hsl)); width: 16px; border-radius: 3px; }
+
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-red { background: var(--red-text); }
+    .dot-amber { background: var(--amber-text); }
+    .dot-green { background: var(--green-text); }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <!-- Toolbar -->
+  <div class="sticky top-0 z-10 flex items-center justify-between px-6 h-[60px] border-b bg-white" style="border-color:var(--border-default);">
+    <div>
+      <div class="text-[14px] font-semibold" style="color:var(--text-primary);">Plantillas · Resumen diario consolidado</div>
+      <div class="text-[12px]" style="color:var(--text-muted);">Cómo llega el resumen a cada canal</div>
+    </div>
+  </div>
+
+  <div class="py-12 px-6">
+    <div class="gallery">
+
+    <!-- ===================== EMAIL ===================== -->
+    <div class="tpl-col">
+      <div class="tpl-cap"><i data-lucide="mail"></i> Email</div>
+      <div class="mail-frame">
+        <!-- Cliente de correo (chrome, referencial) -->
+        <div class="mail-clienthead">
+          <span class="mail-avatar">S</span>
+          <div class="flex-1 min-w-0">
+            <div class="mail-subject">Tu resumen diario · Centro de Operaciones</div>
+            <div class="mail-meta">Simetrik &lt;notificaciones@simetrik.com&gt; · para ti</div>
+          </div>
+          <i data-lucide="star" style="width:18px;height:18px;color:var(--text-muted);"></i>
+        </div>
+
+        <!-- Barra de marca -->
+        <div class="mail-brandbar">
+          <span class="mail-logo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg>
+          </span>
+          <div>
+            <div class="mail-brandname">Simetrik</div>
+            <div class="mail-brandsub">Centro de Operaciones</div>
+          </div>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="mail-body">
+          <div class="mail-h1">Resumen diario</div>
+          <p class="mail-intro">Esto pasó en <strong>Tablero de pruebas anomalias</strong> el <strong>21 de junio</strong>. Te mostramos lo que sigue abierto, con el estado actual de cada incidente.</p>
+
+          <div class="mail-stats">
+            <div class="mail-stat">
+              <div class="mail-stat-n" style="color:var(--red-text);">2</div>
+              <div class="mail-stat-l">Incidentes abiertos</div>
+            </div>
+            <div class="mail-stat">
+              <div class="mail-stat-n" style="color:var(--green-text);">1</div>
+              <div class="mail-stat-l">Resuelto</div>
+            </div>
+            <div class="mail-stat">
+              <div class="mail-stat-n tabular" style="color:var(--text-primary);">86</div>
+              <div class="mail-stat-l">Señales detectadas</div>
+            </div>
+          </div>
+
+          <div class="mail-section-label">INCIDENTES</div>
+
+          <!-- Incidente 1 · activo -->
+          <div class="inc">
+            <div class="inc-top">
+              <div class="flex-1">
+                <div class="inc-title">Caída en CONTEO_DE_REGISTROS</div>
+                <div class="inc-source">Line Chart · Dataset de fuentes automatizadas</div>
+              </div>
+              <span class="badge" style="background:var(--red-soft);color:var(--red-text);"><i data-lucide="circle-alert"></i> Activo</span>
+            </div>
+            <!-- PROD: reemplazar este SVG por <img src="cid:chart-incidente-1" alt="Caída en CONTEO_DE_REGISTROS, últimas 24 h" width="540"> (PNG render server-side). Ver nota al final. -->
+            <div class="inc-chart">
+              <div class="inc-chart-head"><span>Últimas 24 h</span><span class="tabular">esperado vs. real</span></div>
+              <svg viewBox="0 0 540 120" width="100%" height="92" preserveAspectRatio="none">
+                <path d="M0,40 C90,30 140,70 220,66 C320,60 400,84 540,30 L540,96 C400,70 320,52 220,58 C140,62 90,26 0,34 Z" fill="hsl(var(--primary-hsl) / 0.10)"/>
+                <polyline points="0,44 60,52 120,50 180,58 240,60 300,57 360,62 420,70 470,92 540,108" fill="none" stroke="var(--chart-line)" stroke-width="2"/>
+                <polyline points="420,70 470,92 540,108" fill="none" stroke="var(--red-text)" stroke-width="2.4"/>
+              </svg>
+            </div>
+            <p class="inc-narr">El valor cayó por debajo del rango esperado a las <strong>14:20</strong> y se mantiene fuera de los límites. El incidente <strong>sigue activo</strong>.</p>
+            <div class="inc-links">
+              <span class="inc-link"><i data-lucide="external-link"></i> Ver en el tablero</span>
+              <span class="inc-link"><i data-lucide="file-text"></i> Ver incidente</span>
+            </div>
+            <div class="inc-ts">Detectado el 21 jun, 14:20 · actualizado hace 2 h</div>
+          </div>
+
+          <!-- Incidente 2 · activo -->
+          <div class="inc">
+            <div class="inc-top">
+              <div class="flex-1">
+                <div class="inc-title">Volumen fuera de rango</div>
+                <div class="inc-source">Bar Chart · Visa_Acquiring</div>
+              </div>
+              <span class="badge" style="background:var(--amber-soft);color:var(--amber-text);"><i data-lucide="triangle-alert"></i> Activo</span>
+            </div>
+            <div class="inc-chart">
+              <div class="inc-chart-head"><span>Últimas 24 h</span><span class="tabular">esperado vs. real</span></div>
+              <svg viewBox="0 0 540 120" width="100%" height="92" preserveAspectRatio="none">
+                <path d="M0,60 C100,56 160,50 240,52 C340,54 420,46 540,44 L540,86 C420,80 340,84 240,82 C160,80 100,86 0,84 Z" fill="hsl(var(--primary-hsl) / 0.10)"/>
+                <polyline points="0,72 60,70 120,66 180,68 240,64 300,60 360,52 420,40 480,30 540,26" fill="none" stroke="var(--chart-line)" stroke-width="2"/>
+                <polyline points="360,52 420,40 480,30 540,26" fill="none" stroke="var(--amber-text)" stroke-width="2.4"/>
+              </svg>
+            </div>
+            <p class="inc-narr">El conteo superó el rango esperado de forma sostenida desde las <strong>09:10</strong>. El incidente <strong>sigue activo</strong>.</p>
+            <div class="inc-links">
+              <span class="inc-link"><i data-lucide="external-link"></i> Ver en el tablero</span>
+              <span class="inc-link"><i data-lucide="file-text"></i> Ver incidente</span>
+            </div>
+            <div class="inc-ts">Detectado el 21 jun, 09:10 · actualizado hace 5 h</div>
+          </div>
+
+          <!-- Incidente 3 · resuelto -->
+          <div class="inc">
+            <div class="inc-top">
+              <div class="flex-1">
+                <div class="inc-title">Archivo faltante en fiserv</div>
+                <div class="inc-source">Pivot Table · fiserv_all_transactions</div>
+              </div>
+              <span class="badge" style="background:var(--green-soft);color:var(--green-text);"><i data-lucide="circle-check"></i> Resuelto</span>
+            </div>
+            <p class="inc-narr">Faltaba un archivo de la carga de las <strong>06:00</strong>. El archivo llegó y se procesó correctamente: el incidente <strong>se resolvió</strong> a las 06:10.</p>
+            <div class="inc-links">
+              <span class="inc-link"><i data-lucide="file-text"></i> Ver incidente</span>
+            </div>
+            <div class="inc-ts">Resuelto el 21 jun, 06:10</div>
+          </div>
+
+          <div class="mail-disc">
+            <i data-lucide="info"></i>
+            Este resumen incluye lo que sigue abierto del día anterior y refleja el estado actual de cada incidente al momento del envío.
+          </div>
+        </div>
+
+        <div class="mail-foot">
+          Recibes este resumen porque el monitoreo de anomalías está activo en tu cuenta.<br>
+          Ajusta el horario o desactívalo en <a>Centro de Operaciones › Resumen diario</a>.
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLACK ===================== -->
+    <div class="tpl-col">
+      <div class="tpl-cap"><i data-lucide="slack"></i> Slack</div>
+      <div class="slack-frame">
+        <div class="slack-top">
+          <span class="slack-app-logo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg>
+          </span>
+          <div>
+            <div><span class="slack-name">Simetrik</span><span class="slack-tag">APP</span><span class="slack-time">8:00 a. m.</span></div>
+          </div>
+        </div>
+        <div class="slack-msg">
+          <div class="slack-card">
+            <div class="slack-h">📊 Resumen diario · 21 de junio</div>
+            <div class="slack-ctx">Tablero de pruebas anomalias</div>
+            <div class="slack-stats">🔴 <b>2</b> abiertos&nbsp;&nbsp;·&nbsp;&nbsp;✅ <b>1</b> resuelto&nbsp;&nbsp;·&nbsp;&nbsp;<b>86</b> señales</div>
+
+            <div class="slack-inc">
+              <div class="slack-inc-h">🔴 <b>Caída en CONTEO_DE_REGISTROS</b><span class="slack-state" style="background:var(--red-soft);color:var(--red-text);">Activo</span></div>
+              <div class="slack-inc-meta">Line Chart · Dataset de fuentes automatizadas</div>
+              <div class="slack-inc-narr">El valor cayó por debajo del rango esperado a las 14:20 y sigue activo.</div>
+              <div class="slack-inc-links">Ver en el tablero&nbsp;&nbsp;·&nbsp;&nbsp;Ver incidente</div>
+            </div>
+
+            <div class="slack-inc">
+              <div class="slack-inc-h">🟡 <b>Volumen fuera de rango</b><span class="slack-state" style="background:var(--amber-soft);color:var(--amber-text);">Activo</span></div>
+              <div class="slack-inc-meta">Bar Chart · Visa_Acquiring</div>
+              <div class="slack-inc-narr">El conteo superó el rango esperado de forma sostenida desde las 09:10.</div>
+              <div class="slack-inc-links">Ver en el tablero&nbsp;&nbsp;·&nbsp;&nbsp;Ver incidente</div>
+            </div>
+
+            <div class="slack-resolved">✅ 1 incidente notificado ayer ya se resolvió: <b>Archivo faltante en fiserv</b>.</div>
+
+            <div class="slack-disc">Incluye lo que sigue abierto del día anterior, con el estado actual de cada incidente. · <span style="color:hsl(var(--primary-hsl));font-weight:600;cursor:pointer;">Configurar o desactivar</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== SLACK · CAROUSEL ===================== -->
+    <div class="tpl-col">
+      <div class="tpl-cap"><i data-lucide="slack"></i> Slack · Carousel</div>
+      <div class="slack-frame">
+        <div class="slack-top">
+          <span class="slack-app-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+          <div><span class="slack-name">Simetrik</span><span class="slack-tag">APP</span><span class="slack-time">8:00 a. m.</span></div>
+        </div>
+        <div class="slack-msg">
+          <div class="slack-card">
+            <div class="slack-h">📊 Resumen diario · 21 de junio</div>
+            <div class="slack-ctx">Estos incidentes siguen abiertos en <b>Tablero de pruebas anomalias</b> del día anterior.</div>
+            <div class="slack-stats">🔴 <b>2</b> abiertos&nbsp;&nbsp;·&nbsp;&nbsp;✅ <b>1</b> resuelto&nbsp;&nbsp;·&nbsp;&nbsp;<b>86</b> señales</div>
+
+            <div class="car">
+              <div class="car-card">
+                <div class="car-title">🔴 Caída en CONTEO_DE_REGISTROS</div>
+                <div class="car-sub">Activo · Line Chart · Dataset de fuentes automatizadas</div>
+                <div class="car-body">El valor cayó por debajo del rango esperado a las 14:20 y sigue fuera de los límites.</div>
+                <div class="car-actions"><span class="car-btn pri">Ver en el tablero</span><span class="car-btn">Ver incidente</span></div>
+              </div>
+              <div class="car-card">
+                <div class="car-title">🟡 Volumen fuera de rango</div>
+                <div class="car-sub">Activo · Bar Chart · Visa_Acquiring</div>
+                <div class="car-body">El conteo superó el rango esperado de forma sostenida desde las 09:10.</div>
+                <div class="car-actions"><span class="car-btn pri">Ver en el tablero</span><span class="car-btn">Ver incidente</span></div>
+              </div>
+            </div>
+            <div class="car-nav"><span class="car-dot on"></span><span class="car-dot"></span></div>
+
+            <div class="slack-resolved">✅ 1 incidente notificado ayer ya se resolvió: <b>Archivo faltante en fiserv</b>.</div>
+            <div class="slack-disc">Incluye lo que sigue abierto del día anterior, con el estado actual de cada incidente. · <span style="color:hsl(var(--primary-hsl));font-weight:600;cursor:pointer;">Configurar o desactivar</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- gallery -->
+
+    <!-- Nota de implementación: cómo se muestra el gráfico -->
+    <div class="spec">
+      <div class="spec-h"><i data-lucide="image"></i> Cómo se muestra el gráfico (handoff a ingeniería)</div>
+      <p class="spec-p">
+        En el prototipo el gráfico es un SVG porque corre en el navegador. En un correo o mensaje real
+        <strong>no se usa SVG ni JavaScript</strong> (los clientes los bloquean): el gráfico se muestra como una
+        <strong>imagen PNG renderizada en el servidor</strong> al momento de armar el resumen.
+      </p>
+      <ol class="spec-list">
+        <li><strong>Render (backend):</strong> por cada incidente se "fotografía" su gráfico en la ventana de tiempo correspondiente. Opción fiel: <em>headless browser</em> (Playwright) capturando el componente real del tablero. Opción liviana: librería de charts del lado del servidor (ECharts SSR, Vega). Renderizar a <strong>2x</strong> y mostrar a la mitad del ancho para que se vea nítido.</li>
+        <li><strong>Email:</strong> embeber con <code>&lt;img&gt;</code> mediante adjunto CID (<code>src="cid:chart-incidente-123"</code>) o una URL firmada con expiración corta. Nunca un bucket público: es data del cliente.</li>
+        <li><strong>Slack:</strong> usar un bloque <code>image</code> de Block Kit apuntando al mismo PNG hospedado. El render se hace una sola vez y sirve para los dos canales.</li>
+        <li><strong>Diseño y accesibilidad:</strong> la imagen es estática, sin hover ni interacción. Siempre con <code>alt</code> descriptivo del incidente (muchos clientes bloquean imágenes por defecto). La narrativa de texto debe entenderse <strong>aunque la imagen no cargue</strong>.</li>
+      </ol>
+    </div>
+
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+
+</html>

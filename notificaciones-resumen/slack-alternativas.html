@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simetrik · Resumen diario en Slack · Alternativas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary-hsl: 240 94% 60%;
+      --ai-purple: 280 100% 61%;
+      --ai-blue: 222 97% 66%;
+      --red-soft: hsl(360 72% 97%); --red-text: hsl(360 72% 51%);
+      --amber-soft: hsl(55 92% 95%); --amber-text: hsl(41 96% 40%);
+      --green-soft: hsl(138 76% 97%); --green-text: hsl(138 76% 36%);
+      --muted: hsl(240 5% 96%);
+      --border: hsl(240 6% 90%);
+      --text-muted: hsl(0 0% 55%);
+    }
+    html, body { font-family: 'Inter', -apple-system, sans-serif; background: hsl(240 6% 94%); color: #1d1c1d; -webkit-font-smoothing: antialiased; }
+    .lucide { stroke-width: 1.75; }
+
+    .grid-alts { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 28px; max-width: 1180px; margin: 0 auto; }
+    .alt { display: flex; flex-direction: column; gap: 10px; }
+    .alt-cap { display: flex; align-items: baseline; gap: 8px; }
+    .alt-n { font-size: 12px; font-weight: 700; color: #fff; background: hsl(var(--primary-hsl)); width: 20px; height: 20px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .alt-title { font-size: 14px; font-weight: 600; color: #1d1c1d; }
+    .alt-trade { font-size: 12px; color: #5b5b5b; line-height: 1.4; }
+
+    /* Slack mock */
+    .sf { background: #fff; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(20,20,30,.07); overflow: hidden; }
+    .s-top { display: flex; gap: 10px; padding: 14px 14px 8px; }
+    .s-logo { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, hsl(var(--ai-purple)), hsl(var(--primary-hsl)) 60%, hsl(var(--ai-blue))); }
+    .s-name { font-size: 14px; font-weight: 700; }
+    .s-tag { font-size: 9.5px; font-weight: 700; background: #e8e8e8; color: #616061; padding: 1px 5px; border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+    .s-time { font-size: 12px; color: #616061; margin-left: 6px; }
+    .s-msg { padding: 0 14px 14px 58px; }
+    .s-card { border-left: 4px solid hsl(var(--primary-hsl)); padding-left: 13px; }
+    .s-h { font-size: 15px; font-weight: 700; }
+    .s-ctx { font-size: 12.5px; color: #616061; margin: 2px 0 10px; }
+    .s-div { height: 1px; background: #ececec; margin: 10px 0; }
+    .s-line { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 4px 0; }
+    .s-line-meta { color: #868686; font-size: 12px; }
+    .s-state { margin-left: auto; font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+    .s-sec { font-size: 13px; line-height: 1.5; padding: 8px 0; }
+    .s-sec b { font-weight: 700; }
+    .s-thumb { margin-top: 8px; height: 64px; border-radius: 7px; background: var(--muted); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 6px; color: #909090; font-size: 11.5px; }
+    .s-btns { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .s-btn { font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 7px; border: 1px solid #d9d9d9; background: #fff; }
+    .s-btn.pri { background: hsl(var(--primary-hsl)); color: #fff; border: none; }
+    .s-acc-btn { margin-left: auto; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 7px; border: 1px solid #d9d9d9; background: #fff; white-space: nowrap; }
+    .s-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin: 8px 0; }
+    .s-field-l { font-size: 11px; color: #868686; font-weight: 600; }
+    .s-field-v { font-size: 13px; font-weight: 600; }
+    .s-disc { font-size: 11.5px; color: #868686; margin-top: 10px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dr { background: var(--red-text); } .da { background: var(--amber-text); } .dg { background: var(--green-text); }
+    .pill-r { background: var(--red-soft); color: var(--red-text); } .pill-a { background: var(--amber-soft); color: var(--amber-text); } .pill-g { background: var(--green-soft); color: var(--green-text); }
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <div class="px-6 h-[60px] flex items-center border-b bg-white sticky top-0 z-10" style="border-color:var(--border);">
+    <div>
+      <div class="text-[14px] font-semibold">Resumen diario en Slack · Alternativas</div>
+      <div class="text-[12px]" style="color:var(--text-muted);">Compara las 4 y dime con cuál nos quedamos</div>
+    </div>
+  </div>
+
+  <div class="py-10 px-6">
+    <div class="grid-alts">
+
+      <!-- A · Detallada con gráfico -->
+      <div class="alt">
+        <div class="alt-cap"><span class="alt-n">A</span><span class="alt-title">Detallada con gráfico</span></div>
+        <div class="alt-trade">Cada incidente con su mini-gráfico y narrativa. La más rica y contextual, pero la más larga (una imagen por incidente).</div>
+        <div class="sf">
+          <div class="s-top"><span class="s-logo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+            <div><span class="s-name">Simetrik</span><span class="s-tag">APP</span><span class="s-time">8:00 a. m.</span></div></div>
+          <div class="s-msg"><div class="s-card">
+            <div class="s-h">📊 Resumen diario · 21 de junio</div>
+            <div class="s-ctx">Tablero de pruebas anomalias · 2 incidentes abiertos</div>
+            <div class="s-sec"><span style="margin-right:6px;">🔴</span><b>Caída en CONTEO_DE_REGISTROS</b> · <span class="s-state pill-r">Activo</span><br>
+              <span class="s-line-meta">Line Chart · Dataset de fuentes automatizadas</span><br>
+              El valor cayó bajo el rango esperado a las <b>14:20</b> y sigue activo.
+              <div class="s-thumb"><i data-lucide="line-chart" style="width:15px;height:15px;"></i> gráfico (imagen)</div>
+            </div>
+            <div class="s-div"></div>
+            <div class="s-sec"><span style="margin-right:6px;">🟡</span><b>Volumen fuera de rango</b> · <span class="s-state pill-a">Activo</span><br>
+              <span class="s-line-meta">Bar Chart · Visa_Acquiring</span><br>
+              Superó el rango esperado desde las <b>09:10</b>.
+              <div class="s-thumb"><i data-lucide="bar-chart-3" style="width:15px;height:15px;"></i> gráfico (imagen)</div>
+            </div>
+            <div class="s-div"></div>
+            <div class="s-disc">✅ 1 incidente notificado ayer ya se resolvió.</div>
+            <div class="s-btns"><span class="s-btn pri">Ver en Simetrik</span><span class="s-btn">Configurar resumen</span></div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- B · Compacta (lista) -->
+      <div class="alt">
+        <div class="alt-cap"><span class="alt-n">B</span><span class="alt-title">Compacta (lista)</span></div>
+        <div class="alt-trade">Una línea por incidente, sin gráficos. Liviana y escaneable, ideal para no generar ruido diario. Pierde contexto visual.</div>
+        <div class="sf">
+          <div class="s-top"><span class="s-logo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+            <div><span class="s-name">Simetrik</span><span class="s-tag">APP</span><span class="s-time">8:00 a. m.</span></div></div>
+          <div class="s-msg"><div class="s-card">
+            <div class="s-h">📊 Resumen diario · 21 de junio</div>
+            <div class="s-ctx">Tablero de pruebas anomalias · 2 abiertos, 1 resuelto</div>
+            <div class="s-line"><span class="dot dr"></span> Caída en CONTEO_DE_REGISTROS <span class="s-line-meta">· Line Chart</span><span class="s-state pill-r">Activo</span></div>
+            <div class="s-line"><span class="dot da"></span> Volumen fuera de rango <span class="s-line-meta">· Visa_Acquiring</span><span class="s-state pill-a">Activo</span></div>
+            <div class="s-line"><span class="dot dg"></span> Archivo faltante en fiserv <span class="s-line-meta">· 06:10</span><span class="s-state pill-g">Resuelto</span></div>
+            <div class="s-btns"><span class="s-btn pri">Ver en Simetrik</span><span class="s-btn">Configurar resumen</span></div>
+            <div class="s-disc">Lo que sigue abierto del día anterior, con el estado actual.</div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- C · Ejecutiva (resumen + fields) -->
+      <div class="alt">
+        <div class="alt-cap"><span class="alt-n">C</span><span class="alt-title">Ejecutiva (resumen)</span></div>
+        <div class="alt-trade">Una frase de resumen + datos clave en dos columnas y un solo botón. La más corta, foco en "cuántos y qué tan grave". Menos detalle por incidente.</div>
+        <div class="sf">
+          <div class="s-top"><span class="s-logo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+            <div><span class="s-name">Simetrik</span><span class="s-tag">APP</span><span class="s-time">8:00 a. m.</span></div></div>
+          <div class="s-msg"><div class="s-card">
+            <div class="s-h">📊 Resumen diario · 21 de junio</div>
+            <div class="s-sec" style="padding-top:6px;">Hoy siguen abiertos <b>2 incidentes</b> en <b>Tablero de pruebas anomalias</b>. 1 de ayer ya se resolvió.</div>
+            <div class="s-fields">
+              <div><div class="s-field-l">🔴 Caída en CONTEO_DE_REGIS…</div><div class="s-field-v">Activo · 14:20</div></div>
+              <div><div class="s-field-l">🟡 Volumen fuera de rango</div><div class="s-field-v">Activo · 09:10</div></div>
+            </div>
+            <div class="s-btns"><span class="s-btn pri">Ver todo en Simetrik</span></div>
+            <div class="s-disc">Lo que sigue abierto del día anterior.</div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- D · Accionable (botón por incidente) -->
+      <div class="alt">
+        <div class="alt-cap"><span class="alt-n">D</span><span class="alt-title">Accionable (botón por incidente)</span></div>
+        <div class="alt-trade">Cada incidente con su propio botón "Ver" a la derecha. Densidad media, sin imágenes, pero permite saltar directo a cada incidente.</div>
+        <div class="sf">
+          <div class="s-top"><span class="s-logo"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+            <div><span class="s-name">Simetrik</span><span class="s-tag">APP</span><span class="s-time">8:00 a. m.</span></div></div>
+          <div class="s-msg"><div class="s-card">
+            <div class="s-h">📊 Resumen diario · 21 de junio</div>
+            <div class="s-ctx">Tablero de pruebas anomalias · 2 incidentes abiertos</div>
+            <div class="s-line" style="padding:8px 0;"><span style="margin-right:2px;">🔴</span><b style="font-weight:600;">Caída en CONTEO_DE_REGISTROS</b><span class="s-acc-btn">Ver →</span></div>
+            <div class="s-div"></div>
+            <div class="s-line" style="padding:8px 0;"><span style="margin-right:2px;">🟡</span><b style="font-weight:600;">Volumen fuera de rango</b><span class="s-acc-btn">Ver →</span></div>
+            <div class="s-div"></div>
+            <div class="s-disc">✅ 1 resuelto · Lo que sigue abierto del día anterior.</div>
+            <div class="s-btns"><span class="s-btn">Configurar resumen</span></div>
+          </div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>
