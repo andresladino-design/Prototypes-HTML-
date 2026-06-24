@@ -1,0 +1,29 @@
+[
+  {
+    "name": "NavItem",
+    "match": { "anyClass": ["nav-item"] },
+    "props": [
+      { "name": "estado", "options": ["default", "active"], "classMap": { "default": "", "active": "active" } }
+    ],
+    "use": "Ítem de navegación del sidebar.",
+    "antiPatterns": ["No pintes el activo a mano — usa el estado 'active'."]
+  },
+  {
+    "name": "Badge",
+    "match": { "anyClass": ["badge"] },
+    "props": [
+      { "name": "variante", "options": ["default", "soon"], "classMap": { "default": "", "soon": "badge-soon" } }
+    ],
+    "use": "Etiqueta de estado o metadata.",
+    "antiPatterns": ["No le fijes tamaño custom — el badge tiene su escala."]
+  },
+  {
+    "name": "SegmentedOption",
+    "match": { "anyClass": ["tm-prog-segmented-option"] },
+    "props": [
+      { "name": "estado", "options": ["default", "activa"], "classMap": { "default": "", "activa": "is-active" } }
+    ],
+    "use": "Opción de un control segmentado (tabs).",
+    "antiPatterns": []
+  }
+]
