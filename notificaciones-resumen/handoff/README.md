@@ -6,8 +6,8 @@ Specs autocontenidas para implementar las secciones del diálogo de monitoreo de
 
 | Archivo | Cubre | Componentes mock |
 |---|---|---|
-| [`handoff-notificaciones-canales.md`](./handoff-notificaciones-canales.md) | Canales de notificación (Email, Slack, Idioma) + recap de la ventana de monitoreo ("¿cuándo notificar?") | `#dsec-notif`, `.tm-notif-card`, `.tm-chip-input`, `.winrec`, `.bgroup` |
-| [`handoff-limites-sensibilidad.md`](./handoff-limites-sensibilidad.md) | Sensibilidad del KPI + límites duros por bound con valor sugerido por el Agente IA | `.sens-row`, `.tm-limits-block`, `.tm-limit-field` |
+| [`handoff-notificaciones-canales.md`](./handoff-notificaciones-canales.md) | Notificaciones en 3 cards (mismo patrón que Programación): **¿Cuándo?** (selector + timeline 12–12 + recap) → **¿Dónde?** (canales Email/Slack) → **Idioma** | `#dsec-notif`, `tm-prog-card`, `.when-select`, `.winrec-timeline`, `.tm-notif-card`, `.tm-chip-input` |
+| [`handoff-limites-sensibilidad.md`](./handoff-limites-sensibilidad.md) | Sensibilidad del KPI (+ **línea de impacto** por nivel) + límites duros por bound con valor sugerido por el Agente IA | `.sens-card`, `.sens-impact`, `.tm-limits-block`, `.tm-limit-field` |
 
 ## Cómo consumir
 
@@ -20,4 +20,6 @@ Specs autocontenidas para implementar las secciones del diálogo de monitoreo de
 
 - Registro: **Interno / Op Center**. Glosario: **Agente IA**, **incidente**, **gráfico/KPI**, **valor sugerido**.
 - Light mode consistente. Microinteracciones canon 120/200/320 ms ease-out. Skeleton sobre spinner.
-- `schedule` (recurrencia/horario/timezone) y `suggested` son read-only en estas secciones (provienen de Programación y del Agente IA respectivamente).
+- `schedule` (recurrencia/horario/timezone), `suggested` y `detectionsByLevel` son read-only en estas secciones (provienen de Programación y del Agente IA / BE respectivamente).
+- En Notificaciones, **"¿Cuándo?" ya no está gated**: es el primer paso y siempre editable (se eliminó el `disabled`-hasta-que-haya-canal de la versión anterior).
+- Copy: en el banner de Programación se quitó "el agente" donde no aportaba. La sección Programación no tiene doc de handoff propio (su copy vive en `index.html`).

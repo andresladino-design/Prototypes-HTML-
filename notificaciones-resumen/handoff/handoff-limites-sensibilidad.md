@@ -1,7 +1,7 @@
 # Handoff — Sensibilidad y Límites del gráfico (hard limits por bound)
 
-Fecha: 2026-06-24
-Origen: `notificaciones-resumen/index.html` → `.sens-row` (Sensibilidad) + `.tm-limits-block` (límites por bound) del diálogo de monitoreo (prototipo validado)
+Fecha: 2026-06-25
+Origen: `notificaciones-resumen/index.html` → `.sens-card` (Sensibilidad + línea de impacto) + `.tm-limits-block` (límites por bound) del diálogo de monitoreo (prototipo validado)
 Registro: **Interno (Operation Center)** — operador Simetrik ajustando cómo el Agente IA evalúa un gráfico (K Cast)
 Patrón de presentación: **Fila de control (sens-row)** + **grid de bounds con override sobre el valor sugerido por el Agente IA**
 
@@ -24,9 +24,11 @@ Objetivo: que el operador calibre el monitoreo con dos perillas claras (sensibil
 
 ## 3. Historias de usuario
 
-**HU-1 — Ajustar sensibilidad**
-> Como operador, quiero elegir entre sensibilidad Nula, Media o Alta, para balancear entre perderme desviaciones y recibir ruido, entendiendo qué implica cada nivel.
+**HU-1 — Ajustar sensibilidad y ver su impacto**
+> Como operador, quiero elegir entre sensibilidad Nula, Media o Alta y ver la **consecuencia cuantificada** de cada nivel sobre el histórico, para balancear entre perderme desviaciones y recibir ruido con un dato real, no solo una descripción.
 - Segmented de 3 opciones; al cambiar, título y subtítulo se actualizan describiendo el comportamiento.
+- **Línea de impacto** (footer dentro de la misma card): "Con sensibilidad **{nivel}**, en los últimos 7 días te habríamos avisado **{N}** veces." El conteo cambia con el nivel.
+- En el prototipo los conteos están **mockeados** (nula → 4 · media → 7 · alta → 12). En producción los provee el **BE** (ver §9).
 
 **HU-2 — Activar/desactivar un límite duro**
 > Como operador, quiero encender o apagar el límite inferior y el superior de forma independiente, para monitorear solo los bounds que importan en este gráfico.
@@ -40,8 +42,10 @@ Objetivo: que el operador calibre el monitoreo con dos perillas claras (sensibil
 
 | Mock (prototipo) | Componente desyk | Notas |
 |---|---|---|
-| `.sens-row` | `Card` / row de control (composición) | ícono `gauge` + título/sub dinámico + control a la derecha |
-| `.bgroup` (Nula/Media/Alta) | `SegmentedControl` | 3 opciones, valor controlado; cambia copy asociado |
+| `.sens-card` | `Card` (composición) | agrupa la fila de control + la línea de impacto como una sola unidad (borde + radius; el footer va separado por un divisor) |
+| `.sens-row` | row de control dentro de la card | ícono `gauge` + título/sub dinámico + control a la derecha |
+| `.bgroup` (Nula/Media/Alta) | `SegmentedControl` | 3 opciones, valor controlado; cambia copy + conteo de impacto |
+| `.sens-impact` | callout / footer de la card | ícono `zap` + texto con `{nivel}` y `{conteo}` en `<strong>`; fondo atenuado, divisor superior |
 | `.tm-limits-header` | label de sección | uppercase, `muted-foreground`; ícono `box`/`layers` |
 | `.tm-limit-field` + `.tm-limit-check` | `Checkbox` + grupo de campo | estado `is-off` atenúa el input |
 | `.tm-limit-input` | `Input` (numérico, `tabular-nums`) | `data-suggested` = valor del agente |
@@ -50,7 +54,11 @@ Objetivo: que el operador calibre el monitoreo con dos perillas claras (sensibil
 **Estructura sugerida (React):**
 
 ```
-<SensitivityRow value={sens} onChange={setSens} />   // Nula | Media | Alta
+<SensitivityCard
+  value={sens}                  // 'Nula' | 'Media' | 'Alta'
+  onChange={setSens}
+  detectionCounts={counts}      // { Nula: 4, Media: 7, Alta: 12 } — del BE
+  windowDays={7} />             // alimenta la línea de impacto "te habríamos avisado N veces"
 
 <LimitsBlock title="Todas las categorías">
   <LimitField bound="min" label="Límite inferior" enabled value suggested onChange onToggle onRevert />
@@ -82,6 +90,11 @@ Lógica clave (del prototipo):
 - Alta → `Sensibilidad · alta` · `Avisa ante cualquier desviación inusual, sin esperar al límite fijo.`
 - Opciones segmented: `Nula` / `Media` / `Alta`
 
+**Línea de impacto** (footer de la card, ícono `zap`)
+- Plantilla: `Con sensibilidad {nivel}, en los últimos {N días} te habríamos avisado {conteo} veces.`
+- `{nivel}` en minúscula (nula / media / alta); `{conteo}` y `{nivel}` resaltados (`<strong>`).
+- Conteos de ejemplo (mock prototipo): nula → 4 · media → 7 · alta → 12. Ventana: 7 días.
+
 **Límites**
 - Header: `Todas las categorías`
 - Labels: `Límite inferior` · `Límite superior`
@@ -111,13 +124,16 @@ Durations canónicas: 120 / 200 / 320 ms ease-out.
 ```json
 {
   "sensitivity": "media",
+  "detectionsByLevel": { "nula": 4, "media": 7, "alta": 12, "windowDays": 7 },
   "limits": {
     "min": { "enabled": true, "value": 120, "suggested": 120 },
     "max": { "enabled": true, "value": 480, "suggested": 480 }
   }
 }
 ```
-`PUT /monitoring/{chartId}/thresholds` con el mismo shape. `suggested` es read-only (lo provee el agente).
+`PUT /monitoring/{chartId}/thresholds` con el mismo shape. `suggested` y `detectionsByLevel` son **read-only** (los provee el Agente IA / BE).
+
+> **Dependencia del BE para la línea de impacto:** `detectionsByLevel` = cuántas detecciones habría tenido cada nivel sobre la ventana histórica (`windowDays`). Sin este dato la línea no es real; en el prototipo está mockeada. *(Mejora futura, fuera de alcance del prototipo: devolver también los puntos/anomalías por nivel para resaltarlos en la gráfica de previsualización.)*
 
 ## 10. Edge cases y validaciones
 
@@ -130,8 +146,9 @@ Durations canónicas: 120 / 200 / 320 ms ease-out.
 
 ## 11. Test cases sugeridos
 
-1. Cambiar sensibilidad actualiza título y subtítulo correctos por nivel.
-2. Editar un input a un valor distinto del sugerido muestra el chip "Valor sugerido".
+1. Cambiar sensibilidad actualiza título, subtítulo y la **línea de impacto** (nivel + conteo) por nivel.
+2. La línea de impacto refleja el conteo de `detectionsByLevel` del BE (o el mock si no hay dato).
+3. Editar un input a un valor distinto del sugerido muestra el chip "Valor sugerido".
 3. Clic en el chip revierte al sugerido y oculta el chip.
 4. Apagar un bound atenúa el input, lo vuelve inerte y conserva su valor.
 5. `min >= max` con ambos activos dispara error de coherencia.
@@ -144,6 +161,7 @@ Durations canónicas: 120 / 200 / 320 ms ease-out.
 ## 13. Checklist pre-PR
 
 - [ ] Sensibilidad resuelta con `SegmentedControl` desyk (no botones custom)
+- [ ] Línea de impacto presente y conectada al conteo por nivel (`detectionsByLevel` del BE; mock si no existe aún)
 - [ ] Inputs con `Input` desyk numérico, `tabular-nums`
 - [ ] Chip "Valor sugerido" visible solo en override; revert funcional
 - [ ] Bound off → input atenuado e inerte, conserva valor
