@@ -17,6 +17,7 @@ Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **
 - **Sensibilidad** configurable (nula/media/alta) a nivel de KPI.
 - Tabs segmentadas e iconografía unificada.
 - Archivos de apoyo: `templates.html`, `slack-alternativas.html`, `slack-blockkit*.json`.
+- Spec de plantillas Slack del agente (default/compact/ultra-compact): `slack-templates-agente.README.md`.
 
 ## Stack
 
