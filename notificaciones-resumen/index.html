@@ -383,9 +383,21 @@
     /* Sensibilidad como una sola tarjeta: fila de control + footer de impacto (mismo bloque) */
     .sens-card { border: 1px solid var(--border-default); border-radius: 11px; background: #fff; overflow: hidden; }
     .sens-card .sens-row { border: 0; border-radius: 0; }
-    .sens-impact { display: flex; align-items: center; gap: 8px; padding: 10px 13px; border-top: 1px solid var(--border-subtle); background: hsl(var(--muted) / 0.4); font-size: 12.5px; line-height: 1.4; color: var(--text-secondary); }
-    .sens-impact .lucide { width: 15px; height: 15px; flex-shrink: 0; color: var(--text-tertiary); }
-    .sens-impact strong { font-weight: 600; color: var(--text-primary); }
+    /* Gráfica + límites + sensibilidad en UNA sola card (.tm-dialog-preview-card).
+       cat-config-box es la sección inferior, separada de la gráfica por un divisor. */
+    .cat-config-box { border-top: 1px solid var(--border-default); margin-top: 14px; padding-top: 16px; }
+    .cat-config-box .sens-card { background: hsl(var(--muted) / 0.5); border: 0; border-radius: 10px; overflow: hidden; margin-top: 16px; }
+    .cat-config-box .sens-card .sens-row { background: transparent; }
+    /* Mini-dashboard de impacto (arriba de la gráfica): consecuencia de la sensibilidad sobre los últimos 30 días */
+    .sens-kpi-wrap { margin: 12px 0 0; }
+    .sens-kpi-cap { font-size: 11.5px; color: var(--text-tertiary); margin-bottom: 8px; }
+    .sens-kpi-row { display: flex; border: 1px solid var(--border-default); border-radius: 10px; overflow: hidden; background: hsl(var(--muted) / 0.35); }
+    .sens-kpi { flex: 1; padding: 11px 14px; }
+    .sens-kpi + .sens-kpi { border-left: 1px solid var(--border-default); }
+    .sens-kpi-num { font-size: 17px; font-weight: 600; line-height: 1.1; color: var(--text-primary); font-variant-numeric: tabular-nums; transition: color .15s; }
+    .sens-kpi-num.is-red { color: hsl(var(--destructive)); }
+    .sens-kpi-num.is-amber { color: var(--amber-text); }
+    .sens-kpi-lbl { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
     /* ---- Gráfica de comportamiento del KPI (sensibilidad ↔ histórico) ---- */
     .sens-chart-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
     .sens-chart-legend { display: inline-flex; align-items: center; gap: 12px; font-size: 11px; color: var(--text-tertiary); }
@@ -1131,8 +1143,7 @@
 .tm-limits-block { display: flex; flex-direction: column; gap: 10px; }
 .tm-limits-header {
       display: flex; align-items: center; gap: 8px;
-      font-size: 11px; font-weight: 600; color: hsl(var(--muted-foreground));
-      letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: 13.5px; font-weight: 500; color: #1F1B2E;
     }
 .tm-limits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .tm-limit-field { display: flex; flex-direction: column; gap: 6px; }
@@ -2332,8 +2343,27 @@
                   </div>
                 </div>
                 <svg class="sens-chart-svg" id="sens-chart" viewBox="0 0 520 190" aria-label="Histórico del KPI con anomalías según sensibilidad"></svg>
-              </div>
+                <div class="sens-kpi-wrap">
+                  <div class="sens-kpi-cap">Con esta sensibilidad, en los últimos 30 días habrías recibido:</div>
+                  <div class="sens-kpi-row">
+                    <div class="sens-kpi">
+                      <div class="sens-kpi-num" id="sens-impact-count">7</div>
+                      <div class="sens-kpi-lbl">avisos en total</div>
+                    </div>
+                    <div class="sens-kpi">
+                      <div class="sens-kpi-num is-red" id="sens-impact-red">2</div>
+                      <div class="sens-kpi-lbl">urgentes</div>
+                    </div>
+                    <div class="sens-kpi">
+                      <div class="sens-kpi-num is-amber" id="sens-impact-yellow">5</div>
+                      <div class="sens-kpi-lbl">de atención</div>
+                    </div>
+                  </div>
+                </div>
 
+              <!-- Límites + sensibilidad: misma card que la gráfica, separados por un divisor
+                   (lo que se edita acá impacta la gráfica de arriba) -->
+              <div class="cat-config-box">
               <!-- Límites de la categoría seleccionada (los manda el selector de la gráfica) -->
               <div class="tm-limits-block" id="cat-limits">
                 <div class="tm-limits-header">
@@ -2342,7 +2372,7 @@
                     <polyline points="2 17 12 22 22 17"></polyline>
                     <polyline points="2 12 12 17 22 12"></polyline>
                   </svg>
-                  <span id="catlim-name">Todas las categorías</span>
+                  <span id="catlim-name">Límites de Conteo De Registros</span>
                 </div>
                 <div class="tm-limits-grid">
                   <div class="tm-limit-field" data-bound="lower">
@@ -2378,10 +2408,8 @@
                 </div>
                 <input type="range" class="sens-slider" id="sens-slider" min="0" max="100" step="1" value="50" oninput="onSensSlider(this)" aria-label="Sensibilidad">
                 <div class="sens-slider-scale"><span>Nula</span><span>Media</span><span>Alta</span></div>
-                <div class="sens-impact" id="sens-impact">
-                  <i data-lucide="zap"></i>
-                  <span>En los últimos 30 días te habríamos avisado <strong id="sens-impact-count">7</strong> veces — <strong id="sens-impact-red" style="color:hsl(var(--destructive));">2</strong> urgentes · <strong id="sens-impact-yellow" style="color:var(--amber-text);">5</strong> de atención.</span>
-                </div>
+              </div>
+              </div>
               </div>
 
               <div class="tm-dialog-series-block" id="series-block">
@@ -2913,7 +2941,11 @@
     // Editor de límites contextual: refleja y edita los límites (+ on/off) de la categoría seleccionada.
     function renderCatLimits() {
       const lim = DS_AN_CATS[sensCat]; if (!lim) return;
-      const name = document.getElementById('catlim-name'); if (name) name.textContent = sensCat;
+      const name = document.getElementById('catlim-name');
+      if (name) {
+        const metric = (document.getElementById('dlg-content-title')?.textContent || 'la métrica').trim();
+        name.textContent = 'Límites de ' + (sensCat === 'Todas las categorías' ? metric : sensCat);
+      }
       [['lower', 'catlim-lower'], ['upper', 'catlim-upper']].forEach(([b, id]) => {
         const inp = document.getElementById(id); if (!inp) return;
         inp.value = lim[b];
@@ -3092,7 +3124,7 @@
       const pctEl = document.getElementById('sens-pct'); if (pctEl) pctEl.textContent = pct + '%';
       const sub = document.getElementById('sens-sub');
       if (sub) sub.textContent = pct === 0
-        ? 'Solo avisa cuando el valor supera el límite que definiste.'
+        ? 'Funciona como umbral fijo: solo avisa cuando el valor supera el límite que definiste.'
         : pct <= 66 ? 'Avisa al acercarse al límite, pasado un umbral intermedio.'
         : 'Avisa ante cualquier desviación inusual, sin esperar al límite.';
       const cn = document.getElementById('sens-impact-count'); if (cn) cn.textContent = total;
