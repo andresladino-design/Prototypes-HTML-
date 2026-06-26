@@ -5,6 +5,8 @@ Origen: `notificaciones-resumen/templates.html` (prototipo validado). Dos planti
 Registro: **Op Center** — notificación saliente del Centro de Operaciones a quien configuró el monitoreo en su Espacio de trabajo.
 Patrón de presentación: **lista de incidentes agrupada/escaneable**, generada 1:1 desde el JSON del detector (BADS).
 
+> **Punto de entrada (wording 26-jun):** el resumen se activa desde el botón **"Resumen de incidentes"** (label corto, ícono `mails`) en la vista de monitoreo. Su popover aclara el alcance —**"de este tablero"**— y la hora configurable —**"Todos los días, a la hora que elijas"** (sin "cada mañana")—. El resumen **no lo genera una IA**: reutiliza los textos ya generados de cada incidente (no introducir copy de "agente/IA").
+
 > **Regla base (no negociable):** el contenido sale **1:1 del `bads_payload`** del endpoint de incidentes. Texto **verbatim**; la única transformación permitida es **elegir idioma** (`es`/`en`/`pt`) y **resolver los marcadores `[n]`** con `references[]`. No se genera ni reescribe texto, no se fabrican campos. Todo lo que envió Santiago (3 plantillas vía `X-Slack-Template`, acciones a nivel mensaje, `mark_as_seen`, header `x-slack-responsible`) queda **fuera de este alcance**.
 
 ---

@@ -7,6 +7,12 @@ Patrón de presentación: **Centro de control vertical** — gráfica con select
 
 > **Reescrito el 26-jun:** este handoff reemplaza el modelo anterior (segmented Nula/Media/Alta + franja azul). El rediseño (sesión 25-jun, 4:42 PM) unifica **severidad = sensibilidad** y cambia el control a un **slider continuo**.
 
+> **Actualización de layout (26-jun pm):**
+> - **Gráfica + impacto + límites + sensibilidad en UNA sola card** (`.tm-dialog-preview-card`, blanca con borde), separadas por **divisores**. El bloque de límites+sensibilidad (`.cat-config-box`) es ahora una **sección inferior** de esa card, no una card aparte. Razón: lo que se edita en límites/sensibilidad **impacta la gráfica de arriba**, así que se leen como una unidad.
+> - **Impacto = mini-dashboard** (no la frase de antes): bajo la gráfica, un caption + **3 tiles** (avisos / urgentes / de atención) con números grandes que cambian al mover el slider. Reemplaza el footer `.sens-impact`.
+> - **Sensibilidad** dentro de la sección va en **card gris suave** (`muted/0.5`, sin borde); los **límites** quedan sobre el blanco de la card.
+> - **Header de límites = "Límites de {nombre de la métrica}"** (dinámico; toma `#dlg-content-title`, o el nombre de la serie al enfocar), con el **mismo estilo** que el título de la gráfica (13.5px/500/#1F1B2E, sin uppercase) — ya no el textito en mayúsculas.
+
 ---
 
 ## 1. Contexto y objetivo
@@ -37,8 +43,8 @@ Objetivo: que el operador calibre el monitoreo con una sola perilla continua ent
 **HU-1 — Graduar la sensibilidad con una perilla continua y ver su impacto**
 > Como operador, quiero mover un slider de sensibilidad y ver en vivo, sobre la gráfica y con un dato real, cuántas señales urgentes y de atención generaría, para calibrar sin recibir ruido ni perderme desviaciones.
 - **Slider continuo 0–100%** (escala Nula · Media · Alta) con readout de %. Reemplaza el segmented de 3 opciones.
-- Al moverlo: la **banda amarilla** crece/se cierra hacia el centro, los puntos se re-clasifican y el contador se recalcula.
-- **Contador de impacto** (footer): "En los últimos 30 días te habríamos avisado **N** veces — **X** urgentes · **Y** de atención." (rojo / amarillo separados).
+- Al moverlo: la **banda amarilla** crece/se cierra hacia el centro, los puntos se re-clasifican y el **mini-dashboard de impacto** se recalcula.
+- **Mini-dashboard de impacto** (debajo de la gráfica, no en el footer del slider): caption `Con esta sensibilidad, en los últimos 30 días habrías recibido:` + **3 tiles** con número grande — **avisos en total** · **urgentes** (rojo) · **de atención** (ámbar). Los números cambian en vivo al mover el slider (mucho más legible que la frase anterior). _Insight de la sesión 26-jun: el impacto enterrado en una frase no se leía como "lo que estoy configurando"._
 
 **HU-2 — Definir los límites duros (banda roja) por bound, activables**
 > Como operador, quiero fijar el límite inferior y superior, activarlos/desactivarlos por separado, para monitorear solo los bordes que importan.
@@ -66,9 +72,11 @@ Objetivo: que el operador calibre el monitoreo con una sola perilla continua ent
 | `#sens-chart` (SVG render JS) | gráfico custom (SVG) | dibuja zonas rojo/amarillo, líneas de límite y umbral, serie y puntos clasificados |
 | `.cat-select` / `.cat-menu` | `Select` / `DropdownMenu` | selector de categoría sobre la gráfica; "Todas las categorías" + una opción por serie, con check en la activa. Con una serie enfocada muestra un **chip con ✕** (`.cat-clear`) para volver a "Todas" |
 | `.sens-slider` (`input[range]`) | `Slider` | 0–100, continuo; pista ámbar; thumb con borde `--primary` |
-| `.sens-row` + `.sens-pct` | row de control | ícono `gauge` + título/sub dinámico + readout `%` a la derecha |
-| `.sens-impact` | callout / footer | ícono `zap`; conteo total + desglose urgentes/atención |
-| `#cat-limits` (`.tm-limits-block`) | `Card` | editor de límites de la categoría seleccionada (header = nombre de la categoría) |
+| `.sens-row` + `.sens-pct` | row de control | ícono `gauge` + título/sub dinámico + readout `%` a la derecha; dentro de la **card gris** (`muted/0.5`) de sensibilidad |
+| `.sens-kpi-wrap` / `.sens-kpi` (×3) | mini-dashboard (stat tiles) | caption + 3 tiles (avisos / urgentes / de atención); número 17px; vive **debajo de la gráfica**, dentro de la card de comportamiento. Reemplaza `.sens-impact` |
+| `.tm-dialog-preview-card` (contenedor) | `Card` (blanca, borde) | **una sola card** que envuelve: gráfica → mini-dashboard → (divisor) límites → (divisor) sensibilidad gris |
+| `.cat-config-box` | sección dentro de la card | límites + sensibilidad como sección inferior, separada de la gráfica por `border-top`. No es card propia |
+| `#cat-limits` (`.tm-limits-block`) | bloque de campos | editor de límites; **header = "Límites de {métrica/serie}"** con estilo de título (13.5/500), no uppercase |
 | `.tm-limit-field` + `.tm-limit-check` | `Checkbox` + grupo de campo | on/off por bound; `is-off` atenúa el input |
 | `.tm-limit-input` | `Input` (numérico, `tabular-nums`) | edita el límite; redibuja la banda en vivo |
 | `#series-block` / `.tm-series-grid` | grid (table-like) | POR SERIE; visible **solo en "Todas"** |
@@ -114,16 +122,18 @@ type Category = {
 **Gráfica**
 - Título: `Comportamiento del KPI · últimos 30 días`
 - Leyenda: `Fuera de límites · urgente` (rojo) · `Zona de atención · medio` (amarillo)
-- (Sin aux duplicado bajo la gráfica: el conteo vive solo en el footer de impacto del slider.)
 
-**Sensibilidad** (slider)
+**Mini-dashboard de impacto** (debajo de la gráfica)
+- Caption: `Con esta sensibilidad, en los últimos 30 días habrías recibido:`
+- Tiles: `{N}` `avisos en total` · `{X}` `urgentes` (rojo) · `{Y}` `de atención` (ámbar)
+
+**Sensibilidad** (slider, en card gris)
 - Título: `Sensibilidad` · readout `{pct}%`
-- Sub (por rango): `0%` → `Solo avisa cuando el valor supera el límite que definiste.` · `1–66%` → `Avisa al acercarse al límite, pasado un umbral intermedio.` · `67–100%` → `Avisa ante cualquier desviación inusual, sin esperar al límite.`
+- Sub (por rango): `0%` → `Funciona como umbral fijo: solo avisa cuando el valor supera el límite que definiste.` · `1–66%` → `Avisa al acercarse al límite, pasado un umbral intermedio.` · `67–100%` → `Avisa ante cualquier desviación inusual, sin esperar al límite.`
 - Escala: `Nula` · `Media` · `Alta`
-- Impacto (footer): `En los últimos 30 días te habríamos avisado {N} veces — {X} urgentes · {Y} de atención.`
 
 **Límites**
-- Header: nombre de la categoría seleccionada (`Todas las categorías` / `Banco_Occidente` / …)
+- Header (dinámico): `Límites de {nombre de la métrica}` en agregado (toma `#dlg-content-title`, p. ej. `Límites de Conteo De Registros`); al enfocar una serie, `Límites de {serie}` (p. ej. `Límites de Banco_Occidente`)
 - Labels: `Límite inferior` · `Límite superior`
 - Hint sugerido (global): `Valor sugerido: <N>`
 
@@ -217,8 +227,9 @@ Durations canónicas: 120 / 200 / 320 ms ease-out. Sin spinners; skeleton.
 - [ ] Límites con on/off por bound; off → **se quita ese lado del gráfico** (zona/línea/umbral/marcado)
 - [x] Borde suave (gradiente rojo↔amarillo) sobre cada límite activo con banda amarilla
 - [x] Ejes: valores en Y (+ gridlines) y fechas rotadas en X
-- [x] Sin conteo duplicado: vive solo en el footer de impacto (se quitó el aux bajo la gráfica)
-- [ ] Contador con desglose urgentes / de atención, en vivo
+- [ ] **Impacto = mini-dashboard** (3 tiles: avisos / urgentes / de atención) debajo de la gráfica, números en vivo — reemplaza el footer `.sens-impact`
+- [ ] **Una sola card** envuelve gráfica + impacto + límites + sensibilidad, separadas por divisores; sensibilidad en **card gris** (`muted/0.5`)
+- [ ] Header de límites = **"Límites de {métrica/serie}"** (dinámico), con estilo de título (no uppercase)
 - [ ] Glosario: "monitoreo" (no "agente"), "incidente", "señal", "KPI"
 - [ ] Microinteracciones 120/200/320 ms ease-out · light mode · A11y (labels, foco, contraste AA)
 - [ ] Pendiente: que el popover del pill no se corte en las últimas filas; **Fase 5** (límites como % relativos). Nota: la **narrativa por serie** se probó y se descartó (no va en esta versión).
