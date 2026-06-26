@@ -326,12 +326,7 @@
     .sens-row--bare .sens-row-icon .lucide { width: 18px; height: 18px; color: hsl(var(--muted-foreground)); }
     .winrec-timeline { margin-top: 14px; }
     .winrec-track { position: relative; height: 10px; border-radius: 5px; background: var(--bg-segment); }
-    .winrec-band { position: absolute; top: 0; bottom: 0; background: hsl(var(--primary-hsl) / 0.16); border-radius: 5px; opacity: 0.31; }
-    .winrec-fill { position: absolute; top: 0; bottom: 0; background: var(--primary); border-radius: 5px;
-      transition: left .45s cubic-bezier(.4, 0, .2, 1), width .45s cubic-bezier(.4, 0, .2, 1); }
-    .winrec-timeline.mode-during .winrec-fill { left: 33.33%; width: 50%; }
-    .winrec-timeline.mode-close  .winrec-fill { left: 80.13%; width: 3.2%; animation: winrecPulse 1.8s ease-in-out infinite; }
-    @keyframes winrecPulse { 0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary-hsl) / 0.4); } 50% { box-shadow: 0 0 0 6px hsl(var(--primary-hsl) / 0); } }
+    .winrec-band { position: absolute; top: 0; bottom: 0; background: hsl(var(--primary-hsl) / 0.16); border-radius: 5px; opacity: 0.5; }
     .winrec-ticks { display: flex; justify-content: space-between; margin-top: 8px; }
     .winrec-ticks span { font-size: 10.5px; color: var(--text-muted); }
     .winrec-badges-label { font-size: 10.5px; font-weight: 600; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; margin-top: 14px; }
@@ -342,6 +337,41 @@
     .winrec-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
     .winrec-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 500; color: var(--text-secondary); background: transparent; border: 1px solid var(--border-default); border-radius: 999px; padding: 2px 8px; }
     .winrec-badge .lucide { width: 11px; height: 11px; color: var(--text-tertiary); }
+
+    /* ---- ¿Cuándo notificar? — detalle + barra como explicador (marcadores = notificaciones) ---- */
+    .when-tag { font-size: 9.5px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; padding: 1px 6px; border-radius: 5px; background: var(--green-soft); color: var(--green-text); }
+    .when-detail-line { font-size: 12.5px; color: var(--text-secondary); line-height: 1.45; margin: 14px 2px 0; }
+    .when-detail-line strong { color: var(--text-primary); font-weight: 600; }
+    /* Empty state de primer ingreso (sin configurar) */
+    .tm-prog-card-body.is-unset .when-config { display: none; }
+    .when-empty { display: none; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 18px 16px 8px; }
+    .tm-prog-card-body.is-unset .when-empty { display: flex; }
+    .when-empty-icon { width: 40px; height: 40px; border-radius: 10px; background: hsl(var(--muted) / 0.7); display: inline-flex; align-items: center; justify-content: center; color: var(--text-tertiary); }
+    .when-empty-icon .lucide { width: 20px; height: 20px; }
+    .when-empty-title { font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+    .when-empty-sub { font-size: 12.5px; color: var(--text-tertiary); max-width: 320px; line-height: 1.45; }
+    .when-empty-btn { margin-top: 6px; display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border: 0; border-radius: 8px; background: var(--primary); color: #fff; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: background .12s; }
+    .when-empty-btn:hover { background: var(--primary-hover); }
+    .when-empty-btn .lucide { width: 15px; height: 15px; }
+    .when-graphic { padding: 16px 20px; border: 0; border-radius: 10px; background: hsl(var(--muted) / 0.5); }
+    .when-graphic.is-never .winrec-head,
+    .when-graphic.is-never .winrec-timeline,
+    .when-graphic.is-never .winrec-badges-label,
+    .when-graphic.is-never .winrec-badges { display: none; }
+    .when-graphic.is-never .when-detail-line { margin: 0; }
+    .winrec-head { display: flex; align-items: center; gap: 6px; }
+    .winrec-head-label { font-size: 10.5px; font-weight: 600; color: var(--text-muted); letter-spacing: .04em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px; }
+    .winrec-head-label .lucide { width: 13px; height: 13px; }
+    .winrec-track { overflow: visible; }
+    .winrec-mk { position: absolute; top: 50%; width: 13px; height: 13px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.18); z-index: 2; transition: transform .12s; }
+    .winrec-mk:hover { transform: translate(-50%, -50%) scale(1.25); z-index: 4; }
+    .winrec-mk.is-final { width: 15px; height: 15px; }
+    .winrec-mk.amber { background: var(--amber-text); }
+    .winrec-mk.red { background: var(--red-text); }
+    .winrec-mk.orange { background: #e8833a; }
+    .winrec-mk.green { background: var(--green-text); }
+    .winrec-mk[data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); white-space: nowrap; background: hsl(240 6% 12%); color: #fff; font-size: 11px; font-weight: 500; padding: 4px 8px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.22); z-index: 6; pointer-events: none; }
+    .winrec-mk[data-tip]:hover::before { content: ""; position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%); border: 4px solid transparent; border-top-color: hsl(240 6% 12%); z-index: 6; pointer-events: none; }
 
     /* ---- Sensibilidad (nivel KPI) — fila compacta + button group ---- */
     .sens-row { display: flex; align-items: center; gap: 12px; padding: 11px 13px; border: 1px solid var(--border-default); border-radius: 11px; background: #fff; }
@@ -1419,19 +1449,18 @@
 .when-select.open .when-select-btn svg { transform: rotate(180deg); }
 .when-menu { position: absolute; top: calc(100% + 4px); right: 0; z-index: 20; min-width: 250px; padding: 4px; border-radius: 10px; background: #fff; border: 1px solid var(--border-default); box-shadow: 0 8px 24px rgba(20,20,40,.12); display: none; flex-direction: column; gap: 2px; }
 .when-select.open .when-menu { display: flex; }
-.when-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; padding: 8px 10px; border: 0; border-radius: 7px; background: none; cursor: pointer; font: inherit; transition: background .12s; }
+.when-opt { display: flex; flex-direction: row; align-items: flex-start; gap: 10px; width: 100%; text-align: left; padding: 8px 10px; border: 0; border-radius: 7px; background: none; cursor: pointer; font: inherit; transition: background .12s; }
 .when-opt:hover { background: var(--bg-hover); }
+.when-opt-ic { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; color: var(--text-tertiary); }
+.when-opt.is-sel .when-opt-ic { color: var(--primary-text); }
+.when-opt-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .when-opt .ot { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 .when-opt .od { font-size: 11.5px; color: var(--text-tertiary); line-height: 1.35; }
 .when-opt.is-sel .ot { color: var(--primary-text); }
+.when-cur-ic { display: inline-flex; align-items: center; }
+.when-cur-ic:empty { display: none; }
+.when-cur-ic .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
 
-/* "Nunca": el body de ¿Cuándo? cambia a empty-state y las tarjetas ¿Dónde?/Idioma se atenúan. */
-.when-empty { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 96px; padding: 8px 12px; text-align: center; }
-.when-empty-icon { color: var(--text-muted); }
-.when-empty-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-.when-empty-sub { font-size: 12px; color: var(--text-tertiary); max-width: 320px; line-height: 1.4; }
-.tm-prog-card-body.is-never .when-normal { display: none; }
-.tm-prog-card-body.is-never .when-empty { display: flex; }
 /* Cuando ¿Cuándo? = Nunca, las tarjetas siguientes (¿Dónde? e Idioma) quedan inertes y atenuadas */
 #dsec-notif.notif-when-never .tm-prog-card:not([data-when-scope]) { opacity: .45; pointer-events: none; filter: saturate(.6); transition: opacity .15s; }
   </style>
@@ -1733,7 +1762,7 @@
           </div>
           <div class="notif-wrap ml-auto">
             <button id="navReportes" class="pill-btn h-9" onclick="toggleNotifPop(event)">
-              <i data-lucide="mails"></i> Resumen diario
+              <i data-lucide="mails"></i> Resumen de incidentes
             </button>
             <div id="notifPop" class="notif-pop" onclick="event.stopPropagation()">
               <div class="notif-pop-head">
@@ -1741,11 +1770,11 @@
                   <span class="flex items-center justify-center rounded-md flex-shrink-0" style="width:26px;height:26px;background:var(--primary-soft);">
                     <i data-lucide="mails" style="width:15px;height:15px;color:var(--primary-text);"></i>
                   </span>
-                  <span class="text-[13.5px] font-semibold flex-1" style="color:var(--text-primary);">Resumen diario</span>
+                  <span class="text-[13.5px] font-semibold flex-1" style="color:var(--text-primary);">Resumen diario de incidentes</span>
                   <label class="switch"><input type="checkbox" id="rs-active" checked onchange="rsToggle()"><span class="track"></span><span class="thumb"></span></label>
                 </div>
                 <p class="text-[12px] mt-2 leading-relaxed" style="color:var(--text-tertiary);">
-                  Cada mañana recibes un resumen de las anomalías que siguen abiertas <strong>del día anterior</strong>, por los canales donde ya recibes avisos.
+                  Todos los días, <strong>a la hora que elijas</strong>, recibes un resumen de los incidentes de este tablero que siguen abiertos, por los canales donde ya recibes avisos.
                 </p>
               </div>
               <div id="rs-body" class="notif-pop-body">
@@ -2106,47 +2135,62 @@
                   </span>
                   <div class="when-select">
                     <button type="button" class="when-select-btn" onclick="whenMenu(this)">
-                      <span data-when-cur>Nunca</span>
+                      <span class="when-cur-ic" data-when-cur-ic></span>
+                      <span data-when-cur>Sin configurar</span>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </button>
                     <div class="when-menu">
-                      <button type="button" class="when-opt is-sel" onclick="whenPick(this,'never','Nunca')">
-                        <span class="ot">Nunca</span>
-                        <span class="od">No recibirás notificaciones de este monitoreo.</span>
+                      <button type="button" class="when-opt" onclick="whenPick(this,'never','Nunca')">
+                        <i data-lucide="bell-off" class="when-opt-ic"></i>
+                        <span class="when-opt-txt">
+                          <span class="ot">Nunca</span>
+                          <span class="od">No recibirás avisos. El monitoreo igual registra todo in-app.</span>
+                        </span>
                       </button>
-                      <button type="button" class="when-opt" onclick="whenPick(this,'close','Solo al cierre')">
-                        <span class="ot">Solo al cierre</span>
-                        <span class="od">Avisa solo al terminar, con el estado final.</span>
+                      <button type="button" class="when-opt" onclick="whenPick(this,'final','Solo al final')">
+                        <i data-lucide="bell" class="when-opt-ic"></i>
+                        <span class="when-opt-txt">
+                          <span class="ot">Solo al final <span class="when-tag">recomendado</span></span>
+                          <span class="od">Al cerrar la ventana, el estado final del incidente.</span>
+                        </span>
                       </button>
-                      <button type="button" class="when-opt" onclick="whenPick(this,'during','Todo el tiempo')">
-                        <span class="ot">Todo el tiempo</span>
-                        <span class="od">Avisa al detectar el incidente y durante el horario programado.</span>
+                      <button type="button" class="when-opt" onclick="whenPick(this,'live','En tiempo real')">
+                        <i data-lucide="bell-ring" class="when-opt-ic"></i>
+                        <span class="when-opt-txt">
+                          <span class="ot">En tiempo real</span>
+                          <span class="od">Cada cambio de estado, a medida que ocurre.</span>
+                        </span>
                       </button>
                     </div>
                   </div>
                 </div>
-                <div class="tm-prog-card-body is-never" data-when-body>
-                  <div class="when-normal">
-                    <div class="winrec-timeline mode-during">
-                      <div class="winrec-track"><div class="winrec-band" style="left:33.33%;width:50%"></div><div class="winrec-fill"></div></div>
+                <div class="tm-prog-card-body is-unset" data-when-body>
+                  <div class="when-empty" data-when-empty>
+                    <span class="when-empty-icon"><i data-lucide="bell-plus"></i></span>
+                    <span class="when-empty-title">Aún no configuras las notificaciones</span>
+                    <span class="when-empty-sub">Define cuándo quieres recibir avisos de los incidentes de este monitoreo.</span>
+                    <button type="button" class="when-empty-btn" onclick="whenConfigure(this)"><i data-lucide="settings-2"></i> Configurar notificaciones</button>
+                  </div>
+                  <div class="when-config" data-when-config>
+                  <div class="when-graphic" data-when-graphic>
+                    <div class="winrec-head">
+                      <span class="winrec-head-label"><i data-lucide="calendar-clock"></i> Ventana de monitoreo</span>
+                    </div>
+                    <div class="winrec-timeline">
+                      <div class="winrec-track" data-when-track><div class="winrec-band" style="left:33.33%;width:50%"></div></div>
                       <div class="winrec-ticks"><span>12 a.m.</span><span>6 a.m.</span><span>12 m.</span><span>6 p.m.</span><span>12 a.m.</span></div>
                     </div>
-                    <div>
-                      <div class="winrec-badges-label">Programación</div>
-                      <div class="winrec-badges">
-                        <span class="winrec-badge"><i data-lucide="repeat"></i>Diario</span>
-                        <span class="winrec-badge"><i data-lucide="clock"></i>08:00 a.m. – 08:00 p.m.</span>
-                        <span class="winrec-badge"><i data-lucide="globe"></i>America/Bogota</span>
-                        <button type="button" class="winrec-edit" onclick="gotoProg()" title="Editar en programación" aria-label="Editar en programación">
-                          <i data-lucide="pencil"></i>
-                        </button>
-                      </div>
+                    <div class="when-detail-line" data-when-line></div>
+                    <div class="winrec-badges-label">Programación</div>
+                    <div class="winrec-badges">
+                      <span class="winrec-badge"><i data-lucide="repeat"></i>Diario</span>
+                      <span class="winrec-badge"><i data-lucide="clock"></i>08:00 a.m. – 08:00 p.m.</span>
+                      <span class="winrec-badge"><i data-lucide="globe"></i>America/Bogota</span>
+                      <button type="button" class="winrec-edit" onclick="gotoProg()" title="Editar en programación" aria-label="Editar en programación">
+                        <i data-lucide="pencil"></i>
+                      </button>
                     </div>
                   </div>
-                  <div class="when-empty">
-                    <span class="when-empty-icon"><i data-lucide="bell-off" style="width:22px;height:22px;"></i></span>
-                    <span class="when-empty-title">No enviaremos notificaciones de este monitoreo</span>
-                    <span class="when-empty-sub">El monitoreo seguirá analizando y registrando incidentes, pero no recibirás avisos. Cambia esta opción para activar los canales.</span>
                   </div>
                 </div>
               </div>
@@ -2751,31 +2795,76 @@
       input.parentElement.insertBefore(chip, input);
       input.value = '';
     }
-    // ¿Cuándo notificar? — dropdown compacto. Acotado a su sección (data-when-scope).
-    let whenMode = 'never';   // 'during' | 'close' | 'never' — default Nunca; gobierna si los canales son obligatorios
+    // ¿Cuándo notificar? — dropdown de 3 estados de timing (data-when-scope).
+    // La barra de la ventana es el explicador: cada marcador es una notificación,
+    // ubicada a la hora en que llegaría. "Solo al final" = 1 punto al cierre; "En tiempo real" = varios.
+    let whenMode = 'unset';   // 'unset' (primer ingreso) | 'never' | 'final' | 'live' — gobierna si los canales son obligatorios
+    const WHEN_MODES = {
+      never: {
+        line: 'No enviaremos notificaciones de este monitoreo. El monitoreo seguirá analizando y registrando incidentes in-app.',
+        ev: []
+      },
+      final: {
+        line: 'Al cerrar la ventana te comunico el <strong>estado final</strong> del incidente. Si se resolvió antes del cierre, no recibes nada.',
+        ev: [ { t: 20.0, type: 'red', big: true, tip: 'Estado final del incidente' } ]
+      },
+      live: {
+        line: 'Te aviso de <strong>cada cambio de estado</strong> (señales e incidente) a medida que ocurre durante la ventana.',
+        ev: [
+          { t: 14.5,  type: 'amber',  tip: 'Señal: conteo por debajo' },
+          { t: 18.2,  type: 'red',    tip: 'Incidente abierto · faltan archivos' },
+          { t: 19.0,  type: 'orange', tip: 'Reconfirmado · severidad sube' },
+          { t: 19.75, type: 'green',  tip: 'Resuelto' }
+        ]
+      }
+    };
+    const WHEN_ICON = { unset: '', never: 'bell-off', final: 'bell', live: 'bell-ring' };
     function whenMenu(btn) { btn.closest('.when-select').classList.toggle('open'); }
+    function renderWhen(scope, mode) {
+      const m = WHEN_MODES[mode]; if (!m) return;
+      const line = scope.querySelector('[data-when-line]'); if (line) line.innerHTML = m.line;
+      const track = scope.querySelector('[data-when-track]');
+      if (track) {
+        track.querySelectorAll('.winrec-mk').forEach(n => n.remove());
+        m.ev.forEach(e => {
+          const mk = document.createElement('span');
+          mk.className = 'winrec-mk ' + e.type + (e.big ? ' is-final' : '');
+          mk.style.left = (e.t / 24 * 100) + '%';
+          mk.setAttribute('data-tip', e.tip);
+          track.appendChild(mk);
+        });
+      }
+      const graphic = scope.querySelector('[data-when-graphic]'); if (graphic) graphic.classList.toggle('is-never', mode === 'never');
+      if (window.lucide) lucide.createIcons();
+    }
     function whenPick(opt, mode, label) {
       const scope = opt.closest('[data-when-scope]');
       if (!scope) return;
       scope.querySelectorAll('.when-opt').forEach(o => o.classList.remove('is-sel'));
       opt.classList.add('is-sel');
       const cur = scope.querySelector('[data-when-cur]'); if (cur) cur.textContent = label;
+      const curic = scope.querySelector('[data-when-cur-ic]'); if (curic) { const ic = WHEN_ICON[mode]; curic.innerHTML = ic ? '<i data-lucide="' + ic + '"></i>' : ''; }
       whenMode = mode;
-      const isNever = mode === 'never';
-      // Body de ¿Cuándo?: normal vs. empty-state
-      const body = scope.querySelector('[data-when-body]'); if (body) body.classList.toggle('is-never', isNever);
-      // "Nunca" no aplica al timeline; en los demás modos sí
-      const tl = scope.querySelector('.winrec-timeline');
-      if (tl && !isNever) { tl.classList.remove('mode-during', 'mode-close'); tl.classList.add('mode-' + mode); }
+      // Sale del empty-state de primer ingreso: cualquier selección configura
+      const body = scope.querySelector('[data-when-body]'); if (body) body.classList.remove('is-unset');
+      renderWhen(scope, mode);
       // Atenúa ¿Dónde?/Idioma cuando es "Nunca"
-      const section = scope.closest('#dsec-notif'); if (section) section.classList.toggle('notif-when-never', isNever);
+      const section = scope.closest('#dsec-notif'); if (section) section.classList.toggle('notif-when-never', mode === 'never');
       const sel = opt.closest('.when-select'); if (sel) sel.classList.remove('open');
       if (!isChannelInvalid()) showChannelWarning(false); // oculta el aviso si ya es válido (p. ej. "Nunca")
     }
-    // Inválido = ¿Cuándo? ≠ Nunca y no hay ningún canal activo.
+    // CTA del empty-state: configura con el valor recomendado (Solo al final)
+    function whenConfigure(btn) {
+      const scope = btn.closest('[data-when-scope]'); if (!scope) return;
+      const opt = scope.querySelectorAll('.when-opt')[1]; // 'Solo al final'
+      if (opt) whenPick(opt, 'final', 'Solo al final');
+    }
+    // Init: en primer ingreso (unset) no pinta config; al configurar, renderWhen toma el relevo.
+    document.querySelectorAll('[data-when-scope]').forEach(s => renderWhen(s, whenMode));
+    // Inválido = hay un modo activo (no unset ni nunca) y no hay ningún canal activo.
     function isChannelInvalid() {
       const active = document.querySelectorAll('.notif-chan-list .tm-notif-row-toggle.is-on').length;
-      return whenMode !== 'never' && active === 0;
+      return whenMode !== 'never' && whenMode !== 'unset' && active === 0;
     }
     function showChannelWarning(show) {
       const warn = document.getElementById('notif-chan-warning');
