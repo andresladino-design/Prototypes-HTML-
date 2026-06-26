@@ -2,7 +2,7 @@
 
 Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **métricas de gráficos** (K Cast) para el monitoreo inteligente de Operation Center.
 
-**Última actualización:** 2026-06-23
+**Última actualización:** 2026-06-25
 **Estado:** 🟢 Activo
 
 ## Cómo verlo
@@ -27,6 +27,12 @@ Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **
 - desyk tokens
 
 ## Changelog
+
+### 2026-06-25
+- Slack: etiquetado por **user ID** (no `@nombre`) con helper de cómo obtenerlo.
+- Sensibilidad **ligada a la gráfica** del KPI: banda de rango esperado que se angosta por nivel + anomalías en rojo; conteo derivado (no mock).
+- Templates: cuerpo del incidente = **metadata del problem category** (sin texto de agente); Slack vertical recomendada; color por severidad; email con toggle con/sin gráfica; patrón "+N incidentes".
+- Basado en feedback de la reunión del 25-jun.
 
 ### 2026-06-23
 - Rediseño del bloque "¿Cuándo notificar?" (patrón `sens-row`) con slider animado y ventana de monitoreo como referencia visual.
