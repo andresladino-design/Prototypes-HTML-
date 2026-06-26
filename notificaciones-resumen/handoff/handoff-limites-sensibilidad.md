@@ -1,173 +1,224 @@
-# Handoff — Sensibilidad y Límites del gráfico (hard limits por bound)
+# Handoff — Sensibilidad y Límites del gráfico (slider + severidad por bandas)
 
-Fecha: 2026-06-25
-Origen: `notificaciones-resumen/index.html` → `.sens-card` (Sensibilidad + línea de impacto) + `.tm-limits-block` (límites por bound) del diálogo de monitoreo (prototipo validado)
-Registro: **Interno (Operation Center)** — operador Simetrik ajustando cómo el Agente IA evalúa un gráfico (K Cast)
-Patrón de presentación: **Fila de control (sens-row)** + **grid de bounds con override sobre el valor sugerido por el Agente IA**
+Fecha: 2026-06-26
+Origen: `notificaciones-resumen/index.html` → paso **Series y valores** del diálogo de monitoreo (prototipo validado). Bloques: gráfica `#sens-chart` + editor de límites contextual `#cat-limits` + slider `.sens-card` + grilla `#series-block` (POR SERIE).
+Registro: **Interno (Operation Center)** — operador Simetrik calibrando cómo el monitoreo evalúa un gráfico (KPI "Conteo De Registros", COUNT_DISTINCT).
+Patrón de presentación: **Centro de control vertical** — gráfica con selector de categoría → límites de esa categoría → slider de sensibilidad → grilla de todas las series.
+
+> **Reescrito el 26-jun:** este handoff reemplaza el modelo anterior (segmented Nula/Media/Alta + franja azul). El rediseño (sesión 25-jun, 4:42 PM) unifica **severidad = sensibilidad** y cambia el control a un **slider continuo**.
 
 ---
 
 ## 1. Contexto y objetivo
 
-Define **cómo de exigente** es el Agente IA al evaluar un gráfico y **qué límites duros** disparan un incidente.
+Define **qué tan grave** es cada desviación de un gráfico y **qué la dispara**, con un modelo de **dos bandas** (severidad = sensibilidad, son lo mismo):
 
-- **Sensibilidad** (Nula / Media / Alta): regula cuándo el agente considera que algo es desviación, antes de tocar el límite duro.
-- **Límites por bound** (inferior / superior): valores duros activables; el Agente IA propone un **valor sugerido** y el operador puede sobreescribirlo (modo manual), con opción de revertir al sugerido.
+| Banda | La define | Severidad | Color |
+|---|---|---|---|
+| **Exterior (dura)** | Los **límites** del usuario (mín/máx) | `URGENT` | Rojo |
+| **Interior (atención)** | La **sensibilidad** (qué tan adentro del límite empieza a importar) | `REQUIRES_ATTENTION` | Amarillo |
 
-Objetivo: que el operador calibre el monitoreo con dos perillas claras (sensibilidad relativa + límites absolutos) entendiendo siempre cuál es la propuesta del agente y cuándo se apartó de ella.
+- Lo que **supera el límite** → siempre rojo / urgente.
+- Lo que cae en la **banda amarilla interior** → de atención.
+- La sensibilidad es un **multiplicador del límite**: el slider cierra la banda amarilla desde los bordes hacia el centro. `0%` → no hay amarillo (solo el límite duro). `100%` → todo el interior es amarillo.
+
+Todo opera **por categoría**: el KPI agregado ("Todas las categorías") y cada serie (fuente). El selector de la gráfica manda: al elegir una categoría, debajo aparecen **sus** límites + **su** slider y la gráfica muestra **su** serie.
+
+Objetivo: que el operador calibre el monitoreo con una sola perilla continua entendiendo, con un dato real, cuántas veces le habríamos avisado (y de qué severidad) en la ventana histórica.
 
 ## 2. Usuario y registro
 
-- **Registro:** Interno / Op Center. Power user recurrente.
-- **Modo de uso:** ajuste fino, comparación contra el valor sugerido. Quiere ver de inmediato si está en automático (sugerido) o manual (override).
-- **Dato clave al primer vistazo:** ¿qué tan sensible está y qué límites están activos vs. sugeridos?
+- **Registro:** Interno / Op Center. Power user recurrente, alta tolerancia a densidad.
+- **Modo de uso:** ajuste fino por KPI; compara el efecto de mover la perilla contra el histórico antes de guardar.
+- **Dato clave al primer vistazo:** ¿cuántas señales generaría esta config y de qué severidad?
 
 ## 3. Historias de usuario
 
-**HU-1 — Ajustar sensibilidad y ver su impacto**
-> Como operador, quiero elegir entre sensibilidad Nula, Media o Alta y ver la **consecuencia cuantificada** de cada nivel sobre el histórico, para balancear entre perderme desviaciones y recibir ruido con un dato real, no solo una descripción.
-- Segmented de 3 opciones; al cambiar, título y subtítulo se actualizan describiendo el comportamiento.
-- **Línea de impacto** (footer dentro de la misma card): "Con sensibilidad **{nivel}**, en los últimos 7 días te habríamos avisado **{N}** veces." El conteo cambia con el nivel.
-- En el prototipo los conteos están **mockeados** (nula → 4 · media → 7 · alta → 12). En producción los provee el **BE** (ver §9).
+**HU-1 — Graduar la sensibilidad con una perilla continua y ver su impacto**
+> Como operador, quiero mover un slider de sensibilidad y ver en vivo, sobre la gráfica y con un dato real, cuántas señales urgentes y de atención generaría, para calibrar sin recibir ruido ni perderme desviaciones.
+- **Slider continuo 0–100%** (escala Nula · Media · Alta) con readout de %. Reemplaza el segmented de 3 opciones.
+- Al moverlo: la **banda amarilla** crece/se cierra hacia el centro, los puntos se re-clasifican y el contador se recalcula.
+- **Contador de impacto** (footer): "En los últimos 30 días te habríamos avisado **N** veces — **X** urgentes · **Y** de atención." (rojo / amarillo separados).
 
-**HU-2 — Activar/desactivar un límite duro**
-> Como operador, quiero encender o apagar el límite inferior y el superior de forma independiente, para monitorear solo los bounds que importan en este gráfico.
-- Checkbox por bound; al apagar, el input se atenúa pero **conserva su valor**.
+**HU-2 — Definir los límites duros (banda roja) por bound, activables**
+> Como operador, quiero fijar el límite inferior y superior, activarlos/desactivarlos por separado, para monitorear solo los bordes que importan.
+- Dos inputs (inferior / superior) + **checkbox on/off** por bound. Al apagar uno: input atenuado e inerte (conserva valor) y **ese lado del gráfico desaparece** — se quitan su zona roja, su banda amarilla, su línea de límite y su umbral; los puntos de ese lado dejan de marcarse.
+- Editar un input **redibuja la banda roja** de la gráfica en vivo. El monitoreo propone un **valor sugerido** (hint).
 
-**HU-3 — Sobreescribir el valor sugerido del Agente IA**
-> Como operador, quiero cambiar el valor propuesto por el agente y poder volver al sugerido con un clic, para tener control manual sin perder la referencia del agente.
-- Al diferir del sugerido aparece un chip "Valor sugerido: N"; al hacer clic, revierte.
+**HU-3 — Ajustar todo por categoría sin perder el contexto del gráfico (centro de control)**
+> Como operador, quiero que al elegir una categoría en el selector de la gráfica, debajo aparezcan sus límites y su sensibilidad, sin tener que hacer scroll y perder la gráfica.
+- El **selector de categoría** (sobre la gráfica) manda: cambia la serie graficada, el editor de límites y el slider, todo en su sitio.
+- Cada categoría **recuerda su propia sensibilidad y límites**. Herencia: una serie sin ajuste propio **usa el % del global** ("Todas"); al moverla, queda como override.
+
+**HU-4 — Graduar la sensibilidad de cada serie sin entrar a cada una**
+> Como operador, quiero ajustar la sensibilidad de varias series de un vistazo desde la lista.
+- En la grilla **POR SERIE** (visible solo en "Todas las categorías"), cada fila tiene un **pill de %** que abre un **mini-slider en popover**. Mover = override de esa serie. El pill muestra el % efectivo y marca si **hereda** el global.
+
+**HU-5 — Enfocar una serie y volver**
+> Como operador, quiero saltar al detalle de una serie desde la lista, y tener una salida clara para volver.
+- Cada fila tiene un **botón de acceso rápido** (ícono `maximize-2`) que enfoca esa serie: la gráfica + límites + slider cambian a ella y la grilla se oculta.
+- **Volver (chip con ✕):** al enfocar una serie, el selector de la gráfica la muestra como chip con una **✕** (oculta el chevron). Clic en la ✕ → vuelve a "Todas las categorías" (reaparece la grilla) sin abrir el menú. El botón sigue abriendo el menú para saltar directo a otra serie.
 
 ## 4. Arquitectura de componentes desyk
 
 | Mock (prototipo) | Componente desyk | Notas |
 |---|---|---|
-| `.sens-card` | `Card` (composición) | agrupa la fila de control + la línea de impacto como una sola unidad (borde + radius; el footer va separado por un divisor) |
-| `.sens-row` | row de control dentro de la card | ícono `gauge` + título/sub dinámico + control a la derecha |
-| `.bgroup` (Nula/Media/Alta) | `SegmentedControl` | 3 opciones, valor controlado; cambia copy + conteo de impacto |
-| `.sens-impact` | callout / footer de la card | ícono `zap` + texto con `{nivel}` y `{conteo}` en `<strong>`; fondo atenuado, divisor superior |
-| `.tm-limits-header` | label de sección | uppercase, `muted-foreground`; ícono `box`/`layers` |
-| `.tm-limit-field` + `.tm-limit-check` | `Checkbox` + grupo de campo | estado `is-off` atenúa el input |
-| `.tm-limit-input` | `Input` (numérico, `tabular-nums`) | `data-suggested` = valor del agente |
-| `.tm-limit-chip` (revert) | `Badge` clickeable / `Button` ghost xs | visible solo si `value !== suggested`; ícono `rotate-ccw` |
+| `#sens-chart` (SVG render JS) | gráfico custom (SVG) | dibuja zonas rojo/amarillo, líneas de límite y umbral, serie y puntos clasificados |
+| `.cat-select` / `.cat-menu` | `Select` / `DropdownMenu` | selector de categoría sobre la gráfica; "Todas las categorías" + una opción por serie, con check en la activa. Con una serie enfocada muestra un **chip con ✕** (`.cat-clear`) para volver a "Todas" |
+| `.sens-slider` (`input[range]`) | `Slider` | 0–100, continuo; pista ámbar; thumb con borde `--primary` |
+| `.sens-row` + `.sens-pct` | row de control | ícono `gauge` + título/sub dinámico + readout `%` a la derecha |
+| `.sens-impact` | callout / footer | ícono `zap`; conteo total + desglose urgentes/atención |
+| `#cat-limits` (`.tm-limits-block`) | `Card` | editor de límites de la categoría seleccionada (header = nombre de la categoría) |
+| `.tm-limit-field` + `.tm-limit-check` | `Checkbox` + grupo de campo | on/off por bound; `is-off` atenúa el input |
+| `.tm-limit-input` | `Input` (numérico, `tabular-nums`) | edita el límite; redibuja la banda en vivo |
+| `#series-block` / `.tm-series-grid` | grid (table-like) | POR SERIE; visible **solo en "Todas"** |
+| `.tm-series-sens` (pill + popover) | `Button` + `Popover` + `Slider` | sensibilidad por serie inline; pill muestra % efectivo / "hereda" |
+| `.tm-series-focus` | `IconButton` (`maximize-2`) | enfoca la serie |
+| `.tm-series-del` | `IconButton` (`trash-2`) | quita la serie del override por-serie |
 
-**Estructura sugerida (React):**
+**Modelo de datos (fuente única en el prototipo, `DS_AN_CATS`):**
 
 ```
-<SensitivityCard
-  value={sens}                  // 'Nula' | 'Media' | 'Alta'
-  onChange={setSens}
-  detectionCounts={counts}      // { Nula: 4, Media: 7, Alta: 12 } — del BE
-  windowDays={7} />             // alimenta la línea de impacto "te habríamos avisado N veces"
-
-<LimitsBlock title="Todas las categorías">
-  <LimitField bound="min" label="Límite inferior" enabled value suggested onChange onToggle onRevert />
-  <LimitField bound="max" label="Límite superior" enabled value suggested onChange onToggle onRevert />
-</LimitsBlock>
+type Category = {
+  id: string                  // 'all' | resource_id
+  name: string                // 'Todas las categorías' | 'Banco_Occidente' | ...
+  isAggregate?: boolean
+  values: number[]            // serie de la ventana (del BE)
+  lower: number; upper: number
+  lowerOn: boolean; upperOn: boolean   // on/off por bound (off → extiende al extremo de datos)
+  sens?: number               // 0..100; undefined = hereda el global ("all")
+}
 ```
 
-Lógica clave (del prototipo):
-- `chip.hidden = value.trim() === suggested` → el chip "Valor sugerido" aparece solo en override.
-- `revert` → `value = suggested`, oculta chip.
-- `toggle` → `field.is-off`, input `disabled`; el chip sigue su propia regla.
+**Lógica clave (del prototipo):**
+- `mark = semiAncho * (1 - frac)` donde `frac = sens/100`. Anomalía: `|v - centro| > semiAncho` → **rojo**; `mark < |v - centro| ≤ semiAncho` → **amarillo**.
+- `sensPctFor(cat)` = `cat.sens` si existe, si no el `sens` del global, si no 50 (herencia).
+- Bound off (`lowerOn`/`upperOn` = false) → ese lado **no se dibuja** (sin zona/línea/umbral) y sus puntos no se clasifican. El eje Y se ajusta a los datos + solo los límites activos.
+- **Borde suave:** sobre cada línea de límite activa con banda amarilla, una franja de gradiente (~16px) funde rojo↔amarillo (`<linearGradient>` con stops por tokens).
+- **Ejes:** valores en Y (ticks redondos + gridlines punteadas) y fechas rotadas en X, 1:1 con los puntos.
+- El selector, el editor de límites, el slider, la grilla y la gráfica **leen/escriben el mismo modelo** (siempre sincronizados).
 
 ## 5. Estados
 
-- **Loading:** skeleton del row de sensibilidad y de los dos inputs.
-- **Inicial (automático):** ambos bounds activos con el **valor sugerido por el Agente IA**; sin chip de override.
-- **Override (manual):** valor distinto al sugerido → chip "Valor sugerido: N" visible.
-- **Bound apagado:** input atenuado e inerte, conserva valor.
+- **Loading:** skeleton de la gráfica + editor de límites + slider (no spinner).
+- **Inicial:** categoría = "Todas las categorías", slider 50%, ambos límites activos con valor sugerido, grilla POR SERIE visible.
+- **Categoría = serie:** gráfica/límites/slider de esa serie; **grilla oculta**; el selector muestra chip con ✕ para volver.
+- **Serie heredando global:** el pill de % va atenuado ("hereda"); el popover dice "Hereda el global. Mover para personalizar."
+- **Bound apagado:** input atenuado e inerte (conserva valor); ese lado de la banda desaparece.
 - **Error de validación:** valor no numérico / inferior ≥ superior → borde `destructive` + microcopy.
-- **Sin límites activos:** ambos apagados → meta "Sin monitoreo" (de `updateLimitsMeta()`).
 
 ## 6. Copy completo (glosario aplicado)
 
-> Glosario Op Center: **Agente IA**, **incidente**, **gráfico/KPI**. "Valor sugerido" = propuesta del Agente IA.
+> Glosario Op Center: **monitoreo** (no "agente"/"Agente IA"), **incidente**, **señal**, **KPI**, **Tablero**. Severidades = enums del sistema (`URGENT` / `REQUIRES_ATTENTION`); en copy de usuario: "urgente" / "de atención".
 
-**Sensibilidad** (títulos/subtítulos dinámicos, de `SENS_COPY`)
-- Nula → `Sensibilidad · nula` · `Solo avisa cuando el valor supera el límite fijo que definiste.`
-- Media → `Sensibilidad · media` · `Avisa al acercarse al límite, pasado un umbral intermedio.`
-- Alta → `Sensibilidad · alta` · `Avisa ante cualquier desviación inusual, sin esperar al límite fijo.`
-- Opciones segmented: `Nula` / `Media` / `Alta`
+**Gráfica**
+- Título: `Comportamiento del KPI · últimos 30 días`
+- Leyenda: `Fuera de límites · urgente` (rojo) · `Zona de atención · medio` (amarillo)
+- (Sin aux duplicado bajo la gráfica: el conteo vive solo en el footer de impacto del slider.)
 
-**Línea de impacto** (footer de la card, ícono `zap`)
-- Plantilla: `Con sensibilidad {nivel}, en los últimos {N días} te habríamos avisado {conteo} veces.`
-- `{nivel}` en minúscula (nula / media / alta); `{conteo}` y `{nivel}` resaltados (`<strong>`).
-- Conteos de ejemplo (mock prototipo): nula → 4 · media → 7 · alta → 12. Ventana: 7 días.
+**Sensibilidad** (slider)
+- Título: `Sensibilidad` · readout `{pct}%`
+- Sub (por rango): `0%` → `Solo avisa cuando el valor supera el límite que definiste.` · `1–66%` → `Avisa al acercarse al límite, pasado un umbral intermedio.` · `67–100%` → `Avisa ante cualquier desviación inusual, sin esperar al límite.`
+- Escala: `Nula` · `Media` · `Alta`
+- Impacto (footer): `En los últimos 30 días te habríamos avisado {N} veces — {X} urgentes · {Y} de atención.`
 
 **Límites**
-- Header: `Todas las categorías`
+- Header: nombre de la categoría seleccionada (`Todas las categorías` / `Banco_Occidente` / …)
 - Labels: `Límite inferior` · `Límite superior`
-- Chip revert: `Valor sugerido: <N>` (ícono `rotate-ccw`)
-- Meta (estado): `Sin monitoreo` / `Monitoreando 1 límite` / `Monitoreando 2 límites`
+- Hint sugerido (global): `Valor sugerido: <N>`
+
+**Pill de sensibilidad por serie**
+- Pill: `{pct}%`
+- Popover: título `Sensibilidad`, valor `{pct}%`, pie `Hereda el global. Mover para personalizar.` / `Personalizada para esta serie.`
 
 ## 7. Microinteracciones
 
 | Interacción | Detalle |
 |---|---|
-| Cambio de sensibilidad | título/sub hacen cross-fade `200ms ease-out`; opción segmented activa con `box-shadow` ring |
-| Apagar bound | input → `opacity .45` + inerte, transición `120ms` |
-| Aparición chip revert | fade-in sutil al diferir del sugerido (`120ms`) |
-| Revert | input vuelve al sugerido; chip desaparece |
-| Focus input | borde `primary` `120ms` |
+| Mover slider | re-render de bandas + puntos + contador en vivo |
+| Cambiar categoría (selector) | gráfica, límites y slider cambian a la categoría; grilla muestra/oculta |
+| Apagar bound | input → `opacity .45` + inerte, transición `120ms`; banda redibuja |
+| Editar límite | banda roja redibuja en vivo; sincroniza la fila de la grilla |
+| Abrir pill de serie | popover con mini-slider (`200ms ease-out`); cierra al clic fuera |
+| Enfocar serie | gráfica/límites/slider cambian a la serie; grilla se oculta |
 
-Durations canónicas: 120 / 200 / 320 ms ease-out.
+Durations canónicas: 120 / 200 / 320 ms ease-out. Sin spinners; skeleton.
 
 ## 8. AI integration
 
-- El **valor sugerido** lo calcula el **Agente IA / BADS**. La UI debe dejar claro que el default proviene del agente y que el override es manual (el chip de revert es la pista pedagógica: "puedes volver a lo que propuso el agente").
-- La **sensibilidad** modula la confianza del agente para llamar desviación antes del límite duro. No badges "AI", no sparkles.
+- El **valor sugerido** de cada límite y la **serie/ventana** los provee el monitoreo (BADS). La UI deja claro que el sugerido viene del monitoreo (hint), y el override es manual.
+- La **sensibilidad** modula qué tan adentro del límite el monitoreo llama "de atención". No badges "AI", no sparkles.
+- Empty/contexto: el bloque "Análisis inteligente" (paso Fuente) resume la línea base del agregado. (Se evaluó mostrar una narrativa por serie al enfocar y se descartó: no va en esta versión.)
 
 ## 9. Endpoints esperados
 
-`GET /monitoring/{chartId}/thresholds` →
+`GET /monitoring/{chartId}/sensitivity` →
 ```json
 {
-  "sensitivity": "media",
-  "detectionsByLevel": { "nula": 4, "media": 7, "alta": 12, "windowDays": 7 },
-  "limits": {
-    "min": { "enabled": true, "value": 120, "suggested": 120 },
-    "max": { "enabled": true, "value": 480, "suggested": 480 }
-  }
+  "windowDays": 30,
+  "categories": [
+    {
+      "id": "all", "name": "Todas las categorías", "isAggregate": true,
+      "sensitivity": 50,
+      "limits": {
+        "lower": { "value": 1, "enabled": true, "suggested": 25.20 },
+        "upper": { "value": 20, "enabled": true, "suggested": 79.00 }
+      },
+      "series": [ { "t": "2026-04-01", "value": 12 }, "… ventana" ],
+      "signals": { "urgent": 6, "attention": 2 }
+    },
+    {
+      "id": "79008", "name": "Banco_Occidente",
+      "sensitivity": null,
+      "limits": { "lower": { "value": 8.4, "enabled": true }, "upper": { "value": 25, "enabled": true } },
+      "series": [ "… " ]
+    }
+  ]
 }
 ```
-`PUT /monitoring/{chartId}/thresholds` con el mismo shape. `suggested` y `detectionsByLevel` son **read-only** (los provee el Agente IA / BE).
+`PUT /monitoring/{chartId}/sensitivity` con el shape de config (por categoría: `sensitivity` + `limits` con on/off). `series`, `signals` y `suggested` son **read-only** (los provee el monitoreo / BE).
 
-> **Dependencia del BE para la línea de impacto:** `detectionsByLevel` = cuántas detecciones habría tenido cada nivel sobre la ventana histórica (`windowDays`). Sin este dato la línea no es real; en el prototipo está mockeada. *(Mejora futura, fuera de alcance del prototipo: devolver también los puntos/anomalías por nivel para resaltarlos en la gráfica de previsualización.)*
+> **Severidad derivada de las bandas (no campo aparte):** dado `limits` + `sensitivity` por categoría, el BE clasifica cada punto de la ventana: fuera del límite → `URGENT`; dentro de la banda de atención → `REQUIRES_ATTENTION`. `signals.urgent/attention` alimentan el contador. `sensitivity: null` ⇒ heredar el global.
+> **Misma ventana** para serie, conteo y marcado (30 días) — evita el desfase histórico 7d/30d.
 
 ## 10. Edge cases y validaciones
 
 - Valor no numérico o vacío con bound activo → error, bloquea guardar.
-- `min >= max` (ambos activos) → error de coherencia entre bounds.
-- Valores negativos / decimales según el tipo de KPI (definir por categoría).
-- Ambos bounds apagados → permitido (solo sensibilidad), meta "Sin monitoreo".
-- Recalcular `suggested` (nuevo aprendizaje del agente) mientras hay override → mantener el override; actualizar el target del chip al nuevo sugerido.
-- Sensibilidad "Nula" con ambos límites apagados → estado sin monitoreo efectivo: advertir al guardar.
+- `lower >= upper` (ambos activos) → error de coherencia.
+- Ambos bounds apagados → permitido (sin banda roja); con sensibilidad 0% no hay monitoreo efectivo: advertir al guardar.
+- Recalcular `suggested` (nuevo aprendizaje) con override activo → mantener override; actualizar el sugerido mostrado.
+- Serie con `sensitivity: null` → muestra el % heredado; al editar pasa a override.
+- Muchas series → la grilla hace scroll; el popover del pill no debe quedar cortado (abrir hacia arriba en las últimas filas — pendiente).
 
 ## 11. Test cases sugeridos
 
-1. Cambiar sensibilidad actualiza título, subtítulo y la **línea de impacto** (nivel + conteo) por nivel.
-2. La línea de impacto refleja el conteo de `detectionsByLevel` del BE (o el mock si no hay dato).
-3. Editar un input a un valor distinto del sugerido muestra el chip "Valor sugerido".
-3. Clic en el chip revierte al sugerido y oculta el chip.
-4. Apagar un bound atenúa el input, lo vuelve inerte y conserva su valor.
-5. `min >= max` con ambos activos dispara error de coherencia.
-6. Meta refleja 0 / 1 / 2 límites activos.
+1. Mover el slider re-clasifica puntos (rojo/amarillo) y actualiza el contador `N — X urgentes · Y de atención` en vivo.
+2. Editar un límite redibuja la banda roja y sincroniza la fila de la grilla; y viceversa.
+3. Apagar un bound atenúa el input, lo vuelve inerte, conserva valor y **quita ese lado del gráfico** (zona, línea, umbral, marcado).
+4. Cambiar de categoría en el selector mueve gráfica + límites + slider y muestra/oculta la grilla.
+5. Cada categoría recuerda su % y límites; una serie sin override hereda el global.
+6. El pill de % por serie abre el popover; mover el mini-slider personaliza esa serie (deja de "heredar").
+7. El botón de foco enfoca la serie (grilla oculta); el selector muestra chip con ✕ y al hacer clic vuelve a "Todas" (grilla visible) sin abrir el menú.
+8. `lower >= upper` con ambos activos dispara error de coherencia.
 
 ## 12. Tokens utilizados
 
-`--primary #3D3BF5` (foco input, accent checkbox, opción segmented activa) · `bg-segment` (fondo del segmented) · `--border` (bordes inputs) · `muted-foreground` (header, meta) · `text-primary #1F1B2E` · `info #2563EB` (chip revert) · `warning` (sensibilidad media) · `destructive` (errores de validación). Radius: `10px` inputs, `7px` chip revert, `8px` segmented.
+`--primary` (thumb del slider, foco input, check de categoría) · `--primary-text` (readout %, pill) · `--warning` (banda amarilla, pista del slider, severidad media) · `--destructive` (banda roja, línea de límite, severidad urgente) · `--border-default` (inputs, cards, popover) · `muted-foreground` (labels, escala) · `text-primary`. Radius: `9–11px` inputs/cards, `8px` botones, `999px` slider/thumb.
 
 ## 13. Checklist pre-PR
 
-- [ ] Sensibilidad resuelta con `SegmentedControl` desyk (no botones custom)
-- [ ] Línea de impacto presente y conectada al conteo por nivel (`detectionsByLevel` del BE; mock si no existe aún)
-- [ ] Inputs con `Input` desyk numérico, `tabular-nums`
-- [ ] Chip "Valor sugerido" visible solo en override; revert funcional
-- [ ] Bound off → input atenuado e inerte, conserva valor
-- [ ] Glosario: "Agente IA", "incidente", "valor sugerido"
-- [ ] Validaciones: numérico, `min<max`, sin-monitoreo
-- [ ] Microinteracciones 120/200/320 ms ease-out
-- [ ] Light mode consistente
-- [ ] A11y: labels asociados a checkbox/input, foco visible, contraste AA
-- [ ] Tests: cambio de sensibilidad + override/revert + coherencia min/max
+- [ ] Slider continuo (`Slider` desyk) reemplaza el segmented; escala Nula/Media/Alta + readout %
+- [ ] Coloreado invertido: rojo = fuera de límites · amarillo = zona de atención (anillo interior)
+- [ ] Severidad derivada de las bandas (urgente / de atención), no de un campo suelto
+- [ ] Selector de categoría manda: gráfica + límites + slider + visibilidad de grilla
+- [ ] Sensibilidad y límites **por categoría** con herencia del global
+- [ ] Pill de % + popover por serie en la grilla (visible solo en "Todas")
+- [ ] Botón de foco por serie; grilla oculta al enfocar; **chip con ✕ en el selector para volver a "Todas"**
+- [ ] Límites con on/off por bound; off → **se quita ese lado del gráfico** (zona/línea/umbral/marcado)
+- [x] Borde suave (gradiente rojo↔amarillo) sobre cada límite activo con banda amarilla
+- [x] Ejes: valores en Y (+ gridlines) y fechas rotadas en X
+- [x] Sin conteo duplicado: vive solo en el footer de impacto (se quitó el aux bajo la gráfica)
+- [ ] Contador con desglose urgentes / de atención, en vivo
+- [ ] Glosario: "monitoreo" (no "agente"), "incidente", "señal", "KPI"
+- [ ] Microinteracciones 120/200/320 ms ease-out · light mode · A11y (labels, foco, contraste AA)
+- [ ] Pendiente: que el popover del pill no se corte en las últimas filas; **Fase 5** (límites como % relativos). Nota: la **narrativa por serie** se probó y se descartó (no va en esta versión).

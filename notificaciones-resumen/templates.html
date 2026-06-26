@@ -67,7 +67,7 @@
     .tpl-cap .lucide { width: 14px; height: 14px; }
 
     /* Nota de implementación (handoff) */
-    .spec { max-width: 720px; margin: 44px auto 0; background: #fff; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px 22px; }
+    .spec { max-width: 760px; margin: 44px auto 0; background: #fff; border: 1px solid var(--border-default); border-radius: 12px; padding: 20px 22px; }
     .spec-h { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
     .spec-h .lucide { width: 16px; height: 16px; color: var(--primary-text); }
     .spec-p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
@@ -75,14 +75,26 @@
     .spec-list li { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; padding-left: 2px; }
     .spec-list strong { color: var(--text-primary); }
     .spec code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; background: var(--bg-pill); padding: 1px 5px; border-radius: 4px; color: var(--text-primary); }
+    .spec-note { margin-top: 14px; font-size: 12px; color: var(--amber-text); background: var(--amber-soft); border-radius: 8px; padding: 10px 12px; line-height: 1.5; }
+    .spec table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; }
+    .spec th, .spec td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--border-default); vertical-align: top; line-height: 1.45; }
+    .spec th { color: var(--text-muted); font-weight: 600; font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; }
+    .spec td:first-child { white-space: nowrap; color: var(--text-secondary); }
+    .spec td code { font-size: 11px; }
+    .spec pre { margin-top: 14px; background: hsl(240 6% 12%); color: #e7e7ea; border-radius: 10px; padding: 14px 16px; overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; line-height: 1.6; }
+    .spec pre .c { color: #8b8b94; }
+    .spec pre .k { color: #c4b5fd; }
+    .spec pre .s { color: #9ae6b4; }
+    .spec pre .f { color: #fbcfe8; }
 
     /* Toggle */
     .seg { display: inline-flex; gap: 2px; padding: 3px; background: hsl(240 5% 90%); border-radius: 9px; }
-    .seg-opt { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 14px; border: none; background: transparent; border-radius: 7px; font-size: 13.5px; font-weight: 500; color: var(--text-tertiary); cursor: pointer; transition: all .12s ease-out; font-family: inherit; }
+    .seg-opt { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: none; background: transparent; border-radius: 7px; font-size: 13px; font-weight: 500; color: var(--text-tertiary); cursor: pointer; transition: all .12s ease-out; font-family: inherit; }
     .seg-opt .lucide { width: 15px; height: 15px; }
     .seg-opt.sel { background: #fff; color: var(--text-primary); box-shadow: 0 1px 2px rgba(20,20,30,.1), 0 0 0 1px var(--border-default); }
 
-    .badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 600; line-height: 1; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 11px; font-weight: 700; line-height: 1; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .02em; }
     .badge .lucide { width: 12px; height: 12px; stroke-width: 2.4; }
 
     /* ===== EMAIL ===== */
@@ -110,27 +122,31 @@
 
     .mail-section-label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .04em; margin: 24px 0 12px; }
 
+    /* Agrupación por recurso (scope.resource_refs) */
+    .grp { margin: 18px 0 10px; }
+    .grp-h { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .grp-h .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
+    .grp-sub { font-size: 11.5px; color: var(--text-muted); margin: 1px 0 0 23px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
     .inc { border: 1px solid var(--border-default); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
     .inc-top { display: flex; align-items: flex-start; gap: 10px; }
     .inc-top .badge { flex-shrink: 0; }
-    .inc-title { font-size: 14.5px; font-weight: 600; color: var(--text-primary); }
-    .inc-source { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+    .inc-title { font-size: 14px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+    .inc-source { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .inc-chart { margin: 12px 0; border: 1px solid var(--border-default); border-radius: 9px; padding: 8px 10px 4px; background: hsl(240 20% 99%); }
     .inc-chart-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
-    .inc-narr { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+    .inc-narr { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin-top: 10px; }
     .inc-narr strong { color: var(--text-primary); font-weight: 600; }
-    .inc-links { display: flex; gap: 16px; margin-top: 12px; padding-top: 12px; border-top: 1px solid hsl(var(--sidebar-border)); }
-    .inc-link { font-size: 12.5px; font-weight: 600; color: var(--primary-text); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
-    .inc-link .lucide { width: 13px; height: 13px; }
-    .inc-ts { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+    .inc-ts { font-size: 11px; color: var(--text-muted); margin-top: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
     .mail-disc { display: flex; gap: 8px; font-size: 12px; color: var(--text-muted); background: var(--bg-pill); border-radius: 9px; padding: 12px; margin-top: 8px; line-height: 1.5; }
     .mail-disc .lucide { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; }
     .mail-foot { padding: 16px 24px; border-top: 1px solid var(--border-default); font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.6; }
     .mail-foot a { color: var(--primary-text); font-weight: 600; text-decoration: none; }
 
-    /* ===== SLACK ===== */
+    /* ===== SLACK (Block Kit) ===== */
     .slack-frame { width: 560px; max-width: 100%; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 24px rgba(20,20,30,.10); border: 1px solid var(--border-default); }
+    .slack-frame[hidden] { display: none; }
     .slack-top { display: flex; gap: 10px; padding: 16px 16px 10px; }
     .slack-app-logo { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, hsl(var(--ai-purple)) 0%, hsl(var(--primary-hsl)) 60%, hsl(var(--ai-blue)) 100%); }
@@ -140,44 +156,105 @@
     .slack-msg { padding: 0 16px 16px 62px; }
     .slack-card { border-left: 4px solid hsl(var(--primary-hsl)); padding-left: 14px; }
     .slack-h { font-size: 15px; font-weight: 700; color: #1d1c1d; }
-    .slack-ctx { font-size: 13px; color: #616061; margin: 2px 0 12px; }
-    .slack-line { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: #1d1c1d; padding: 5px 0; border-top: 1px solid #f0f0f0; }
-    .slack-line:first-of-type { border-top: none; }
-    .slack-state { margin-left: auto; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; }
-    .slack-btns { margin-top: 14px; display: flex; gap: 8px; }
-    .slack-btn { font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 7px; border: 1px solid #d9d9d9; color: #1d1c1d; background: #fff; }
-    .slack-btn.primary { background: hsl(var(--primary-hsl)); color: #fff; border: none; }
     .slack-stats { font-size: 13px; color: #1d1c1d; margin: 2px 0 12px; }
-    .slack-inc { padding: 11px 0; border-top: 1px solid #f0f0f0; }
-    .slack-inc:first-of-type { border-top: none; padding-top: 2px; }
-    .slack-inc-h { display: flex; align-items: center; gap: 7px; font-size: 13.5px; color: #1d1c1d; }
+    .slack-divider { height: 1px; background: #e8e8e8; margin: 12px 0; }
+    .slack-res { font-size: 13.5px; font-weight: 700; color: #1264a3; margin-top: 12px; }
+    .slack-res-id { font-weight: 400; color: #868686; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+    .slack-inc { padding: 9px 0 0; }
+    .slack-inc-h { display: flex; align-items: flex-start; gap: 7px; font-size: 13.5px; color: #1d1c1d; }
     .slack-inc-h b { font-weight: 700; }
-    .slack-inc-h .slack-state { margin-left: auto; }
-    .slack-inc-meta { font-size: 12px; color: #868686; margin-top: 3px; }
-    .slack-inc-narr { font-size: 13px; color: #1d1c1d; margin-top: 4px; line-height: 1.45; }
-    .slack-inc-links { font-size: 12.5px; font-weight: 600; color: hsl(var(--primary-hsl)); margin-top: 7px; }
-    .slack-resolved { font-size: 12.5px; color: #616061; margin-top: 12px; padding-top: 11px; border-top: 1px solid #f0f0f0; }
+    .slack-state { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; flex-shrink: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-left: auto; }
+    .slack-inc-meta { font-size: 11.5px; color: #868686; margin-top: 3px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .slack-inc-narr { font-size: 12.5px; color: #1d1c1d; margin-top: 5px; line-height: 1.45; }
+    .slack-cat { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #616061; background: #f0f0f0; padding: 1px 5px; border-radius: 3px; }
+    .slack-btns { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .slack-btn { font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 7px; border: 1px solid #d9d9d9; color: #1d1c1d; background: #fff; }
+    .slack-btn.primary { background: #007a5a; color: #fff; border: none; }
+    .slack-btn .em { margin-right: 4px; }
     .slack-disc { font-size: 11.5px; color: #868686; margin-top: 12px; }
 
-    /* Slack carousel (cards deslizables) */
-    .car { display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 8px; scroll-snap-type: x mandatory; margin: 6px 0 2px; }
-    .car::-webkit-scrollbar { height: 6px; }
-    .car::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 3px; }
-    .car-card { flex: 0 0 244px; scroll-snap-align: start; border: 1px solid #e2e2e2; border-radius: 10px; padding: 12px; background: #fff; display: flex; flex-direction: column; gap: 5px; box-shadow: 0 1px 2px rgba(20,20,30,.05); }
-    .car-title { font-size: 13.5px; font-weight: 700; color: #1d1c1d; display: flex; align-items: center; gap: 6px; line-height: 1.3; }
-    .car-sub { font-size: 11.5px; color: #868686; }
-    .car-body { font-size: 12.5px; color: #1d1c1d; line-height: 1.45; flex: 1; margin: 2px 0 4px; }
-    .car-actions { display: flex; gap: 6px; }
-    .car-btn { font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 7px; border: 1px solid #d9d9d9; background: #fff; color: #1d1c1d; }
-    .car-btn.pri { background: hsl(var(--primary-hsl)); color: #fff; border: none; }
-    .car-nav { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 2px 0 4px; }
-    .car-dot { width: 6px; height: 6px; border-radius: 50%; background: #d0d0d0; }
-    .car-dot.on { background: hsl(var(--primary-hsl)); width: 16px; border-radius: 3px; }
+    /* Block Kit JSON debajo de cada tarjeta (toggle junto con el frame) */
+    .slack-json { width: 560px; max-width: 100%; margin: 0 auto; }
+    .slack-json[hidden] { display: none; }
+    .slack-json-cap { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); margin: 2px 0 6px 2px; }
+    .slack-json-cap .lucide { width: 13px; height: 13px; }
+    .slack-json pre { margin: 0; background: hsl(240 6% 12%); color: #e7e7ea; border-radius: 12px; padding: 14px 16px; overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.55; }
+    .slack-json pre .c { color: #8b8b94; }
+    .slack-json pre .k { color: #c4b5fd; }
+    .slack-json pre .s { color: #9ae6b4; }
 
-    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .dot-red { background: var(--red-text); }
-    .dot-amber { background: var(--amber-text); }
-    .dot-green { background: var(--green-text); }
+    /* Propuesta aparte · Vista modal (Block Kit modal) — tema oscuro */
+    .bk-modal { width: 560px; max-width: 100%; margin: 0 auto; background: #1a1d21; color: #d1d2d3; border: 1px solid #34373b; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 28px rgba(0,0,0,.45); }
+    .bk-modal-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px 12px; }
+    .bk-modal-ico { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, hsl(var(--ai-purple)) 0%, hsl(var(--primary-hsl)) 60%, hsl(var(--ai-blue)) 100%); }
+    .bk-modal-title { flex: 1; font-size: 19px; font-weight: 800; color: #fff; }
+    .bk-modal-x { color: #9a9b9e; font-size: 16px; }
+    .bk-modal-body { padding: 2px 20px 4px; }
+    .bk-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0 12px; }
+    .bk-row-label { font-size: 15px; color: #d1d2d3; }
+    .bk-select { display: inline-flex; align-items: center; gap: 14px; min-width: 190px; justify-content: space-between; border: 1px solid #565856; border-radius: 8px; padding: 8px 12px; font-size: 14px; color: #d1d2d3; }
+    .bk-div { height: 1px; background: #2c2d30; margin: 8px 0; }
+    .bk-prio { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; margin: 8px 0 2px; }
+    .bk-prio .sq { width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; }
+    .bk-item { padding: 10px 0 2px; }
+    .bk-item-h { display: flex; align-items: flex-start; gap: 10px; }
+    .bk-link { flex: 1; font-size: 15px; font-weight: 700; color: #1d9bd1; line-height: 1.35; }
+    .bk-overflow { align-self: flex-start; color: #b9babc; border: 1px solid #565856; border-radius: 7px; padding: 1px 8px; font-weight: 700; }
+    .bk-ctx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: #9a9b9e; margin-top: 6px; }
+    .bk-ctx .cat { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; background: #2c2d30; color: #cfd0d1; padding: 1px 6px; border-radius: 3px; }
+    .bk-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid #2c2d30; margin-top: 10px; }
+    .bk-btn { font-size: 14px; font-weight: 700; padding: 9px 16px; border-radius: 8px; }
+    .bk-btn.cancel { color: #d1d2d3; border: 1px solid #565856; }
+    .bk-btn.submit { background: #007a5a; color: #fff; }
+
+    /* "Cómo se arma" por plantilla, dentro de la columna (toggle con el frame) */
+    .slack-build { width: 560px; max-width: 100%; margin: 0 auto; border: 1px solid var(--border-default); border-radius: 10px; padding: 11px 13px; background: hsl(240 30% 99%); }
+    .slack-build[hidden] { display: none; }
+    .slack-build h4 { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
+    .slack-build h4 .lucide { width: 13px; height: 13px; }
+    .slack-build ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 5px; }
+    .slack-build li { font-size: 12px; color: var(--text-secondary); line-height: 1.45; }
+    .slack-build code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; background: var(--bg-pill); padding: 1px 4px; border-radius: 4px; color: var(--text-primary); }
+
+    /* Diagrama de flujo (anatomía hand-off) */
+    .flow-pre { margin: 14px 0 4px; background: hsl(240 20% 98%); border: 1px solid var(--border-default); border-radius: 10px; padding: 14px 16px; overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.55; color: var(--text-secondary); }
+    .flow-config { margin: 6px 0 2px; border: 1px dashed var(--primary); border-radius: 10px; padding: 9px 12px; background: var(--primary-soft); font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+    .flow-config b { color: var(--primary-text); }
+
+    /* ===== Metadata del problem category ===== */
+    .inc-cat { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; font-weight: 600; letter-spacing: .02em;
+      background: var(--bg-pill); color: var(--text-secondary); }
+
+    /* Confianza (finding.confidence + hypothesis.confidence, valores del JSON) */
+    .inc-conf { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11px; color: var(--text-tertiary); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .inc-conf .dot { width: 7px; height: 7px; }
+    .inc-conf b { font-weight: 600; color: var(--text-secondary); }
+
+    /* Blast radius (affected_dashboards_count) */
+    .inc-blast { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 11.5px; font-weight: 600; color: var(--amber-text);
+      background: var(--amber-soft); border-radius: 6px; padding: 3px 8px; }
+    .inc-blast .lucide { width: 13px; height: 13px; }
+
+    /* Acciones recomendadas (recommended_actions[].action_ref.label) */
+    .inc-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid hsl(var(--sidebar-border)); }
+    .inc-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 7px 12px; border-radius: 8px;
+      border: 1px solid var(--border-strong); background: #fff; color: var(--text-secondary); cursor: pointer; }
+    .inc-btn .lucide { width: 13px; height: 13px; }
+    .inc-btn.pri { background: var(--primary); color: #fff; border: none; }
+
+    .inc-more { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px; margin-top: 4px;
+      border: 1px dashed var(--border-strong); border-radius: 12px; font-size: 12.5px; font-weight: 600;
+      color: var(--primary-text); cursor: pointer; }
+    .inc-more .lucide { width: 14px; height: 14px; }
+
+    .inc-ref { color: var(--primary-text); font-weight: 600; }
+
+    /* Toggle con/sin gráfica del email */
+    .tpl-toolbar { display: flex; align-items: center; gap: 10px; }
+    .mail-frame.no-chart .inc-chart { display: none; }
   </style>
 </head>
 
@@ -186,17 +263,26 @@
   <div class="sticky top-0 z-10 flex items-center justify-between px-6 h-[60px] border-b bg-white" style="border-color:var(--border-default);">
     <div>
       <div class="text-[14px] font-semibold" style="color:var(--text-primary);">Plantillas · Resumen diario consolidado</div>
-      <div class="text-[12px]" style="color:var(--text-muted);">Cómo llega el resumen a cada canal</div>
+      <div class="text-[12px]" style="color:var(--text-muted);">Texto verbatim del JSON del detector (BADS) · agrupado por fuente</div>
     </div>
   </div>
 
   <div class="py-12 px-6">
+    <!-- AVISO: todo el contenido de incidente (title, summary, labels de acción, severidad, confianza,
+         fechas, dashboards afectados) es VERBATIM del payload del detector. No se genera texto nuevo.
+         Los marcadores [1]/[2] del texto se resuelven al resource_name vía references[] (resaltado en azul). -->
     <div class="gallery">
 
     <!-- ===================== EMAIL ===================== -->
     <div class="tpl-col">
-      <div class="tpl-cap"><i data-lucide="mail"></i> Email</div>
-      <div class="mail-frame">
+      <div class="tpl-toolbar">
+        <div class="tpl-cap" style="margin:0;"><i data-lucide="mail"></i> Email</div>
+        <div class="seg" style="margin-left:auto;" role="tablist" aria-label="Gráfica en el correo">
+          <button type="button" class="seg-opt sel" onclick="mailChart(this, true)"><i data-lucide="area-chart"></i> Con gráfica</button>
+          <button type="button" class="seg-opt" onclick="mailChart(this, false)"><i data-lucide="list"></i> Sin gráfica</button>
+        </div>
+      </div>
+      <div class="mail-frame" id="mailFrame">
         <!-- Cliente de correo (chrome, referencial) -->
         <div class="mail-clienthead">
           <span class="mail-avatar">S</span>
@@ -221,95 +307,136 @@
         <!-- Cuerpo -->
         <div class="mail-body">
           <div class="mail-h1">Resumen diario</div>
-          <p class="mail-intro">Esto pasó en <strong>Tablero de pruebas anomalias</strong> el <strong>21 de junio</strong>. Te mostramos lo que sigue abierto, con el estado actual de cada incidente.</p>
+          <p class="mail-intro">Incidentes abiertos (<code style="font-family:ui-monospace,Menlo,monospace;font-size:12px;">status: OPEN</code>), agrupados por la fuente de datos afectada (<code style="font-family:ui-monospace,Menlo,monospace;font-size:12px;">scope.resource_refs</code>).</p>
 
+          <!-- Conteos derivados de los incidentes (no es texto generado: es un count por severity) -->
           <div class="mail-stats">
             <div class="mail-stat">
               <div class="mail-stat-n" style="color:var(--red-text);">2</div>
-              <div class="mail-stat-l">Incidentes abiertos</div>
+              <div class="mail-stat-l">URGENT</div>
             </div>
             <div class="mail-stat">
-              <div class="mail-stat-n" style="color:var(--green-text);">1</div>
-              <div class="mail-stat-l">Resuelto</div>
+              <div class="mail-stat-n" style="color:var(--amber-text);">2</div>
+              <div class="mail-stat-l">REQUIRES_ATTENTION</div>
             </div>
             <div class="mail-stat">
-              <div class="mail-stat-n tabular" style="color:var(--text-primary);">86</div>
-              <div class="mail-stat-l">Señales detectadas</div>
+              <div class="mail-stat-n tabular" style="color:var(--text-primary);">4</div>
+              <div class="mail-stat-l">Fuentes afectadas</div>
             </div>
           </div>
 
-          <div class="mail-section-label">INCIDENTES</div>
+          <div class="mail-section-label">INCIDENTES POR FUENTE</div>
 
-          <!-- Incidente 1 · activo -->
+          <!-- ===== Fuente: source-1-payments-merchant (80133) ===== -->
+          <div class="grp">
+            <div class="grp-h"><i data-lucide="database"></i> source-1-payments-merchant</div>
+            <div class="grp-sub">native</div>
+          </div>
+
+          <!-- Incidente · MISSING_FILES · URGENT  (incident_id eae9b3ee…) -->
           <div class="inc">
             <div class="inc-top">
               <div class="flex-1">
-                <div class="inc-title">Caída en CONTEO_DE_REGISTROS</div>
-                <div class="inc-source">Line Chart · Dataset de fuentes automatizadas</div>
+                <div class="inc-title">URGENTE: 28 archivos faltantes (100% de lo esperado) detectados en <span class="inc-ref">source-1-payments-merchant</span> el 2026-06-22</div>
+                <div class="inc-source"><span class="inc-cat">MISSING_FILES</span></div>
               </div>
-              <span class="badge" style="background:var(--red-soft);color:var(--red-text);"><i data-lucide="circle-alert"></i> Activo</span>
+              <span class="badge" style="background:var(--red-soft);color:var(--red-text);"><i data-lucide="circle-alert"></i> URGENT</span>
             </div>
-            <!-- PROD: reemplazar este SVG por <img src="cid:chart-incidente-1" alt="Caída en CONTEO_DE_REGISTROS, últimas 24 h" width="540"> (PNG render server-side). Ver nota al final. -->
+            <p class="inc-narr">El detector MISSING_FILES (confianza ALTA) determinó que los 28 archivos esperados (4 comercios × 7 archivos diarios del 15 al 21 de junio, equivalentes a 280 filas) no llegaron para <span class="inc-ref">source-1-payments-merchant</span> antes de las 23:50 UTC del 2026-06-22, aproximadamente 56 minutos después de la ventana de carga esperada de las 22:54 UTC. Esta ausencia responde a un patrón persistente: 0 archivos fueron entregados en cada uno de los 5 lunes más recientes (del 2026-05-18 al 2026-06-15), con archivos recibidos únicamente una vez en los últimos 6 lunes (2026-05-11, 28 archivos). No hay reporte de extracción disponible y el origen/SFTP no fue analizado; se debe contactar de inmediato al soporte de Simetrik para investigar la causa de la no entrega.</p>
+            <span class="inc-conf"><span class="dot dot-green"></span> confidence: <b>0.85</b> · hypothesis: <b>PROBABLE</b></span>
+            <div class="inc-blast"><i data-lucide="layout-dashboard"></i> affected_dashboards_count: 1</div>
+            <div class="inc-actions">
+              <span class="inc-btn pri"><i data-lucide="life-buoy"></i> Crear ticket</span>
+            </div>
+            <div class="inc-ts">executed_at: 2026-06-22 23:50 UTC · event: incident.enriched</div>
+          </div>
+
+          <!-- ===== Fuente: source-1-payments-merchant-new (81439) ===== -->
+          <div class="grp">
+            <div class="grp-h"><i data-lucide="database"></i> source-1-payments-merchant-new</div>
+            <div class="grp-sub">native</div>
+          </div>
+
+          <!-- Incidente · MISSING_FILES · REQUIRES_ATTENTION  (incident_id 5149ba45…) -->
+          <div class="inc">
+            <div class="inc-top">
+              <div class="flex-1">
+                <div class="inc-title">[REQUIRES_ATTENTION] Archivos faltantes detectados en <span class="inc-ref">source-1-payments-merchant-new</span>: 0/29 archivos antes de la ventana de carga</div>
+                <div class="inc-source"><span class="inc-cat">MISSING_FILES</span></div>
+              </div>
+              <span class="badge" style="background:var(--amber-soft);color:var(--amber-text);"><i data-lucide="triangle-alert"></i> REQUIRES_ATTENTION</span>
+            </div>
+            <p class="inc-narr">Al 20:30 UTC del 2026-06-24, la fuente <span class="inc-ref">source-1-payments-merchant-new</span> registra 0 de 29 archivos esperados cargados (290 filas faltantes, 100% de lo esperado), y la ventana de carga aún no ha abierto hasta las 21:13 UTC (16:13 America/Bogota). Los 4 comercios esperados — ALICORP, MERCADOLIBRE, NIKEDIRECT y RAPPI — no tienen archivos para hoy, y el patrón histórico de los miércoles es inconsistente (solo 1 de los últimos 7 miércoles tuvo cargas, el 2026-06-10). Dado que no hay reporte de extracción disponible para confirmar el estado del SFTP/origen, se recomienda contactar al soporte de Simetrik para diagnosticar la causa raíz una vez que abra la ventana de carga.</p>
+            <span class="inc-conf"><span class="dot dot-amber"></span> confidence: <b>0.6</b> · hypothesis: <b>INDICATIVE</b></span>
+            <div class="inc-actions">
+              <span class="inc-btn pri"><i data-lucide="external-link"></i> Abrir</span>
+              <span class="inc-btn"><i data-lucide="life-buoy"></i> Crear ticket</span>
+            </div>
+            <div class="inc-ts">executed_at: 2026-06-24 20:30 UTC · event: incident.escalated</div>
+          </div>
+
+          <!-- ===== Fuente: e2e_customers (79716) ===== -->
+          <div class="grp">
+            <div class="grp-h"><i data-lucide="database"></i> e2e_customers</div>
+            <div class="grp-sub">native</div>
+          </div>
+
+          <!-- Incidente · MISSING_FILES · REQUIRES_ATTENTION  (incident_id bf5ea1e2…) -->
+          <div class="inc">
+            <div class="inc-top">
+              <div class="flex-1">
+                <div class="inc-title">Archivo 'customer_orders.csv' ausente en <span class="inc-ref">e2e_customers</span> — REQUIERE_ATENCIÓN (Confianza Baja)</div>
+                <div class="inc-source"><span class="inc-cat">MISSING_FILES</span></div>
+              </div>
+              <span class="badge" style="background:var(--amber-soft);color:var(--amber-text);"><i data-lucide="triangle-alert"></i> REQUIRES_ATTENTION</span>
+            </div>
+            <p class="inc-narr">El martes 2026-06-23, el detector MISSING_FILES identificó que 'customer_orders.csv' — esperado para <span class="inc-ref">e2e_customers</span> alrededor de las 20:24 UTC con 1 registro — no había llegado al momento del reporte (23:10 UTC), superando la ventana de urgencia de las 22:24 UTC. Esta ausencia no es una anomalía nueva: los datos de tendencia muestran 0 archivos cargados durante 7 martes consecutivos, lo que sugiere que <span class="inc-ref">e2e_customers</span> podría haber estado inactivo por un período prolongado. No hay reporte de extracción disponible para confirmar el estado del SFTP o del job; se recomienda contactar al Soporte de Simetrik para investigar este posible problema de larga data.</p>
+            <span class="inc-conf"><span class="dot dot-amber"></span> confidence: <b>0.4</b> · hypothesis: <b>PROBABLE</b></span>
+            <div class="inc-actions">
+              <span class="inc-btn pri"><i data-lucide="life-buoy"></i> Crear ticket</span>
+            </div>
+            <div class="inc-ts">executed_at: 2026-06-23 23:10 UTC · event: incident.escalated</div>
+          </div>
+
+          <!-- ===== Fuente: Bar Chart (oc_chart) — incidente con gráfica ===== -->
+          <div class="grp">
+            <div class="grp-h"><i data-lucide="bar-chart-3"></i> Bar Chart</div>
+            <div class="grp-sub">oc_chart</div>
+          </div>
+
+          <!-- Incidente · VOLUME_VARIATION · URGENT  (incident_id eb132496…) -->
+          <div class="inc">
+            <div class="inc-top">
+              <div class="flex-1">
+                <div class="inc-title">Urgente: Caída del 80% en volumen detectada en <span class="inc-ref">Bar Chart</span> el 2026-05-14</div>
+                <div class="inc-source"><span class="inc-cat">VOLUME_VARIATION</span></div>
+              </div>
+              <span class="badge" style="background:var(--red-soft);color:var(--red-text);"><i data-lucide="circle-alert"></i> URGENT</span>
+            </div>
+            <!-- PROD: reemplazar este SVG por <img src="cid:chart-<finding_id>" alt="Caída del 80% en volumen, Bar Chart" width="540"> (PNG render server-side). Ver nota al final. -->
             <div class="inc-chart">
-              <div class="inc-chart-head"><span>Últimas 24 h</span><span class="tabular">esperado vs. real</span></div>
+              <div class="inc-chart-head"><span>Conteo diario de registros</span><span class="tabular">esperado vs. real</span></div>
               <svg viewBox="0 0 540 120" width="100%" height="92" preserveAspectRatio="none">
-                <path d="M0,40 C90,30 140,70 220,66 C320,60 400,84 540,30 L540,96 C400,70 320,52 220,58 C140,62 90,26 0,34 Z" fill="hsl(var(--primary-hsl) / 0.10)"/>
-                <polyline points="0,44 60,52 120,50 180,58 240,60 300,57 360,62 420,70 470,92 540,108" fill="none" stroke="var(--chart-line)" stroke-width="2"/>
-                <polyline points="420,70 470,92 540,108" fill="none" stroke="var(--red-text)" stroke-width="2.4"/>
+                <path d="M0,40 C90,36 140,42 220,40 C320,38 400,44 540,40 L540,96 C400,92 320,90 220,92 C140,93 90,90 0,92 Z" fill="hsl(var(--primary-hsl) / 0.10)"/>
+                <polyline points="0,46 60,44 120,48 180,45 240,47 300,46 360,48 420,50 470,52 540,49" fill="none" stroke="var(--chart-line)" stroke-width="2"/>
+                <polyline points="420,50 470,86 540,104" fill="none" stroke="var(--red-text)" stroke-width="2.4"/>
               </svg>
             </div>
-            <p class="inc-narr">El valor cayó por debajo del rango esperado a las <strong>14:20</strong> y se mantiene fuera de los límites. El incidente <strong>sigue activo</strong>.</p>
-            <div class="inc-links">
-              <span class="inc-link"><i data-lucide="external-link"></i> Ver en el tablero</span>
-              <span class="inc-link"><i data-lucide="file-text"></i> Ver incidente</span>
+            <p class="inc-narr">El detector VOLUME_VARIATION identificó una caída crítica del 80% en el conteo diario de registros para <span class="inc-ref">Bar Chart</span> en la fecha de cobertura 2026-05-14, observando solo 200 registros versus una línea base esperada de 1,000. Se recomienda investigar los procesos ETL upstream para identificar posibles cambios de esquema, regresiones de filtros o sesgo de particiones que puedan explicar esta reducción significativa de volumen.</p>
+            <span class="inc-conf"><span class="dot dot-green"></span> confidence: <b>0.85</b> · hypothesis: <b>PROBABLE</b></span>
+            <div class="inc-actions">
+              <span class="inc-btn pri"><i data-lucide="external-link"></i> Abrir</span>
+              <span class="inc-btn"><i data-lucide="life-buoy"></i> Crear ticket</span>
             </div>
-            <div class="inc-ts">Detectado el 21 jun, 14:20 · actualizado hace 2 h</div>
+            <div class="inc-ts">executed_at: 2026-05-15 22:56 UTC · event: incident.escalated</div>
           </div>
 
-          <!-- Incidente 2 · activo -->
-          <div class="inc">
-            <div class="inc-top">
-              <div class="flex-1">
-                <div class="inc-title">Volumen fuera de rango</div>
-                <div class="inc-source">Bar Chart · Visa_Acquiring</div>
-              </div>
-              <span class="badge" style="background:var(--amber-soft);color:var(--amber-text);"><i data-lucide="triangle-alert"></i> Activo</span>
-            </div>
-            <div class="inc-chart">
-              <div class="inc-chart-head"><span>Últimas 24 h</span><span class="tabular">esperado vs. real</span></div>
-              <svg viewBox="0 0 540 120" width="100%" height="92" preserveAspectRatio="none">
-                <path d="M0,60 C100,56 160,50 240,52 C340,54 420,46 540,44 L540,86 C420,80 340,84 240,82 C160,80 100,86 0,84 Z" fill="hsl(var(--primary-hsl) / 0.10)"/>
-                <polyline points="0,72 60,70 120,66 180,68 240,64 300,60 360,52 420,40 480,30 540,26" fill="none" stroke="var(--chart-line)" stroke-width="2"/>
-                <polyline points="360,52 420,40 480,30 540,26" fill="none" stroke="var(--amber-text)" stroke-width="2.4"/>
-              </svg>
-            </div>
-            <p class="inc-narr">El conteo superó el rango esperado de forma sostenida desde las <strong>09:10</strong>. El incidente <strong>sigue activo</strong>.</p>
-            <div class="inc-links">
-              <span class="inc-link"><i data-lucide="external-link"></i> Ver en el tablero</span>
-              <span class="inc-link"><i data-lucide="file-text"></i> Ver incidente</span>
-            </div>
-            <div class="inc-ts">Detectado el 21 jun, 09:10 · actualizado hace 5 h</div>
-          </div>
-
-          <!-- Incidente 3 · resuelto -->
-          <div class="inc">
-            <div class="inc-top">
-              <div class="flex-1">
-                <div class="inc-title">Archivo faltante en fiserv</div>
-                <div class="inc-source">Pivot Table · fiserv_all_transactions</div>
-              </div>
-              <span class="badge" style="background:var(--green-soft);color:var(--green-text);"><i data-lucide="circle-check"></i> Resuelto</span>
-            </div>
-            <p class="inc-narr">Faltaba un archivo de la carga de las <strong>06:00</strong>. El archivo llegó y se procesó correctamente: el incidente <strong>se resolvió</strong> a las 06:10.</p>
-            <div class="inc-links">
-              <span class="inc-link"><i data-lucide="file-text"></i> Ver incidente</span>
-            </div>
-            <div class="inc-ts">Resuelto el 21 jun, 06:10</div>
-          </div>
+          <!-- Manejo de volumen: se muestran las primeras N fuentes; el resto se enlaza. -->
+          <div class="inc-more"><i data-lucide="arrow-right"></i> Más incidentes abiertos · ver todos en el Centro de Operaciones</div>
 
           <div class="mail-disc">
             <i data-lucide="info"></i>
-            Este resumen incluye lo que sigue abierto del día anterior y refleja el estado actual de cada incidente al momento del envío.
+            La narrativa de cada incidente (title, summary) la genera el detector y se muestra <strong>tal cual</strong>; severidad, confianza, acciones y enlaces salen de los campos del JSON.
           </div>
         </div>
 
@@ -320,104 +447,501 @@
       </div>
     </div>
 
-    <!-- ===================== SLACK ===================== -->
+    <!-- ===================== SLACK (Block Kit · default / compact / ultra-compact) ===================== -->
     <div class="tpl-col">
-      <div class="tpl-cap"><i data-lucide="slack"></i> Slack</div>
-      <div class="slack-frame">
-        <div class="slack-top">
-          <span class="slack-app-logo">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg>
-          </span>
-          <div>
-            <div><span class="slack-name">Simetrik</span><span class="slack-tag">APP</span><span class="slack-time">8:00 a. m.</span></div>
-          </div>
-        </div>
-        <div class="slack-msg">
-          <div class="slack-card">
-            <div class="slack-h">📊 Resumen diario · 21 de junio</div>
-            <div class="slack-ctx">Tablero de pruebas anomalias</div>
-            <div class="slack-stats">🔴 <b>2</b> abiertos&nbsp;&nbsp;·&nbsp;&nbsp;✅ <b>1</b> resuelto&nbsp;&nbsp;·&nbsp;&nbsp;<b>86</b> señales</div>
-
-            <div class="slack-inc">
-              <div class="slack-inc-h">🔴 <b>Caída en CONTEO_DE_REGISTROS</b><span class="slack-state" style="background:var(--red-soft);color:var(--red-text);">Activo</span></div>
-              <div class="slack-inc-meta">Line Chart · Dataset de fuentes automatizadas</div>
-              <div class="slack-inc-narr">El valor cayó por debajo del rango esperado a las 14:20 y sigue activo.</div>
-              <div class="slack-inc-links">Ver en el tablero&nbsp;&nbsp;·&nbsp;&nbsp;Ver incidente</div>
-            </div>
-
-            <div class="slack-inc">
-              <div class="slack-inc-h">🟡 <b>Volumen fuera de rango</b><span class="slack-state" style="background:var(--amber-soft);color:var(--amber-text);">Activo</span></div>
-              <div class="slack-inc-meta">Bar Chart · Visa_Acquiring</div>
-              <div class="slack-inc-narr">El conteo superó el rango esperado de forma sostenida desde las 09:10.</div>
-              <div class="slack-inc-links">Ver en el tablero&nbsp;&nbsp;·&nbsp;&nbsp;Ver incidente</div>
-            </div>
-
-            <div class="slack-resolved">✅ 1 incidente notificado ayer ya se resolvió: <b>Archivo faltante en fiserv</b>.</div>
-
-            <div class="slack-disc">Incluye lo que sigue abierto del día anterior, con el estado actual de cada incidente. · <span style="color:hsl(var(--primary-hsl));font-weight:600;cursor:pointer;">Configurar o desactivar</span></div>
-          </div>
+      <div class="tpl-toolbar">
+        <div class="tpl-cap" style="margin:0;"><i data-lucide="slack"></i> Slack · Block Kit</div>
+        <div class="seg" style="margin-left:auto;" role="tablist" aria-label="Plantilla de Slack">
+          <button type="button" class="seg-opt sel" onclick="slackTpl(this,'default')">default</button>
+          <button type="button" class="seg-opt" onclick="slackTpl(this,'compact')">compact</button>
+          <button type="button" class="seg-opt" onclick="slackTpl(this,'ultra')">ultra-compact</button>
         </div>
       </div>
-    </div>
 
-    <!-- ===================== SLACK · CAROUSEL ===================== -->
-    <div class="tpl-col">
-      <div class="tpl-cap"><i data-lucide="slack"></i> Slack · Carousel</div>
-      <div class="slack-frame">
+      <!-- ===== default ===== -->
+      <div class="slack-frame" data-tpl="default">
         <div class="slack-top">
           <span class="slack-app-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
           <div><span class="slack-name">Simetrik</span><span class="slack-tag">APP</span><span class="slack-time">8:00 a. m.</span></div>
         </div>
         <div class="slack-msg">
           <div class="slack-card">
-            <div class="slack-h">📊 Resumen diario · 21 de junio</div>
-            <div class="slack-ctx">Estos incidentes siguen abiertos en <b>Tablero de pruebas anomalias</b> del día anterior.</div>
-            <div class="slack-stats">🔴 <b>2</b> abiertos&nbsp;&nbsp;·&nbsp;&nbsp;✅ <b>1</b> resuelto&nbsp;&nbsp;·&nbsp;&nbsp;<b>86</b> señales</div>
+            <div class="slack-h">🚨 Resumen diario · 4 incidentes abiertos (4 fuentes)</div>
+            <div class="slack-stats"><b>2</b> URGENT&nbsp;&nbsp;·&nbsp;&nbsp;<b>2</b> REQUIRES_ATTENTION</div>
+            <div class="slack-divider"></div>
 
-            <div class="car">
-              <div class="car-card">
-                <div class="car-title">🔴 Caída en CONTEO_DE_REGISTROS</div>
-                <div class="car-sub">Activo · Line Chart · Dataset de fuentes automatizadas</div>
-                <div class="car-body">El valor cayó por debajo del rango esperado a las 14:20 y sigue fuera de los límites.</div>
-                <div class="car-actions"><span class="car-btn pri">Ver en el tablero</span><span class="car-btn">Ver incidente</span></div>
-              </div>
-              <div class="car-card">
-                <div class="car-title">🟡 Volumen fuera de rango</div>
-                <div class="car-sub">Activo · Bar Chart · Visa_Acquiring</div>
-                <div class="car-body">El conteo superó el rango esperado de forma sostenida desde las 09:10.</div>
-                <div class="car-actions"><span class="car-btn pri">Ver en el tablero</span><span class="car-btn">Ver incidente</span></div>
-              </div>
+            <div class="slack-res">source-1-payments-merchant <span class="slack-res-id">· native</span></div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>URGENTE: 28 archivos faltantes (100% de lo esperado) detectados en source-1-payments-merchant el 2026-06-22</b><span class="slack-state" style="background:var(--red-soft);color:var(--red-text);">URGENT</span></div>
+              <div class="slack-inc-meta">MISSING_FILES · confidence 0.85 · PROBABLE · afecta 1 dashboard</div>
+              <div class="slack-inc-narr">El detector MISSING_FILES (confianza ALTA) determinó que los 28 archivos esperados (4 comercios × 7 archivos diarios del 15 al 21 de junio, equivalentes a 280 filas) no llegaron para source-1-payments-merchant antes de las 23:50 UTC del 2026-06-22, aproximadamente 56 minutos después de la ventana de carga esperada de las 22:54 UTC. Esta ausencia responde a un patrón persistente: 0 archivos fueron entregados en cada uno de los 5 lunes más recientes (del 2026-05-18 al 2026-06-15), con archivos recibidos únicamente una vez en los últimos 6 lunes (2026-05-11, 28 archivos). No hay reporte de extracción disponible y el origen/SFTP no fue analizado; se debe contactar de inmediato al soporte de Simetrik para investigar la causa de la no entrega.</div>
+              <div class="slack-btns"><span class="slack-btn">Crear ticket</span></div>
             </div>
-            <div class="car-nav"><span class="car-dot on"></span><span class="car-dot"></span></div>
 
-            <div class="slack-resolved">✅ 1 incidente notificado ayer ya se resolvió: <b>Archivo faltante en fiserv</b>.</div>
-            <div class="slack-disc">Incluye lo que sigue abierto del día anterior, con el estado actual de cada incidente. · <span style="color:hsl(var(--primary-hsl));font-weight:600;cursor:pointer;">Configurar o desactivar</span></div>
+            <div class="slack-res">source-1-payments-merchant-new <span class="slack-res-id">· native</span></div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>[REQUIRES_ATTENTION] Archivos faltantes detectados en source-1-payments-merchant-new: 0/29 archivos antes de la ventana de carga</b><span class="slack-state" style="background:var(--amber-soft);color:var(--amber-text);">REQUIRES_ATTENTION</span></div>
+              <div class="slack-inc-meta">MISSING_FILES · confidence 0.6 · INDICATIVE</div>
+              <div class="slack-inc-narr">Al 20:30 UTC del 2026-06-24, la fuente source-1-payments-merchant-new registra 0 de 29 archivos esperados cargados (290 filas faltantes, 100% de lo esperado), y la ventana de carga aún no ha abierto hasta las 21:13 UTC (16:13 America/Bogota). Los 4 comercios esperados — ALICORP, MERCADOLIBRE, NIKEDIRECT y RAPPI — no tienen archivos para hoy, y el patrón histórico de los miércoles es inconsistente (solo 1 de los últimos 7 miércoles tuvo cargas, el 2026-06-10). Dado que no hay reporte de extracción disponible para confirmar el estado del SFTP/origen, se recomienda contactar al soporte de Simetrik para diagnosticar la causa raíz una vez que abra la ventana de carga.</div>
+              <div class="slack-btns"><span class="slack-btn">Abrir</span><span class="slack-btn">Crear ticket</span></div>
+            </div>
+
+            <div class="slack-res">e2e_customers <span class="slack-res-id">· native</span></div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>Archivo 'customer_orders.csv' ausente en e2e_customers — REQUIERE_ATENCIÓN (Confianza Baja)</b><span class="slack-state" style="background:var(--amber-soft);color:var(--amber-text);">REQUIRES_ATTENTION</span></div>
+              <div class="slack-inc-meta">MISSING_FILES · confidence 0.4 · PROBABLE</div>
+              <div class="slack-inc-narr">El martes 2026-06-23, el detector MISSING_FILES identificó que 'customer_orders.csv' — esperado para e2e_customers alrededor de las 20:24 UTC con 1 registro — no había llegado al momento del reporte (23:10 UTC), superando la ventana de urgencia de las 22:24 UTC. Esta ausencia no es una anomalía nueva: los datos de tendencia muestran 0 archivos cargados durante 7 martes consecutivos, lo que sugiere que e2e_customers podría haber estado inactivo por un período prolongado. No hay reporte de extracción disponible para confirmar el estado del SFTP o del job; se recomienda contactar al Soporte de Simetrik para investigar este posible problema de larga data.</div>
+              <div class="slack-btns"><span class="slack-btn">Crear ticket</span></div>
+            </div>
+
+            <div class="slack-res">Bar Chart <span class="slack-res-id">· oc_chart</span></div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>Urgente: Caída del 80% en volumen detectada en Bar Chart el 2026-05-14</b><span class="slack-state" style="background:var(--red-soft);color:var(--red-text);">URGENT</span></div>
+              <div class="slack-inc-meta">VOLUME_VARIATION · confidence 0.85 · PROBABLE</div>
+              <div class="slack-inc-narr">El detector VOLUME_VARIATION identificó una caída crítica del 80% en el conteo diario de registros para Bar Chart en la fecha de cobertura 2026-05-14, observando solo 200 registros versus una línea base esperada de 1,000. Se recomienda investigar los procesos ETL upstream para identificar posibles cambios de esquema, regresiones de filtros o sesgo de particiones que puedan explicar esta reducción significativa de volumen.</div>
+              <div class="slack-btns"><span class="slack-btn">Abrir</span><span class="slack-btn">Crear ticket</span></div>
+            </div>
+
+            <div class="slack-disc">Incluye lo que sigue abierto, con el estado actual de cada incidente. · <span style="color:hsl(var(--primary-hsl));font-weight:600;cursor:pointer;">Configurar o desactivar</span></div>
           </div>
         </div>
       </div>
-    </div>
+      <div class="slack-build" data-tpl="default">
+        <h4><i data-lucide="list-tree"></i> Cómo se arma · default</h4>
+        <ul>
+          <li>Header: 🚨 + conteo derivado por <code>severity</code>.</li>
+          <li>Agrupa por <code>scope.resource_refs</code> (<code>resource_name</code> · <code>resource_type</code> · <code>resource_id</code>).</li>
+          <li>Por <code>finding</code>: <code>title</code> + <code>summary</code> <strong>completos</strong> (verbatim) · <code>severity</code> · <code>confidence</code> + <code>hypothesis.confidence</code> · <code>problem_category</code>.</li>
+          <li>Botones por incidente desde <code>recommended_actions</code> · chip <code>affected_dashboards_count</code>.</li>
+        </ul>
+      </div>
+      <div class="slack-json" data-tpl="default">
+        <div class="slack-json-cap"><i data-lucide="code-2"></i> Block Kit JSON · default</div>
+<pre>[
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>,
+    <span class="k">"text"</span>: <span class="s">"🚨 *Resumen diario · 4 incidentes abiertos (4 fuentes)*"</span> } },
+  { <span class="k">"type"</span>: <span class="s">"context"</span>, <span class="k">"elements"</span>: [{ <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"*2* URGENT   ·   *2* REQUIRES_ATTENTION"</span> }] },
+  { <span class="k">"type"</span>: <span class="s">"divider"</span> },
+  <span class="c">// una fuente = scope.resource_refs</span>
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"*&lt;…/native/80133/management|source-1-payments-merchant&gt;* · native"</span> } },
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"*URGENTE: 28 archivos faltantes (100% de lo esperado)… 2026-06-22*"</span> } },  <span class="c">// title[lang]</span>
+  { <span class="k">"type"</span>: <span class="s">"context"</span>, <span class="k">"elements"</span>: [{ <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"`MISSING_FILES` · severity: URGENT · confidence: 0.85 · PROBABLE · afecta 1 dashboard"</span> }] },
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"El detector MISSING_FILES (confianza ALTA)… contactar al soporte de Simetrik…"</span> } },  <span class="c">// summary[lang]</span>
+  { <span class="k">"type"</span>: <span class="s">"actions"</span>, <span class="k">"elements"</span>: [
+    { <span class="k">"type"</span>: <span class="s">"button"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"plain_text"</span>, <span class="k">"text"</span>: <span class="s">"Crear ticket"</span> }, <span class="k">"action_id"</span>: <span class="s">"create_support_ticket"</span> }] },  <span class="c">// recommended_actions</span>
+  { <span class="k">"type"</span>: <span class="s">"divider"</span> }
+  <span class="c">// … las otras 3 fuentes igual …</span>
+]</pre>
+      </div>
 
+      <!-- ===== compact ===== -->
+      <div class="slack-frame" data-tpl="compact" hidden>
+        <div class="slack-top">
+          <span class="slack-app-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+          <div><span class="slack-name">Simetrik</span><span class="slack-tag">APP</span><span class="slack-time">8:00 a. m.</span></div>
+        </div>
+        <div class="slack-msg">
+          <div class="slack-card">
+            <div class="slack-h">🚨 Resumen diario · 4 incidentes abiertos (4 fuentes)</div>
+            <div class="slack-stats"><b>2</b> URGENT&nbsp;&nbsp;·&nbsp;&nbsp;<b>2</b> REQUIRES_ATTENTION</div>
+            <div class="slack-divider"></div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>source-1-payments-merchant</b><span class="slack-state" style="background:var(--red-soft);color:var(--red-text);">native</span></div>
+              <div class="slack-inc-meta">MISSING_FILES · URGENT · 0.85</div>
+              <div class="slack-inc-narr">El detector MISSING_FILES (confianza ALTA) determinó que los 28 archivos esperados (4 comercios × 7 archivos diarios del 15 al 21 de junio, equivalentes a 280 filas) no llegaron para source-1-payments-merchant antes de las 23:50 UTC del 2026-06-22, aproximadamente 56 minutos después de la ventana de carga esperada de las 22:54 UTC.</div>
+            </div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>source-1-payments-merchant-new</b><span class="slack-state" style="background:var(--amber-soft);color:var(--amber-text);">native</span></div>
+              <div class="slack-inc-meta">MISSING_FILES · REQUIRES_ATTENTION · 0.6</div>
+              <div class="slack-inc-narr">Al 20:30 UTC del 2026-06-24, la fuente source-1-payments-merchant-new registra 0 de 29 archivos esperados cargados (290 filas faltantes, 100% de lo esperado), y la ventana de carga aún no ha abierto hasta las 21:13 UTC (16:13 America/Bogota).</div>
+            </div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>e2e_customers</b><span class="slack-state" style="background:var(--amber-soft);color:var(--amber-text);">native</span></div>
+              <div class="slack-inc-meta">MISSING_FILES · REQUIRES_ATTENTION · 0.4</div>
+              <div class="slack-inc-narr">El martes 2026-06-23, el detector MISSING_FILES identificó que 'customer_orders.csv' — esperado para e2e_customers alrededor de las 20:24 UTC con 1 registro — no había llegado al momento del reporte (23:10 UTC), superando la ventana de urgencia de las 22:24 UTC.</div>
+            </div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>Bar Chart</b><span class="slack-state" style="background:var(--red-soft);color:var(--red-text);">oc_chart</span></div>
+              <div class="slack-inc-meta">VOLUME_VARIATION · URGENT · 0.85</div>
+              <div class="slack-inc-narr">El detector VOLUME_VARIATION identificó una caída crítica del 80% en el conteo diario de registros para Bar Chart en la fecha de cobertura 2026-05-14, observando solo 200 registros versus una línea base esperada de 1,000.</div>
+            </div>
+            <div class="slack-disc">Incluye lo que sigue abierto, con el estado actual de cada incidente. · <span style="color:hsl(var(--primary-hsl));font-weight:600;cursor:pointer;">Configurar o desactivar</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="slack-build" data-tpl="compact" hidden>
+        <h4><i data-lucide="list-tree"></i> Cómo se arma · compact</h4>
+        <ul>
+          <li>Header + conteo, igual que default.</li>
+          <li>Por <code>finding</code>: <code>title</code> + <strong>1ª frase</strong> del <code>summary</code> (<code>summary[lang].split('. ')[0]</code>) · <code>severity</code> · <code>confidence</code> · <code>problem_category</code>.</li>
+          <li><strong>Sin</strong> botones por incidente · <strong>sin</strong> chip de dashboards.</li>
+        </ul>
+      </div>
+      <div class="slack-json" data-tpl="compact" hidden>
+        <div class="slack-json-cap"><i data-lucide="code-2"></i> Block Kit JSON · compact</div>
+<pre>[
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"🚨 *Resumen diario · 4 incidentes abiertos (4 fuentes)*"</span> } },
+  { <span class="k">"type"</span>: <span class="s">"context"</span>, <span class="k">"elements"</span>: [{ <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"*2* URGENT   ·   *2* REQUIRES_ATTENTION"</span> }] },
+  { <span class="k">"type"</span>: <span class="s">"divider"</span> },
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"*source-1-payments-merchant*"</span> } },
+  { <span class="k">"type"</span>: <span class="s">"context"</span>, <span class="k">"elements"</span>: [{ <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"`MISSING_FILES` · URGENT · 0.85"</span> }] },
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"El detector MISSING_FILES (confianza ALTA)… de las 22:54 UTC."</span> } },  <span class="c">// 1ª frase del summary</span>
+  <span class="c">// … las otras 3 fuentes igual …</span>
+]</pre>
+      </div>
+
+      <!-- ===== ultra-compact ===== -->
+      <div class="slack-frame" data-tpl="ultra" hidden>
+        <div class="slack-top">
+          <span class="slack-app-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+          <div><span class="slack-name">Simetrik</span><span class="slack-tag">APP</span><span class="slack-time">8:00 a. m.</span></div>
+        </div>
+        <div class="slack-msg">
+          <div class="slack-card">
+            <div class="slack-h">🚨 Resumen diario · 4 incidentes abiertos (4 fuentes)</div>
+            <div class="slack-stats"><b>2</b> URGENT&nbsp;&nbsp;·&nbsp;&nbsp;<b>2</b> REQUIRES_ATTENTION</div>
+            <div class="slack-divider"></div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>URGENTE: 28 archivos faltantes (100% de lo esperado) detectados en source-1-payments-merchant el 2026-06-22</b></div>
+              <div class="slack-inc-meta"><span class="slack-cat">MISSING_FILES</span> · <span style="color:var(--red-text);font-weight:700;">URGENT</span> · 0.85</div>
+            </div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>[REQUIRES_ATTENTION] Archivos faltantes detectados en source-1-payments-merchant-new: 0/29 archivos antes de la ventana de carga</b></div>
+              <div class="slack-inc-meta"><span class="slack-cat">MISSING_FILES</span> · <span style="color:var(--amber-text);font-weight:700;">REQUIRES_ATTENTION</span> · 0.6</div>
+            </div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>Archivo 'customer_orders.csv' ausente en e2e_customers — REQUIERE_ATENCIÓN (Confianza Baja)</b></div>
+              <div class="slack-inc-meta"><span class="slack-cat">MISSING_FILES</span> · <span style="color:var(--amber-text);font-weight:700;">REQUIRES_ATTENTION</span> · 0.4</div>
+            </div>
+            <div class="slack-inc">
+              <div class="slack-inc-h"><b>Urgente: Caída del 80% en volumen detectada en Bar Chart el 2026-05-14</b></div>
+              <div class="slack-inc-meta"><span class="slack-cat">VOLUME_VARIATION</span> · <span style="color:var(--red-text);font-weight:700;">URGENT</span> · 0.85</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slack-build" data-tpl="ultra" hidden>
+        <h4><i data-lucide="list-tree"></i> Cómo se arma · ultra-compact</h4>
+        <ul>
+          <li>Header + conteo.</li>
+          <li>Por <code>finding</code>: <strong>section</strong> = el incidente (<code>title</code>) y <strong>context</strong> debajo = <code>problem_category</code> · <code>severity</code> · <code>confidence</code>. <em>(El recurso no se repite: ya va dentro del <code>title</code>.)</em></li>
+          <li><strong>Sin</strong> <code>summary</code> · <strong>sin</strong> botones por incidente.</li>
+        </ul>
+      </div>
+      <div class="slack-json" data-tpl="ultra" hidden>
+        <div class="slack-json-cap"><i data-lucide="code-2"></i> Block Kit JSON · ultra-compact</div>
+<pre>[
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"🚨 *Resumen diario · 4 incidentes abiertos (4 fuentes)*"</span> } },
+  { <span class="k">"type"</span>: <span class="s">"context"</span>, <span class="k">"elements"</span>: [{ <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"*2* URGENT   ·   *2* REQUIRES_ATTENTION"</span> }] },
+  { <span class="k">"type"</span>: <span class="s">"divider"</span> },
+  { <span class="k">"type"</span>: <span class="s">"section"</span>, <span class="k">"text"</span>: { <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"*URGENTE: 28 archivos faltantes (100%)… 2026-06-22*"</span> } },  <span class="c">// findings[].title[lang] = el incidente</span>
+  { <span class="k">"type"</span>: <span class="s">"context"</span>, <span class="k">"elements"</span>: [{ <span class="k">"type"</span>: <span class="s">"mrkdwn"</span>, <span class="k">"text"</span>: <span class="s">"`MISSING_FILES` · URGENT · 0.85"</span> }] },  <span class="c">// problem_category · severity · confidence (el recurso ya va en el title)</span>
+  <span class="c">// … las otras 3 fuentes igual …</span>
+]</pre>
+      </div>
+
+      <!-- ===== PROPUESTA APARTE · Vista modal (Block Kit modal) ===== -->
+      <div class="tpl-cap" style="margin-top:20px;"><i data-lucide="app-window"></i> Propuesta aparte · Vista modal</div>
+      <div class="bk-modal">
+        <div class="bk-modal-head">
+          <span class="bk-modal-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2L22 12L12 22L2 12Z" fill="#fff" fill-opacity=".92"/></svg></span>
+          <div class="bk-modal-title">Incidentes · Centro de Operaciones</div>
+          <span class="bk-modal-x">✕</span>
+        </div>
+        <div class="bk-modal-body">
+          <div class="bk-row">
+            <span class="bk-row-label">Filtrar incidentes</span>
+            <span class="bk-select">Todos los incidentes <span style="opacity:.6;">▾</span></span>
+          </div>
+          <div class="bk-div"></div>
+
+          <div class="bk-prio"><span class="sq" style="background:var(--red-soft);color:var(--red-text);">▲</span> <span style="color:var(--red-text);">URGENT</span></div>
+          <div class="bk-div"></div>
+
+          <div class="bk-item">
+            <div class="bk-item-h"><div class="bk-link">URGENTE: 28 archivos faltantes (100% de lo esperado) detectados en source-1-payments-merchant el 2026-06-22</div><span class="bk-overflow">⋯</span></div>
+            <div class="bk-ctx"><span class="cat">MISSING_FILES</span> · 0.85 · 2026-06-22</div>
+          </div>
+          <div class="bk-item">
+            <div class="bk-item-h"><div class="bk-link">Urgente: Caída del 80% en volumen detectada en Bar Chart el 2026-05-14</div><span class="bk-overflow">⋯</span></div>
+            <div class="bk-ctx"><span class="cat">VOLUME_VARIATION</span> · 0.85 · 2026-05-14</div>
+          </div>
+
+          <div class="bk-div"></div>
+          <div class="bk-prio"><span class="sq" style="background:var(--amber-soft);color:var(--amber-text);">▲</span> <span style="color:var(--amber-text);">REQUIRES_ATTENTION</span></div>
+          <div class="bk-div"></div>
+
+          <div class="bk-item">
+            <div class="bk-item-h"><div class="bk-link">[REQUIRES_ATTENTION] Archivos faltantes detectados en source-1-payments-merchant-new: 0/29 archivos antes de la ventana de carga</div><span class="bk-overflow">⋯</span></div>
+            <div class="bk-ctx"><span class="cat">MISSING_FILES</span> · 0.6 · 2026-06-24</div>
+          </div>
+          <div class="bk-item">
+            <div class="bk-item-h"><div class="bk-link">Archivo 'customer_orders.csv' ausente en e2e_customers — REQUIERE_ATENCIÓN (Confianza Baja)</div><span class="bk-overflow">⋯</span></div>
+            <div class="bk-ctx"><span class="cat">MISSING_FILES</span> · 0.4 · 2026-06-23</div>
+          </div>
+        </div>
+        <div class="bk-foot">
+          <span class="bk-btn cancel">Cancelar</span>
+          <span class="bk-btn submit">Listo</span>
+        </div>
+      </div>
+
+      <div class="slack-build">
+        <h4><i data-lucide="list-tree"></i> Cómo se arma · modal (desde el JSON de incidentes)</h4>
+        <ul>
+          <li><strong>Dropdown</strong> (<code>static_select</code>) = filtro por <code>severity</code> (Todos / URGENT / REQUIRES_ATTENTION) — derivado.</li>
+          <li><strong>Grupos</strong> por <code>severity</code> (como High / Medium Priority del template).</li>
+          <li><strong>Ítem</strong> (<code>section</code>): <code>title</code> como link al incidente + <code>overflow</code> (⋯) = las <code>recommended_actions</code> (Abrir / Crear ticket).</li>
+          <li><strong>Context</strong> debajo: <code>problem_category</code> · <code>confidence</code> · <code>coverage_date</code>.</li>
+          <li>⚠️ El <strong>assignee/avatar</strong> del template <strong>no está</strong> en el payload → se omite. <code>Cancelar/Listo</code> = chrome del modal.</li>
+        </ul>
+      </div>
+    </div>
     </div><!-- gallery -->
 
-    <!-- Nota de implementación: cómo se muestra el gráfico -->
+    <!-- ===== Hand-off a ingeniería (índice) ===== -->
+    <div class="spec" style="background:hsl(240 30% 99%);">
+      <div class="spec-h"><i data-lucide="wrench"></i> Notas de hand-off para ingeniería</div>
+      <p class="spec-p">Las tarjetas siguientes explican cómo construir las notificaciones desde el JSON del detector (BADS). <strong>No son parte del mensaje que ve el usuario.</strong> En orden:</p>
+      <ol class="spec-list">
+        <li><strong>0 · Anatomía / flujo end-to-end</strong> — de la respuesta de BADS hasta el mensaje en Slack (las 6 etapas).</li>
+        <li><strong>1 · Mapa de parseo del JSON → notificación</strong> — la base: qué campo del payload va a cada parte (con ejemplo real y pseudocódigo).</li>
+        <li><strong>2 · Slack · contrato de implementación (KPI vs resumen)</strong> — cómo se construye y se envía; decisiones v1.</li>
+        <li><strong>3 · Imagen / gráfico del incidente</strong> — cómo va la gráfica (solo email en v1).</li>
+      </ol>
+    </div>
+
+    <!-- Nota de implementación 0 · ANATOMÍA / FLUJO END-TO-END -->
     <div class="spec">
-      <div class="spec-h"><i data-lucide="image"></i> Cómo se muestra el gráfico (handoff a ingeniería)</div>
+      <div class="spec-h"><i data-lucide="workflow"></i> 0 · Anatomía: de la respuesta de BADS a la notificación (flujo end-to-end)</div>
       <p class="spec-p">
-        En el prototipo el gráfico es un SVG porque corre en el navegador. En un correo o mensaje real
-        <strong>no se usa SVG ni JavaScript</strong> (los clientes los bloquean): el gráfico se muestra como una
-        <strong>imagen PNG renderizada en el servidor</strong> al momento de armar el resumen.
+        La clave es separar <strong>3 cosas</strong>: el <strong>QUÉ</strong> (el <code>bads_payload</code> del detector), el <strong>A QUIÉN/DÓNDE</strong> (la config: canal + <code>slack_id</code>),
+        y el <strong>CÓMO se ve</strong> (Block Kit). El detector no sabe de Slack; Slack no sabe del <code>bads_payload</code>. En el medio, un <strong>servicio de notificaciones</strong> traduce.
+      </p>
+<pre class="flow-pre">[1] Detector BADS  ──▶  [2] JSON bads_payload  ──▶  [3] Servicio notif.  ──▶  [4] Block Kit  ──▶  [5] Slack
+    genera incidente        status: OPEN,              parsea + arma            blocks[]            renderiza +
+    emite evento            findings,                  (buildBlocks)            (texto verbatim)    tag &lt;@slack_id&gt;
+                            recommended_actions              ▲
+                                                  Config del KPI: canal + slack_id</pre>
+      <ol class="spec-list">
+        <li><strong>1 · Se genera el incidente</strong> — El detector BADS (<code>workflow_type: ingestion_analysis</code>) crea los <code>findings</code> con IA, arma el <code>bads_payload</code> (<code>schema_version 1.7</code>), <strong>persiste</strong> el incidente (<code>status: OPEN</code>) y <strong>emite un evento</strong> (<code>event_type: com.simetrik.bads.incident.escalated</code> / <code>.enriched</code>).</li>
+        <li><strong>2 · Sale como JSON</strong> — el mismo payload que compartiste. Dos vías: <strong>push</strong> (el evento dispara la <strong>notificación de KPI</strong> en tiempo real) y <strong>pull</strong> (<code>GET results[]</code> paginado, filtrando <code>status: OPEN</code> + día, para el <strong>resumen</strong>).</li>
+        <li><strong>3 · Quién la parsea</strong> — un <strong>servicio de notificaciones</strong> (backend), <strong>no el front ni Slack</strong>. Lee la <strong>config</strong> (canal + <code>slack_id</code>), toma el <code>bads_payload</code>, elige idioma, resuelve <code>[ref_id]</code> con <code>references[]</code> y llama a <code>buildBlocks(payload, lang)</code> (misma función para KPI = 1 incidente y resumen = N agrupados).</li>
+        <li><strong>4 · A dónde se parsea</strong> — a <strong>Block Kit JSON</strong> (<code>blocks[]</code>: <code>section</code>/<code>context</code>/<code>divider</code>/<code>actions</code>). Texto <strong>verbatim</strong>; botones desde <code>recommended_actions</code>; mención <code>&lt;{slack_id}&gt;</code>.</li>
+        <li><strong>5 · Cómo lo interpreta Slack</strong> — Slack <strong>solo entiende Block Kit</strong>, no el <code>bads_payload</code>; por eso el builder traduce. Renderiza secciones/contexto/botones; <code>&lt;@U0A87…&gt;</code> se convierte en <strong>tag real</strong> → por eso se usa el <strong>ID de Slack, no <code>@nombre</code></strong> (un <code>@nombre</code> por API llega como texto plano).</li>
+        <li><strong>6 · Cómo llega al destino</strong> — el servicio publica (<code>chat.postMessage</code> / notification center) con <code>channel</code> (de la config), <code>blocks</code> (el Block Kit) y el <code>slack_id</code> para etiquetar (de la config).</li>
+      </ol>
+      <div class="flow-config">
+        <b>Dónde encaja la config de la UI:</b> el canal y el ID para etiquetar <strong>no vienen del payload</strong> — son el <em>A QUIÉN/DÓNDE</em>. El builder recibe <code>(payload, config)</code> con <code>config = { channel, slack_id, lang, template }</code>: el payload define el <em>contenido</em>, la config define el <em>destino</em> y a quién se arroba.
+      </div>
+      <div class="spec-note">⚠️ Único punto abierto (con Iván): cómo se envía el Block Kit — <strong>template parametrizado registrado</strong> en el notification center vs. <strong>Block Kit completo inline</strong> por evento. No bloquea: el <code>buildBlocks</code> es el mismo; eso es solo el adaptador de envío final.</div>
+    </div>
+
+    <!-- Nota de implementación 4 · MAPA DE PARSEO -->
+    <div class="spec">
+      <div class="spec-h"><i data-lucide="git-fork"></i> 1 · Parseo del JSON de anomaly → notificación (mapa de campos)</div>
+      <p class="spec-p">
+        La respuesta es paginada: <code>results[]</code>, donde cada item es un incidente. El render <strong>filtra → agrupa → mapea</strong>,
+        sin reescribir texto. Idioma: elegir la clave <code>es</code>/<code>en</code>/<code>pt</code> según preferencia del usuario (fallback <code>en</code>).
+      </p>
+
+      <p class="spec-p" style="margin-top:6px;font-weight:600;">Ejemplo real (un incidente de <code>results[]</code>, recortado y anotado):</p>
+<pre>{
+  <span class="k">"id"</span>: <span class="s">"da794f72-2f7a-41d8-bca8-feda6fe4c520"</span>,
+  <span class="k">"incident_id"</span>: <span class="s">"eae9b3ee-8122-4569-b017-724f21183e4a"</span>,
+  <span class="k">"status"</span>: <span class="s">"OPEN"</span>,                       <span class="c">// ← filtrar OPEN</span>
+  <span class="k">"executed_at"</span>: <span class="s">"2026-06-22T23:50:03Z"</span>,
+  <span class="k">"affected_dashboards_count"</span>: 1,           <span class="c">// ← chip "afecta N dashboards"</span>
+  <span class="k">"bads_payload"</span>: {
+    <span class="k">"scope"</span>: {
+      <span class="k">"resource_refs"</span>: [{
+        <span class="k">"resource_id"</span>: <span class="s">"80133"</span>,
+        <span class="k">"resource_type"</span>: <span class="s">"native"</span>,
+        <span class="k">"resource_name"</span>: <span class="s">"source-1-payments-merchant"</span>  <span class="c">// ← encabezado de grupo</span>
+      }],
+      <span class="k">"coverage_dates"</span>: [<span class="s">"2026-06-22"</span>]          <span class="c">// ← filtro por día</span>
+    },
+    <span class="k">"severity"</span>: <span class="s">"URGENT"</span>,                    <span class="c">// ← rollup (count del encabezado)</span>
+    <span class="k">"findings"</span>: [{
+      <span class="k">"finding_type"</span>: <span class="s">"MISSING_FILES"</span>,
+      <span class="k">"problem_category"</span>: <span class="s">"MISSING_FILE"</span>,    <span class="c">// ← chip de categoría</span>
+      <span class="k">"severity"</span>: <span class="s">"URGENT"</span>,                  <span class="c">// ← badge / color</span>
+      <span class="k">"confidence"</span>: 0.85,                    <span class="c">// ← confianza numérica</span>
+      <span class="k">"title"</span>: {                            <span class="c">// ← título verbatim (elegir [lang])</span>
+        <span class="k">"es"</span>: <span class="s">"URGENTE: 28 archivos faltantes (100% de lo esperado) detectados en [1] el 2026-06-22"</span>,
+        <span class="k">"en"</span>: <span class="s">"URGENT: 28 missing files…"</span>, <span class="k">"pt"</span>: <span class="s">"URGENTE: 28 arquivos ausentes…"</span>
+      },
+      <span class="k">"summary"</span>: {                          <span class="c">// ← narrativa verbatim (los números viven aquí)</span>
+        <span class="k">"es"</span>: <span class="s">"El detector MISSING_FILES (confianza ALTA) determinó que los 28 archivos esperados (4 comercios × 7 archivos diarios… equivalentes a 280 filas) no llegaron … se debe contactar … al soporte de Simetrik …"</span>,
+        <span class="k">"en"</span>: <span class="s">"…"</span>, <span class="k">"pt"</span>: <span class="s">"…"</span>
+      },
+      <span class="k">"references"</span>: [
+        { <span class="k">"ref_id"</span>: <span class="s">"1"</span>, <span class="k">"resource_ref"</span>: { <span class="k">"resource_id"</span>: <span class="s">"80133"</span>, <span class="k">"resource_name"</span>: <span class="s">"source-1-payments-merchant"</span> } }  <span class="c">// ← resuelve [1]</span>
+      ]
+    }],
+    <span class="k">"hypothesis"</span>: {
+      <span class="k">"confidence"</span>: <span class="s">"PROBABLE"</span>,             <span class="c">// ← enum INDICATIVE | PROBABLE | CONFIRMED</span>
+      <span class="k">"text"</span>: { <span class="k">"es"</span>: <span class="s">"…"</span>, <span class="k">"en"</span>: <span class="s">"…"</span>, <span class="k">"pt"</span>: <span class="s">"…"</span> }
+    },
+    <span class="k">"recommended_actions"</span>: [{
+      <span class="k">"action"</span>: <span class="s">"CONTACT_INTERNAL_SUPPORT"</span>,
+      <span class="k">"priority"</span>: 0,                        <span class="c">// ← orden de los botones</span>
+      <span class="k">"references"</span>: [{
+        <span class="k">"ref_id"</span>: <span class="s">"29"</span>,
+        <span class="k">"action_ref"</span>: {
+          <span class="k">"action_type"</span>: <span class="s">"create_support_ticket"</span>,        <span class="c">// ← tipo de botón</span>
+          <span class="k">"label"</span>: { <span class="k">"es"</span>: <span class="s">"Crear ticket"</span>, <span class="k">"en"</span>: <span class="s">"Create ticket"</span>, <span class="k">"pt"</span>: <span class="s">"Criar chamado"</span> },  <span class="c">// ← texto del botón</span>
+          <span class="k">"target"</span>: { <span class="k">"resource_id"</span>: <span class="s">"80133"</span>, <span class="k">"resource_type"</span>: <span class="s">"native"</span> },     <span class="c">// ← destino</span>
+          <span class="k">"body"</span>: { <span class="k">"es"</span>: <span class="s">"Incidente eae9b3ee… : …"</span>, <span class="k">"en"</span>: <span class="s">"…"</span>, <span class="k">"pt"</span>: <span class="s">"…"</span> }  <span class="c">// ← cuerpo prellenado</span>
+        }
+      }]
+    }, {
+      <span class="k">"action"</span>: <span class="s">"REVIEW_DATA_SOURCE"</span>, <span class="k">"priority"</span>: 1,
+      <span class="k">"references"</span>: [{ <span class="k">"ref_id"</span>: <span class="s">"2"</span>, <span class="k">"resource_ref"</span>: { <span class="k">"resource_id"</span>: <span class="s">"80133"</span> } }]  <span class="c">// ← solo resource_ref → NO pinta botón</span>
+    }],
+    <span class="k">"blast_radius"</span>: [{ <span class="k">"kpi_id"</span>: <span class="s">"ff4b1ab5-…"</span>, <span class="k">"status"</span>: <span class="s">"affected"</span>, <span class="k">"resource_ref"</span>: { <span class="k">"resource_type"</span>: <span class="s">"oc_chart"</span> } }]
+  }
+}</pre>
+      <p class="spec-p" style="margin-top:8px;font-size:11.5px;color:var(--text-muted);">Recortado: se omiten <code>reasoning</code>, <code>ai_provenance</code>, <code>evidence_signal_ids</code>, los textos <code>en</code>/<code>pt</code> completos y campos no usados por el render. Estructura completa = <code>schema_version 1.7</code>.</p>
+
+      <table>
+        <thead>
+          <tr><th>Campo del JSON</th><th>Dónde se usa / regla</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>results[].status</code></td><td>Filtro: solo <code>OPEN</code>.</td></tr>
+          <tr><td><code>…scope.coverage_dates[]</code></td><td>Filtro por día del resumen (día anterior).</td></tr>
+          <tr><td><code>…scope.resource_refs[]</code></td><td><strong>Agrupación.</strong> <code>resource_name</code> = encabezado de grupo · <code>resource_id</code> + <code>resource_type</code> (<code>native</code>/<code>oc_chart</code>) = metadata.</td></tr>
+          <tr><td><code>…findings[].title[lang]</code></td><td>Título de la tarjeta (verbatim).</td></tr>
+          <tr><td><code>…findings[].summary[lang]</code></td><td>Narrativa de la tarjeta (verbatim). <em>Aquí viven los números</em> (no hay campos de métrica sueltos).</td></tr>
+          <tr><td><code>…findings[].severity</code></td><td>Badge + color: <code>URGENT</code> → rojo · <code>REQUIRES_ATTENTION</code> → ámbar.</td></tr>
+          <tr><td><code>…findings[].confidence</code></td><td>Confianza numérica (0–1).</td></tr>
+          <tr><td><code>…findings[].problem_category</code></td><td>Chip de categoría (<code>MISSING_FILE</code>, <code>VOLUME_VARIATION</code>, …).</td></tr>
+          <tr><td><code>…findings[].produced_at</code></td><td>Timestamp del incidente.</td></tr>
+          <tr><td><code>…hypothesis.confidence</code></td><td>Enum: <code>INDICATIVE</code> / <code>PROBABLE</code> / <code>CONFIRMED</code>.</td></tr>
+          <tr><td><code>…recommended_actions[]</code></td><td>Botones (ordenar por <code>priority</code>). Ver resolución abajo.</td></tr>
+          <tr><td><code>references[]</code> (por objeto)</td><td>Resuelve los marcadores <code>[ref_id]</code> del texto. Cada finding/hypothesis/acción trae <strong>su propio</strong> array.</td></tr>
+          <tr><td><code>affected_dashboards_count</code> / <code>blast_radius[]</code></td><td>Chip "afecta N dashboards" + detalle de KPIs/charts afectados.</td></tr>
+        </tbody>
+      </table>
+
+      <ol class="spec-list">
+        <li><strong>Resolución de <code>[ref_id]</code>:</strong> el texto trae tokens como <code>[1]</code>, <code>[2]</code>. Por cada token, buscar en el <code>references[]</code> de ese mismo objeto el item con ese <code>ref_id</code>: si tiene <code>resource_ref</code> → reemplazar por el <code>resource_name</code> (enlazado a su <code>target</code>); si es un <code>action_ref</code> → se omite del texto (va como botón).</li>
+        <li><strong>Botones desde <code>recommended_actions[]</code>:</strong> recorrer <code>references[]</code> y tomar solo los que tengan <code>action_ref</code>. <code>action_ref.label[lang]</code> = texto del botón · <code>action_type</code> = <code>go_to</code> (Abrir) / <code>create_support_ticket</code> (Crear ticket) / <code>send_message</code> (Enviar mensaje) · <code>target</code> = destino · <code>body[lang]</code> = cuerpo prellenado (ticket/mensaje). Las acciones con solo <code>resource_ref</code> no pintan botón.</li>
+      </ol>
+
+<pre><span class="c">// 1) filtrar y agrupar por recurso</span>
+<span class="k">const</span> day = yesterday();
+<span class="k">const</span> open = res.results.<span class="f">filter</span>(i => i.status === <span class="s">'OPEN'</span>
+  && i.bads_payload.scope.coverage_dates.<span class="f">includes</span>(day));
+<span class="k">const</span> byResource = <span class="f">groupBy</span>(open, i => i.bads_payload.scope.resource_refs[0].resource_id);
+
+<span class="c">// 2) por grupo → encabezado de fuente; por finding → tarjeta</span>
+<span class="k">for</span> (<span class="k">const</span> [resId, group] <span class="k">of</span> byResource) {
+  <span class="k">const</span> ref = group[0].bads_payload.scope.resource_refs[0];
+  renderResourceHeader(ref.resource_name, ref.resource_id, ref.resource_type);
+
+  <span class="k">for</span> (<span class="k">const</span> inc <span class="k">of</span> group) {
+    <span class="k">const</span> p = inc.bads_payload;
+    <span class="k">for</span> (<span class="k">const</span> f <span class="k">of</span> p.findings) {
+      card.title = <span class="f">resolveRefs</span>(f.title[lang], f.references);   <span class="c">// verbatim + [n]→recurso</span>
+      card.body  = <span class="f">resolveRefs</span>(f.summary[lang], f.references); <span class="c">// verbatim</span>
+      card.badge = f.severity;             <span class="c">// URGENT | REQUIRES_ATTENTION</span>
+      card.conf  = f.confidence;           <span class="c">// 0..1</span>
+      card.cat   = f.problem_category;     <span class="c">// MISSING_FILE | VOLUME_VARIATION</span>
+      card.hyp   = p.hypothesis?.confidence; <span class="c">// INDICATIVE | PROBABLE | CONFIRMED</span>
+    }
+    <span class="c">// 3) botones desde recommended_actions (solo refs con action_ref)</span>
+    card.buttons = p.recommended_actions
+      .<span class="f">sort</span>((a,b) => a.priority - b.priority)
+      .<span class="f">flatMap</span>(a => a.references.<span class="f">filter</span>(r => r.action_ref))
+      .<span class="f">map</span>(r => ({ label: r.action_ref.label[lang], type: r.action_ref.action_type,
+                   target: r.action_ref.target, body: r.action_ref.body?.[lang] }));
+    <span class="k">if</span> (inc.affected_dashboards_count > 0) card.blast = inc.affected_dashboards_count;
+  }
+}
+
+<span class="c">// 4) resolver marcadores [1] [2]… contra el references[] del mismo objeto</span>
+<span class="k">function</span> <span class="f">resolveRefs</span>(text, refs = []) {
+  <span class="k">return</span> text.<span class="f">replace</span>(/\[(\d+)\]/g, (_, id) => {
+    <span class="k">const</span> r = refs.<span class="f">find</span>(x => x.ref_id === id);
+    <span class="k">if</span> (r?.resource_ref) <span class="k">return</span> <span class="f">link</span>(r.resource_ref.resource_name, r.resource_ref);
+    <span class="k">return</span> <span class="s">''</span>; <span class="c">// action_ref → fuera del texto, va como botón</span>
+  });
+}
+
+<span class="c">// 5) contadores del encabezado = count de la lista (no es texto generado)</span>
+<span class="k">const</span> urgent = open.<span class="f">filter</span>(i => i.bads_payload.severity === <span class="s">'URGENT'</span>).length;</pre>
+
+      <div class="spec-note">⚠️ No hay campos de métrica discretos (<code>expected</code>/<code>arrived</code>/<code>missing</code>) en este endpoint: están embebidos en <code>summary</code>. Para mostrarlos como datos estructurados (numbers-first) hay que tomarlos de otra fuente (signals/evidence) — <strong>no</strong> parsear la narrativa con regex.</div>
+
+    </div>
+
+    <!-- Nota de implementación · CONTRATO DE HAND-OFF SLACK -->
+    <div class="spec">
+      <div class="spec-h"><i data-lucide="plug"></i> 2 · Implementación de la notificación de Slack (KPI vs resumen) — contrato de hand-off</div>
+      <p class="spec-p">
+        Regla base: <strong>el contenido sale 1:1 del <code>bads_payload</code></strong> del endpoint de anomalías. Texto <strong>verbatim</strong>;
+        única transformación: elegir idioma (<code>es</code>/<code>en</code>/<code>pt</code>) y resolver <code>[ref_id]</code> con <code>references[]</code>. No se inventan campos.
+        Las dos notificaciones usan <strong>el mismo builder</strong>; solo cambia cuántos incidentes entran.
+      </p>
+      <table>
+        <thead><tr><th>Notificación</th><th>Entrada (JSON)</th><th>Salida</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Slack a nivel KPI</strong> (tiempo real)</td><td><strong>1 incidente</strong> = un <code>results[]</code> / <code>bads_payload</code> (evento <code>incident.escalated</code>/<code>enriched</code>)</td><td><code>buildBlocks(incidente, lang)</code></td></tr>
+          <tr><td><strong>Slack del resumen</strong> (diario)</td><td><strong>N incidentes</strong> = <code>results[]</code> <code>status: OPEN</code> del día, agrupados por <code>scope.resource_refs</code></td><td><code>buildBlocks(lista, lang)</code></td></tr>
+        </tbody>
+      </table>
+
+      <p class="spec-p" style="margin-top:14px;font-weight:600;">Decisiones v1 (cierran los conflictos para que no choque el hand-off)</p>
+      <ol class="spec-list">
+        <li><strong>Botones = <code>recommended_actions</code> reales</strong> (no "Tablero/Ver incidente" genéricos). Mapeo de <code>action_type</code> a botón de Block Kit:
+          <code>go_to</code> → botón con <code>url</code> al <code>target</code> · <code>create_support_ticket</code> → botón con <code>url</code> (Zendesk) + <code>body[lang]</code> prellenado · <code>send_message</code> → redactar al proveedor. Texto = <code>action_ref.label[lang]</code>, orden = <code>priority</code>. Acciones con solo <code>resource_ref</code> no pintan botón.</li>
+        <li><strong>Métricas → se muestra el <code>summary</code> verbatim</strong> (contiene los números). No se fabrican chips numbers-first: este endpoint no trae <code>expected/arrived/missing</code> como campos. Si más adelante se quieren estructurados, el BE debe exponer un objeto <code>metrics</code> por finding (o tomarlos de signals/evidence) — cambio de BE, fuera de este alcance.</li>
+        <li><strong>Imagen/gráfica → Slack v1 sin imagen</strong> (riesgo marcado el 25-jun, sin decisión). El <code>summary</code> ya lleva los datos. La imagen queda <strong>solo en el email</strong> (placeholder por card); se reevalúa Slack con Iván.</li>
+        <li><strong>Etiquetado</strong>: se arroba a la persona por su <code>slack_id</code> (de la config); no <code>@nombre</code> (llega como texto plano por API).</li>
+      </ol>
+
+      <p class="spec-p" style="margin-top:14px;font-weight:600;">Envío (pendiente con Iván) — desacoplado del contenido</p>
+      <p class="spec-p">
+        El builder es una <strong>función pura del JSON</strong>: <code>buildBlocks(payload, lang) → blocks[]</code>. Según lo que confirme Iván:
+        si el notification center <strong>soporta templates Block Kit parametrizados</strong> → se registra el template y se pasan params (link tablero, link incidente, imagen si aplica);
+        si <strong>no</strong> → se envía el <strong>Block Kit completo inline</strong> (el output del builder) en cada evento. El builder es el mismo en ambos casos, así que esto <strong>no bloquea</strong> la implementación.
+      </p>
+      <div class="spec-note">✅ Resumen del contrato: el contenido sale del <code>bads_payload</code> (verbatim, mismo builder para KPI y resumen); los botones de <code>recommended_actions</code>; sin imagen en Slack v1; el mecanismo de envío se ajusta con Iván <strong>sin cambiar el contenido</strong>.</div>
+    </div>
+
+    <!-- Nota de implementación 3 -->
+    <div class="spec">
+      <div class="spec-h"><i data-lucide="image"></i> 3 · Imagen / gráfico del incidente (variante con gráfica)</div>
+      <p class="spec-p">
+        Solo aplica a incidentes con serie temporal (p. ej. <code>VOLUME_VARIATION</code>). El email tiene dos variantes (toggle arriba):
+        <strong>con</strong> y <strong>sin gráfica</strong>. En el prototipo el gráfico es un SVG porque corre en navegador; en correo real <strong>no se usa SVG ni JS</strong>
+        (los clientes los bloquean) — va como <strong>imagen PNG renderizada en el servidor</strong>.
       </p>
       <ol class="spec-list">
-        <li><strong>Render (backend):</strong> por cada incidente se "fotografía" su gráfico en la ventana de tiempo correspondiente. Opción fiel: <em>headless browser</em> (Playwright) capturando el componente real del tablero. Opción liviana: librería de charts del lado del servidor (ECharts SSR, Vega). Renderizar a <strong>2x</strong> y mostrar a la mitad del ancho para que se vea nítido.</li>
-        <li><strong>Email:</strong> embeber con <code>&lt;img&gt;</code> mediante adjunto CID (<code>src="cid:chart-incidente-123"</code>) o una URL firmada con expiración corta. Nunca un bucket público: es data del cliente.</li>
-        <li><strong>Slack:</strong> usar un bloque <code>image</code> de Block Kit apuntando al mismo PNG hospedado. El render se hace una sola vez y sirve para los dos canales.</li>
-        <li><strong>Diseño y accesibilidad:</strong> la imagen es estática, sin hover ni interacción. Siempre con <code>alt</code> descriptivo del incidente (muchos clientes bloquean imágenes por defecto). La narrativa de texto debe entenderse <strong>aunque la imagen no cargue</strong>.</li>
+        <li><strong>Render (backend):</strong> por incidente se "fotografía" su gráfico. Opción fiel: headless browser (Playwright) del componente real; opción liviana: charts server-side (ECharts SSR, Vega). Renderizar a <strong>2x</strong> y mostrar a la mitad del ancho.</li>
+        <li><strong>Email:</strong> embeber con <code>&lt;img&gt;</code> vía adjunto CID (<code>src="cid:chart-&lt;finding_id&gt;"</code>) o URL firmada con expiración corta. Nunca bucket público: es data del cliente.</li>
+        <li><strong>Slack:</strong> bloque <code>image</code> de Block Kit apuntando al mismo PNG — pero ver el riesgo de generación de imagen en la nota anterior.</li>
+        <li><strong>Accesibilidad:</strong> imagen estática, siempre con <code>alt</code> descriptivo; la metadata de texto debe entenderse aunque la imagen no cargue (por eso la variante sin gráfica).</li>
       </ol>
     </div>
 
   </div>
 
   <script>
+    // Toggle con/sin gráfica del email
+    function mailChart(btn, withChart) {
+      btn.parentElement.querySelectorAll('.seg-opt').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      document.getElementById('mailFrame').classList.toggle('no-chart', !withChart);
+    }
+    // Toggle de plantilla de Slack (default / compact / ultra-compact)
+    function slackTpl(btn, name) {
+      btn.parentElement.querySelectorAll('.seg-opt').forEach(b => b.classList.remove('sel'));
+      btn.classList.add('sel');
+      document.querySelectorAll('[data-tpl]').forEach(el => { el.hidden = (el.dataset.tpl !== name); });
+    }
     lucide.createIcons();
   </script>
 </body>
