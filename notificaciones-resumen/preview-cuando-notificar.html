@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview · ¿Cuándo notificar? (barra como explicador)</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root{
+    --background:0 0% 100%; --foreground:240 6% 10%; --primary-hsl:240 94% 60%;
+    --success:138 76% 36%; --warning:41 96% 40%; --destructive:360 72% 51%;
+    --border:0 0% 85%; --sidebar-border:240 6% 90%; --muted-foreground:0 0% 55%; --accent:240 5% 96%;
+    --bg-hover:hsl(var(--accent)); --border-default:hsl(var(--sidebar-border)); --border-strong:hsl(var(--border));
+    --text-primary:hsl(var(--foreground)); --text-secondary:hsl(240 5% 26%); --text-tertiary:hsl(240 4% 46%); --text-muted:hsl(var(--muted-foreground));
+    --primary:hsl(var(--primary-hsl)); --primary-soft:hsl(240 94% 96%); --primary-text:hsl(240 72% 56%);
+    --green-text:hsl(var(--success)); --green-soft:hsl(138 76% 96%);
+    --red-text:hsl(var(--destructive)); --red-soft:hsl(0 86% 97%);
+    --amber-text:hsl(var(--warning)); --amber-soft:hsl(55 92% 92%);
+    --orange:#e8833a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;background:#f4f4f6;color:var(--text-primary);padding:32px 16px;-webkit-font-smoothing:antialiased}
+  .stage{max-width:520px;margin:0 auto}
+  .stage-note{font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:18px}
+
+  .card{background:#fff;border:1px solid var(--border-default);border-radius:14px;overflow:hidden}
+  .card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px 12px}
+  .card-title{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--text-primary)}
+  .card-title .lucide{width:16px;height:16px;color:var(--text-tertiary)}
+  .card-body{padding:0 16px 14px}
+
+  /* ===== Dropdown (patrón when-select del prototipo) ===== */
+  .when-select{position:relative;flex-shrink:0}
+  .when-select-btn{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px;border:1px solid var(--border-strong);border-radius:8px;background:#fff;font:inherit;font-size:12.5px;font-weight:500;color:var(--text-primary);cursor:pointer;transition:border-color .12s}
+  .when-select-btn:hover{border-color:hsl(var(--primary-hsl)/.4)}
+  .when-select-btn svg{width:14px;height:14px;color:var(--text-tertiary);transition:transform .2s}
+  .when-select.open .when-select-btn svg{transform:rotate(180deg)}
+  .when-menu{position:absolute;top:calc(100% + 4px);right:0;z-index:20;min-width:262px;padding:4px;border-radius:10px;background:#fff;border:1px solid var(--border-default);box-shadow:0 8px 24px rgba(20,20,40,.12);display:none;flex-direction:column;gap:2px}
+  .when-select.open .when-menu{display:flex}
+  .when-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:8px 10px;border:0;border-radius:7px;background:none;cursor:pointer;font:inherit;transition:background .12s}
+  .when-opt:hover{background:var(--bg-hover)}
+  .when-opt .ot{font-size:13px;font-weight:500;color:var(--text-primary);display:flex;align-items:center;gap:7px}
+  .when-opt .od{font-size:11.5px;color:var(--text-tertiary);line-height:1.35}
+  .when-opt.is-sel .ot{color:var(--primary-text)}
+  .tag{font-size:9.5px;font-weight:600;letter-spacing:.02em;padding:1px 6px;border-radius:5px;text-transform:uppercase}
+  .tag.rec{background:var(--green-soft);color:var(--green-text)}
+
+  /* ===== Detalle ===== */
+  .detail-line{font-size:12.5px;color:var(--text-secondary);line-height:1.45;margin:2px 2px 12px}
+  .detail-line b{color:var(--text-primary)}
+
+  /* ===== Ventana de monitoreo como EXPLICADOR ===== */
+  .win{padding:13px 14px;border:1px solid var(--border-default);border-radius:11px;background:#fcfcfd}
+  .win-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:14px}
+  .win-label{font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:6px}
+  .win-label .lucide{width:13px;height:13px}
+  .win-count{font-size:11.5px;font-weight:600;color:var(--text-secondary)}
+  .win-count.zero{color:var(--text-muted);font-weight:500}
+
+  .win-track{position:relative;height:10px;border-radius:6px;background:hsl(240 5% 92%);margin:0 4px}
+  .win-band{position:absolute;top:0;bottom:0;left:33.33%;width:50%;border-radius:6px;background:hsl(var(--primary-hsl)/.16)}
+  /* marcadores = notificaciones */
+  .mk{position:absolute;top:50%;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.18);cursor:default;z-index:2;transition:transform .12s}
+  .mk:hover{transform:translate(-50%,-50%) scale(1.25);z-index:3}
+  .mk[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;background:hsl(240 6% 12%);color:#fff;font-size:11px;font-weight:500;padding:4px 8px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:5}
+  .mk[data-tip]:hover::before{content:"";position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:hsl(240 6% 12%);z-index:5}
+  .mk.amber{background:var(--amber-text)} .mk.red{background:var(--red-text)} .mk.orange{background:var(--orange)} .mk.green{background:var(--green-text)}
+  .mk.final{width:15px;height:15px}
+
+  .win-ticks{display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-muted);margin-top:7px}
+
+  .win-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-default)}
+  .lg{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary)}
+  .lg .dot{width:9px;height:9px;border-radius:50%}
+  .lg .amber{background:var(--amber-text)} .lg .red{background:var(--red-text)} .lg .orange{background:var(--orange)} .lg .green{background:var(--green-text)}
+
+  .win-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);background:hsl(240 5% 96%);border-radius:6px;padding:3px 8px}
+  .badge .lucide{width:12px;height:12px;color:var(--text-tertiary)}
+  .win-edit{margin-left:auto;width:26px;height:26px;border-radius:6px;border:1px solid var(--border-default);background:#fff;color:var(--text-tertiary);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+  .win-edit .lucide{width:13px;height:13px}
+
+  .win.dim .win-track,.win.dim .win-legend{opacity:.45}
+
+  .hint{margin:14px auto 0;max-width:520px;font-size:11.5px;color:var(--text-muted);background:#fff;border:1px solid var(--border-default);border-radius:10px;padding:10px 12px;line-height:1.5}
+  .hint b{color:var(--text-secondary)}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="stage-note">Preview aislado · la barra de la ventana es el explicador · pasa el mouse por los puntos · cambia de opción</div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i data-lucide="bell"></i> ¿Cuándo notificar?</span>
+      <div class="when-select" id="sel">
+        <button type="button" class="when-select-btn" onclick="toggleMenu()">
+          <span id="cur">Solo al final</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="when-menu">
+          <button type="button" class="when-opt" onclick="pick('never','Nunca')">
+            <span class="ot">Nunca</span>
+            <span class="od">No recibirás avisos. El monitoreo igual registra todo in-app.</span>
+          </button>
+          <button type="button" class="when-opt is-sel" onclick="pick('final','Solo al final')">
+            <span class="ot">Solo al final <span class="tag rec">recomendado</span></span>
+            <span class="od">Al cerrar la ventana, el estado final del incidente.</span>
+          </button>
+          <button type="button" class="when-opt" onclick="pick('live','En tiempo real')">
+            <span class="ot">En tiempo real</span>
+            <span class="od">Cada cambio de estado, a medida que ocurre.</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="detail-line" id="d-line"></div>
+
+      <div class="win" id="win">
+        <div class="win-head">
+          <span class="win-label"><i data-lucide="calendar-clock"></i> Ventana de monitoreo</span>
+          <span class="win-count" id="d-count"></span>
+        </div>
+        <div class="win-track" id="d-track"><div class="win-band"></div></div>
+        <div class="win-ticks"><span>12 a.m.</span><span>6 a.m.</span><span>12 m.</span><span>6 p.m.</span><span>12 a.m.</span></div>
+        <div class="win-legend" id="d-legend"></div>
+        <div class="win-badges">
+          <span class="badge"><i data-lucide="repeat"></i> Diario</span>
+          <span class="badge"><i data-lucide="clock"></i> 08:00 a.m. – 08:00 p.m.</span>
+          <span class="badge"><i data-lucide="globe"></i> America/Bogota</span>
+          <button class="win-edit" title="Editar en Programación"><i data-lucide="pencil"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">
+    <b>La barra explica:</b> cada punto es una notificación, ubicada a la hora en que llegaría. "Solo al final" = un punto al cierre; "En tiempo real" = varios a lo largo de la ventana.<br>
+    <b>Solo al final:</b> si el incidente se resolvió durante la ventana, no hay punto (no llega nada).<br>
+    <b>A validar con Iván:</b> qué estado reporta BADS exactamente al cierre.
+  </div>
+</div>
+
+<script>
+  const ORDER = ['never','final','live'];
+  const TYPE_LABEL = {amber:'Señal', red:'Incidente abierto', orange:'Reconfirmado', green:'Resuelto'};
+  const pct = h => (h/24*100);
+  const MODES = {
+    never:{
+      line:'No enviaremos notificaciones de este monitoreo. El monitoreo seguirá analizando y registrando incidentes in-app.',
+      count:'Sin avisos', zero:true, ev:[]
+    },
+    final:{
+      line:'Al cerrar la ventana te comunico el <b>estado final</b> del incidente. Si se resolvió antes del cierre, no recibes nada.',
+      count:'1 aviso · al cierre',
+      ev:[{t:20.0, type:'red', cls:'final', label:'Estado final del incidente', tip:'Estado final del incidente · 8:00 p.m.'}]
+    },
+    live:{
+      line:'Te aviso de <b>cada cambio de estado</b> (señales e incidente) a medida que ocurre durante la ventana.',
+      count:'4 avisos · en vivo',
+      ev:[
+        {t:14.5, type:'amber',  tip:'Señal: conteo por debajo · 2:30 p.m.'},
+        {t:18.2, type:'red',    tip:'Incidente abierto · faltan archivos · 6:12 p.m.'},
+        {t:19.0, type:'orange', tip:'Reconfirmado · severidad sube · 7:00 p.m.'},
+        {t:19.75,type:'green',  tip:'Resuelto · 7:45 p.m.'}
+      ]
+    }
+  };
+  function toggleMenu(){ document.getElementById('sel').classList.toggle('open'); }
+  function pick(mode,label){
+    const m = MODES[mode];
+    document.getElementById('cur').textContent = label;
+    const opts = document.querySelectorAll('.when-opt');
+    opts.forEach(o=>o.classList.remove('is-sel'));
+    opts[ORDER.indexOf(mode)].classList.add('is-sel');
+    document.getElementById('d-line').innerHTML = m.line;
+
+    // marcadores sobre la barra
+    const track = document.getElementById('d-track');
+    track.querySelectorAll('.mk').forEach(n=>n.remove());
+    m.ev.forEach(e=>{
+      const mk = document.createElement('span');
+      mk.className = 'mk '+e.type+(e.cls?(' '+e.cls):'');
+      mk.style.left = pct(e.t)+'%';
+      mk.setAttribute('data-tip', e.tip);
+      track.appendChild(mk);
+    });
+
+    // count + leyenda
+    const c = document.getElementById('d-count');
+    c.textContent = m.count; c.classList.toggle('zero', !!m.zero);
+    const seen = new Set(), legend = [];
+    m.ev.forEach(e=>{ const lbl = e.label || TYPE_LABEL[e.type]; if(!seen.has(lbl)){ seen.add(lbl); legend.push([e.type,lbl]); } });
+    document.getElementById('d-legend').innerHTML = legend.length
+      ? legend.map(([t,lbl])=>'<span class="lg"><span class="dot '+t+'"></span>'+lbl+'</span>').join('')
+      : '<span class="lg" style="color:var(--text-muted)">El monitoreo sigue registrando, solo que en silencio.</span>';
+
+    document.getElementById('win').classList.toggle('dim', mode==='never');
+    document.getElementById('sel').classList.remove('open');
+    lucide.createIcons();
+  }
+  document.addEventListener('click',e=>{ if(!e.target.closest('.when-select')) document.getElementById('sel').classList.remove('open'); });
+  pick('final','Solo al final');
+  lucide.createIcons();
+</script>
+</body>
+</html>
+</content>
