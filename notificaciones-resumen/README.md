@@ -2,7 +2,7 @@
 
 Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **métricas de gráficos** (K Cast) para el monitoreo inteligente de Operation Center.
 
-**Última actualización:** 2026-06-25
+**Última actualización:** 2026-06-30
 **Estado:** 🟢 Activo
 
 ## Cómo verlo
@@ -12,6 +12,13 @@ Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **
 
 ## Qué incluye
 
+### Vista de Anomalías (tab superior "Anomalías")
+- **Alertas (en el KPI):** el diálogo del gráfico configura *Alertas* (señales), no incidentes. "Historial" → **"Alertas levantadas"** (con columna ¿Notificada?).
+- **Filtros de Gestión:** multiselect dentro de cada categoría (combina con **`o`**), entre categorías con **`Y`**; **filtros guardados** reutilizables; sin filtro de Severidad (hasta que sea configurable).
+- **Notificaciones de incidentes = paquetes de reglas:** lista de tarjetas; cada paquete tiene scope ("Notifícame incidentes sobre…"), momento del ciclo de vida (al crearse / al confirmarse), updates y canales. Un incidente se evalúa contra todos los paquetes activos.
+- **Resumen consolidado:** sección propia en el nav (1×día), reutiliza filtros.
+
+### Diálogo de monitoreo del KPI
 - **¿Cuándo notificar?** — control con slider animado (*Todo el tiempo* vs *Solo al cierre*) y resumen visual de la ventana de monitoreo; se habilita solo al activar un canal (Email/Slack).
 - **3 modos de hard limit** por bound (on/off + valor sugerido) en user KPIs, replicando el patrón de system KPIs.
 - **Sensibilidad** configurable (nula/media/alta) a nivel de KPI.
@@ -27,6 +34,13 @@ Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **
 - desyk tokens
 
 ## Changelog
+
+### 2026-06-30
+- **Vista de Anomalías** con filtros multiselect (O dentro de categoría / Y entre categorías) + **filtros guardados**; quitado el filtro de Severidad.
+- **Notificaciones de incidentes** reconstruidas como **paquetes de reglas** (lista de tarjetas + editor): scope "Notifícame incidentes sobre…", momento del ciclo de vida, updates, canales. Quitados los checkboxes de severidad/responsable/etiquetado y la sección "Qué incluir".
+- **Resumen consolidado** movido a **sección propia** en el nav de Configuración.
+- Handoff enumerado: `handoff/handoff-anomalias-filtros-notificaciones.md`. Plan: `plan-notificaciones-paquetes-30jun.md`.
+- Basado en la sesión Granola del 30-jun y comentarios de Ohana.
 
 ### 2026-06-25
 - Slack: etiquetado por **user ID** (no `@nombre`) con helper de cómo obtenerlo.

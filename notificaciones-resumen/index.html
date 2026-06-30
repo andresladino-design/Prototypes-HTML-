@@ -434,18 +434,6 @@
     .bgroup-opt:hover { color: var(--text-secondary); }
     .bgroup-opt.is-sel { background: #fff; color: var(--text-primary); box-shadow: 0 1px 2px rgba(20,20,30,.08), 0 0 0 1px var(--border-default); }
 
-    /* ---- Popover de Notificaciones ---- */
-    .notif-wrap { position: relative; }
-    .notif-pop {
-      position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; width: 320px;
-      background: #fff; border: 1px solid var(--border-default); border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(20,20,30,.16); overflow: hidden;
-      opacity: 0; transform: translateY(-6px) scale(.98); pointer-events: none;
-      transition: opacity .15s ease-out, transform .15s ease-out;
-    }
-    .notif-pop.open { opacity: 1; transform: none; pointer-events: auto; }
-    .notif-pop-head { padding: 14px; border-bottom: 1px solid var(--border-subtle); }
-    .notif-pop-body { padding: 14px; display: flex; flex-direction: column; gap: 12px; transition: opacity .15s ease-out; }
 
     /* ---- Resumen consolidado: días, canales, vista previa ---- */
     .day-pill {
@@ -1474,6 +1462,281 @@
 
 /* Cuando ¿Cuándo? = Nunca, las tarjetas siguientes (¿Dónde? e Idioma) quedan inertes y atenuadas */
 #dsec-notif.notif-when-never .tm-prog-card:not([data-when-scope]) { opacity: .45; pointer-events: none; filter: saturate(.6); transition: opacity .15s; }
+
+    /* ============ VISTA ANOMALÍAS (Centro de operaciones) ============ */
+    .topbar-brand { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .topbar-brand .lucide { width: 17px; height: 17px; color: var(--text-secondary); }
+
+    #viewAnomalias { background: hsl(240 5% 99%); }
+    /* ---- Panel de lista ---- */
+    .an-list { width: 384px; flex-shrink: 0; display: flex; flex-direction: column; min-height: 0; background: #fff; border-right: 1px solid var(--border-default); }
+    .an-list-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 12px; }
+    .an-list-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .an-seg { display: inline-flex; align-self: flex-start; align-items: center; gap: 2px; margin: 0 14px; padding: 3px; border-radius: 9px; background: hsl(240 5% 96%); }
+    .an-seg-tab { flex: 0 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: none; font: inherit; font-size: 12.5px; font-weight: 500; color: var(--text-tertiary); cursor: pointer; transition: background .12s, color .12s; white-space: nowrap; }
+    .an-seg-tab .lucide { width: 14px; height: 14px; }
+    .an-seg-tab.active { background: #fff; color: var(--text-primary); box-shadow: 0 1px 2px rgba(20,20,30,.08), 0 0 0 1px var(--border-default); }
+    .an-seg-tab .an-seg-label { display: none; }
+    .an-seg-tab.active .an-seg-label { display: inline; }
+    .an-filters { display: flex; align-items: center; gap: 8px; padding: 12px 14px; }
+    .an-fbtn { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: 1px solid var(--border-default); border-radius: 8px; background: #fff; font: inherit; font-size: 12.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: border-color .12s; }
+    .an-fbtn:hover { border-color: hsl(var(--primary-hsl) / .4); }
+    .an-fbtn .lucide { width: 14px; height: 14px; color: var(--text-tertiary); }
+    .an-cards { flex: 1; overflow-y: auto; padding: 2px 12px 10px; display: flex; flex-direction: column; gap: 10px; }
+    .an-card { display: block; width: 100%; text-align: left; border: 1px solid var(--border-default); border-radius: 12px; background: #fff; padding: 13px 14px 11px; cursor: pointer; transition: border-color .12s, background .12s; }
+    .an-card:hover { border-color: hsl(var(--primary-hsl) / .35); }
+    .an-card.is-sel { background: var(--primary-soft); border-color: hsl(var(--primary-hsl) / .45); }
+    .an-card-title { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.35; }
+    .an-card.is-sel .an-card-title { color: var(--primary-text); }
+    .an-badge { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 7px; border: 1px solid var(--border-strong); background: #fff; font-size: 11.5px; font-weight: 500; color: var(--text-secondary); }
+    .an-card-badge { margin-top: 9px; }
+    .an-card-div { height: 1px; background: var(--border-default); margin: 11px 0 9px; }
+    .an-card-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-tertiary); }
+    .an-card-row .lbl { display: inline-flex; align-items: center; gap: 6px; }
+    .an-card-row .lucide { width: 13px; height: 13px; color: var(--text-muted); }
+    .an-count { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 6px; background: hsl(240 5% 95%); font-size: 11.5px; font-weight: 600; color: var(--text-secondary); padding: 0 6px; }
+    .an-card-foot { display: flex; align-items: center; gap: 14px; font-size: 11.5px; color: var(--text-muted); margin-top: 9px; }
+    .an-card-foot span { display: inline-flex; align-items: center; gap: 5px; }
+    .an-card-foot .lucide { width: 12px; height: 12px; }
+    .an-pager { border-top: 1px solid var(--border-default); padding: 10px 16px; display: flex; flex-direction: column; gap: 6px; }
+    .an-pager-row { display: flex; align-items: center; gap: 4px; }
+    .an-pg { min-width: 28px; height: 28px; padding: 0 7px; border-radius: 7px; border: 0; background: none; font: inherit; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .an-pg:hover { background: var(--bg-hover); }
+    .an-pg.is-sel { background: var(--primary-soft); color: var(--primary-text); font-weight: 600; }
+    .an-pg .lucide { width: 15px; height: 15px; }
+    .an-pager-note { font-size: 11.5px; color: var(--text-muted); }
+
+    /* ---- Panel de detalle ---- */
+    .an-detail { flex: 1; min-width: 0; overflow-y: auto; padding: 18px 20px 28px; }
+    .an-card-lg { background: #fff; border: 1px solid var(--border-default); border-radius: 14px; padding: 20px 22px; }
+    .an-d-title { font-size: 17px; font-weight: 600; color: var(--text-primary); line-height: 1.3; margin-bottom: 11px; }
+    .an-d-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+    .an-attn { color: var(--amber-text); font-weight: 600; }
+    .an-d-body { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.65; }
+    .an-d-body b { color: var(--text-secondary); font-weight: 600; }
+    .an-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 6px; background: hsl(240 5% 96%); border: 1px solid var(--border-default); font-size: 11.5px; color: var(--text-secondary); white-space: nowrap; }
+    .an-chip .lucide { width: 11px; height: 11px; color: var(--text-tertiary); }
+    .an-meta-row { display: flex; gap: 46px; padding: 16px 0; margin-top: 14px; border-top: 1px solid var(--border-default); }
+    .an-meta { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .an-meta-label { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); }
+    .an-meta-label .lucide { width: 13px; height: 13px; }
+    .an-sev { font-size: 12.5px; font-weight: 600; color: var(--amber-text); }
+    /* panel de análisis (Hallazgos / Recomendaciones / Proceso) */
+    .an-analysis { border: 1px solid var(--border-default); border-radius: 12px; overflow: hidden; background: hsl(240 5% 98.5%); }
+    .an-acc + .an-acc { border-top: 1px solid var(--border-default); }
+    .an-acc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; cursor: pointer; }
+    .an-acc-title { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .an-acc-title .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
+    .an-acc-aux { display: inline-flex; align-items: center; gap: 9px; font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+    .an-acc-aux .lucide { width: 15px; height: 15px; color: var(--text-muted); }
+    .an-acc-body { padding: 0 14px 14px; font-size: 12.5px; color: var(--text-tertiary); line-height: 1.65; }
+    .an-acc-body b { color: var(--text-secondary); font-weight: 600; }
+    .an-ai-note { font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-top: 12px; }
+    .an-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .an-iconbtn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border-default); background: #fff; color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: border-color .12s; }
+    .an-iconbtn:hover { border-color: hsl(var(--primary-hsl) / .4); }
+    .an-iconbtn .lucide { width: 16px; height: 16px; }
+    /* card de tabs inferior */
+    .an-tabs-card { background: #fff; border: 1px solid var(--border-default); border-radius: 14px; padding: 8px; margin-top: 16px; }
+    .an-tabs { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 10px; background: hsl(240 5% 96%); }
+    .an-tab { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 34px; border: 0; border-radius: 8px; background: none; font: inherit; font-size: 12.5px; font-weight: 500; color: var(--text-tertiary); cursor: pointer; }
+    .an-tab .lucide { width: 15px; height: 15px; }
+    .an-tab.active { background: #fff; color: var(--text-primary); box-shadow: 0 1px 2px rgba(20,20,30,.08), 0 0 0 1px var(--border-default); }
+    .an-tab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 5px; background: hsl(240 5% 92%); font-size: 11px; font-weight: 600; color: var(--text-secondary); padding: 0 5px; }
+    .an-ev { padding: 12px 6px 6px; }
+    .an-ev-row { display: flex; align-items: center; gap: 12px; border: 1px solid var(--border-default); border-radius: 11px; padding: 12px 14px; background: #fff; }
+    .an-ev-icon { width: 34px; height: 34px; border-radius: 8px; background: hsl(240 5% 96%); display: inline-flex; align-items: center; justify-content: center; color: var(--text-tertiary); flex-shrink: 0; }
+    .an-ev-icon .lucide { width: 17px; height: 17px; }
+    .an-ev-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .an-ev-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .an-ev-chip { font-size: 11px; color: var(--text-secondary); background: hsl(240 5% 96%); border-radius: 6px; padding: 2px 8px; }
+
+    /* ---- Configuración: nav de config (izq) + Ingesta de datos (der) ---- */
+    .an-confnav { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; overflow-y: auto; }
+    .an-confitem { display: flex; align-items: flex-start; gap: 11px; width: 100%; text-align: left; border: 0; border-radius: 10px; background: none; padding: 12px; cursor: pointer; transition: background .12s; }
+    .an-confitem:hover { background: hsl(240 5% 97%); }
+    .an-confitem.is-sel { background: hsl(240 5% 96%); }
+    .an-confitem-ic { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; color: var(--text-secondary); }
+    .an-confitem-tx { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .an-confitem-t { font-size: 13.5px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 7px; }
+    .an-confitem-d { font-size: 12px; color: var(--text-tertiary); line-height: 1.4; }
+    .an-soon { font-size: 10px; font-weight: 600; color: var(--text-secondary); background: hsl(240 5% 94%); border-radius: 5px; padding: 1px 6px; }
+    .an-confdiv { height: 1px; background: var(--border-default); margin: 8px 12px; }
+    .an-ingesta { flex: 1; min-width: 0; overflow-y: auto; padding: 18px 22px 28px; }
+    .an-ing-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+    .an-ing-sub { font-size: 13px; color: var(--text-tertiary); line-height: 1.5; max-width: 760px; margin-bottom: 16px; }
+    .an-ing-search { display: flex; align-items: center; gap: 9px; height: 40px; padding: 0 13px; border: 1px solid var(--border-default); border-radius: 9px; background: #fff; max-width: 520px; margin-bottom: 18px; }
+    .an-ing-search .lucide { width: 16px; height: 16px; color: var(--text-muted); }
+    .an-ing-search input { flex: 1; border: 0; outline: 0; background: none; font: inherit; font-size: 13px; color: var(--text-primary); }
+    .an-ing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .an-src { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border-default); border-radius: 12px; background: #fff; padding: 14px 16px; }
+    .an-src-info { flex: 1; min-width: 0; }
+    .an-src-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .an-src-num { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .an-src-status { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; color: hsl(256 72% 61%); flex-shrink: 0; }
+    .an-src-status .lucide { width: 14px; height: 14px; }
+    .an-src-status.is-active { color: hsl(256 55% 60%); }
+
+    /* ---- Página: Notificaciones de incidentes (config) ---- */
+    .an-cfg { max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
+    .an-cfg-card { border: 1px solid var(--border-default); border-radius: 14px; background: #fff; padding: 18px 20px; }
+    .an-cfg-head { margin-bottom: 12px; }
+    .an-cfg-title { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .an-cfg-title .lucide { width: 16px; height: 16px; color: var(--text-tertiary); }
+    .an-cfg-sub { font-size: 12.5px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.45; }
+    .an-cfg-field { margin-top: 12px; }
+    .an-cfg-lbl { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 7px; }
+    .an-cfg-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+    .an-cfg select, .an-cfg input[type="time"] { width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: 8px; padding: 0 11px; font: inherit; font-size: 13px; color: var(--text-primary); background: #fff; }
+    .an-check { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-secondary); cursor: pointer; padding: 9px 0; }
+    .an-check + .an-check { border-top: 1px solid var(--border-subtle); }
+    .an-check input { width: 16px; height: 16px; accent-color: hsl(var(--primary-hsl)); cursor: pointer; flex-shrink: 0; margin: 0; }
+    .an-cfg-toggle-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-top: 13px; margin-top: 5px; border-top: 1px solid var(--border-subtle); }
+    .an-cfg-toggle-t { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .an-cfg-toggle-d { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.4; }
+    .an-cfg-divlabel { font-size: 12.5px; font-weight: 600; color: var(--text-primary); margin: 16px 0 2px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 8px; }
+    .an-cfg-divlabel .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
+    .an-cfg-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .an-cfg-soon { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 80px 20px; color: var(--text-muted); }
+    .an-cfg-soon .lucide { width: 28px; height: 28px; }
+    .an-cfg-soon-t { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+    /* ---- Paquetes de notificación (lista de reglas) ---- */
+    .an-pkg-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .an-pkg-add { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 15px; border-radius: 9px; border: 0; background: var(--primary); color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+    .an-pkg-add .lucide { width: 16px; height: 16px; }
+    .an-pkg-list { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+    .an-pkg { border: 1px solid var(--border-default); border-radius: 14px; background: #fff; padding: 16px 18px; }
+    .an-pkg.is-off { opacity: .6; }
+    .an-pkg-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .an-pkg-info { min-width: 0; }
+    .an-pkg-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .an-pkg-scope { display: flex; align-items: flex-start; gap: 6px; font-size: 12.5px; color: var(--text-tertiary); margin-top: 5px; line-height: 1.45; }
+    .an-pkg-scope .lucide { width: 13px; height: 13px; flex-shrink: 0; margin-top: 2px; }
+    .an-pkg-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--border-subtle); }
+    .an-pkg-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .an-pkg-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; padding: 3px 9px; border-radius: 6px; background: hsl(240 5% 95%); color: var(--text-secondary); }
+    .an-pkg-tag .lucide { width: 12px; height: 12px; color: var(--text-tertiary); }
+    .an-pkg-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .an-pkg-actions button { display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; border: 0; border-radius: 7px; background: none; color: var(--text-tertiary); cursor: pointer; }
+    .an-pkg-actions button:hover { background: hsl(240 5% 95%); color: var(--text-primary); }
+    .an-pkg-actions .lucide { width: 15px; height: 15px; }
+    .an-pkg-empty { display: flex; flex-direction: column; align-items: center; gap: 7px; text-align: center; padding: 56px 20px; color: var(--text-muted); border: 1px dashed var(--border-default); border-radius: 14px; max-width: 720px; }
+    .an-pkg-empty .lucide { width: 26px; height: 26px; }
+    .an-pkg-empty-d { font-size: 12.5px; }
+    .an-pkg-input { width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: 8px; padding: 0 11px; font: inherit; font-size: 13px; color: var(--text-primary); background: #fff; outline: 0; }
+    .an-pkg-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px hsl(var(--primary-hsl) / 0.12); }
+    .an-pkg-warn { display: flex; align-items: flex-start; gap: 9px; padding: 11px 13px; border-radius: 10px; background: var(--amber-bg, hsl(38 92% 95%)); border: 1px solid var(--amber-border, hsl(38 80% 82%)); color: var(--amber-text, hsl(28 74% 32%)); font-size: 12.5px; line-height: 1.45; }
+    .an-pkg-warn.hidden { display: none; }
+    .an-pkg-warn .lucide { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+    .an-pkg-warn ul { margin: 3px 0 0; padding-left: 16px; }
+    .an-pkg-warn li { margin-top: 2px; }
+    .an-pkg-scope-tools { display: flex; gap: 10px; align-items: center; }
+    .an-pkg-scope-tools .an-fmenu-wrap { flex-shrink: 0; }
+    .an-pkg-scope-saved { flex: 1; min-width: 0; }
+    .an-prevchip-x { cursor: pointer; margin-left: 5px; width: 12px !important; height: 12px !important; color: var(--text-muted) !important; }
+    .an-prevchip-x:hover { color: var(--text-primary) !important; }
+
+    /* ---- Historial: resumen (izq) + tabla (der) ---- */
+    .an-hist { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .an-hist-label { font-size: 12.5px; font-weight: 600; color: var(--text-primary); margin: 4px 2px 0; }
+    .an-stat { border: 1px solid var(--border-default); border-radius: 12px; background: #fff; padding: 14px 16px; display: flex; align-items: flex-start; gap: 11px; }
+    .an-stat-ic { width: 32px; height: 32px; border-radius: 8px; background: hsl(240 5% 96%); display: inline-flex; align-items: center; justify-content: center; color: var(--text-tertiary); flex-shrink: 0; }
+    .an-stat-ic .lucide { width: 17px; height: 17px; }
+    .an-stat-body { display: flex; flex-direction: column; gap: 3px; }
+    .an-stat-num { font-size: 23px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+    .an-stat-lbl { font-size: 12.5px; color: var(--text-tertiary); }
+    .an-hist-right { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; padding: 18px 20px; }
+    .an-table-card { border: 1px solid var(--border-default); border-radius: 14px; background: #fff; overflow: auto; flex: 1; min-height: 0; }
+    .an-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .an-table thead th { position: sticky; top: 0; z-index: 1; background: #fff; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--text-muted); padding: 13px 16px; border-bottom: 1px solid var(--border-default); white-space: nowrap; }
+    .an-table thead th .lucide { width: 12px; height: 12px; color: var(--text-muted); vertical-align: middle; margin-left: 4px; }
+    .an-table tbody td { padding: 11px 16px; border-bottom: 1px solid var(--border-subtle); color: var(--text-secondary); vertical-align: middle; white-space: nowrap; }
+    .an-table tbody tr:hover { background: hsl(240 5% 98.5%); }
+    .an-th-anom { display: flex; align-items: flex-start; gap: 9px; }
+    .an-th-anom .ic { color: var(--red-text); flex-shrink: 0; margin-top: 1px; }
+    .an-th-anom .ic .lucide { width: 16px; height: 16px; }
+    .an-th-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .an-th-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+    .an-th-sub .lucide { width: 12px; height: 12px; }
+    .an-metric-chip { display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; background: hsl(240 5% 96%); border: 1px solid var(--border-default); border-radius: 6px; padding: 2px 7px; color: var(--text-secondary); }
+    .an-dev { color: var(--red-text); font-weight: 600; }
+    .an-badge-sev { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 7px; font-size: 11.5px; font-weight: 500; background: var(--amber-soft); color: var(--amber-text); }
+    .an-notif { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; }
+    .an-notif .lucide { width: 13px; height: 13px; }
+    .an-notif.yes { color: var(--green-text); }
+    .an-notif.no { color: var(--text-muted); }
+
+    /* ---- Filtros de la vista de incidentes (menú multinivel, igual al producto) ---- */
+    .an-fmenu-wrap { position: relative; }
+    .an-fmenu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; width: 300px; background: #fff; border: 1px solid var(--border-default); border-radius: 12px; box-shadow: 0 10px 30px rgba(20,20,30,.14); padding: 5px; display: none; }
+    .an-fmenu.open { display: block; }
+    .an-fmenu-page.hidden { display: none; }
+    .an-fmenu-head { font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 8px 10px 7px; }
+    .an-fmenu-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: none; font: inherit; font-size: 13.5px; color: var(--text-primary); padding: 9px 10px; border-radius: 8px; cursor: pointer; }
+    .an-fmenu-item:hover, .an-fmenu-item.is-sel { background: hsl(240 5% 96%); }
+    .an-fmenu-item > .lucide { width: 17px; height: 17px; color: var(--text-tertiary); }
+    .an-fmenu-item .chev { margin-left: auto; width: 15px; height: 15px; color: var(--text-muted); }
+    .an-fmenu-back { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 8px 10px; cursor: pointer; }
+    .an-fmenu-back .lucide { width: 15px; height: 15px; }
+    .an-fmenu-sep { height: 1px; background: var(--border-subtle); margin: 4px 0 6px; }
+    .an-fmenu-search { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; margin: 0 5px 6px; border: 1px solid var(--border-default); border-radius: 8px; }
+    .an-fmenu-search .lucide { width: 15px; height: 15px; color: var(--text-muted); }
+    .an-fmenu-search input { flex: 1; border: 0; outline: 0; font: inherit; font-size: 13px; background: none; color: var(--text-primary); }
+    .an-fmenu-list { max-height: 300px; overflow-y: auto; }
+    .an-fmenu-opt { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: none; font: inherit; font-size: 13px; color: var(--text-primary); padding: 8px 10px; border-radius: 8px; cursor: pointer; }
+    .an-fmenu-opt:hover { background: hsl(240 5% 96%); }
+    .an-fmenu-opt .lucide { width: 16px; height: 16px; color: var(--text-tertiary); flex-shrink: 0; }
+    /* multiselect: check al final cuando la opción está elegida */
+    .an-fmenu-opt .an-fopt-check { margin-left: auto; width: 15px; height: 15px; color: var(--primary-text); opacity: 0; }
+    .an-fmenu-opt.is-on { background: hsl(var(--primary-hsl) / .07); font-weight: 600; }
+    .an-fmenu-opt.is-on .an-fopt-check { opacity: 1; }
+    .an-fmenu-hint { font-size: 11.5px; color: var(--text-muted); padding: 2px 10px 7px; }
+    /* footer del subnivel: aplicar / limpiar selección de esa categoría */
+    .an-fmenu-foot { display: flex; gap: 6px; padding: 6px 5px 2px; border-top: 1px solid var(--border-subtle); margin-top: 4px; }
+    .an-fmenu-foot button { flex: 1; height: 32px; border-radius: 7px; border: 1px solid var(--border-default); background: #fff; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+    .an-fmenu-foot button.is-apply { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .an-sort-group { font-size: 12.5px; font-weight: 700; color: var(--text-primary); padding: 10px 10px 4px; }
+    .an-sort-item { display: flex; align-items: center; width: 100%; text-align: left; border: 0; background: none; font: inherit; font-size: 13.5px; color: var(--text-primary); padding: 9px 10px; border-radius: 8px; cursor: pointer; }
+    .an-sort-item:hover, .an-sort-item.is-sel { background: hsl(240 5% 96%); }
+    .an-sort-item .lucide { margin-left: auto; width: 15px; height: 15px; color: var(--text-muted); }
+    /* chips aplicados (panel gris) */
+    .an-applied { background: hsl(240 5% 96%); border-radius: 10px; padding: 10px 12px; margin: 0 14px 8px; display: flex; flex-direction: column; gap: 8px; }
+    .an-applied:empty { display: none; }
+    .an-fchip { display: inline-flex; align-items: stretch; align-self: flex-start; background: #fff; border: 1px solid var(--border-default); border-radius: 8px; font-size: 12px; overflow: hidden; max-width: 100%; }
+    .an-fchip-type { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; font-weight: 500; color: var(--text-secondary); border-right: 1px solid var(--border-default); white-space: nowrap; }
+    .an-fchip-type .lucide { width: 14px; height: 14px; color: var(--text-tertiary); }
+    .an-fchip-val { display: inline-flex; align-items: center; padding: 6px 10px; color: var(--text-muted); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .an-fchip-x { display: inline-flex; align-items: center; padding: 0 9px; border: 0; border-left: 1px solid var(--border-default); background: none; cursor: pointer; color: var(--text-tertiary); }
+    .an-fchip-x .lucide { width: 13px; height: 13px; }
+    /* conector lógico entre categorías (Y) y entre valores (o) */
+    .an-fconj { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-tertiary); padding: 0 2px; text-transform: uppercase; }
+    .an-fchip-val em { font-style: normal; color: var(--text-tertiary); font-weight: 600; padding: 0 4px; }
+    .an-fchip-val { max-width: 300px; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.4; }
+    .an-applied-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
+    .an-save-filter { font-size: 12.5px; font-weight: 600; color: var(--primary-text); background: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .an-save-filter .lucide { width: 14px; height: 14px; }
+    .an-clear-all { font-size: 12.5px; font-weight: 600; color: var(--text-primary); background: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .an-clear-all .lucide { width: 13px; height: 13px; }
+    /* fila inline para nombrar el filtro guardado */
+    .an-save-row { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+    .an-save-row input { flex: 1; height: 34px; border: 1px solid var(--border-default); border-radius: 8px; padding: 0 10px; font: inherit; font-size: 13px; background: #fff; outline: 0; }
+    .an-save-row button { height: 34px; padding: 0 12px; border-radius: 8px; border: 0; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+    .an-save-row .is-go { background: var(--primary); color: #fff; }
+    .an-save-row .is-x { background: hsl(240 5% 92%); color: var(--text-secondary); }
+    /* menú de filtros guardados */
+    .an-gitem { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: none; font: inherit; font-size: 13px; color: var(--text-primary); padding: 9px 10px; border-radius: 8px; cursor: pointer; }
+    .an-gitem:hover { background: hsl(240 5% 96%); }
+    .an-gitem .lucide { width: 16px; height: 16px; color: var(--text-tertiary); }
+    .an-gitem .an-gitem-x { margin-left: auto; color: var(--text-tertiary); }
+    .an-gempty { font-size: 12.5px; color: var(--text-muted); padding: 12px 10px; text-align: center; }
+    /* preview en la notificación */
+    .an-prevchips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .an-prevchip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; padding: 3px 9px; border-radius: 6px; background: hsl(240 5% 95%); color: var(--text-secondary); }
+    .an-prevchip .lucide { width: 12px; height: 12px; color: var(--text-tertiary); }
+    .an-cfg-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--primary-text); cursor: pointer; margin-top: 10px; }
+    .an-cfg-link .lucide { width: 14px; height: 14px; }
+    .an-table-pager { display: flex; align-items: center; justify-content: space-between; padding: 12px 2px 0; font-size: 12.5px; color: var(--text-muted); }
+    .an-table-pager .an-pg { gap: 5px; }
   </style>
 </head>
 
@@ -1564,7 +1827,7 @@
     </aside>
 
     <!-- ============ SECONDARY PANEL (Tableros) ============ -->
-    <aside class="w-[258px] flex-shrink-0 flex flex-col border-r" style="background:var(--bg-panel);border-color:var(--border-default);">
+    <aside id="panelTableros" class="w-[258px] flex-shrink-0 flex flex-col border-r" style="background:var(--bg-panel);border-color:var(--border-default);">
       <div class="px-4 pt-4 pb-3 flex flex-col gap-3">
         <div class="flex items-center justify-between">
           <span class="text-[16px] font-semibold" style="color:var(--text-primary);">Tableros</span>
@@ -1645,17 +1908,18 @@
     <main class="flex-1 flex flex-col min-w-0" style="background:var(--bg-app);">
       <!-- Global top bar -->
       <div class="h-[52px] flex-shrink-0 flex items-center justify-center px-5 border-b relative" style="border-color:var(--border-default);">
+        <span class="topbar-brand"><i data-lucide="radar"></i> Centro de operaciones <span class="badge" style="background:var(--primary-soft);color:var(--primary-text);height:18px;font-size:11px;padding:0 6px;">Beta</span></span>
         <div class="flex items-center gap-1 p-1 rounded-[10px]" style="background:var(--bg-segment);">
-          <div class="top-tab active"><i data-lucide="layout-grid"></i> Tableros</div>
-          <div class="top-tab"><i data-lucide="circle-dot"></i> Anomalías</div>
-          <div class="top-tab"><i data-lucide="circle-dashed"></i> Pendientes</div>
-          <div class="top-tab"><i data-lucide="archive"></i> Almacenamiento</div>
-          <div class="top-tab"><i data-lucide="book-open"></i> Asientos contables</div>
+          <div class="top-tab active" data-top="tableros" onclick="switchTop('tableros',this)"><i data-lucide="layout-grid"></i> Tableros</div>
+          <div class="top-tab" data-top="anomalias" onclick="switchTop('anomalias',this)"><i data-lucide="circle-dot"></i> Anomalías</div>
+          <div class="top-tab" data-top="pendientes" onclick="switchTop('pendientes',this)"><i data-lucide="circle-dashed"></i> Pendientes</div>
+          <div class="top-tab" data-top="almacenamiento" onclick="switchTop('almacenamiento',this)"><i data-lucide="archive"></i> Almacenamiento</div>
+          <div class="top-tab" data-top="asientos" onclick="switchTop('asientos',this)"><i data-lucide="book-open"></i> Asientos contables</div>
         </div>
       </div>
 
       <!-- Dashboard header -->
-      <div class="flex items-center gap-3 px-6 pt-4 pb-3">
+      <div id="headerTablero" class="flex items-center gap-3 px-6 pt-4 pb-3">
         <h1 class="text-[18px] font-semibold flex items-center gap-2" style="color:var(--text-primary);">
           Tablero de pruebas anomalias
           <i data-lucide="pencil" style="width:15px;height:15px;color:var(--text-muted);cursor:pointer;"></i>
@@ -1771,40 +2035,6 @@
               <span class="badge badge-soon">Pronto</span></div>
             <div id="navMetricas" class="top-tab active" onclick="showMetricas()"><i data-lucide="bar-chart-3"></i> Métricas de gráficos</div>
           </div>
-          <div class="notif-wrap ml-auto">
-            <button id="navReportes" class="pill-btn h-9" onclick="toggleNotifPop(event)">
-              <i data-lucide="mails"></i> Resumen de incidentes
-            </button>
-            <div id="notifPop" class="notif-pop" onclick="event.stopPropagation()">
-              <div class="notif-pop-head">
-                <div class="flex items-center gap-2">
-                  <span class="flex items-center justify-center rounded-md flex-shrink-0" style="width:26px;height:26px;background:var(--primary-soft);">
-                    <i data-lucide="mails" style="width:15px;height:15px;color:var(--primary-text);"></i>
-                  </span>
-                  <span class="text-[13.5px] font-semibold flex-1" style="color:var(--text-primary);">Resumen diario de incidentes</span>
-                  <label class="switch"><input type="checkbox" id="rs-active" checked onchange="rsToggle()"><span class="track"></span><span class="thumb"></span></label>
-                </div>
-                <p class="text-[12px] mt-2 leading-relaxed" style="color:var(--text-tertiary);">
-                  Todos los días, <strong>a la hora que elijas</strong>, recibes un resumen de los incidentes de este tablero que siguen abiertos, por los canales donde ya recibes avisos.
-                </p>
-              </div>
-              <div id="rs-body" class="notif-pop-body">
-                <div>
-                  <label class="field-label">Hora de llegada</label>
-                  <input class="field-input tabular" type="time" value="08:00">
-                </div>
-                <div>
-                  <label class="field-label">Zona horaria</label>
-                  <select class="field-select">
-                    <option>CO · Bogotá (GMT-5)</option>
-                    <option>BO · La Paz (GMT-4)</option>
-                    <option>MX · CDMX (GMT-6)</option>
-                    <option>AR · Buenos Aires (GMT-3)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Cuerpo: Métricas de gráficos -->
@@ -1830,6 +2060,592 @@
         </div>
 
       </div>
+    </div>
+
+    <!-- ============ VISTA ANOMALÍAS ============ -->
+    <div id="viewAnomalias" class="flex-1 flex min-h-0 hidden">
+
+      <!-- ---- LISTA ---- -->
+      <aside class="an-list">
+        <div class="an-list-head">
+          <span class="an-list-title">Anomalías</span>
+          <i data-lucide="chevron-right" style="width:18px;height:18px;color:var(--text-muted);cursor:pointer;"></i>
+        </div>
+        <div class="an-seg">
+          <button class="an-seg-tab active" data-sub="gestion" onclick="anSubtab('gestion',this)" title="Gestión"><i data-lucide="target"></i><span class="an-seg-label">Gestión</span></button>
+          <button class="an-seg-tab" data-sub="historial" onclick="anSubtab('historial',this)" title="Alertas"><i data-lucide="history"></i><span class="an-seg-label">Alertas</span></button>
+          <button class="an-seg-tab" data-sub="config" onclick="anSubtab('config',this)" title="Configuración"><i data-lucide="sliders-horizontal"></i><span class="an-seg-label">Configuración</span></button>
+        </div>
+        <div id="anLeftGestion" class="flex flex-col flex-1 min-h-0">
+        <div class="an-filters">
+          <div class="an-fmenu-wrap">
+            <button class="an-fbtn" onclick="toggleFMenu(event)"><i data-lucide="filter"></i> Filtrar</button>
+            <div class="an-fmenu" id="anFMenu" onclick="event.stopPropagation()">
+              <div class="an-fmenu-page" data-fpage="main">
+                <div class="an-fmenu-head">Filtrar</div>
+                <button class="an-fmenu-item" onclick="fGoto('recurso')"><i data-lucide="database"></i> Recurso <i data-lucide="chevron-right" class="chev"></i></button>
+                <button class="an-fmenu-item" onclick="fGoto('tablero')"><i data-lucide="layout-grid"></i> Tablero <i data-lucide="chevron-right" class="chev"></i></button>
+                <button class="an-fmenu-item" onclick="fGoto('estado')"><i data-lucide="circle-dot"></i> Estado <i data-lucide="chevron-right" class="chev"></i></button>
+                <button class="an-fmenu-item" onclick="fGoto('tipo')"><i data-lucide="tag"></i> Tipo <i data-lucide="chevron-right" class="chev"></i></button>
+                <div class="an-fmenu-sep"></div>
+                <button class="an-fmenu-item" onclick="fPickFecha()"><i data-lucide="calendar"></i> Fecha</button>
+              </div>
+              <div class="an-fmenu-page hidden" data-fpage="recurso">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Recurso</button>
+                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar recurso" oninput="fFilterList(this,'recurso')"></div>
+                <div class="an-fmenu-list" id="fListRecurso"></div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Recurso')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              </div>
+              <div class="an-fmenu-page hidden" data-fpage="tablero">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Tablero</button>
+                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero" oninput="fFilterList(this,'tablero')"></div>
+                <div class="an-fmenu-list" id="fListTablero"></div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Tablero')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              </div>
+              <div class="an-fmenu-page hidden" data-fpage="estado">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Estado</button>
+                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                <div class="an-fmenu-list">
+                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Abierto" data-ficon="circle-dot" onclick="addFilter('Estado','Abierto','circle-dot')"><i data-lucide="circle-dot"></i> Abierto <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Confirmado" data-ficon="circle-dot" onclick="addFilter('Estado','Confirmado','circle-dot')"><i data-lucide="circle-dot"></i> Confirmado <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="En observación" data-ficon="circle-dot" onclick="addFilter('Estado','En observación','circle-dot')"><i data-lucide="circle-dot"></i> En observación <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Resuelto" data-ficon="circle-dot" onclick="addFilter('Estado','Resuelto','circle-dot')"><i data-lucide="circle-dot"></i> Resuelto <i data-lucide="check" class="an-fopt-check"></i></button>
+                </div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Estado')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              </div>
+              <div class="an-fmenu-page hidden" data-fpage="tipo">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Tipo</button>
+                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                <div class="an-fmenu-list">
+                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo faltante" data-ficon="tag" onclick="addFilter('Tipo','Archivo faltante','tag')"><i data-lucide="tag"></i> Archivo faltante <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo fallido" data-ficon="tag" onclick="addFilter('Tipo','Archivo fallido','tag')"><i data-lucide="tag"></i> Archivo fallido <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo vacío" data-ficon="tag" onclick="addFilter('Tipo','Archivo vacío','tag')"><i data-lucide="tag"></i> Archivo vacío <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo duplicado" data-ficon="tag" onclick="addFilter('Tipo','Archivo duplicado','tag')"><i data-lucide="tag"></i> Archivo duplicado <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Variación de volumen" data-ficon="tag" onclick="addFilter('Tipo','Variación de volumen','tag')"><i data-lucide="tag"></i> Variación de volumen <i data-lucide="check" class="an-fopt-check"></i></button>
+                </div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Tipo')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="an-fmenu-wrap">
+            <button class="an-fbtn" onclick="toggleSMenu(event)"><i data-lucide="arrow-up-down"></i> Ordenar</button>
+            <div class="an-fmenu" id="anSMenu" onclick="event.stopPropagation()">
+              <button class="an-sort-item is-sel" onclick="sPick(this)">Por defecto <i data-lucide="arrow-up-down"></i></button>
+              <div class="an-sort-group">Por detección</div>
+              <button class="an-sort-item" onclick="sPick(this)">Más reciente <i data-lucide="arrow-up"></i></button>
+              <button class="an-sort-item" onclick="sPick(this)">Más antigua <i data-lucide="arrow-down"></i></button>
+              <div class="an-sort-group">Por última actividad</div>
+              <button class="an-sort-item" onclick="sPick(this)">Más reciente <i data-lucide="arrow-up"></i></button>
+              <button class="an-sort-item" onclick="sPick(this)">Más antigua <i data-lucide="arrow-down"></i></button>
+            </div>
+          </div>
+          <div class="an-fmenu-wrap">
+            <button class="an-fbtn" onclick="toggleGMenu(event)"><i data-lucide="bookmark"></i> Guardados</button>
+            <div class="an-fmenu" id="anGMenu" onclick="event.stopPropagation()">
+              <div class="an-fmenu-head">Filtros guardados</div>
+              <div class="an-fmenu-list" id="anGList"></div>
+            </div>
+          </div>
+        </div>
+        <div class="an-applied" id="anApplied"></div>
+        <div class="an-cards" id="anCards">
+          <button class="an-card is-sel" onclick="anSelect(this)">
+            <div class="an-card-title">Archivo faltante - Fuente: source-1-payments-merchant-new</div>
+            <div class="an-card-badge"><span class="an-badge">Abierto</span></div>
+            <div class="an-card-div"></div>
+            <div class="an-card-row"><span class="lbl"><i data-lucide="layout-grid"></i> Tableros afectados</span><span class="an-count">0</span></div>
+            <div class="an-card-foot"><span><i data-lucide="clock"></i> Hace 2d</span><span><i data-lucide="cpu"></i> Sistema</span></div>
+          </button>
+          <button class="an-card" onclick="anSelect(this)">
+            <div class="an-card-title">Archivo faltante - Fuente: e2e_customers</div>
+            <div class="an-card-badge"><span class="an-badge">Abierto</span></div>
+            <div class="an-card-div"></div>
+            <div class="an-card-row"><span class="lbl"><i data-lucide="layout-grid"></i> Tableros afectados</span><span class="an-count">0</span></div>
+            <div class="an-card-foot"><span><i data-lucide="clock"></i> Hace 2d</span><span><i data-lucide="cpu"></i> Sistema</span></div>
+          </button>
+          <button class="an-card" onclick="anSelect(this)">
+            <div class="an-card-title">Archivo faltante - Fuente: Mastercard_IPM_Settlement_13_04_2026</div>
+            <div class="an-card-badge"><span class="an-badge">Abierto</span></div>
+            <div class="an-card-div"></div>
+            <div class="an-card-row"><span class="lbl"><i data-lucide="layout-grid"></i> Tableros afectados</span><span class="an-count">0</span></div>
+            <div class="an-card-foot"><span><i data-lucide="clock"></i> Hace 10d</span><span><i data-lucide="cpu"></i> Sistema</span></div>
+          </button>
+          <button class="an-card" onclick="anSelect(this)">
+            <div class="an-card-title">Archivo faltante - Fuente: source-1-payments-merchant</div>
+            <div class="an-card-badge"><span class="an-badge">Abierto</span></div>
+            <div class="an-card-div"></div>
+            <div class="an-card-row"><span class="lbl"><i data-lucide="layout-grid"></i> Tableros afectados</span><span class="an-count">0</span></div>
+            <div class="an-card-foot"><span><i data-lucide="clock"></i> Hace 37d</span><span><i data-lucide="cpu"></i> Sistema</span></div>
+          </button>
+          <button class="an-card" onclick="anSelect(this)">
+            <div class="an-card-title">Archivo faltante - Fuente: source-1-payments-merchant</div>
+            <div class="an-card-badge"><span class="an-badge">Abierto</span></div>
+            <div class="an-card-div"></div>
+            <div class="an-card-row"><span class="lbl"><i data-lucide="layout-grid"></i> Tableros afectados</span><span class="an-count">0</span></div>
+            <div class="an-card-foot"><span><i data-lucide="clock"></i> Hace 37d</span><span><i data-lucide="cpu"></i> Sistema</span></div>
+          </button>
+        </div>
+        <div class="an-pager">
+          <div class="an-pager-row">
+            <button class="an-pg"><i data-lucide="chevron-left"></i></button>
+            <button class="an-pg is-sel">1</button>
+            <button class="an-pg">2</button>
+            <span class="an-pg" style="cursor:default;">…</span>
+            <button class="an-pg">122</button>
+            <button class="an-pg"><i data-lucide="chevron-right"></i></button>
+          </div>
+          <span class="an-pager-note">1 - 20 de 2438 incidencias</span>
+        </div>
+        </div>
+
+        <div id="anLeftConfig" class="flex flex-col flex-1 min-h-0 hidden">
+          <div class="an-confnav">
+            <button class="an-confitem is-sel" onclick="anConfNav(this,'ingesta')">
+              <i data-lucide="database" class="an-confitem-ic"></i>
+              <span class="an-confitem-tx">
+                <span class="an-confitem-t">Ingesta de datos</span>
+                <span class="an-confitem-d">Vigila que los datos lleguen a tiempo y completos</span>
+              </span>
+            </button>
+            <button class="an-confitem" onclick="anConfNav(this,'soon')">
+              <i data-lucide="shield-check" class="an-confitem-ic"></i>
+              <span class="an-confitem-tx">
+                <span class="an-confitem-t">Calidad de datos <span class="an-soon">Pronto</span></span>
+                <span class="an-confitem-d">Revisa que los valores de cada fuente sean correctos</span>
+              </span>
+            </button>
+            <button class="an-confitem" onclick="anConfNav(this,'soon')">
+              <i data-lucide="layers" class="an-confitem-ic"></i>
+              <span class="an-confitem-tx">
+                <span class="an-confitem-t">Salud de conciliaciones <span class="an-soon">Pronto</span></span>
+                <span class="an-confitem-d">Verifica que los datos crucen bien entre fuentes</span>
+              </span>
+            </button>
+            <button class="an-confitem" onclick="anConfNav(this,'soon')">
+              <i data-lucide="bar-chart-3" class="an-confitem-ic"></i>
+              <span class="an-confitem-tx">
+                <span class="an-confitem-t">Métricas de gráficos <span class="an-soon">Pronto</span></span>
+                <span class="an-confitem-d">Monitorea las métricas de tus gráficos</span>
+              </span>
+            </button>
+            <div class="an-confdiv"></div>
+            <button class="an-confitem" onclick="anConfNav(this,'notif')">
+              <i data-lucide="bell" class="an-confitem-ic"></i>
+              <span class="an-confitem-tx">
+                <span class="an-confitem-t">Notificaciones de incidentes</span>
+                <span class="an-confitem-d">Elige de cuáles incidentes te avisamos, cuándo y por dónde</span>
+              </span>
+            </button>
+            <button class="an-confitem" onclick="anConfNav(this,'resumen')">
+              <i data-lucide="mails" class="an-confitem-ic"></i>
+              <span class="an-confitem-tx">
+                <span class="an-confitem-t">Resumen consolidado</span>
+                <span class="an-confitem-d">Un único aviso al día con los incidentes que te importan</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div id="anLeftHistorial" class="an-hist hidden">
+          <button class="an-fbtn" style="align-self:flex-start;"><i data-lucide="filter"></i> Filtrar</button>
+          <div class="an-hist-label">Resumen</div>
+          <div class="an-stat"><span class="an-stat-ic"><i data-lucide="activity"></i></span><div class="an-stat-body"><div class="an-stat-num">8212</div><div class="an-stat-lbl">Total de alertas</div></div></div>
+          <div class="an-stat"><span class="an-stat-ic"><i data-lucide="alert-triangle"></i></span><div class="an-stat-body"><div class="an-stat-num">0</div><div class="an-stat-lbl">Severidad: Alta</div></div></div>
+          <div class="an-stat"><span class="an-stat-ic"><i data-lucide="alert-circle"></i></span><div class="an-stat-body"><div class="an-stat-num">100</div><div class="an-stat-lbl">Severidad: Media</div></div></div>
+          <div class="an-stat"><span class="an-stat-ic"><i data-lucide="info"></i></span><div class="an-stat-body"><div class="an-stat-num">0</div><div class="an-stat-lbl">Severidad: Baja</div></div></div>
+          <div class="an-stat"><span class="an-stat-ic"><i data-lucide="layout-grid"></i></span><div class="an-stat-body"><div class="an-stat-num">4</div><div class="an-stat-lbl">Tableros afectados</div></div></div>
+        </div>
+      </aside>
+
+      <!-- ---- DETALLE (Gestión) ---- -->
+      <section id="anRightGestion" class="an-detail">
+        <div class="an-card-lg">
+          <h2 class="an-d-title">Archivo faltante - Fuente: source-1-payments-merchant-new</h2>
+          <p class="an-d-desc"><span class="an-attn">[REQUIRES_ATTENTION]</span> Archivos faltantes detectados en source-1-payments-merchant-new: 0/29 archivos antes de la ventana de carga</p>
+          <p class="an-d-body">Al <b>20:30 UTC del 2026-06-24</b>, la fuente <span class="an-chip"><i data-lucide="folder"></i> source-1-payments-merchant-new</span> registra 0 de 29 archivos esperados (290 filas faltantes, 100% de lo esperado), y la ventana de carga aún no ha abierto hasta las 21:13 UTC (16:13 America/Bogota). Los 4 comercios esperados — ALICORP, MERCADOLIBRE, NIKEDIRECT y RAPPI — no tienen archivos para hoy, y el patrón histórico de los miércoles es inconsistente (solo 1 de los últimos 7 miércoles tuvo cargas, el 2026-06-10). Dado que no hay reporte de extracción disponible para confirmar el estado del SFTP/origen, se recomienda contactar al soporte de Simetrik para diagnosticar la causa raíz una vez que abra la ventana de carga.</p>
+
+          <div class="an-meta-row">
+            <div class="an-meta"><span class="an-meta-label"><i data-lucide="circle-dot"></i> Estado</span><span class="an-badge">Abierto</span></div>
+            <div class="an-meta"><span class="an-meta-label"><i data-lucide="alert-triangle"></i> Severidad</span><span class="an-sev">Requiere atención</span></div>
+            <div class="an-meta"><span class="an-meta-label"><i data-lucide="layout-grid"></i> Tableros impactados</span><span class="an-badge">Sin tableros impactados</span></div>
+          </div>
+
+          <div class="an-analysis">
+            <div class="an-acc">
+              <div class="an-acc-head">
+                <span class="an-acc-title"><i data-lucide="search"></i> Hallazgos</span>
+                <span class="an-acc-aux">Última actualización: Hace 2d <i data-lucide="chevron-up"></i></span>
+              </div>
+              <div class="an-acc-body">Al <b>20:30 UTC del 24 de junio de 2026</b>, ningún archivo ha llegado para <span class="an-chip"><i data-lucide="folder"></i> source-1-payments-merchant-new</span> de ninguno de los cuatro comercios esperados — ALICORP, MERCADOLIBRE, NIKEDIRECT y RAPPI — frente a una expectativa de <b>29 archivos (290 registros)</b>. Sin embargo, la ventana de carga no se abre hasta las <b>21:13 UTC (16:13 America/Bogotá)</b>, por lo que los archivos aún no están vencidos. El patrón histórico de los miércoles para <span class="an-chip"><i data-lucide="folder"></i> source-1-payments-merchant-new</span> es inconsistente: solo <b>1 de los últimos 7 miércoles</b> (10 de junio de 2026) tuvo cargas, lo que limita la confianza en que la entrega de hoy se concrete. No hay reporte de extracción disponible para confirmar si los archivos están en el origen o en el SFTP.</div>
+            </div>
+            <div class="an-acc">
+              <div class="an-acc-head">
+                <span class="an-acc-title"><i data-lucide="list-checks"></i> Recomendaciones</span>
+                <span class="an-acc-aux"><i data-lucide="chevron-down"></i></span>
+              </div>
+            </div>
+            <div class="an-acc">
+              <div class="an-acc-head">
+                <span class="an-acc-title"><i data-lucide="git-compare"></i> Proceso de análisis</span>
+                <span class="an-acc-aux">Última actualización: Hace 2d <i data-lucide="chevron-down"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <p class="an-ai-note">Las sugerencias a continuación fueron generadas por IA. Revísalas y aplica criterio profesional antes de actuar.</p>
+
+          <div class="an-actions">
+            <button class="an-fbtn"><i data-lucide="message-circle"></i> Contactar a soporte</button>
+            <button class="an-iconbtn"><i data-lucide="more-horizontal"></i></button>
+            <button class="an-fbtn"><i data-lucide="bell"></i> Recuérdame en <i data-lucide="chevron-down"></i></button>
+            <button class="an-iconbtn"><i data-lucide="x"></i></button>
+            <button class="an-iconbtn"><i data-lucide="check"></i></button>
+          </div>
+        </div>
+
+        <div class="an-tabs-card">
+          <div class="an-tabs">
+            <button class="an-tab"><i data-lucide="zap"></i> Impacto potencial <span class="an-tab-count">0</span></button>
+            <button class="an-tab active"><i data-lucide="layers"></i> Evidencia <span class="an-tab-count">1</span></button>
+            <button class="an-tab"><i data-lucide="git-branch"></i> Línea de tiempo</button>
+          </div>
+          <div class="an-ev">
+            <div class="an-ev-row">
+              <span class="an-ev-icon"><i data-lucide="file-x"></i></span>
+              <div class="flex-1 min-w-0">
+                <div class="an-ev-title">Conteo diario de archivos</div>
+                <div class="an-ev-chips"><span class="an-ev-chip">Datos faltantes</span><span class="an-ev-chip">2026-06-24</span><span class="an-ev-chip">98.7%</span></div>
+              </div>
+              <span class="an-badge" style="margin-left:auto;">Activa</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---- CONFIGURACIÓN (páginas conmutables por el nav) ---- -->
+      <section id="anRightConfig" class="flex-1 min-w-0 flex flex-col min-h-0 hidden">
+        <div id="anCfgIngesta" class="an-ingesta">
+        <h2 class="an-ing-title">Ingesta de datos</h2>
+        <p class="an-ing-sub">Monitorea todas las fuentes de tu cuenta para detectar a tiempo datos que llegan tarde, incompletos o con un volumen fuera de lo esperado.</p>
+        <div class="an-ing-search"><i data-lucide="search"></i><input placeholder="Buscar fuente"></div>
+        <div class="an-ing-grid" id="anIngGrid"></div>
+        </div>
+
+        <!-- Página: Notificaciones de incidentes -->
+        <div id="anCfgNotif" class="an-ingesta hidden">
+          <!-- ===== LISTA de notificaciones (paquetes de reglas) ===== -->
+          <div id="anPkgListView">
+            <div class="an-pkg-header">
+              <div>
+                <h2 class="an-ing-title">Notificaciones de incidentes</h2>
+                <p class="an-ing-sub">Cada notificación define de cuáles incidentes te avisamos, cuándo y por dónde. Un incidente se evalúa contra todas tus notificaciones activas; si coincide con varias, te llega por cada vía. Son independientes de las alertas de tus KPIs.</p>
+              </div>
+              <button class="an-pkg-add" onclick="pkgNew()"><i data-lucide="plus"></i> Crear notificación</button>
+            </div>
+            <div class="an-pkg-list" id="anPkgList"></div>
+          </div>
+
+          <!-- ===== EDITOR de un paquete ===== -->
+          <div id="anPkgEditor" class="hidden">
+            <button class="an-fmenu-back" style="margin:0 0 8px;" onclick="pkgCancel()"><i data-lucide="chevron-left"></i> Volver a mis notificaciones</button>
+            <h2 class="an-ing-title" id="anPkgEditorTitle">Nueva notificación</h2>
+            <p class="an-ing-sub">Define de cuáles incidentes te avisamos, cuándo y por dónde.</p>
+
+            <div class="an-cfg">
+              <!-- Nombre -->
+              <div class="an-cfg-card">
+                <label class="an-cfg-lbl">Nombre de la notificación</label>
+                <input type="text" id="anPkgName" class="an-pkg-input" placeholder="Ej. Incidentes de Adquirencia" maxlength="50">
+              </div>
+
+              <!-- Bloque 1 · Scope -->
+              <div class="an-cfg-card">
+                <div class="an-cfg-head">
+                  <div class="an-cfg-title"><i data-lucide="filter"></i> ¿Qué incidentes te interesan?</div>
+                  <div class="an-cfg-sub">El alcance: los recursos, tableros, estados o tipos que te importan. Agrega filtros (los valores se combinan con <strong>o</strong>) o aplica uno que ya tengas guardado.</div>
+                </div>
+                <div class="an-cfg-field">
+                  <label class="an-cfg-lbl">Define el alcance</label>
+                  <div class="an-pkg-scope-tools">
+                    <div class="an-fmenu-wrap">
+                      <button class="an-fbtn" onclick="pkgToggleFMenu(event)"><i data-lucide="filter"></i> Filtrar</button>
+                      <div class="an-fmenu" id="anPkgFMenu" onclick="event.stopPropagation()">
+                        <div class="an-fmenu-page" data-fpage="main">
+                          <div class="an-fmenu-head">Agregar filtro</div>
+                          <button class="an-fmenu-item" onclick="pkgFGoto('recurso')"><i data-lucide="database"></i> Recurso <i data-lucide="chevron-right" class="chev"></i></button>
+                          <button class="an-fmenu-item" onclick="pkgFGoto('tablero')"><i data-lucide="layout-grid"></i> Tablero <i data-lucide="chevron-right" class="chev"></i></button>
+                          <button class="an-fmenu-item" onclick="pkgFGoto('estado')"><i data-lucide="circle-dot"></i> Estado <i data-lucide="chevron-right" class="chev"></i></button>
+                          <button class="an-fmenu-item" onclick="pkgFGoto('tipo')"><i data-lucide="tag"></i> Tipo <i data-lucide="chevron-right" class="chev"></i></button>
+                        </div>
+                        <div class="an-fmenu-page hidden" data-fpage="recurso">
+                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Recurso</button>
+                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                          <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar recurso" oninput="pkgFFilterList(this,'recurso')"></div>
+                          <div class="an-fmenu-list" id="pkgFListRecurso"></div>
+                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Recurso')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
+                        </div>
+                        <div class="an-fmenu-page hidden" data-fpage="tablero">
+                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Tablero</button>
+                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                          <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero" oninput="pkgFFilterList(this,'tablero')"></div>
+                          <div class="an-fmenu-list" id="pkgFListTablero"></div>
+                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Tablero')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
+                        </div>
+                        <div class="an-fmenu-page hidden" data-fpage="estado">
+                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Estado</button>
+                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                          <div class="an-fmenu-list">
+                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Abierto" onclick="pkgAddFilter('Estado','Abierto','circle-dot')"><i data-lucide="circle-dot"></i> Abierto <i data-lucide="check" class="an-fopt-check"></i></button>
+                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Confirmado" onclick="pkgAddFilter('Estado','Confirmado','circle-dot')"><i data-lucide="circle-dot"></i> Confirmado <i data-lucide="check" class="an-fopt-check"></i></button>
+                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="En observación" onclick="pkgAddFilter('Estado','En observación','circle-dot')"><i data-lucide="circle-dot"></i> En observación <i data-lucide="check" class="an-fopt-check"></i></button>
+                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Resuelto" onclick="pkgAddFilter('Estado','Resuelto','circle-dot')"><i data-lucide="circle-dot"></i> Resuelto <i data-lucide="check" class="an-fopt-check"></i></button>
+                          </div>
+                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Estado')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
+                        </div>
+                        <div class="an-fmenu-page hidden" data-fpage="tipo">
+                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Tipo</button>
+                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                          <div class="an-fmenu-list">
+                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo faltante" onclick="pkgAddFilter('Tipo','Archivo faltante','tag')"><i data-lucide="tag"></i> Archivo faltante <i data-lucide="check" class="an-fopt-check"></i></button>
+                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo fallido" onclick="pkgAddFilter('Tipo','Archivo fallido','tag')"><i data-lucide="tag"></i> Archivo fallido <i data-lucide="check" class="an-fopt-check"></i></button>
+                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo vacío" onclick="pkgAddFilter('Tipo','Archivo vacío','tag')"><i data-lucide="tag"></i> Archivo vacío <i data-lucide="check" class="an-fopt-check"></i></button>
+                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo duplicado" onclick="pkgAddFilter('Tipo','Archivo duplicado','tag')"><i data-lucide="tag"></i> Archivo duplicado <i data-lucide="check" class="an-fopt-check"></i></button>
+                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Variación de volumen" onclick="pkgAddFilter('Tipo','Variación de volumen','tag')"><i data-lucide="tag"></i> Variación de volumen <i data-lucide="check" class="an-fopt-check"></i></button>
+                          </div>
+                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Tipo')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
+                        </div>
+                      </div>
+                    </div>
+                    <select id="anPkgScopeSel" class="an-pkg-scope-saved" onchange="pkgScopeFromSelect()"></select>
+                  </div>
+                </div>
+                <div class="an-cfg-field">
+                  <label class="an-cfg-lbl">Tu alcance</label>
+                  <div class="an-prevchips" id="anPkgScopeChips"></div>
+                </div>
+              </div>
+
+              <!-- Bloque 2 · Momento del ciclo de vida -->
+              <div class="an-cfg-card">
+                <div class="an-cfg-head">
+                  <div class="an-cfg-title"><i data-lucide="git-commit-horizontal"></i> ¿En qué punto de la vida del incidente quieres ser notificado?</div>
+                </div>
+                <label class="an-check"><input type="checkbox" id="anPkgEvCreated" checked> Cuando se cree el incidente</label>
+                <label class="an-check"><input type="checkbox" id="anPkgEvConfirmed"> Cuando se confirme</label>
+              </div>
+
+              <!-- Bloque 3 · Updates -->
+              <div class="an-cfg-card">
+                <div class="an-cfg-toggle-row" style="border-top:0;padding-top:0;margin-top:0;">
+                  <div>
+                    <div class="an-cfg-title"><i data-lucide="refresh-cw"></i> ¿Recibir actualizaciones del incidente?</div>
+                    <div class="an-cfg-sub">Reconfirmaciones, cambios de hipótesis u otros recursos afectados mientras está abierto.</div>
+                  </div>
+                  <button type="button" class="tm-notif-row-toggle" id="anPkgUpdates" onclick="this.classList.toggle('is-on')" aria-label="Actualizaciones del incidente"></button>
+                </div>
+              </div>
+
+              <!-- Canales -->
+              <div class="an-cfg-card">
+                <div class="an-cfg-head">
+                  <div class="an-cfg-title"><i data-lucide="send"></i> ¿Dónde notificar?</div>
+                  <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios.</div>
+                </div>
+                <div class="notif-chan-list">
+                  <div class="tm-notif-card" id="anPkgCardEmail">
+                    <div class="tm-notif-row">
+                      <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
+                      <div class="tm-notif-row-body">
+                        <div class="tm-notif-row-title">Email</div>
+                        <div class="tm-notif-row-sub">Recibe un correo cuando un incidente coincida con esta notificación.</div>
+                      </div>
+                      <button type="button" class="tm-notif-row-toggle" onclick="pkgToggleChannel(this)" aria-label="Activar email"></button>
+                    </div>
+                    <div class="tm-notif-config">
+                      <div class="tm-notif-field">
+                        <div class="tm-notif-field-label">Destinatarios</div>
+                        <div class="tm-chip-input" id="anPkgEmails"><input type="email" placeholder="Agregar correo..." onkeydown="addChip(event, this, 'email')"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tm-notif-card" id="anPkgCardSlack">
+                    <div class="tm-notif-row">
+                      <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="2" width="3" height="8" rx="1.5"></rect><rect x="13" y="14" width="3" height="8" rx="1.5"></rect><rect x="2" y="13" width="8" height="3" rx="1.5"></rect><rect x="14" y="13" width="8" height="3" rx="1.5"></rect></svg></span>
+                      <div class="tm-notif-row-body">
+                        <div class="tm-notif-row-title">Slack</div>
+                        <div class="tm-notif-row-sub">Recibe un mensaje en el canal cuando un incidente coincida con esta notificación.</div>
+                      </div>
+                      <button type="button" class="tm-notif-row-toggle" onclick="pkgToggleChannel(this)" aria-label="Activar Slack"></button>
+                    </div>
+                    <div class="tm-notif-config">
+                      <div class="tm-notif-field">
+                        <div class="tm-notif-field-label">Canales</div>
+                        <div class="tm-chip-input" id="anPkgSlack"><input type="text" placeholder="Agregar canal..." onkeydown="addChip(event, this, 'channel')"></div>
+                      </div>
+                      <div class="tm-notif-field">
+                        <div class="tm-notif-field-label">Etiquetar a personas <span class="opt">· opcional</span></div>
+                        <div class="tm-chip-input" id="anPkgMentions"><input type="text" placeholder="Pegar ID de usuario (ej. U01ABC23DEF)…" onkeydown="addChip(event, this, 'mention')"></div>
+                        <div class="tm-notif-hint">
+                          <i data-lucide="info"></i>
+                          <span>Usa el <strong>ID de usuario</strong> de Slack, no <code>@nombre</code>. En Slack: perfil de la persona › menú <strong>⋮</strong> › <strong>Copiar id. de miembro</strong>. Un <code>@nombre</code> escrito a mano llega como texto y no notifica a nadie.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="anPkgWarn" class="an-pkg-warn hidden"></div>
+              <div class="an-cfg-actions">
+                <button class="an-fbtn" onclick="pkgCancel()">Cancelar</button>
+                <button class="inline-flex items-center gap-2 h-[36px] px-4 rounded-lg text-[13px] font-semibold text-white" style="background:var(--primary);" onclick="pkgSave()">Guardar notificación</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Página: Resumen consolidado (sección propia) -->
+        <div id="anCfgResumen" class="an-ingesta hidden">
+          <h2 class="an-ing-title">Resumen consolidado</h2>
+          <p class="an-ing-sub">Un único aviso al día con los incidentes que te importan, en lugar de notificaciones sueltas. Es distinto de las notificaciones de incidentes: esas llegan por evento (al crearse o confirmarse); este es un consolidado diario.</p>
+          <div class="an-cfg">
+            <!-- Activar -->
+            <div class="an-cfg-card">
+              <div class="an-cfg-toggle-row" style="border-top:0;padding-top:0;margin-top:0;">
+                <div>
+                  <div class="an-cfg-title"><i data-lucide="mails"></i> Activar resumen diario</div>
+                  <div class="an-cfg-sub">Recíbelo a la hora que elijas.</div>
+                </div>
+                <button type="button" class="tm-notif-row-toggle is-on" onclick="this.classList.toggle('is-on')" aria-label="Activar resumen"></button>
+              </div>
+            </div>
+            <!-- Scope -->
+            <div class="an-cfg-card">
+              <div class="an-cfg-head">
+                <div class="an-cfg-title"><i data-lucide="filter"></i> ¿Qué incidentes te interesan?</div>
+                <div class="an-cfg-sub">Reutiliza un filtro guardado o el de tu vista de incidentes.</div>
+              </div>
+              <div class="an-cfg-field">
+                <label class="an-cfg-lbl">Reutiliza un filtro</label>
+                <select id="anResScopeSel" onchange="resScopeFromSelect()"></select>
+              </div>
+              <div class="an-cfg-field">
+                <label class="an-cfg-lbl">Tu alcance</label>
+                <div class="an-prevchips" id="anResScopeChips"></div>
+              </div>
+              <div class="an-cfg-field">
+                <label class="an-cfg-lbl">Incluir</label>
+                <select><option>Solo incidentes abiertos y urgentes</option><option>Todos los que me corresponden</option></select>
+              </div>
+            </div>
+            <!-- Cuándo llega -->
+            <div class="an-cfg-card">
+              <div class="an-cfg-head"><div class="an-cfg-title"><i data-lucide="clock"></i> ¿Cuándo llega?</div></div>
+              <div class="an-cfg-grid2">
+                <div><label class="an-cfg-lbl">Hora de llegada</label><input type="time" value="08:00"></div>
+                <div><label class="an-cfg-lbl">Zona horaria</label><select><option>CO · Bogotá (GMT-5)</option><option>MX · CDMX (GMT-6)</option><option>AR · Buenos Aires (GMT-3)</option></select></div>
+              </div>
+            </div>
+            <!-- Dónde -->
+            <div class="an-cfg-card">
+              <div class="an-cfg-head">
+                <div class="an-cfg-title"><i data-lucide="send"></i> ¿Dónde notificar?</div>
+                <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios.</div>
+              </div>
+              <div class="notif-chan-list">
+                <div class="tm-notif-card is-open" id="anResCardEmail">
+                  <div class="tm-notif-row">
+                    <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
+                    <div class="tm-notif-row-body">
+                      <div class="tm-notif-row-title">Email</div>
+                      <div class="tm-notif-row-sub">Recibe el resumen diario por correo.</div>
+                    </div>
+                    <button type="button" class="tm-notif-row-toggle is-on" onclick="pkgToggleChannel(this)" aria-label="Activar email"></button>
+                  </div>
+                  <div class="tm-notif-config">
+                    <div class="tm-notif-field">
+                      <div class="tm-notif-field-label">Destinatarios</div>
+                      <div class="tm-chip-input"><span class="tm-chip">ana.torres@simetrik.com<button type="button" class="tm-chip-x" onclick="this.parentElement.remove()">&times;</button></span><input type="email" placeholder="Agregar correo..." onkeydown="addChip(event, this, 'email')"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="tm-notif-card" id="anResCardSlack">
+                  <div class="tm-notif-row">
+                    <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="2" width="3" height="8" rx="1.5"></rect><rect x="13" y="14" width="3" height="8" rx="1.5"></rect><rect x="2" y="13" width="8" height="3" rx="1.5"></rect><rect x="14" y="13" width="8" height="3" rx="1.5"></rect></svg></span>
+                    <div class="tm-notif-row-body">
+                      <div class="tm-notif-row-title">Slack</div>
+                      <div class="tm-notif-row-sub">Recibe el resumen diario en el canal.</div>
+                    </div>
+                    <button type="button" class="tm-notif-row-toggle" onclick="pkgToggleChannel(this)" aria-label="Activar Slack"></button>
+                  </div>
+                  <div class="tm-notif-config">
+                    <div class="tm-notif-field">
+                      <div class="tm-notif-field-label">Canales</div>
+                      <div class="tm-chip-input"><input type="text" placeholder="Agregar canal..." onkeydown="addChip(event, this, 'channel')"></div>
+                    </div>
+                    <div class="tm-notif-field">
+                      <div class="tm-notif-field-label">Etiquetar a personas <span class="opt">· opcional</span></div>
+                      <div class="tm-chip-input"><input type="text" placeholder="Pegar ID de usuario (ej. U01ABC23DEF)…" onkeydown="addChip(event, this, 'mention')"></div>
+                      <div class="tm-notif-hint">
+                        <i data-lucide="info"></i>
+                        <span>Usa el <strong>ID de usuario</strong> de Slack, no <code>@nombre</code>. En Slack: perfil de la persona › menú <strong>⋮</strong> › <strong>Copiar id. de miembro</strong>. Un <code>@nombre</code> escrito a mano llega como texto y no notifica a nadie.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="an-cfg-actions">
+              <button class="an-fbtn">Cancelar</button>
+              <button class="inline-flex items-center gap-2 h-[36px] px-4 rounded-lg text-[13px] font-semibold text-white" style="background:var(--primary);">Guardar resumen</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Página: placeholder Pronto -->
+        <div id="anCfgSoon" class="an-ingesta hidden">
+          <div class="an-cfg-soon">
+            <i data-lucide="clock"></i>
+            <span class="an-cfg-soon-t">Próximamente</span>
+            <span>Esta sección estará disponible pronto.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---- HISTORIAL (tabla) ---- -->
+      <section id="anRightHistorial" class="an-hist-right hidden">
+        <div class="an-table-card">
+          <table class="an-table">
+            <thead>
+              <tr>
+                <th>Anomalía</th>
+                <th>Métrica <i data-lucide="filter"></i></th>
+                <th>Desviación <i data-lucide="chevron-down"></i></th>
+                <th>Detección <i data-lucide="chevron-down"></i></th>
+                <th>Tipo <i data-lucide="filter"></i></th>
+                <th>Estado <i data-lucide="filter"></i></th>
+                <th>Severidad <i data-lucide="filter"></i></th>
+                <th>Notificada <i data-lucide="filter"></i></th>
+              </tr>
+            </thead>
+            <tbody id="anHistRows"></tbody>
+          </table>
+        </div>
+        <div class="an-table-pager">
+          <span>1 - 100 de 8212 elementos</span>
+          <span class="an-pager-row">
+            <button class="an-pg"><i data-lucide="chevron-left"></i> Anterior</button>
+            <button class="an-pg is-sel">1</button>
+            <button class="an-pg">2</button>
+            <span class="an-pg" style="cursor:default;">…</span>
+            <button class="an-pg">83</button>
+            <button class="an-pg">Siguiente <i data-lucide="chevron-right"></i></button>
+          </span>
+        </div>
+      </section>
+
     </div>
     </main>
   </div>
@@ -1888,7 +2704,7 @@
               </svg>
             </span>
             <div class="tm-dialog-nav-item-body">
-              <div class="tm-dialog-nav-item-title">Notificaciones</div>
+              <div class="tm-dialog-nav-item-title">Alertas</div>
               <span class="tm-dialog-nav-item-status">Sin canales activos</span>
             </div>
           </button>
@@ -2132,8 +2948,10 @@
             <!-- ====== NOTIFICACIONES ====== -->
             <div id="dsec-notif" class="tm-dialog-section notif-when-never" style="display: none;">
 
-              <!-- Notificaciones — arco narrativo en 3 tarjetas (mismo patrón tm-prog-card que
+              <!-- Alertas — arco narrativo en 3 tarjetas (mismo patrón tm-prog-card que
                    Programación): 1) ¿CUÁNDO? · 2) ¿DÓNDE? (canales) · 3) IDIOMA. -->
+
+              <p style="font-size:12.5px;color:var(--text-tertiary);line-height:1.5;margin:0 2px 16px;">Las <strong style="color:var(--text-secondary);font-weight:600;">alertas</strong> te avisan cuando este KPI sale de su rango esperado.</p>
 
               <!-- ===== 1 · ¿CUÁNDO? ===== -->
               <div class="tm-prog-card" data-when-scope>
@@ -2155,21 +2973,21 @@
                         <i data-lucide="bell-off" class="when-opt-ic"></i>
                         <span class="when-opt-txt">
                           <span class="ot">Nunca</span>
-                          <span class="od">No recibirás avisos. El monitoreo igual registra todo in-app.</span>
+                          <span class="od">No recibirás alertas. El monitoreo igual registra todo in-app.</span>
                         </span>
                       </button>
                       <button type="button" class="when-opt" onclick="whenPick(this,'final','Solo al final')">
                         <i data-lucide="bell" class="when-opt-ic"></i>
                         <span class="when-opt-txt">
                           <span class="ot">Solo al final <span class="when-tag">recomendado</span></span>
-                          <span class="od">Al cerrar la ventana, el estado final del incidente.</span>
+                          <span class="od">Al cerrar la ventana, el estado de la alerta del KPI.</span>
                         </span>
                       </button>
                       <button type="button" class="when-opt" onclick="whenPick(this,'live','En tiempo real')">
                         <i data-lucide="bell-ring" class="when-opt-ic"></i>
                         <span class="when-opt-txt">
                           <span class="ot">En tiempo real</span>
-                          <span class="od">Cada cambio de estado, a medida que ocurre.</span>
+                          <span class="od">Cada vez que el KPI salga de su rango, a medida que ocurre.</span>
                         </span>
                       </button>
                     </div>
@@ -2178,9 +2996,9 @@
                 <div class="tm-prog-card-body is-unset" data-when-body>
                   <div class="when-empty" data-when-empty>
                     <span class="when-empty-icon"><i data-lucide="bell-plus"></i></span>
-                    <span class="when-empty-title">Aún no configuras las notificaciones</span>
-                    <span class="when-empty-sub">Define cuándo quieres recibir avisos de los incidentes de este monitoreo.</span>
-                    <button type="button" class="when-empty-btn" onclick="whenConfigure(this)"><i data-lucide="settings-2"></i> Configurar notificaciones</button>
+                    <span class="when-empty-title">Aún no configuras las alertas</span>
+                    <span class="when-empty-sub">Define cuándo quieres recibir alertas cuando este KPI salga de su rango esperado.</span>
+                    <button type="button" class="when-empty-btn" onclick="whenConfigure(this)"><i data-lucide="settings-2"></i> Configurar alertas</button>
                   </div>
                   <div class="when-config" data-when-config>
                   <div class="when-graphic" data-when-graphic>
@@ -2233,7 +3051,7 @@
                       </span>
                       <div class="tm-notif-row-body">
                         <div class="tm-notif-row-title">Email</div>
-                        <div class="tm-notif-row-sub">Recibe un correo cuando el monitoreo detecte un incidente en este gráfico.</div>
+                        <div class="tm-notif-row-sub">Recibe un correo cuando este KPI salga de su rango esperado.</div>
                       </div>
                       <button type="button" class="tm-notif-row-toggle" onclick="toggleChannel(this)" aria-label="Activar email"></button>
                     </div>
@@ -2255,7 +3073,7 @@
                       </span>
                       <div class="tm-notif-row-body">
                         <div class="tm-notif-row-title">Slack</div>
-                        <div class="tm-notif-row-sub">Recibe un mensaje en el canal cuando el monitoreo detecte un incidente.</div>
+                        <div class="tm-notif-row-sub">Recibe un mensaje en el canal cuando este KPI salga de su rango esperado.</div>
                       </div>
                       <button type="button" class="tm-notif-row-toggle" onclick="toggleChannel(this)" aria-label="Activar Slack"></button>
                     </div>
@@ -2788,6 +3606,444 @@
     function enterMonitoreo() { setView('monitoreo'); showMetricas(); }
     function exitMonitoreo() { setView('tablero'); }
 
+    // ---- Tabs superiores: Tableros vs Anomalías (sidebar persistente, solo cambia el contenido) ----
+    function switchTop(tab, el) {
+      document.querySelectorAll('.top-tab[data-top]').forEach(t => t.classList.toggle('active', t === el));
+      const anom = tab === 'anomalias';
+      document.getElementById('panelTableros').classList.toggle('hidden', anom);
+      document.getElementById('headerTablero').classList.toggle('hidden', anom);
+      document.getElementById('viewTablero').classList.toggle('hidden', anom);
+      document.getElementById('viewMonitoreo').classList.add('hidden');
+      document.getElementById('viewAnomalias').classList.toggle('hidden', !anom);
+      if (window.lucide) lucide.createIcons();
+    }
+    // Selección de una incidencia en la lista
+    function anSelect(card) {
+      document.querySelectorAll('#anCards .an-card').forEach(c => c.classList.remove('is-sel'));
+      card.classList.add('is-sel');
+      const t = card.querySelector('.an-card-title'), dt = document.querySelector('.an-d-title');
+      if (t && dt) dt.textContent = t.textContent;
+    }
+    // Sub-tabs de Anomalías: Gestión vs Configuración (Ingesta de datos)
+    function anSubtab(which, el) {
+      document.querySelectorAll('.an-seg-tab[data-sub]').forEach(t => t.classList.toggle('active', t === el));
+      document.getElementById('anLeftGestion').classList.toggle('hidden', which !== 'gestion');
+      document.getElementById('anLeftConfig').classList.toggle('hidden', which !== 'config');
+      document.getElementById('anLeftHistorial').classList.toggle('hidden', which !== 'historial');
+      document.getElementById('anRightGestion').classList.toggle('hidden', which !== 'gestion');
+      document.getElementById('anRightConfig').classList.toggle('hidden', which !== 'config');
+      document.getElementById('anRightHistorial').classList.toggle('hidden', which !== 'historial');
+      if (which === 'config') renderIngesta();
+      if (which === 'historial') renderHist();
+      if (window.lucide) lucide.createIcons();
+    }
+    // Tabla de Historial (mock)
+    let anHistRendered = false;
+    function renderHist() {
+      if (anHistRendered) return;
+      const tb = document.getElementById('anHistRows'); if (!tb) return;
+      const notifCell = on => on
+        ? '<span class="an-notif yes"><i data-lucide="bell"></i> Sí</span>'
+        : '<span class="an-notif no"><i data-lucide="bell-off"></i> No</span>';
+      const row = (name, sub, metric, dev, notif) =>
+        '<tr>' +
+        '<td><div class="an-th-anom"><span class="ic"><i data-lucide="circle-alert"></i></span><div><div class="an-th-name">' + name + '</div>' +
+        '<div class="an-th-sub">' + sub + '</div></div></div></td>' +
+        '<td>' + metric + '</td>' +
+        '<td><span class="an-dev">' + dev + '</span></td>' +
+        '<td>30/06/2026</td><td>Datos faltantes</td><td><span class="an-badge">Activa</span></td><td><span class="an-badge-sev">Media</span></td>' +
+        '<td>' + notifCell(notif) + '</td>' +
+        '</tr>';
+      let html = row(
+        'Transbank Statement',
+        '<i data-lucide="layout-grid"></i> Test anomalias - system kpis › Transbank <i data-lucide="external-link"></i>',
+        '<span class="an-metric-chip">SUM(F_CAST)</span> <span class="an-metric-chip">_total</span>',
+        '66.7%', true);
+      const devs = ['66.7%','66.7%','66.7%','66.7%','91.7%','91.7%','91.7%','91.7%','91.7%','91.7%','91.7%','87.5%','87.5%','85.2%','85.2%','85.2%','85.2%','85.2%'];
+      devs.forEach((d, i) => { html += row('Datos faltantes', '—', '<span class="an-metric-chip">_total</span>', d, i % 3 !== 0); });
+      tb.innerHTML = html;
+      anHistRendered = true;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ---- Filtros de la vista de incidentes (multiselect + guardados, reutilizables por la notificación) ----
+    // Lógica: dentro de una categoría los valores se combinan con O (multiselect); entre categorías, con Y.
+    const AN_TABLEROS = ['Adquirencia', 'Conciliación bancaria', 'Tesorería', 'Pagos LATAM'];
+    let anActiveFilter = []; // [{type, value, icon}] — varios por tipo permitidos
+    let savedFilters = [     // filtros recurrentes (guardados) — reutilizables en los paquetes de notificación
+      { name: 'Incidentes de Adquirencia', filters: [{ type: 'Tablero', value: 'Adquirencia', icon: 'layout-grid' }, { type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }] }
+    ];
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+    function groupFilters(list) { // agrupa [{type,value,icon}] por tipo, preservando orden de aparición
+      const order = [], map = {};
+      (list || []).forEach(f => { if (!map[f.type]) { map[f.type] = { type: f.type, icon: f.icon, values: [] }; order.push(f.type); } map[f.type].values.push(f.value); });
+      return order.map(t => map[t]);
+    }
+    function fGroups() { return groupFilters(anActiveFilter); }
+    function closeFilterMenus(except) {
+      ['anFMenu', 'anSMenu', 'anGMenu', 'anPkgFMenu'].forEach(id => { if (id !== except) { const e = document.getElementById(id); if (e) e.classList.remove('open'); } });
+    }
+    function toggleFMenu(e) { e.stopPropagation(); closeFilterMenus('anFMenu'); fGoto('main'); document.getElementById('anFMenu').classList.toggle('open'); buildFLists(); }
+    function toggleSMenu(e) { e.stopPropagation(); closeFilterMenus('anSMenu'); document.getElementById('anSMenu').classList.toggle('open'); }
+    function toggleGMenu(e) { e.stopPropagation(); closeFilterMenus('anGMenu'); renderGList(); document.getElementById('anGMenu').classList.toggle('open'); }
+    function fGoto(page) { document.querySelectorAll('#anFMenu .an-fmenu-page').forEach(p => p.classList.toggle('hidden', p.dataset.fpage !== page)); markOptChecks(); }
+    function buildFLists() {
+      const rec = document.getElementById('fListRecurso');
+      if (rec && !rec.dataset.built) {
+        rec.innerHTML = AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Recurso" data-fval="' + esc(s[0]) + '" data-ficon="database"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        rec.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Recurso', b.dataset.fval, 'database')));
+        rec.dataset.built = '1';
+      }
+      const tab = document.getElementById('fListTablero');
+      if (tab && !tab.dataset.built) {
+        tab.innerHTML = AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Tablero" data-fval="' + esc(t) + '" data-ficon="layout-grid"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        tab.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Tablero', b.dataset.fval, 'layout-grid')));
+        tab.dataset.built = '1';
+      }
+      markOptChecks();
+      if (window.lucide) lucide.createIcons();
+    }
+    function fFilterList(input, which) {
+      const id = which === 'recurso' ? 'fListRecurso' : 'fListTablero', q = input.value.toLowerCase();
+      document.querySelectorAll('#' + id + ' .an-fmenu-opt').forEach(o => { o.style.display = o.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+    }
+    function fPickFecha() { addFilter('Fecha', 'Últimos 30 días', 'calendar'); }
+    function isFilterActive(type, value) { return anActiveFilter.some(f => f.type === type && f.value === value); }
+    function markOptChecks() {
+      document.querySelectorAll('#anFMenu .an-fmenu-opt').forEach(o => { const t = o.dataset.ftype, v = o.dataset.fval; if (t && v) o.classList.toggle('is-on', isFilterActive(t, v)); });
+    }
+    function addFilter(type, value, icon) {
+      if (type === 'Fecha') {                                  // Fecha = valor único (rango), reemplaza
+        anActiveFilter = anActiveFilter.filter(f => f.type !== 'Fecha');
+        anActiveFilter.push({ type: type, value: value, icon: icon });
+        document.getElementById('anFMenu').classList.remove('open');
+      } else {                                                  // resto = multiselect (toggle)
+        const i = anActiveFilter.findIndex(f => f.type === type && f.value === value);
+        if (i >= 0) anActiveFilter.splice(i, 1); else anActiveFilter.push({ type: type, value: value, icon: icon });
+      }
+      renderApplied(); renderNotifFilterPreview(); markOptChecks();
+    }
+    function clearFilterType(type) { anActiveFilter = anActiveFilter.filter(f => f.type !== type); renderApplied(); renderNotifFilterPreview(); markOptChecks(); }
+    function clearAllFilters() { anActiveFilter = []; renderApplied(); renderNotifFilterPreview(); markOptChecks(); }
+    function renderApplied() {
+      const el = document.getElementById('anApplied'); if (!el) return;
+      const groups = fGroups();
+      if (!groups.length) { el.innerHTML = ''; return; }
+      const chips = groups.map(g => {
+        const val = g.values.map(v => esc(v)).join(' <em>o</em> ');
+        return '<span class="an-fchip"><span class="an-fchip-type"><i data-lucide="' + g.icon + '"></i> ' + g.type + '</span>' +
+          '<span class="an-fchip-val">' + val + '</span>' +
+          '<button class="an-fchip-x" onclick="clearFilterType(\'' + g.type + '\')"><i data-lucide="x"></i></button></span>';
+      }).join('<span class="an-fconj">y</span>');
+      el.innerHTML = chips +
+        '<div class="an-applied-actions">' +
+          '<button class="an-save-filter" onclick="saveCurrentFilter()"><i data-lucide="bookmark-plus"></i> Guardar filtro</button>' +
+          '<button class="an-clear-all" onclick="clearAllFilters()">Quitar filtros <i data-lucide="x"></i></button>' +
+        '</div>';
+      if (window.lucide) lucide.createIcons();
+    }
+    function renderNotifFilterPreview() {
+      const prev = document.getElementById('notifFilterPreview'); if (!prev) return;
+      prev.className = 'an-prevchips';
+      const groups = fGroups();
+      prev.innerHTML = groups.length
+        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + g.icon + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '</span>').join('')
+        : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
+      if (window.lucide) lucide.createIcons();
+    }
+    // ---- Filtros guardados (recurrentes) ----
+    function renderGList() {
+      const el = document.getElementById('anGList'); if (!el) return;
+      el.innerHTML = savedFilters.length
+        ? savedFilters.map((s, i) => '<button class="an-gitem" onclick="loadSavedFilter(' + i + ')"><i data-lucide="bookmark"></i> ' + esc(s.name) + '<i data-lucide="x" class="an-gitem-x" onclick="event.stopPropagation();deleteSavedFilter(' + i + ')"></i></button>').join('')
+        : '<div class="an-gempty">No tienes filtros guardados.<br>Aplica filtros y pulsa <strong>Guardar filtro</strong>.</div>';
+      if (window.lucide) lucide.createIcons();
+    }
+    function saveCurrentFilter() {
+      const el = document.getElementById('anApplied'); if (!el || document.getElementById('anSaveRow')) return;
+      const row = document.createElement('div'); row.className = 'an-save-row'; row.id = 'anSaveRow';
+      row.innerHTML = '<input type="text" id="anSaveName" placeholder="Nombra este filtro (ej. Incidentes de Sergio)" maxlength="40">' +
+        '<button class="is-go" onclick="doSaveFilter()">Guardar</button>' +
+        '<button class="is-x" onclick="this.parentElement.remove()">Cancelar</button>';
+      el.appendChild(row);
+      const inp = document.getElementById('anSaveName'); if (inp) { inp.focus(); inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') doSaveFilter(); }); }
+    }
+    function doSaveFilter() {
+      const inp = document.getElementById('anSaveName'); if (!inp) return;
+      const name = inp.value.trim(); if (!name) { inp.focus(); return; }
+      savedFilters.push({ name: name, filters: anActiveFilter.map(f => ({ type: f.type, value: f.value, icon: f.icon })) });
+      const row = document.getElementById('anSaveRow'); if (row) row.remove();
+      renderGList();
+    }
+    function loadSavedFilter(i) {
+      const s = savedFilters[i]; if (!s) return;
+      anActiveFilter = s.filters.map(f => ({ type: f.type, value: f.value, icon: f.icon }));
+      renderApplied(); renderNotifFilterPreview(); markOptChecks();
+      document.getElementById('anGMenu').classList.remove('open');
+    }
+    function deleteSavedFilter(i) { savedFilters.splice(i, 1); renderGList(); }
+    function sPick(el) { document.querySelectorAll('#anSMenu .an-sort-item').forEach(s => s.classList.remove('is-sel')); el.classList.add('is-sel'); document.getElementById('anSMenu').classList.remove('open'); }
+    function goGestionFilter() { const g = document.querySelector('.an-seg-tab[data-sub="gestion"]'); if (g) anSubtab('gestion', g); }
+    renderNotifFilterPreview();
+    document.addEventListener('click', e => { if (!e.target.closest('.an-fmenu-wrap')) closeFilterMenus(''); });
+
+    // ======== Paquetes de notificación de incidentes (reglas) ========
+    let pkgNextId = 3;
+    let notifPackages = [
+      { id: 1, name: 'Incidentes de Adquirencia', scope: [{ type: 'Tablero', value: 'Adquirencia', icon: 'layout-grid' }, { type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }], events: { created: false, confirmed: true }, updates: true, channels: { emails: ['ana.torres@simetrik.com'], slack: ['#incidentes-finops'], mentions: ['@U01ABC23DEF'] }, active: true },
+      { id: 2, name: 'Fuentes críticas de pagos', scope: [{ type: 'Tipo', value: 'Archivo faltante', icon: 'tag' }, { type: 'Tipo', value: 'Archivo fallido', icon: 'tag' }], events: { created: true, confirmed: false }, updates: false, channels: { emails: [], slack: ['#pagos-latam'], mentions: [] }, active: false }
+    ];
+    let pkgEditingId = null, pkgEditingScope = [];
+    function pkgCardHtml(p) {
+      const groups = groupFilters(p.scope);
+      const scope = groups.length ? groups.map(g => g.type + ': ' + g.values.join(' o ')).join('  ·  ') : 'Todos los incidentes';
+      const when = []; if (p.events.created) when.push('al crearse'); if (p.events.confirmed) when.push('al confirmarse');
+      const whenT = when.length ? when.join(' y ') : 'sin momento definido';
+      const ch = [];
+      if (p.channels.emails.length) ch.push(p.channels.emails.length + ' correo' + (p.channels.emails.length > 1 ? 's' : ''));
+      if (p.channels.slack.length) ch.push(p.channels.slack.length + ' canal' + (p.channels.slack.length > 1 ? 'es' : ''));
+      return '<div class="an-pkg' + (p.active ? '' : ' is-off') + '">' +
+        '<div class="an-pkg-top"><div class="an-pkg-info"><div class="an-pkg-name">' + esc(p.name) + '</div>' +
+        '<div class="an-pkg-scope"><i data-lucide="filter"></i> ' + esc(scope) + '</div></div>' +
+        '<button type="button" class="tm-notif-row-toggle' + (p.active ? ' is-on' : '') + '" onclick="pkgToggleActive(' + p.id + ')" aria-label="Activar"></button></div>' +
+        '<div class="an-pkg-foot"><div class="an-pkg-tags">' +
+        '<span class="an-pkg-tag"><i data-lucide="git-commit-horizontal"></i> ' + whenT + '</span>' +
+        (p.updates ? '<span class="an-pkg-tag"><i data-lucide="refresh-cw"></i> con actualizaciones</span>' : '') +
+        (ch.length ? '<span class="an-pkg-tag"><i data-lucide="send"></i> ' + ch.join(' · ') + '</span>' : '<span class="an-pkg-tag"><i data-lucide="alert-circle"></i> sin canales</span>') +
+        '</div><div class="an-pkg-actions"><button onclick="pkgDuplicate(' + p.id + ')" aria-label="Duplicar"><i data-lucide="copy"></i></button><button onclick="pkgEdit(' + p.id + ')" aria-label="Editar"><i data-lucide="pencil"></i></button><button onclick="pkgDelete(' + p.id + ')" aria-label="Eliminar"><i data-lucide="trash-2"></i></button></div></div>' +
+        '</div>';
+    }
+    function pkgDuplicate(id) {
+      const p = notifPackages.find(x => x.id === id); if (!p) return;
+      const copy = {
+        id: pkgNextId++, name: p.name + ' (copia)',
+        scope: p.scope.map(f => ({ ...f })),
+        events: { created: p.events.created, confirmed: p.events.confirmed },
+        updates: p.updates,
+        channels: { emails: p.channels.emails.slice(), slack: p.channels.slack.slice(), mentions: (p.channels.mentions || []).slice() },
+        active: true
+      };
+      notifPackages.push(copy); renderPkgList(); pkgEdit(copy.id);
+    }
+    function renderPkgList() {
+      const el = document.getElementById('anPkgList'); if (!el) return;
+      if (!notifPackages.length) {
+        el.innerHTML = '<div class="an-pkg-empty"><i data-lucide="bell-off"></i><div>Aún no tienes notificaciones.</div><div class="an-pkg-empty-d">Crea una notificación para que te avisemos de los incidentes que te importan.</div></div>';
+        if (window.lucide) lucide.createIcons(); return;
+      }
+      el.innerHTML = notifPackages.map(pkgCardHtml).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+    function pkgShowEditor(show) {
+      document.getElementById('anPkgListView').classList.toggle('hidden', show);
+      document.getElementById('anPkgEditor').classList.toggle('hidden', !show);
+    }
+    function pkgFillScopeSelect(includeKeep) {
+      const sel = document.getElementById('anPkgScopeSel'); if (!sel) return;
+      let html = '<option value="">o aplica un filtro guardado…</option>';
+      if (includeKeep) html += '<option value="keep">Alcance actual de esta notificación</option>';
+      html += '<option value="all">Todos mis incidentes</option>';
+      savedFilters.forEach((s, i) => html += '<option value="saved:' + i + '">' + esc(s.name) + '</option>');
+      html += '<option value="current">Filtro actual de la vista de incidentes</option>';
+      sel.innerHTML = html;
+    }
+    function pkgScopeFromSelect() {
+      const v = document.getElementById('anPkgScopeSel').value;
+      if (v === '' || v === 'keep') { /* placeholder / conserva pkgEditingScope */ }
+      else if (v === 'all') pkgEditingScope = [];
+      else if (v === 'current') pkgEditingScope = anActiveFilter.map(f => ({ ...f }));
+      else if (v.indexOf('saved:') === 0) { const i = +v.split(':')[1]; pkgEditingScope = (savedFilters[i] ? savedFilters[i].filters : []).map(f => ({ ...f })); }
+      renderPkgScopeChips(); pkgMarkChecks();
+    }
+    function pkgSyncSavedSel() { const sel = document.getElementById('anPkgScopeSel'); if (sel) sel.value = ''; }
+    function renderPkgScopeChips() {
+      const el = document.getElementById('anPkgScopeChips'); if (!el) return;
+      const groups = groupFilters(pkgEditingScope);
+      el.innerHTML = groups.length
+        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + g.icon + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '<i data-lucide="x" class="an-prevchip-x" onclick="pkgClearType(\'' + g.type + '\')"></i></span>').join('')
+        : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
+      if (window.lucide) lucide.createIcons();
+    }
+    // Menú de filtros inline del editor (opera sobre pkgEditingScope)
+    function pkgToggleFMenu(e) { e.stopPropagation(); closeFilterMenus('anPkgFMenu'); pkgFGoto('main'); document.getElementById('anPkgFMenu').classList.toggle('open'); pkgBuildLists(); }
+    function pkgFGoto(page) { document.querySelectorAll('#anPkgFMenu .an-fmenu-page').forEach(p => p.classList.toggle('hidden', p.dataset.fpage !== page)); pkgMarkChecks(); }
+    function pkgBuildLists() {
+      const rec = document.getElementById('pkgFListRecurso');
+      if (rec && !rec.dataset.built) {
+        rec.innerHTML = AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Recurso" data-fval="' + esc(s[0]) + '" onclick="pkgAddFilter(\'Recurso\', this.dataset.fval, \'database\')"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        rec.dataset.built = '1';
+      }
+      const tab = document.getElementById('pkgFListTablero');
+      if (tab && !tab.dataset.built) {
+        tab.innerHTML = AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Tablero" data-fval="' + esc(t) + '" onclick="pkgAddFilter(\'Tablero\', this.dataset.fval, \'layout-grid\')"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        tab.dataset.built = '1';
+      }
+      pkgMarkChecks(); if (window.lucide) lucide.createIcons();
+    }
+    function pkgFFilterList(input, which) {
+      const id = which === 'recurso' ? 'pkgFListRecurso' : 'pkgFListTablero', q = input.value.toLowerCase();
+      document.querySelectorAll('#' + id + ' .an-fmenu-opt').forEach(o => { o.style.display = o.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+    }
+    function pkgIsActive(type, value) { return pkgEditingScope.some(f => f.type === type && f.value === value); }
+    function pkgMarkChecks() {
+      document.querySelectorAll('#anPkgFMenu .an-fmenu-opt').forEach(o => { const t = o.dataset.ftype, v = o.dataset.fval; if (t && v) o.classList.toggle('is-on', pkgIsActive(t, v)); });
+    }
+    function pkgAddFilter(type, value, icon) {
+      const i = pkgEditingScope.findIndex(f => f.type === type && f.value === value);
+      if (i >= 0) pkgEditingScope.splice(i, 1); else pkgEditingScope.push({ type: type, value: value, icon: icon });
+      renderPkgScopeChips(); pkgMarkChecks(); pkgSyncSavedSel();
+    }
+    function pkgClearType(type) { pkgEditingScope = pkgEditingScope.filter(f => f.type !== type); renderPkgScopeChips(); pkgMarkChecks(); pkgSyncSavedSel(); }
+    function chipHtml(v, cls) { return '<span class="tm-chip' + (cls ? ' ' + cls : '') + '">' + esc(v) + '<button type="button" class="tm-chip-x" onclick="this.parentElement.remove()">&times;</button></span>'; }
+    function pkgToggleChannel(btn) {
+      btn.classList.toggle('is-on');
+      const card = btn.closest('.tm-notif-card'); if (card) card.classList.toggle('is-open', btn.classList.contains('is-on'));
+    }
+    function pkgSetCard(cardId, on) {
+      const card = document.getElementById(cardId); if (!card) return;
+      card.classList.toggle('is-open', on);
+      const t = card.querySelector('.tm-notif-row-toggle'); if (t) t.classList.toggle('is-on', on);
+    }
+    function pkgSetChannels(emails, slack, mentions) {
+      const e = document.getElementById('anPkgEmails'), s = document.getElementById('anPkgSlack'), m = document.getElementById('anPkgMentions');
+      [e, s, m].forEach(box => box.querySelectorAll('.tm-chip').forEach(c => c.remove()));
+      const ein = e.querySelector('input'); emails.forEach(v => ein.insertAdjacentHTML('beforebegin', chipHtml(v)));
+      const sin = s.querySelector('input'); slack.forEach(v => sin.insertAdjacentHTML('beforebegin', chipHtml(v)));
+      const min = m.querySelector('input'); (mentions || []).forEach(v => min.insertAdjacentHTML('beforebegin', chipHtml(v, 'tm-chip--id')));
+      pkgSetCard('anPkgCardEmail', emails.length > 0);
+      pkgSetCard('anPkgCardSlack', slack.length > 0 || (mentions || []).length > 0);
+    }
+    function pkgReadChannels() {
+      const emailOn = document.getElementById('anPkgCardEmail').classList.contains('is-open');
+      const slackOn = document.getElementById('anPkgCardSlack').classList.contains('is-open');
+      const e = emailOn ? [...document.querySelectorAll('#anPkgEmails .tm-chip')].map(c => c.childNodes[0].textContent.trim()) : [];
+      const s = slackOn ? [...document.querySelectorAll('#anPkgSlack .tm-chip')].map(c => c.childNodes[0].textContent.trim()) : [];
+      const m = slackOn ? [...document.querySelectorAll('#anPkgMentions .tm-chip')].map(c => c.childNodes[0].textContent.trim()) : [];
+      return { emails: e, slack: s, mentions: m };
+    }
+    function pkgChipKey(ev) {
+      if (ev.key !== 'Enter') return; ev.preventDefault();
+      const inp = ev.target, v = inp.value.trim(); if (!v) return;
+      inp.insertAdjacentHTML('beforebegin', chipHtml(v)); inp.value = ''; if (window.lucide) lucide.createIcons();
+    }
+    function pkgNew() {
+      pkgEditingId = null; pkgEditingScope = [];
+      document.getElementById('anPkgEditorTitle').textContent = 'Nueva notificación';
+      document.getElementById('anPkgName').value = '';
+      document.getElementById('anPkgEvCreated').checked = true;
+      document.getElementById('anPkgEvConfirmed').checked = false;
+      document.getElementById('anPkgUpdates').classList.remove('is-on');
+      pkgSetChannels([], [], []);
+      pkgFillScopeSelect(false); document.getElementById('anPkgScopeSel').value = '';
+      renderPkgScopeChips(); pkgMarkChecks(); pkgWarn([]); pkgShowEditor(true); if (window.lucide) lucide.createIcons();
+    }
+    function pkgEdit(id) {
+      const p = notifPackages.find(x => x.id === id); if (!p) return;
+      pkgEditingId = id; pkgEditingScope = p.scope.map(f => ({ ...f }));
+      document.getElementById('anPkgEditorTitle').textContent = 'Editar notificación';
+      document.getElementById('anPkgName').value = p.name;
+      document.getElementById('anPkgEvCreated').checked = p.events.created;
+      document.getElementById('anPkgEvConfirmed').checked = p.events.confirmed;
+      document.getElementById('anPkgUpdates').classList.toggle('is-on', p.updates);
+      pkgSetChannels(p.channels.emails, p.channels.slack, p.channels.mentions || []);
+      pkgFillScopeSelect(true); document.getElementById('anPkgScopeSel').value = 'keep';
+      renderPkgScopeChips(); pkgMarkChecks(); pkgWarn([]); pkgShowEditor(true); if (window.lucide) lucide.createIcons();
+    }
+    function pkgCancel() { pkgShowEditor(false); }
+    function pkgWarn(problems) {
+      const w = document.getElementById('anPkgWarn'); if (!w) return;
+      if (!problems.length) { w.classList.add('hidden'); w.innerHTML = ''; return; }
+      w.innerHTML = '<i data-lucide="alert-triangle"></i><div>Esta notificación no avisaría de ningún incidente:<ul>' +
+        problems.map(p => '<li>' + p + '</li>').join('') + '</ul></div>';
+      w.classList.remove('hidden'); if (window.lucide) lucide.createIcons();
+    }
+    function pkgSave() {
+      const evCreated = document.getElementById('anPkgEvCreated').checked;
+      const evConfirmed = document.getElementById('anPkgEvConfirmed').checked;
+      const channels = pkgReadChannels();
+      const problems = [];
+      if (!evCreated && !evConfirmed) problems.push('Elige al menos un momento del ciclo de vida (al crearse o al confirmarse).');
+      if (!channels.emails.length && !channels.slack.length) problems.push('Agrega al menos un canal: un correo o un canal de Slack.');
+      if (problems.length) { pkgWarn(problems); return; }
+      pkgWarn([]);
+      const name = document.getElementById('anPkgName').value.trim() || 'Notificación sin nombre';
+      const data = {
+        name: name, scope: pkgEditingScope.map(f => ({ ...f })),
+        events: { created: evCreated, confirmed: evConfirmed },
+        updates: document.getElementById('anPkgUpdates').classList.contains('is-on'),
+        channels: channels, active: true
+      };
+      if (pkgEditingId != null) { Object.assign(notifPackages.find(x => x.id === pkgEditingId), data); }
+      else { data.id = pkgNextId++; notifPackages.push(data); }
+      renderPkgList(); pkgShowEditor(false);
+    }
+    function pkgDelete(id) { notifPackages = notifPackages.filter(p => p.id !== id); renderPkgList(); }
+    function pkgToggleActive(id) { const p = notifPackages.find(x => x.id === id); if (p) { p.active = !p.active; renderPkgList(); } }
+
+    // ======== Resumen consolidado (sección propia) ========
+    let resScope = [];
+    function resFillSelect() {
+      const sel = document.getElementById('anResScopeSel'); if (!sel) return;
+      let html = '<option value="all">Todos mis incidentes</option>';
+      savedFilters.forEach((s, i) => html += '<option value="saved:' + i + '">' + esc(s.name) + '</option>');
+      html += '<option value="current">Filtro actual de la vista de incidentes</option>';
+      sel.innerHTML = html;
+    }
+    function resScopeFromSelect() {
+      const v = document.getElementById('anResScopeSel').value;
+      if (v === 'all') resScope = [];
+      else if (v === 'current') resScope = anActiveFilter.map(f => ({ ...f }));
+      else if (v.indexOf('saved:') === 0) { const i = +v.split(':')[1]; resScope = (savedFilters[i] ? savedFilters[i].filters : []).map(f => ({ ...f })); }
+      renderResScopeChips();
+    }
+    function renderResScopeChips() {
+      const el = document.getElementById('anResScopeChips'); if (!el) return;
+      const g = groupFilters(resScope);
+      el.innerHTML = g.length
+        ? g.map(x => '<span class="an-prevchip"><i data-lucide="' + x.icon + '"></i> ' + x.type + ': ' + esc(x.values.join(' o ')) + '</span>').join('')
+        : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
+      if (window.lucide) lucide.createIcons();
+    }
+    function resInit() { resFillSelect(); const sel = document.getElementById('anResScopeSel'); if (sel) sel.value = 'all'; resScope = []; renderResScopeChips(); }
+
+    function anConfNav(el, cfg) {
+      document.querySelectorAll('#anLeftConfig .an-confitem').forEach(c => c.classList.toggle('is-sel', c === el));
+      const pages = { ingesta: 'anCfgIngesta', notif: 'anCfgNotif', resumen: 'anCfgResumen', soon: 'anCfgSoon' };
+      Object.values(pages).forEach(id => { const e = document.getElementById(id); if (e) e.classList.add('hidden'); });
+      const show = document.getElementById(pages[cfg] || 'anCfgIngesta'); if (show) show.classList.remove('hidden');
+      if (cfg === 'ingesta') renderIngesta();
+      if (cfg === 'notif') { renderPkgList(); pkgShowEditor(false); }
+      if (cfg === 'resumen') resInit();
+      if (window.lucide) lucide.createIcons();
+    }
+    // Grilla de fuentes (Ingesta de datos). active: 1 = "Monitoreo activo" · 0 = "Activar monitoreo AI"
+    const AN_SOURCES = [
+      ['Acquirer_Mastercard_13_04_2026','1755',0],['Acquirer_Visa_13_04_2026','1755',0],['Adyen_Settlement_Report_13_04_2026','1756',0],
+      ['Banco_Occidente_31_03_2026','1755',0],['Bank_Statement_Adyen_13_04_2026','1756',0],['Bank_Statement_MercadoPago_13_04_2026','1800',0],
+      ['Bank_Statement_Transbank_20260413','1800',1],['ERP_SAP_31_03_2026','1756',0],['File Pattern Duplicate Entity','1755',1],
+      ['Libro_Mayor_31_03_2026','1800',0],['Mastercard_IPM_Settlement_13_04_2026','1755',1],['MercadoPago_Settlement_Report','1800',0],
+      ['PayU_Latam','1756',0],['PayU_Latam_31_03_2026','1756',1],['Tesoreria_Interna_31_03_2026','1755',1],
+      ['Transações - Varios Estágios','1871',1],['Transbank_Settlement_Report_2026','1800',1],['Visa_Acquiring_31_03_2026','1800',0],
+      ['Visa_TC05_Settlement_13_04_2026','1755',0],['acc_accounting_controls','1756',1],['banking_transactions','1755',1],
+      ['cris_src_sales_transactions_charts','1755',1],['e2e_customers','1755',1],['e2e_sales','1755',1],
+      ['fin_bank_details_ops','1800',1],['sankey-jesus','1755',1],['source-1-payments-merchant','1755',1],
+      ['source-1-payments-merchant-new','1755',1],['src_area_chart','1755',1],['src_bubble_chart','1755',1],
+      ['src_donut_chart','1755',1],['src_donut_historical_chart','1755',1],['src_funner_chart','1755',1]
+    ];
+    let anIngRendered = false;
+    function renderIngesta() {
+      if (anIngRendered) return;
+      const grid = document.getElementById('anIngGrid'); if (!grid) return;
+      grid.innerHTML = AN_SOURCES.map(([name, num, active]) =>
+        '<div class="an-src"><div class="an-src-info"><div class="an-src-name">' + name + '</div><div class="an-src-num">' + num + '</div></div>' +
+        (active
+          ? '<button class="an-src-status is-active"><i data-lucide="circle-check"></i> Monitoreo activo</button>'
+          : '<button class="an-src-status"><i data-lucide="gem"></i> Activar monitoreo AI</button>') +
+        '</div>').join('');
+      anIngRendered = true;
+      if (window.lucide) lucide.createIcons();
+    }
+
     // ---- Sub-tabs dentro del panel de config (nav persistente) ----
     function showMetricas() {
       document.getElementById('bodyMetricas').classList.remove('hidden');
@@ -2829,20 +4085,19 @@
     let whenMode = 'unset';   // 'unset' (primer ingreso) | 'never' | 'final' | 'live' — gobierna si los canales son obligatorios
     const WHEN_MODES = {
       never: {
-        line: 'No enviaremos notificaciones de este monitoreo. El monitoreo seguirá analizando y registrando incidentes in-app.',
+        line: 'No enviaremos alertas de este KPI. El monitoreo seguirá analizando y registrando todo in-app.',
         ev: []
       },
       final: {
-        line: 'Al cerrar la ventana te comunico el <strong>estado final</strong> del incidente. Si se resolvió antes del cierre, no recibes nada.',
-        ev: [ { t: 20.0, type: 'red', big: true, tip: 'Estado final del incidente' } ]
+        line: 'Al cerrar la ventana te aviso <strong>el estado de la alerta</strong>: si el KPI sigue fuera de su rango esperado. Si volvió a la normalidad, no recibes nada.',
+        ev: [ { t: 20.0, type: 'red', big: true, tip: 'Fuera de rango al cierre' } ]
       },
       live: {
-        line: 'Te aviso de <strong>cada cambio de estado</strong> (señales e incidente) a medida que ocurre durante la ventana.',
+        line: 'Te aviso <strong>cada vez que el KPI salga de su rango esperado</strong>, a medida que ocurre durante la ventana.',
         ev: [
-          { t: 14.5,  type: 'amber',  tip: 'Señal: conteo por debajo' },
-          { t: 18.2,  type: 'red',    tip: 'Incidente abierto · faltan archivos' },
-          { t: 19.0,  type: 'orange', tip: 'Reconfirmado · severidad sube' },
-          { t: 19.75, type: 'green',  tip: 'Resuelto' }
+          { t: 14.5,  type: 'red',   tip: 'Fuera de rango: conteo por debajo' },
+          { t: 16.5,  type: 'red',   tip: 'Sigue fuera de rango' },
+          { t: 18.5,  type: 'green', tip: 'Volvió al rango esperado' }
         ]
       }
     };
@@ -3213,28 +4468,7 @@
         : (on === 1 ? 'Monitoreando 1 límite' : 'Monitoreando 2 límites');
     }
 
-    // ---- Popover de Notificaciones (resumen diario) ----
-    function toggleNotifPop(e) {
-      if (e) e.stopPropagation();
-      const pop = document.getElementById('notifPop');
-      const btn = document.getElementById('navReportes');
-      const open = pop.classList.toggle('open');
-      btn.classList.toggle('sel', open);
-    }
-    function closeNotifPop() {
-      document.getElementById('notifPop').classList.remove('open');
-      document.getElementById('navReportes').classList.remove('sel');
-    }
-    document.addEventListener('click', (e) => {
-      const wrap = e.target.closest('.notif-wrap');
-      if (!wrap) closeNotifPop();
-    });
-    function rsToggle() {
-      const on = document.getElementById('rs-active').checked;
-      const body = document.getElementById('rs-body');
-      body.style.opacity = on ? '1' : '.4';
-      body.style.pointerEvents = on ? '' : 'none';
-    }
+    // (El "Resumen de incidentes" se movió a Anomalías → Configuración → Notificaciones de incidentes.)
 
     // ---- Monitor dialog (Monitoreo inteligente) ----
     // Wizard: el flujo lineal es Programación → Notificaciones → Series y valores.
@@ -3277,7 +4511,7 @@
       const map = { prog:'dsec-prog', notif:'dsec-notif', series:'dsec-series', fuente:'dsec-fuente' };
       Object.values(map).forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
       const tgt = document.getElementById(map[sec]); if (tgt) tgt.style.display = '';
-      const titles = { prog:'Programación', notif:'Notificaciones', series:'Conteo De Registros', fuente:'Fuente' };
+      const titles = { prog:'Programación', notif:'Alertas', series:'Conteo De Registros', fuente:'Fuente' };
       const t = document.getElementById('dlg-content-title'); if (t) t.textContent = titles[sec] || '';
       const isSeries = sec === 'series';
       document.querySelectorAll('#monitorDialog .tm-dialog-content-header-chip, #monitorDialog .tm-dialog-content-pills')
@@ -3347,7 +4581,6 @@
       if (!e.target.closest('.cat-select')) document.querySelectorAll('.cat-select.open').forEach(s => s.classList.remove('open'));
     });
 
-    rsToggle();
     // Render inicial de la gráfica de sensibilidad (slider al 50% por defecto)
     initSeriesGrid();
     renderCatLimits();
