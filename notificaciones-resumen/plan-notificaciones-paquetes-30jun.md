@@ -139,7 +139,7 @@ Cambios de UI por documentar/hacer:
 - 🔲 **Rework del formulario de notificaciones** → modelo de paquetes (lista de tarjetas); copy de bloques: "Notifícame incidentes sobre…" / "¿En qué punto de la vida del incidente…?".
 - 🔲 **Resumen consolidado** → sacarlo del formulario y crear **ítem "Resumen" propio en el nav** de Configuración (Ohana cmt 0+1).
 - 🔲 Revisar **tarjeta de incidente** en Gestión: hay diferencias con prod; si las hay, van como **épica de fixes de UI aparte** (cambiar aquí/allá, enumerado).
-- 🔲 **Unificar construcción de títulos** (de notificaciones/templates).
+- ⛔ ~~Unificar construcción de títulos~~ → **fuera del prototipo**: se resuelve a nivel de la **respuesta del API/backend** (cómo se arma el título del incidente). No es UI.
 - 🔲 Documentar **"qué hace hoy notificaciones y qué va a dejar de hacer"** (estado actual vs nuevo).
 
 ---
