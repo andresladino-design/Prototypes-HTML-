@@ -33,7 +33,11 @@
 > **Cambio de paradigma:** ya **no** es un formulario único de config global. Es una **lista de paquetes (reglas)**. Un incidente se evalúa contra todos los paquetes **activos**; si coincide con varios, se notifica por cada vía. Cada usuario crea los suyos (quien configura, recibe).
 
 ### Cambios de UI (enumerados)
-1. **Vista de lista plana** de todas las notificaciones configuradas. Cada tarjeta: nombre, resumen del alcance, toggle activo/inactivo, tags (momento · actualizaciones · canales) y acciones **Duplicar / Editar / Eliminar**. Botón **"Crear notificación"** arriba a la derecha. Empty state cuando no hay ninguna.
+1. **Vista de lista plana** de todas las notificaciones configuradas. Cada tarjeta: nombre, resumen del alcance, toggle activo/inactivo, tags (momento · actualizaciones · canales) y acciones **Duplicar / Editar / Eliminar**. Botón **"Crear notificación"** arriba a la derecha.
+   - **Empty state / first-run (activo, con forma):** en first-run el header se aligera (oculta subtítulo + botón de arriba) y el empty state lleva la explicación + el CTA. Contiene: **mini-diagrama** (notificación fantasma → wires → previews de **Email** y **Slack**, comunica "1 notificación llega por varios canales") + **plantillas para empezar** ("Incidentes confirmados de mis tableros", "Archivos faltantes o fallidos") que abren el editor **pre-llenado** + CTA primario **"Crear notificación"**. No es un "Sin resultados" plano.
+   - El diagrama va dentro de un frame **"Vista previa"** (tintado + caption + `pointer-events:none`) para que se lea como ilustración, no como UI clickeable; las plantillas/CTA quedan fuera del frame.
+   - **Motion pedagógico:** pulso de flujo (dashes en primario recorriendo los wires → enseña la dirección a los canales, loop 1.6s) + entrada escalonada (fade+rise, 320ms ease-out, delays 0/70/140/210/280ms). Solo transform/opacity/stroke-dashoffset; respeta `prefers-reduced-motion: reduce`.
+   - 🎨 **Pendiente a futuro:** reemplazar el mini-diagrama por una **ilustración CSS más pulida** (hoy es un preview funcional interino).
    - **Duplicar** clona la configuración como una nueva notificación ("… (copia)") y abre el editor — implementa el *"me gusta esta config, me la copio"* de Granola.
    - ⚠️ **Sin concepto de dueño/equipo.** No hay separación "Mías / Del equipo" ni avatar de dueño. Se muestran todas las notificaciones configuradas en una lista; clonar es la vía para reutilizar una existente.
 2. **Editor de paquete** (al crear/editar), con estos bloques **que no se interfieren**:
@@ -66,7 +70,8 @@
 
 ### Cambios de UI (enumerados)
 1. **Nuevo ítem de nav** "Resumen consolidado" con su página.
-2. Página con: toggle **"Activar resumen diario"**; **"¿De cuáles incidentes?"** (mismo patrón de scope/filtros que el paquete) + **Incluir** (solo abiertos y urgentes / todos); **"¿Cuándo llega?"** (hora + zona horaria); **"¿Dónde notificar?"** (correos + Slack).
+2. **First-run (apagado por defecto):** estado vacío con intro + **mini-diagrama** (varias incidencias → agrupadas → un **Resumen** → enviado a **Email** y **Slack**) + botón **"Activar resumen diario"**. Al activar se revela la config; apagar el interruptor vuelve al estado inicial. 🎨 A futuro: ilustración CSS más pulida.
+3. Config (al activar): **"¿Qué incidentes te interesan?"** (mismo patrón de scope que el paquete) + **Incluir** (solo abiertos y urgentes / todos); **"¿Cuándo llega?"** (hora + zona horaria, defaults 08:00 · CO Bogotá); **"¿Dónde notificar?"** (tarjetas Email/Slack + ID de Slack). Defaults ya puestos, no en cero.
 
 ---
 
