@@ -7,6 +7,11 @@ Patrón de presentación: **Centro de control vertical** — gráfica con select
 
 > **Reescrito el 26-jun:** este handoff reemplaza el modelo anterior (segmented Nula/Media/Alta + franja azul). El rediseño (sesión 25-jun, 4:42 PM) unifica **severidad = sensibilidad** y cambia el control a un **slider continuo**.
 
+> **Actualización 30-jun (pm) — design review con ingeniería:**
+> - **Reencuadre de los extremos del slider.** "Nula" confundía (se leía como "mutear el sistema"). Escala nueva: izq **"Solo mi umbral"** · centro **"Media"** · der **"Detección adaptativa"**. El copy contextual (`#sens-sub`) explica el espectro: izq = *alerta de umbral fija, solo avisa cuando el valor sale de tus límites, el sistema no agrega nada*; der = *el sistema decide qué es anómalo según el patrón histórico, sin esperar al límite; no marca todo, solo lo inusual*.
+> - **Fix de la representación al 100%.** La banda de atención antes llegaba al **centro** (`mark = semi·(1−frac)` → 0 en 100%), dando la idea de que "cualquier punto se notifica". Ahora se conserva un **núcleo normal** (`CORE = 0.30`): `mark = semi·(1 − frac·(1−CORE))`, mínimo `semi·0.30`. Aun al máximo queda una franja central sin marcar — coherente con que la detección adaptativa no marca todo punto. Verificable en el mini-dashboard de impacto (al 100% siguen quedando puntos normales).
+> - El glosario de cara al usuario **no usa "nula"**.
+
 > **Actualización de layout (26-jun pm):**
 > - **Gráfica + impacto + límites + sensibilidad en UNA sola card** (`.tm-dialog-preview-card`, blanca con borde), separadas por **divisores**. El bloque de límites+sensibilidad (`.cat-config-box`) es ahora una **sección inferior** de esa card, no una card aparte. Razón: lo que se edita en límites/sensibilidad **impacta la gráfica de arriba**, así que se leen como una unidad.
 > - **Impacto = mini-dashboard** (no la frase de antes): bajo la gráfica, un caption + **3 tiles** (avisos / urgentes / de atención) con números grandes que cambian al mover el slider. Reemplaza el footer `.sens-impact`.
