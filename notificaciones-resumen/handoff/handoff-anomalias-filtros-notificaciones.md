@@ -3,6 +3,7 @@
 **Prototipo:** `notificaciones-resumen/index.html` → vista de **Anomalías** (tab superior "Anomalías").
 **Fuente:** sesión Granola **30-jun-2026** + comentarios de Ohana del mismo día.
 **Plan:** `plan-notificaciones-paquetes-30jun.md`.
+**Historias de UX (complemento):** `handoff-anomalias-historias-ux.md` (5 HU con estados, criterios F/X, a11y).
 **Regla del equipo:** *donde un cambio de UI no se enumere explícitamente, no se ejecuta en desarrollo.* Por eso este handoff lista **cada** cambio, incluso los chicos.
 
 > ⚠️ Separar en 3 épicas de ingeniería: **(1) Filtros**, **(2) Paquetes de notificación**, **(3) Resumen**. Más la épica transversal de **fixes de UI**.
@@ -95,4 +96,119 @@
 - Visto bueno de **Cami** antes de entregar a **Edith**.
 - Lógica de evaluación (tiempo real vs lote) — eng.
 - ⚠️ Heredado: confirmación "al cierre de ventana" vs **workflow runner** (Iván).
-- **Unificar construcción de títulos** de notificaciones/templates.
+- **Unificar construcción de títulos** de notificaciones/templates → se resuelve en la **respuesta del API** (cómo se arma el título del incidente), no es UI.
+
+---
+
+# Guía de implementación (BADS + fe-solutions-mf)
+
+> Esta sección aterriza el prototipo contra el **modelo real de BADS** (Brain v2.8) y los **componentes desyk** del repo `fe-solutions-mf`. Objetivo: que el FE enlace a las entidades/eventos correctos y use los componentes canónicos.
+
+## A. Contra qué datos se implementa (BADS)
+
+Fuente: `ProductEngineeringBrain/versions/v2.8/operation-center/funcionalidades/anomalias/` (`Definicion`/`Arquitectura`).
+
+**Dos entidades, dos vistas (no mezclar):**
+- **AnomalySignal** (`anomaly_signal`) — señal atómica. Estados `ACTIVE`/`RESOLVED`; categorías `TRIGGER` / `TRAJECTORY` / `NEW_SERIES`. Es la "alerta/señal" del KPI.
+- **Incident** (`incident`) — agrupa señales con causa raíz. **Esta vista (Anomalías → Gestión) y las notificaciones operan sobre INCIDENTES.**
+
+**Incident — estados** (enlazar el filtro "Estado" a `incident.status`):
+| Label UI (proto) | `incident.status` |
+|---|---|
+| En observación | `WATCHING` |
+| Abierto | `OPEN` |
+| Confirmado | `CONFIRMED` |
+| Resuelto | `RESOLVED` |
+| (terminales no mostrados) | `AUTO_CLOSED` · `USER_CLOSED` · `CLOSED` · `MERGED` |
+(`UNDER_INVESTIGATION` reservado.)
+
+**Severidad:** enum `URGENT` / `REQUIRES_ATTENTION`, **asignada por el workflow runner de BADS (D-13), NO configurable por el usuario** → por eso el filtro Severidad y la condición "severidad alta" se quitaron. Vuelven cuando exista severidad configurable.
+
+**Filtro "Tipo" → `incident.problem_category`** (catálogo cerrado de Ingesta):
+| Label UI | enum BADS |
+|---|---|
+| Archivo faltante | `MISSING_FILE` |
+| Archivo fallido | `FAILED_FILE` |
+| Archivo vacío | `UNEXPECTED_EMPTY_FILE` |
+| Archivo duplicado | `DUPLICATED_FILE` |
+| Variación de volumen | `VOLUME_VARIATION` |
+- Los **nombres del catálogo** son exactos (Brain); los **constantes enum** `MISSING_FILE`/`FAILED_FILE`/`VOLUME_VARIATION` están inferidos del patrón (`UNEXPECTED_EMPTY_FILE`/`DUPLICATED_FILE` sí verbatim) → **confirmar string exacto con backend BADS**.
+- `ALL_OK` es interno (auto-cierra el incidente) → **no se muestra**.
+- Catálogos **Data Quality (M4), Conciliación (M5), Accounting (M10)** pendientes → el filtro Tipo hoy solo refleja Ingesta.
+
+**Campos del incidente que el template usa** (no son config de usuario): `hypothesis`, `recommended_actions[]`, narrativa, `evidence_signal_ids`, `blast_radius` (recursos/tableros/charts impactados). → Por eso se quitó "Qué incluir": **el template del `problem_category` los arma server-side.**
+
+## B. Motor de notificación (eventos) — para qué construye el FE
+
+Flujo real: **`oc-bads-incident`** (Pulsar) → **op-center-backend** evalúa cada evento contra las **reglas activas** (nuestros "paquetes") → **`notifications-service`** → Sphere (**SES / Slack / Pusher in-app**).
+
+- Cada **paquete = filtro (scope) + momento (evento del ciclo de vida) + updates + canales**. Evaluación tipo filtro de Gmail por evento.
+- **Momento → eventos del incidente:** "Cuando se cree" = evento de creación (`WATCHING`); "Cuando se confirme" = `status_changed → CONFIRMED`. "Updates" = `status_changed`/reconfirmación/`MERGED`.
+- Binding **N:M** (un incidente puede notificar por varios canales; un canal sirve a varias reglas).
+- Backend ya define: **idempotencia** `X-Simetrik-Delivery-Id: {uuid}`, **retry** 3 intentos backoff (1s/5s/25s) Slack/webhook, **`webhook_delivery_log`**. El FE no maneja esto, pero el "qué se envía" debe calzar con el payload de `notifications-service` (contexto del incidente + recipients + channel config).
+
+## C. Shape del "paquete" (regla de notificación) — guía FE
+
+Estado que mantiene el prototipo (traducir a entidad de backend):
+```jsonc
+{
+  "id": "uuid",
+  "name": "Incidentes confirmados",
+  "scope": [                       // suma de filtros; ver lógica O/Y en D
+    { "type": "Estado", "value": "Confirmado" },   // → incident.status IN [...]
+    { "type": "Tipo",   "value": "Archivo faltante" } // → incident.problem_category IN [...]
+  ],
+  "events": { "created": false, "confirmed": true },  // momento del ciclo de vida
+  "updates": true,                                     // recibir status_changed posteriores
+  "channels": {
+    "emails":   ["ana.torres@simetrik.com"],          // SES
+    "slack":    ["#incidentes-finops"],               // Slack webhook (canales)
+    "mentions": ["@U01ABC23DEF"]                       // Slack user IDs (no @nombre)
+  },
+  "active": true
+}
+```
+- **Resumen consolidado** es otra entidad/propiedad (1×día): `{ active, scope, include: "open_urgent"|"all", time, timezone, channels }`.
+
+## D. Lógica de filtros (scope)
+- **Dentro de una categoría: OR.** Entre categorías distintas: **AND.** → `recurso ∈ {...} AND tipo ∈ {...} AND estado ∈ {...}`.
+- **Multiselect dentro de cada filtro: producción NO lo soporta hoy** → historia de eng (endpoints). ~100% FE + poco backend.
+- **Filtros guardados**: entidad propia reutilizable (se referencian desde el scope del paquete y del resumen).
+
+## E. Mapeo a componentes desyk (`@simetrikinc/desyk-components`)
+Refs: `fe-solutions-mf/.../skills/desyk/references/`.
+| Patrón del proto | Componente desyk | Nota |
+|---|---|---|
+| Toggle on/off (activo, canal, updates, pausar) | **`Switch`** | reemplaza `.tm-notif-row-toggle`; usar `checked`/`onCheckedChange` + `role=switch` nativo |
+| Tarjeta (paquete, config, canal) | **`Card`** (+ `CardHeader/Title/Content/Footer`) | |
+| Dropdown (reutiliza filtro, incluir, zona horaria) | **`Select`** | |
+| Chips de correos / canales / menciones | **`Combobox`** + render de chips | desyk **no** tiene token-input dedicado; Combobox con búsqueda + chips custom |
+| Tabs de modo (Gestión/Alertas/Config) | **`Tabs`** o **`UnderlineTabs`** | |
+| Checkbox (momento) | **`Checkbox`** | `checked: boolean \| "indeterminate"` |
+| Botones (Crear, Guardar, Usar, Editar) | **`Button`** | variantes default/secondary/ghost/destructive; iconos con `size=icon-*` |
+| Empty state / first-run | **`EmptyState`** (`EmptyStateTitle/Description/Content`) | reemplaza `.an-onb-*`; el diagrama va como contenido ilustrativo |
+| Nota de ID de Slack | **`Alert` variant `info`** | reemplaza `.tm-notif-hint` |
+| Aviso "regla no notifica nada" | **`Alert` variant `warning`** | reemplaza `.an-pkg-warn` |
+| Estado/severidad como chip | **`Badge`** (variants success/warning/info/destructive) | |
+| Menús de Filtrar/Ordenar/Guardados | **`Popover`** | |
+| Tooltip de íconos | **`Tooltip`** | |
+
+## F. Máquinas de estado (replicar el comportamiento del proto)
+**Notificaciones de incidentes:**
+`lista` ⇄ `editor`. Entradas al editor: Crear (vacío), Usar plantilla (pre-llenado), Editar (carga el paquete), Duplicar (clona "… (copia)" → editor). Guardar válido → vuelve a `lista`. Lista vacía → **empty state** (no "Sin resultados").
+
+**Resumen consolidado (3 estados):**
+`empty (apagado)` → *Activar* → `edit (formulario, defaults)` → *Guardar* → `saved (activo: resumen read-only + Editar + pausar)`.
+- *Editar* (saved→edit), *Cancelar* (edit→saved si ya existía, si no →empty), *Pausar* (toggle off → empty).
+
+## G. Validaciones / edge cases
+- **Regla que no notifica nada** (bloquear Guardar + `Alert warning`): exige **≥1 momento** (created/confirmed) **y ≥1 canal activo** (correo o Slack). Una mención sin canal de Slack no entrega.
+- **Scope vacío** = "Todos mis incidentes" (válido, no es error).
+- Canal con toggle **apagado** → no se leen sus destinatarios al guardar.
+- Severidad: no exponer como filtro ni condición (system-assigned).
+
+## H. Motion y a11y (specs)
+- Durations canónicas **120 / 200 / 320 ms**, **ease-out exponential** `cubic-bezier(0.22,1,0.36,1)`. Solo `transform`/`opacity`/`stroke-dashoffset`.
+- Empty states: **pulso de flujo** (dashes recorriendo los wires, enseña dirección incidente→canales) + entrada escalonada. **Diagrama `pointer-events:none`** (ilustración, no UI) dentro de frame "Vista previa".
+- **`@media (prefers-reduced-motion: reduce)`** desactiva las animaciones.
+- a11y: `Switch`/`Checkbox`/`Button` de desyk traen roles/aria; chips con `aria-label="Quitar"`; labels asociados (`for`/`id`) — pendiente en el proto, **obligatorio en la implementación**.
