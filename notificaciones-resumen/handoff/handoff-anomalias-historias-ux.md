@@ -6,6 +6,8 @@
 
 > Criterios marcados **[F]** = funcional (sí/no), **[X]** = de experiencia.
 
+> 🔄 **Actualización 30-jun (pm):** (1) los filtros de **Recurso + Tablero** se unifican en **"Entidades afectadas"** (OR, sin condiciones imposibles); (2) la **Fecha** es un **rango dinámico t-n** guardable; (3) el **Resumen consolidado deja de ser flujo aparte** (HU-5) y pasa a ser un **modo de entrega dentro de la notificación** (HU-3) — mismo alcance y canales, + t-n; (4) en el editor, **alcance (qué) y momento (cuándo) van separados** (el Estado sale del alcance). Ver `handoff-anomalias-filtros-notificaciones.md` → "Actualización 30-jun (pm)".
+
 ---
 
 ## HU-1 · Filtrar incidentes por varios valores y guardar ese filtro
@@ -120,10 +122,12 @@ para mantener mis avisos al día sin rehacer trabajo.
 
 ---
 
-## HU-5 · Activar y mantener mi resumen consolidado diario
+## HU-5 · Recibir un resumen consolidado diario de una notificación
+
+> 🔄 **Reencuadrada 30-jun pm:** el resumen ya **no** es un objeto/flujo aparte. Es una **segunda entrega** dentro de una notificación (HU-3): el operador, en el mismo editor, activa "Resumen consolidado" sobre el **mismo alcance y canales** que ya definió, elige **hora** y **período (t-n)**. Puede tener tiempo real, resumen, o ambos. Los estados empty→activar→form→saved de la versión anterior quedan obsoletos.
 
 **Usuario:** operador que no quiere notificaciones sueltas todo el día.
-**Contexto:** prefiere un único consolidado a una hora fija.
+**Contexto:** prefiere un único consolidado a una hora fija, sin volver a definir el filtro.
 
 ### Historia
 Como operador que se satura con avisos sueltos,

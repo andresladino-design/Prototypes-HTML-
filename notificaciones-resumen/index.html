@@ -1459,7 +1459,7 @@
 .when-cur-ic .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
 
 /* Cuando ¿Cuándo? = Nunca, las tarjetas siguientes (¿Dónde? e Idioma) quedan inertes y atenuadas */
-#dsec-notif.notif-when-never .tm-prog-card:not([data-when-scope]) { opacity: .45; pointer-events: none; filter: saturate(.6); transition: opacity .15s; }
+[data-notif-section].notif-when-never .tm-prog-card:not([data-when-scope]) { opacity: .45; pointer-events: none; filter: saturate(.6); transition: opacity .15s; }
 
     /* ============ VISTA ANOMALÍAS (Centro de operaciones) ============ */
     .topbar-brand { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--text-primary); }
@@ -1574,6 +1574,69 @@
     .an-src-status { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; color: hsl(256 72% 61%); flex-shrink: 0; }
     .an-src-status .lucide { width: 14px; height: 14px; }
     .an-src-status.is-active { color: hsl(256 55% 60%); }
+    .an-src { cursor: pointer; }
+    /* ===== Detalle de fuente (Ingesta · alertas por fuente) — adaptado de config-system-kpi ===== */
+    .sd-back { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; margin-bottom: 12px; }
+    .sd-back .lucide { width: 15px; height: 15px; }
+    .sd-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .sd-name-row { display: flex; align-items: center; gap: 8px; }
+    .sd-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .sd-name-row .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
+    .sd-meta { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+    .sd-stack { display: flex; flex-direction: column; gap: 16px; max-width: 720px; }
+    .sd-ai { border: 1px solid var(--border-default); border-radius: 14px; background: hsl(var(--primary-hsl) / .03); overflow: hidden; }
+    .sd-ai-head { display: flex; align-items: flex-start; gap: 10px; width: 100%; text-align: left; border: 0; background: none; padding: 14px 16px; cursor: pointer; font: inherit; }
+    .sd-ai-head > .lucide { width: 19px; height: 19px; color: var(--primary-text); flex-shrink: 0; }
+    .sd-ai-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .sd-ai-desc { font-size: 12.5px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.45; }
+    .sd-ai-chev { margin-left: auto; width: 16px; height: 16px; color: var(--text-muted); transition: transform .2s; flex-shrink: 0; }
+    .sd-ai.is-open .sd-ai-chev { transform: rotate(180deg); }
+    .sd-ai-body { display: none; padding: 0 16px 16px; }
+    .sd-ai.is-open .sd-ai-body { display: block; }
+    .sd-ai-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 13px 0 0; border-top: 1px solid var(--border-subtle); }
+    .sd-ai-stat-label { font-size: 11.5px; color: var(--text-tertiary); }
+    .sd-ai-stat-value { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-top: 3px; }
+    .sd-card { border: 1px solid var(--border-default); border-radius: 14px; background: #fff; padding: 18px 20px; }
+    .sd-card-title { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+    .sd-card-title .lucide { width: 16px; height: 16px; color: var(--text-tertiary); }
+    .sd-card-sub { font-size: 12.5px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.45; }
+    .sd-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+    .sd-field label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 7px; }
+    .sd-field input, .sd-field select { width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: 8px; padding: 0 11px; font: inherit; font-size: 13px; color: var(--text-primary); background: #fff; outline: 0; }
+    .sd-radio-row { display: flex; gap: 12px; margin-top: 14px; }
+    .sd-radio { flex: 1; display: flex; align-items: flex-start; gap: 10px; text-align: left; border: 1px solid var(--border-default); border-radius: 11px; background: #fff; padding: 12px 14px; cursor: pointer; font: inherit; }
+    .sd-radio.is-sel { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+    .sd-radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-strong); flex-shrink: 0; margin-top: 1px; position: relative; }
+    .sd-radio.is-sel .sd-radio-dot { border-color: var(--primary); }
+    .sd-radio.is-sel .sd-radio-dot::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--primary); }
+    .sd-radio-label { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 7px; }
+    .sd-radio-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+    .sd-radio.is-disabled { opacity: .6; cursor: default; }
+    .sd-ind { border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px 16px; margin-top: 12px; background: hsl(240 5% 99%); }
+    .sd-ind-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .sd-ind-title { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+    .sd-ind-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; line-height: 1.4; }
+    .sd-ind-grid { display: none; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .sd-ind.is-on .sd-ind-grid { display: grid; }
+    .sd-suffix { position: relative; }
+    .sd-suffix input { padding-right: 70px; }
+    .sd-suffix-badge { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 11px; padding: 4px 8px; border-radius: 6px; background: hsl(240 5% 94%); color: var(--text-muted); }
+    .sd-sug { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11.5px; color: var(--primary-text); cursor: pointer; }
+    .sd-sug .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+    .sd-effect { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; color: var(--text-tertiary); margin-top: 26px; line-height: 1.4; }
+    .sd-effect .lucide { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+    .sd-subhead { font-size: 12.5px; font-weight: 600; color: var(--text-primary); margin: 20px 0 2px; }
+    .sd-subhead-sub { font-size: 12px; color: var(--text-tertiary); }
+    .sd-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+    /* modal del detalle de fuente */
+    .sd-shell { position: relative; width: 780px; max-width: calc(100vw - 40px); max-height: calc(100vh - 56px); overflow-y: auto; background: #fff; border-radius: 14px; box-shadow: 0 12px 40px rgba(20,20,30,.22); padding: 22px 26px 24px; transform: translateY(8px) scale(.99); transition: transform .2s ease-out; }
+    .dialog-overlay.open .sd-shell { transform: none; }
+    .sd-modal-x { position: absolute; top: 16px; right: 16px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 8px; background: none; color: var(--text-muted); cursor: pointer; }
+    .sd-modal-x:hover { background: hsl(240 5% 95%); color: var(--text-primary); }
+    .sd-modal-x .lucide { width: 17px; height: 17px; }
+    .sd-shell .sd-head { padding-right: 36px; }
+    .sd-content-scroll { flex: 1; overflow-y: auto; padding: 24px 28px; }
+    .sd-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 28px; border-top: 1px solid var(--border-default); background: #fff; flex-shrink: 0; }
 
     /* ---- Página: Notificaciones de incidentes (config) ---- */
     .an-cfg { max-width: 720px; display: flex; flex-direction: column; gap: 16px; }
@@ -1595,6 +1658,20 @@
     .an-cfg-divlabel { font-size: 12.5px; font-weight: 600; color: var(--text-primary); margin: 16px 0 2px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 8px; }
     .an-cfg-divlabel .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
     .an-cfg-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    /* Entregas de la notificación (tiempo real / resumen) dentro del bloque "¿cuándo te avisamos?" */
+    .an-deliv { border: 1px solid var(--border-default); border-radius: 11px; overflow: hidden; margin-top: 12px; }
+    .an-deliv-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 13px 14px; }
+    .an-deliv-info { min-width: 0; }
+    .an-deliv-title { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: var(--text-primary); }
+    .an-deliv-title .lucide { width: 16px; height: 16px; color: hsl(var(--primary-hsl)); }
+    .an-deliv-sub { font-size: 12.5px; color: var(--text-tertiary); margin-top: 3px; line-height: 1.45; }
+    .an-deliv-body { padding: 4px 14px 14px; border-top: 1px solid var(--border-subtle); background: hsl(240 5% 98.5%); }
+    .an-deliv-body.hidden { display: none; }
+    .an-deliv-field { margin-top: 12px; }
+    .an-deliv-field:first-child { margin-top: 8px; }
+    .an-deliv-toggle-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-top: 12px; margin-top: 10px; border-top: 1px solid var(--border-subtle); }
+    .an-deliv-mini-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .an-deliv-mini-title .lucide { width: 15px; height: 15px; color: var(--text-tertiary); }
     .an-cfg-soon { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 80px 20px; color: var(--text-muted); }
     .an-cfg-soon .lucide { width: 28px; height: 28px; }
     .an-cfg-soon-t { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
@@ -1761,6 +1838,12 @@
     .an-fmenu-opt.is-on { background: hsl(var(--primary-hsl) / .07); font-weight: 600; }
     .an-fmenu-opt.is-on .an-fopt-check { opacity: 1; }
     .an-fmenu-hint { font-size: 11.5px; color: var(--text-muted); padding: 2px 10px 7px; }
+    /* encabezado de grupo dentro de una lista (Tableros / Recursos) */
+    .an-fmenu-grouplbl { font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-muted); padding: 8px 10px 4px; }
+    .an-fmenu-grouplbl:first-child { padding-top: 2px; }
+    /* nota a la derecha del label (ej. t-1) en opciones de fecha dinámica */
+    .an-fmenu-opt .an-fopt-note { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+    .an-fmenu-opt .an-fopt-note + .an-fopt-check { margin-left: 8px; }
     /* footer del subnivel: aplicar / limpiar selección de esa categoría */
     .an-fmenu-foot { display: flex; gap: 6px; padding: 6px 5px 2px; border-top: 1px solid var(--border-subtle); margin-top: 4px; }
     .an-fmenu-foot button { flex: 1; height: 32px; border-radius: 7px; border: 1px solid var(--border-default); background: #fff; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
@@ -2098,7 +2181,7 @@
         <!-- Config tabs (compartido entre Métricas y Reportes) -->
         <div class="flex items-center gap-1.5 px-4 pt-3 pb-2.5 border-b" style="border-color:var(--border-default);">
           <div class="flex items-center gap-1 p-1 rounded-[10px]" style="background:var(--bg-segment);">
-            <div class="top-tab"><i data-lucide="database"></i> Ingesta de datos</div>
+            <div id="navIngesta" class="top-tab" onclick="showIngesta()"><i data-lucide="database"></i> Ingesta de datos</div>
             <div class="top-tab"><i data-lucide="shield-check"></i> Calidad de datos
               <span class="badge badge-soon">Pronto</span></div>
             <div class="top-tab"><i data-lucide="arrow-left-right"></i> Salud de conciliaciones
@@ -2129,6 +2212,23 @@
           <div class="grid grid-cols-3 gap-4" id="monitorCards"></div>
         </div>
 
+        <!-- Cuerpo: Ingesta de datos (fuentes del tablero) -->
+        <div id="bodyIngesta" class="flex-1 overflow-y-auto px-5 py-4 hidden">
+          <h2 class="text-[15px] font-semibold" style="color:var(--text-primary);">Ingesta de datos</h2>
+          <p class="text-[13px] mt-1" style="color:var(--text-tertiary);">
+            Monitorea las fuentes que alimentan tu tablero para detectar a tiempo datos que llegan tarde, incompletos o con un volumen fuera de lo esperado.
+          </p>
+          <div class="flex items-center gap-2.5 mt-4">
+            <div class="flex items-center gap-2 px-2.5 h-9 rounded-lg border bg-white" style="border-color:var(--border-default); width:330px;">
+              <i data-lucide="search" style="width:15px;height:15px;color:var(--text-muted);"></i>
+              <span class="text-[13px]" style="color:var(--text-placeholder);">Buscar fuente</span>
+            </div>
+            <button class="pill-btn h-9"><i data-lucide="filter"></i> Agregar filtro</button>
+          </div>
+          <div class="border-t mt-4 mb-4" style="border-color:var(--border-default);"></div>
+          <div class="an-ing-grid" id="monitorIngGrid"></div>
+        </div>
+
       </div>
     </div>
 
@@ -2153,26 +2253,33 @@
             <div class="an-fmenu" id="anFMenu" onclick="event.stopPropagation()">
               <div class="an-fmenu-page" data-fpage="main">
                 <div class="an-fmenu-head">Filtrar</div>
-                <button class="an-fmenu-item" onclick="fGoto('recurso')"><i data-lucide="database"></i> Recurso <i data-lucide="chevron-right" class="chev"></i></button>
-                <button class="an-fmenu-item" onclick="fGoto('tablero')"><i data-lucide="layout-grid"></i> Tablero <i data-lucide="chevron-right" class="chev"></i></button>
+                <button class="an-fmenu-item" onclick="fGoto('entidad')"><i data-lucide="layers"></i> Entidades afectadas <i data-lucide="chevron-right" class="chev"></i></button>
                 <button class="an-fmenu-item" onclick="fGoto('estado')"><i data-lucide="circle-dot"></i> Estado <i data-lucide="chevron-right" class="chev"></i></button>
                 <button class="an-fmenu-item" onclick="fGoto('tipo')"><i data-lucide="tag"></i> Tipo <i data-lucide="chevron-right" class="chev"></i></button>
                 <div class="an-fmenu-sep"></div>
-                <button class="an-fmenu-item" onclick="fPickFecha()"><i data-lucide="calendar"></i> Fecha</button>
+                <button class="an-fmenu-item" onclick="fGoto('fecha')"><i data-lucide="calendar-clock"></i> Fecha <i data-lucide="chevron-right" class="chev"></i></button>
               </div>
-              <div class="an-fmenu-page hidden" data-fpage="recurso">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Recurso</button>
-                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar recurso" oninput="fFilterList(this,'recurso')"></div>
-                <div class="an-fmenu-list" id="fListRecurso"></div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Recurso')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              <div class="an-fmenu-page hidden" data-fpage="entidad">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Entidades afectadas</button>
+                <div class="an-fmenu-hint">Tableros, gráficos o recursos. Todo lo que elijas se combina con <strong>o</strong> (no compiten entre sí).</div>
+                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero o recurso" oninput="fFilterList(this,'entidad')"></div>
+                <div class="an-fmenu-list" id="fListEntidad"></div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Entidad')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
               </div>
-              <div class="an-fmenu-page hidden" data-fpage="tablero">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Tablero</button>
-                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero" oninput="fFilterList(this,'tablero')"></div>
-                <div class="an-fmenu-list" id="fListTablero"></div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Tablero')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              <div class="an-fmenu-page hidden" data-fpage="fecha">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Fecha</button>
+                <div class="an-fmenu-hint">Rango <strong>dinámico</strong>: se mueve solo cada día. Guárdalo y siempre verás la ventana relativa a hoy.</div>
+                <div class="an-fmenu-list">
+                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Hoy" onclick="addFilter('Fecha','Hoy','calendar-clock')"><i data-lucide="calendar-clock"></i> Hoy <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 1 día · t-1" onclick="addFilter('Fecha','Desde hace 1 día · t-1','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 1 día <span class="an-fopt-note">t-1</span> <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 2 días · t-2" onclick="addFilter('Fecha','Desde hace 2 días · t-2','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 2 días <span class="an-fopt-note">t-2</span> <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 3 días · t-3" onclick="addFilter('Fecha','Desde hace 3 días · t-3','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 3 días <span class="an-fopt-note">t-3</span> <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 4 días · t-4" onclick="addFilter('Fecha','Desde hace 4 días · t-4','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 4 días <span class="an-fopt-note">t-4</span> <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 5 días · t-5" onclick="addFilter('Fecha','Desde hace 5 días · t-5','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 5 días <span class="an-fopt-note">t-5</span> <i data-lucide="check" class="an-fopt-check"></i></button>
+                  <div class="an-fmenu-sep"></div>
+                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Últimos 30 días" onclick="addFilter('Fecha','Últimos 30 días','calendar')"><i data-lucide="calendar"></i> Últimos 30 días <i data-lucide="check" class="an-fopt-check"></i></button>
+                </div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Fecha')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
               </div>
               <div class="an-fmenu-page hidden" data-fpage="estado">
                 <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Estado</button>
@@ -2305,14 +2412,7 @@
               <i data-lucide="bell" class="an-confitem-ic"></i>
               <span class="an-confitem-tx">
                 <span class="an-confitem-t">Notificaciones de incidentes</span>
-                <span class="an-confitem-d">Elige de cuáles incidentes te avisamos, cuándo y por dónde</span>
-              </span>
-            </button>
-            <button class="an-confitem" onclick="anConfNav(this,'resumen')">
-              <i data-lucide="mails" class="an-confitem-ic"></i>
-              <span class="an-confitem-tx">
-                <span class="an-confitem-t">Resumen consolidado</span>
-                <span class="an-confitem-d">Un único aviso al día con los incidentes que te importan</span>
+                <span class="an-confitem-d">De cuáles incidentes te avisamos, cuándo (en tiempo real o resumen diario) y por dónde</span>
               </span>
             </button>
           </div>
@@ -2397,10 +2497,14 @@
       <!-- ---- CONFIGURACIÓN (páginas conmutables por el nav) ---- -->
       <section id="anRightConfig" class="flex-1 min-w-0 flex flex-col min-h-0 hidden">
         <div id="anCfgIngesta" class="an-ingesta">
-        <h2 class="an-ing-title">Ingesta de datos</h2>
-        <p class="an-ing-sub">Monitorea todas las fuentes de tu cuenta para detectar a tiempo datos que llegan tarde, incompletos o con un volumen fuera de lo esperado.</p>
-        <div class="an-ing-search"><i data-lucide="search"></i><input placeholder="Buscar fuente"></div>
-        <div class="an-ing-grid" id="anIngGrid"></div>
+          <!-- LISTA de fuentes -->
+          <div id="anIngList">
+            <h2 class="an-ing-title">Ingesta de datos</h2>
+            <p class="an-ing-sub">Monitorea todas las fuentes de tu cuenta para detectar a tiempo datos que llegan tarde, incompletos o con un volumen fuera de lo esperado.</p>
+            <div class="an-ing-search"><i data-lucide="search"></i><input placeholder="Buscar fuente"></div>
+            <div class="an-ing-grid" id="anIngGrid"></div>
+          </div>
+
         </div>
 
         <!-- Página: Notificaciones de incidentes -->
@@ -2434,7 +2538,7 @@
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
                   <div class="an-cfg-title"><i data-lucide="filter"></i> ¿Qué incidentes te interesan?</div>
-                  <div class="an-cfg-sub">El alcance: los recursos, tableros, estados o tipos que te importan. Agrega filtros (los valores se combinan con <strong>o</strong>) o aplica uno que ya tengas guardado.</div>
+                  <div class="an-cfg-sub">El alcance: los tableros, gráficos o recursos (y tipos) que te importan. Todo lo que agregues se combina con <strong>o</strong>, o aplica un filtro guardado. <em>El cuándo lo defines abajo, por separado.</em></div>
                 </div>
                 <div class="an-cfg-field">
                   <label class="an-cfg-lbl">Define el alcance</label>
@@ -2444,35 +2548,15 @@
                       <div class="an-fmenu" id="anPkgFMenu" onclick="event.stopPropagation()">
                         <div class="an-fmenu-page" data-fpage="main">
                           <div class="an-fmenu-head">Agregar filtro</div>
-                          <button class="an-fmenu-item" onclick="pkgFGoto('recurso')"><i data-lucide="database"></i> Recurso <i data-lucide="chevron-right" class="chev"></i></button>
-                          <button class="an-fmenu-item" onclick="pkgFGoto('tablero')"><i data-lucide="layout-grid"></i> Tablero <i data-lucide="chevron-right" class="chev"></i></button>
-                          <button class="an-fmenu-item" onclick="pkgFGoto('estado')"><i data-lucide="circle-dot"></i> Estado <i data-lucide="chevron-right" class="chev"></i></button>
+                          <button class="an-fmenu-item" onclick="pkgFGoto('entidad')"><i data-lucide="layers"></i> Entidades afectadas <i data-lucide="chevron-right" class="chev"></i></button>
                           <button class="an-fmenu-item" onclick="pkgFGoto('tipo')"><i data-lucide="tag"></i> Tipo <i data-lucide="chevron-right" class="chev"></i></button>
                         </div>
-                        <div class="an-fmenu-page hidden" data-fpage="recurso">
-                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Recurso</button>
-                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                          <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar recurso" oninput="pkgFFilterList(this,'recurso')"></div>
-                          <div class="an-fmenu-list" id="pkgFListRecurso"></div>
-                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Recurso')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
-                        </div>
-                        <div class="an-fmenu-page hidden" data-fpage="tablero">
-                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Tablero</button>
-                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                          <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero" oninput="pkgFFilterList(this,'tablero')"></div>
-                          <div class="an-fmenu-list" id="pkgFListTablero"></div>
-                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Tablero')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
-                        </div>
-                        <div class="an-fmenu-page hidden" data-fpage="estado">
-                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Estado</button>
-                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                          <div class="an-fmenu-list">
-                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Abierto" onclick="pkgAddFilter('Estado','Abierto','circle-dot')"><i data-lucide="circle-dot"></i> Abierto <i data-lucide="check" class="an-fopt-check"></i></button>
-                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Confirmado" onclick="pkgAddFilter('Estado','Confirmado','circle-dot')"><i data-lucide="circle-dot"></i> Confirmado <i data-lucide="check" class="an-fopt-check"></i></button>
-                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="En observación" onclick="pkgAddFilter('Estado','En observación','circle-dot')"><i data-lucide="circle-dot"></i> En observación <i data-lucide="check" class="an-fopt-check"></i></button>
-                            <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Resuelto" onclick="pkgAddFilter('Estado','Resuelto','circle-dot')"><i data-lucide="circle-dot"></i> Resuelto <i data-lucide="check" class="an-fopt-check"></i></button>
-                          </div>
-                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Estado')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
+                        <div class="an-fmenu-page hidden" data-fpage="entidad">
+                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Entidades afectadas</button>
+                          <div class="an-fmenu-hint">Tableros, gráficos o recursos. Todo lo que elijas se combina con <strong>o</strong> (no compiten entre sí).</div>
+                          <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero o recurso" oninput="pkgFFilterList(this,'entidad')"></div>
+                          <div class="an-fmenu-list" id="pkgFListEntidad"></div>
+                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Entidad')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
                         </div>
                         <div class="an-fmenu-page hidden" data-fpage="tipo">
                           <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Tipo</button>
@@ -2497,23 +2581,64 @@
                 </div>
               </div>
 
-              <!-- Bloque 2 · Momento del ciclo de vida -->
+              <!-- Bloque 2 · ¿Cuándo te avisamos? (entregas: tiempo real + resumen) -->
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
-                  <div class="an-cfg-title"><i data-lucide="git-commit-horizontal"></i> ¿En qué punto de la vida del incidente quieres ser notificado?</div>
+                  <div class="an-cfg-title"><i data-lucide="bell"></i> ¿Cuándo quieres que te avisemos?</div>
+                  <div class="an-cfg-sub">Define cómo se entrega esta notificación. Puedes activar las dos: avisos al instante y un resumen diario, ambos sobre el mismo alcance.</div>
                 </div>
-                <label class="an-check"><input type="checkbox" id="anPkgEvCreated" checked> Cuando se cree el incidente</label>
-                <label class="an-check"><input type="checkbox" id="anPkgEvConfirmed"> Cuando se confirme</label>
-              </div>
 
-              <!-- Bloque 3 · Updates -->
-              <div class="an-cfg-card">
-                <div class="an-cfg-toggle-row" style="border-top:0;padding-top:0;margin-top:0;">
-                  <div>
-                    <div class="an-cfg-title"><i data-lucide="refresh-cw"></i> ¿Recibir actualizaciones del incidente?</div>
-                    <div class="an-cfg-sub">Reconfirmaciones, cambios de hipótesis u otros recursos afectados mientras está abierto.</div>
+                <!-- Entrega 1: en tiempo real -->
+                <div class="an-deliv">
+                  <div class="an-deliv-row">
+                    <div class="an-deliv-info">
+                      <div class="an-deliv-title"><i data-lucide="zap"></i> En tiempo real</div>
+                      <div class="an-deliv-sub">Un aviso por cada evento, apenas ocurre.</div>
+                    </div>
+                    <button type="button" class="tm-notif-row-toggle is-on" id="anPkgRealtime" onclick="pkgToggleRealtime(this)" aria-label="Avisos en tiempo real"></button>
                   </div>
-                  <button type="button" class="tm-notif-row-toggle" id="anPkgUpdates" onclick="this.classList.toggle('is-on')" aria-label="Actualizaciones del incidente"></button>
+                  <div class="an-deliv-body" id="anPkgRealtimeBody">
+                    <div class="an-deliv-field">
+                      <label class="an-cfg-lbl">En qué momento del incidente</label>
+                      <label class="an-check"><input type="checkbox" id="anPkgEvCreated" checked> Cuando se cree</label>
+                      <label class="an-check"><input type="checkbox" id="anPkgEvConfirmed"> Cuando se confirme</label>
+                    </div>
+                    <div class="an-deliv-toggle-row">
+                      <div>
+                        <div class="an-deliv-mini-title"><i data-lucide="refresh-cw"></i> Recibir actualizaciones</div>
+                        <div class="an-cfg-sub">Reconfirmaciones, cambios de hipótesis u otros recursos afectados mientras está abierto.</div>
+                      </div>
+                      <button type="button" class="tm-notif-row-toggle" id="anPkgUpdates" onclick="this.classList.toggle('is-on')" aria-label="Actualizaciones del incidente"></button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Entrega 2: resumen consolidado -->
+                <div class="an-deliv">
+                  <div class="an-deliv-row">
+                    <div class="an-deliv-info">
+                      <div class="an-deliv-title"><i data-lucide="mails"></i> Resumen consolidado</div>
+                      <div class="an-deliv-sub">Un único aviso al día que agrupa los incidentes de esta notificación, en lugar de avisos sueltos.</div>
+                    </div>
+                    <button type="button" class="tm-notif-row-toggle" id="anPkgDigest" onclick="pkgToggleDigest(this)" aria-label="Resumen consolidado"></button>
+                  </div>
+                  <div class="an-deliv-body hidden" id="anPkgDigestBody">
+                    <div class="an-cfg-grid2">
+                      <div><label class="an-cfg-lbl">Hora de llegada</label><input type="time" value="08:00" id="anPkgDigestHora"></div>
+                      <div><label class="an-cfg-lbl">Zona horaria</label><select id="anPkgDigestZona"><option>CO · Bogotá (GMT-5)</option><option>MX · CDMX (GMT-6)</option><option>AR · Buenos Aires (GMT-3)</option></select></div>
+                    </div>
+                    <div class="an-deliv-field">
+                      <label class="an-cfg-lbl">Qué período resume</label>
+                      <select id="anPkgDigestTn" onchange="pkgDigestHint()">
+                        <option value="1">Hasta ayer · t-1</option>
+                        <option value="2">Hasta hace 2 días · t-2</option>
+                        <option value="3">Hasta hace 3 días · t-3</option>
+                        <option value="4">Hasta hace 4 días · t-4</option>
+                        <option value="5">Hasta hace 5 días · t-5</option>
+                      </select>
+                      <div class="tm-notif-hint" id="anPkgDigestHint"><i data-lucide="info"></i><span></span></div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -2521,7 +2646,7 @@
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
                   <div class="an-cfg-title"><i data-lucide="send"></i> ¿Dónde notificar?</div>
-                  <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios.</div>
+                  <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios. Aplica a ambas entregas (tiempo real y resumen).</div>
                 </div>
                 <div class="notif-chan-list">
                   <div class="tm-notif-card" id="anPkgCardEmail">
@@ -2576,152 +2701,6 @@
           </div>
         </div>
 
-        <!-- Página: Resumen consolidado (sección propia) -->
-        <div id="anCfgResumen" class="an-ingesta hidden">
-          <h2 class="an-ing-title">Resumen consolidado</h2>
-          <p class="an-ing-sub" id="anResHeaderSub">Un único aviso al día con los incidentes que te importan, en lugar de notificaciones sueltas. Es distinto de las notificaciones de incidentes: esas llegan por evento (al crearse o confirmarse); este es un consolidado diario.</p>
-
-          <!-- EMPTY / first-run -->
-          <div id="anResEmpty" class="an-onb">
-            <div class="an-onb-head"><i data-lucide="mails"></i>
-              <div class="an-onb-title">Aún no recibes un resumen diario</div>
-              <div class="an-onb-sub">Un solo aviso al día con los incidentes que te importan, en lugar de notificaciones sueltas. Es distinto de las notificaciones de incidentes: esas llegan por evento; este es un consolidado diario.</div>
-            </div>
-            <div class="an-onb-preview"><div class="an-onb-preview-cap"><i data-lucide="eye"></i> Vista previa</div>
-            <div class="an-onb-diagram">
-              <div class="an-onb-incidents">
-                <span class="an-onb-inc">Adquirencia · confirmado</span>
-                <span class="an-onb-inc">Pagos LATAM · abierto</span>
-                <span class="an-onb-inc">Tesorería · abierto</span>
-              </div>
-              <svg class="an-onb-wires" viewBox="0 0 460 30" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M110 0 V12 M230 0 V12 M350 0 V12 M110 12 H350 M230 12 V30" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path><path class="an-onb-wire-flow" d="M110 0 V12 M230 0 V12 M350 0 V12 M110 12 H350 M230 12 V30" vector-effect="non-scaling-stroke"></path></svg>
-              <div class="an-onb-digest-card">
-                <div class="an-onb-digest-top"><i data-lucide="mails"></i> Resumen de hoy · 3 incidentes</div>
-                <div class="an-onb-digest-row">• Adquirencia · 1 confirmado</div>
-                <div class="an-onb-digest-row">• Pagos LATAM · 2 abiertos</div>
-              </div>
-              <svg class="an-onb-wires" viewBox="0 0 460 30" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M230 0 V13 M110 13 H350 M110 13 V30 M350 13 V30" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path><path class="an-onb-wire-flow" d="M230 0 V13 M110 13 H350 M110 13 V30 M350 13 V30" vector-effect="non-scaling-stroke"></path></svg>
-              <div class="an-onb-channels">
-                <div class="an-onb-mini"><div class="an-onb-mini-head"><i data-lucide="mail"></i> Email</div><div class="an-onb-mini-body"><div class="an-onb-mini-subject">Resumen diario · 3 incidentes</div><div class="an-onb-line"></div><div class="an-onb-line short"></div></div></div>
-                <div class="an-onb-mini"><div class="an-onb-mini-head"><i data-lucide="hash"></i> Slack</div><div class="an-onb-mini-body"><div class="an-onb-mini-channel"># incidentes-finops</div><div class="an-onb-line"></div><div class="an-onb-line short"></div></div></div>
-              </div>
-            </div>
-            </div>
-            <button class="an-pkg-add" onclick="resActivate()"><i data-lucide="check"></i> Activar resumen diario</button>
-          </div>
-
-          <div class="an-cfg hidden" id="anResConfig">
-            <!-- Activar (interruptor; apagarlo vuelve al estado inicial) -->
-            <div class="an-cfg-card">
-              <div class="an-cfg-toggle-row" style="border-top:0;padding-top:0;margin-top:0;">
-                <div>
-                  <div class="an-cfg-title"><i data-lucide="mails"></i> Resumen diario activo</div>
-                  <div class="an-cfg-sub">Recíbelo a la hora que elijas. Apágalo para dejar de recibirlo.</div>
-                </div>
-                <button type="button" class="tm-notif-row-toggle is-on" onclick="resConfigToggle(this)" aria-label="Activar resumen"></button>
-              </div>
-            </div>
-            <!-- Scope -->
-            <div class="an-cfg-card">
-              <div class="an-cfg-head">
-                <div class="an-cfg-title"><i data-lucide="filter"></i> ¿Qué incidentes te interesan?</div>
-                <div class="an-cfg-sub">Reutiliza un filtro guardado o el de tu vista de incidentes.</div>
-              </div>
-              <div class="an-cfg-field">
-                <label class="an-cfg-lbl">Reutiliza un filtro</label>
-                <select id="anResScopeSel" onchange="resScopeFromSelect()"></select>
-              </div>
-              <div class="an-cfg-field">
-                <label class="an-cfg-lbl">Tu alcance</label>
-                <div class="an-prevchips" id="anResScopeChips"></div>
-              </div>
-              <div class="an-cfg-field">
-                <label class="an-cfg-lbl">Incluir</label>
-                <select id="anResIncluir"><option>Solo incidentes abiertos y urgentes</option><option>Todos los que me corresponden</option></select>
-              </div>
-            </div>
-            <!-- Cuándo llega -->
-            <div class="an-cfg-card">
-              <div class="an-cfg-head"><div class="an-cfg-title"><i data-lucide="clock"></i> ¿Cuándo llega?</div></div>
-              <div class="an-cfg-grid2">
-                <div><label class="an-cfg-lbl">Hora de llegada</label><input type="time" value="08:00" id="anResHora"></div>
-                <div><label class="an-cfg-lbl">Zona horaria</label><select id="anResZona"><option>CO · Bogotá (GMT-5)</option><option>MX · CDMX (GMT-6)</option><option>AR · Buenos Aires (GMT-3)</option></select></div>
-              </div>
-            </div>
-            <!-- Dónde -->
-            <div class="an-cfg-card">
-              <div class="an-cfg-head">
-                <div class="an-cfg-title"><i data-lucide="send"></i> ¿Dónde notificar?</div>
-                <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios.</div>
-              </div>
-              <div class="notif-chan-list">
-                <div class="tm-notif-card is-open" id="anResCardEmail">
-                  <div class="tm-notif-row">
-                    <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
-                    <div class="tm-notif-row-body">
-                      <div class="tm-notif-row-title">Email</div>
-                      <div class="tm-notif-row-sub">Recibe el resumen diario por correo.</div>
-                    </div>
-                    <button type="button" class="tm-notif-row-toggle is-on" onclick="pkgToggleChannel(this)" aria-label="Activar email"></button>
-                  </div>
-                  <div class="tm-notif-config">
-                    <div class="tm-notif-field">
-                      <div class="tm-notif-field-label">Destinatarios</div>
-                      <div class="tm-chip-input"><span class="tm-chip">ana.torres@simetrik.com<button type="button" class="tm-chip-x" aria-label="Quitar" onclick="this.parentElement.remove()">&times;</button></span><input type="email" placeholder="Agregar correo..." onkeydown="addChip(event, this, 'email')"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="tm-notif-card" id="anResCardSlack">
-                  <div class="tm-notif-row">
-                    <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="2" width="3" height="8" rx="1.5"></rect><rect x="13" y="14" width="3" height="8" rx="1.5"></rect><rect x="2" y="13" width="8" height="3" rx="1.5"></rect><rect x="14" y="13" width="8" height="3" rx="1.5"></rect></svg></span>
-                    <div class="tm-notif-row-body">
-                      <div class="tm-notif-row-title">Slack</div>
-                      <div class="tm-notif-row-sub">Recibe el resumen diario en el canal.</div>
-                    </div>
-                    <button type="button" class="tm-notif-row-toggle" onclick="pkgToggleChannel(this)" aria-label="Activar Slack"></button>
-                  </div>
-                  <div class="tm-notif-config">
-                    <div class="tm-notif-field">
-                      <div class="tm-notif-field-label">Canales</div>
-                      <div class="tm-chip-input"><input type="text" placeholder="Agregar canal..." onkeydown="addChip(event, this, 'channel')"></div>
-                    </div>
-                    <div class="tm-notif-field">
-                      <div class="tm-notif-field-label">Etiquetar a personas <span class="opt">· opcional</span></div>
-                      <div class="tm-chip-input"><input type="text" placeholder="Pegar ID de usuario (ej. U01ABC23DEF)…" onkeydown="addChip(event, this, 'mention')"></div>
-                      <div class="tm-notif-hint">
-                        <i data-lucide="info"></i>
-                        <span>Usa el <strong>ID de usuario</strong> de Slack, no <code>@nombre</code>. En Slack: perfil de la persona › menú <strong>⋮</strong> › <strong>Copiar id. de miembro</strong>. Un <code>@nombre</code> escrito a mano llega como texto y no notifica a nadie.</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="an-cfg-actions">
-              <button class="an-fbtn" onclick="resCancel()">Cancelar</button>
-              <button class="inline-flex items-center gap-2 h-[36px] px-4 rounded-lg text-[13px] font-semibold text-white" style="background:var(--primary);" onclick="resSave()">Guardar resumen</button>
-            </div>
-          </div>
-
-          <!-- GUARDADO / activo -->
-          <div id="anResSaved" class="hidden">
-            <div class="an-res-banner"><i data-lucide="check-circle-2"></i> Tu resumen diario está activo</div>
-            <div class="an-cfg-card an-res-card">
-              <div class="an-res-card-top">
-                <div class="an-cfg-title"><i data-lucide="mails"></i> Resumen diario</div>
-                <button type="button" class="tm-notif-row-toggle is-on" onclick="resPause()" aria-label="Pausar resumen"></button>
-              </div>
-              <div class="an-res-card-rows">
-                <div class="an-res-row"><i data-lucide="clock"></i> Llega <span id="anResSumWhen"></span></div>
-                <div class="an-res-row"><i data-lucide="list-checks"></i> <span id="anResSumInclude"></span></div>
-                <div class="an-res-row"><i data-lucide="filter"></i> <span id="anResSumScope"></span></div>
-                <div class="an-res-row"><i data-lucide="send"></i> <span id="anResSumChannels"></span></div>
-              </div>
-              <div class="an-res-card-foot"><div class="an-pkg-actions"><button onclick="resEdit()" aria-label="Editar"><i data-lucide="pencil"></i></button></div></div>
-            </div>
-          </div>
-        </div>
-
         <!-- Página: placeholder Pronto -->
         <div id="anCfgSoon" class="an-ingesta hidden">
           <div class="an-cfg-soon">
@@ -2766,6 +2745,267 @@
 
     </div>
     </main>
+  </div>
+
+
+  <!-- ============ DIALOG: Detalle de fuente (Ingesta · alertas por fuente) ============ -->
+  <div id="sourceDialog" class="dialog-overlay" onclick="if(event.target===this) closeSource()">
+    <div class="tm-dialog-shell">
+      <button class="tm-dialog-x" onclick="closeSource()" aria-label="Cerrar"><i data-lucide="x"></i></button>
+      <div class="tm-dialog-body">
+        <aside class="tm-dialog-sidebar">
+          <div class="tm-dialog-sidebar-header">
+            <span class="tm-dialog-sidebar-header-icon"><i data-lucide="database" style="width:14px;height:14px;"></i></span>
+            <div class="tm-dialog-sidebar-header-text">
+              <div class="tm-dialog-sidebar-header-title">Monitoreo de fuente</div>
+              <div class="tm-dialog-sidebar-header-sub"><span id="sdSourceName">la fuente</span></div>
+            </div>
+          </div>
+          <button type="button" class="tm-dialog-nav-item is-active" onclick="sdNav('config',this)">
+            <span class="tm-dialog-nav-item-icon"><i data-lucide="sliders-horizontal" style="width:16px;height:16px;"></i></span>
+            <div class="tm-dialog-nav-item-body"><div class="tm-dialog-nav-item-title">Configuración</div><span class="tm-dialog-nav-item-status">Ventana, volumen y comportamientos</span></div>
+          </button>
+          <button type="button" class="tm-dialog-nav-item" onclick="sdNav('alertas',this)">
+            <span class="tm-dialog-nav-item-icon"><i data-lucide="bell" style="width:16px;height:16px;"></i></span>
+            <div class="tm-dialog-nav-item-body"><div class="tm-dialog-nav-item-title">Alertas</div><span class="tm-dialog-nav-item-status">Sin canales activos</span></div>
+          </button>
+        </aside>
+        <div class="tm-dialog-content">
+          <div class="sd-content-scroll">
+            <div id="sdSecConfig">
+            <div class="sd-stack">
+              <!-- Análisis inteligente (colapsable, estático) -->
+              <div class="sd-ai is-open">
+                <button type="button" class="sd-ai-head" onclick="sdAiToggle(this)">
+                  <i data-lucide="activity"></i>
+                  <span>
+                    <span class="sd-ai-title">Análisis inteligente</span>
+                    <span class="sd-ai-desc" style="display:block;"><strong>Línea base estable</strong>: 30 días de observaciones con variabilidad moderada (CV 0.30), sin brechas ni valores atípicos. Un buen punto de partida para anclar el monitoreo.</span>
+                  </span>
+                  <i data-lucide="chevron-down" class="sd-ai-chev"></i>
+                </button>
+                <div class="sd-ai-body">
+                  <div class="sd-ai-stats">
+                    <div><div class="sd-ai-stat-label">Media</div><div class="sd-ai-stat-value">1.13K</div></div>
+                    <div><div class="sd-ai-stat-label">Límite inferior sugerido</div><div class="sd-ai-stat-value">665.80</div></div>
+                    <div><div class="sd-ai-stat-label">Límite superior sugerido</div><div class="sd-ai-stat-value">1.77K</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ventana de tiempo -->
+              <div class="sd-card">
+                <div class="sd-card-title"><i data-lucide="clock"></i> Ventana de tiempo</div>
+                <div class="sd-card-sub">Cuándo esperas que se actualice esta fuente y a qué hora avisarte si no se actualizó.</div>
+                <div class="sd-grid3">
+                  <div class="sd-field"><label>Llega a las</label><input type="time" value="08:00"></div>
+                  <div class="sd-field"><label>Avisar si pasa de las</label><input type="time" value="09:00"></div>
+                  <div class="sd-field"><label>Zona horaria</label><select><option>CO · Bogotá</option><option>MX · CDMX</option><option>AR · Buenos Aires</option><option>UTC</option></select></div>
+                </div>
+              </div>
+
+              <!-- Cómo se monitorea -->
+              <div class="sd-card">
+                <div class="sd-card-title"><i data-lucide="calendar-cog"></i> Cómo se monitorea</div>
+                <div class="sd-card-sub">Aplica una sola configuración o define un comportamiento distinto por día de la semana.</div>
+                <div class="sd-radio-row">
+                  <button type="button" class="sd-radio is-sel" onclick="sdRadio(this)">
+                    <span class="sd-radio-dot"></span>
+                    <span><span class="sd-radio-label">Igual todos los días</span><span class="sd-radio-sub">Aplica una configuración</span></span>
+                  </button>
+                  <button type="button" class="sd-radio is-disabled" disabled>
+                    <span class="sd-radio-dot"></span>
+                    <span><span class="sd-radio-label">Por día de la semana <span class="sd-prox">Próx.</span></span><span class="sd-radio-sub">Cada día un comportamiento diferente</span></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Comportamiento de la fuente -->
+              <div class="sd-card">
+                <div class="sd-card-title"><i data-lucide="sliders-horizontal"></i> Comportamiento de la fuente</div>
+                <div class="sd-card-sub">Define los rangos esperados. Si algo sale de lo normal, generamos una anomalía.</div>
+
+                <!-- Cantidad de archivos -->
+                <div class="sd-ind is-on">
+                  <div class="sd-ind-head">
+                    <div><div class="sd-ind-title">Cantidad de archivos</div><div class="sd-ind-sub">Rango habitual de archivos por ejecución.</div></div>
+                    <button type="button" class="tm-notif-row-toggle is-on" onclick="sdToggleInd(this)" aria-label="Activar"></button>
+                  </div>
+                  <div class="sd-ind-grid">
+                    <div class="sd-field"><label>Como mínimo</label><div class="sd-suffix"><input type="number" min="0" value="10"><span class="sd-suffix-badge">Archivos</span></div><span class="sd-sug" onclick="sdSug(this,10)"><span class="dot"></span>Valor sugerido: 10</span></div>
+                    <div class="sd-field"><label>Como máximo</label><div class="sd-suffix"><input type="number" min="0" value="13"><span class="sd-suffix-badge">Archivos</span></div><span class="sd-sug" onclick="sdSug(this,13)"><span class="dot"></span>Valor sugerido: 13</span></div>
+                  </div>
+                </div>
+
+                <!-- Cantidad de registros -->
+                <div class="sd-ind is-on">
+                  <div class="sd-ind-head">
+                    <div><div class="sd-ind-title">Cantidad de registros</div><div class="sd-ind-sub">Rango habitual de filas por ejecución.</div></div>
+                    <button type="button" class="tm-notif-row-toggle is-on" onclick="sdToggleInd(this)" aria-label="Activar"></button>
+                  </div>
+                  <div class="sd-ind-grid">
+                    <div class="sd-field"><label>Al menos</label><div class="sd-suffix"><input type="number" min="0" value="1000"><span class="sd-suffix-badge">Registros</span></div><span class="sd-sug" onclick="sdSug(this,1000)"><span class="dot"></span>Valor sugerido: 1000</span></div>
+                    <div class="sd-field"><label>No más de</label><div class="sd-suffix"><input type="number" min="0" value="1200"><span class="sd-suffix-badge">Registros</span></div><span class="sd-sug" onclick="sdSug(this,1200)"><span class="dot"></span>Valor sugerido: 1200</span></div>
+                  </div>
+                </div>
+
+                <div class="sd-subhead">Otros comportamientos</div>
+                <div class="sd-subhead-sub">Comportamientos que detectamos en el análisis de la fuente.</div>
+
+                <!-- Archivos vacíos -->
+                <div class="sd-ind">
+                  <div class="sd-ind-head">
+                    <div><div class="sd-ind-title">Archivos vacíos</div><div class="sd-ind-sub">Cerca del 2% de los archivos de esta fuente llegan vacíos.</div></div>
+                    <button type="button" class="tm-notif-row-toggle" onclick="sdToggleInd(this)" aria-label="Activar"></button>
+                  </div>
+                  <div class="sd-ind-grid">
+                    <div class="sd-field"><label>Alertar si supera</label><div class="sd-suffix"><input type="number" min="0" max="100" value="2"><span class="sd-suffix-badge">%</span></div></div>
+                    <p class="sd-effect"><i data-lucide="info"></i> Generaremos una anomalía si más de 2 de cada 100 archivos llegan vacíos.</p>
+                  </div>
+                </div>
+
+                <!-- Archivos duplicados -->
+                <div class="sd-ind">
+                  <div class="sd-ind-head">
+                    <div><div class="sd-ind-title">Archivos duplicados</div><div class="sd-ind-sub">Cerca del 5% de los archivos de esta fuente llegan duplicados.</div></div>
+                    <button type="button" class="tm-notif-row-toggle" onclick="sdToggleInd(this)" aria-label="Activar"></button>
+                  </div>
+                  <div class="sd-ind-grid">
+                    <div class="sd-field"><label>Alertar si supera</label><div class="sd-suffix"><input type="number" min="0" max="100" value="5"><span class="sd-suffix-badge">%</span></div></div>
+                    <p class="sd-effect"><i data-lucide="info"></i> Generaremos una anomalía si más de 5 de cada 100 archivos llegan duplicados.</p>
+                  </div>
+                </div>
+
+                <!-- Archivos fallidos -->
+                <div class="sd-ind">
+                  <div class="sd-ind-head">
+                    <div><div class="sd-ind-title">Archivos fallidos</div><div class="sd-ind-sub">No registramos archivos fallidos en esta fuente.</div></div>
+                    <button type="button" class="tm-notif-row-toggle" onclick="sdToggleInd(this)" aria-label="Activar"></button>
+                  </div>
+                  <div class="sd-ind-grid">
+                    <div class="sd-field"><label>Alertar si supera</label><div class="sd-suffix"><input type="number" min="0" max="100" value="0"><span class="sd-suffix-badge">%</span></div></div>
+                    <p class="sd-effect"><i data-lucide="info"></i> Generaremos una anomalía apenas llegue un archivo fallido.</p>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /sd-stack -->
+            </div><!-- /sdSecConfig -->
+
+            <!-- ALERTAS de la fuente · arco de 3 tarjetas (mismo patrón que el KPI) -->
+            <div id="sdSecAlertas" class="hidden" data-notif-section>
+              <p style="font-size:12.5px;color:var(--text-tertiary);line-height:1.5;margin:0 2px 16px;">Las <strong style="color:var(--text-secondary);font-weight:600;">alertas</strong> te avisan cuando esta fuente sale de lo esperado.</p>
+
+              <!-- 1 · ¿Cuándo? -->
+              <div class="tm-prog-card" data-when-scope="">
+                <div class="tm-prog-card-header">
+                  <span class="tm-prog-card-title">
+                    <svg class="tm-prog-card-title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    ¿Cuándo notificar?
+                  </span>
+                  <div class="when-select">
+                    <button type="button" class="when-select-btn" onclick="whenMenu(this)">
+                      <span class="when-cur-ic" data-when-cur-ic=""></span>
+                      <span data-when-cur="">Sin configurar</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </button>
+                    <div class="when-menu">
+                      <button type="button" class="when-opt" onclick="whenPick(this,'never','Nunca')">
+                        <i data-lucide="bell-off" class="when-opt-ic"></i>
+                        <span class="when-opt-txt"><span class="ot">Nunca</span><span class="od">No recibirás alertas. El monitoreo igual registra todo in-app.</span></span>
+                      </button>
+                      <button type="button" class="when-opt" onclick="whenPick(this,'final','Solo al final')">
+                        <i data-lucide="bell" class="when-opt-ic"></i>
+                        <span class="when-opt-txt"><span class="ot">Solo al final <span class="when-tag">recomendado</span></span><span class="od">Al cerrar la ventana, el estado de la fuente.</span></span>
+                      </button>
+                      <button type="button" class="when-opt" onclick="whenPick(this,'live','En tiempo real')">
+                        <i data-lucide="bell-ring" class="when-opt-ic"></i>
+                        <span class="when-opt-txt"><span class="ot">En tiempo real</span><span class="od">Cada vez que la fuente salga de lo esperado, a medida que ocurre.</span></span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="tm-prog-card-body is-unset" data-when-body="">
+                  <div class="when-empty" data-when-empty="">
+                    <span class="when-empty-icon"><i data-lucide="bell-plus"></i></span>
+                    <span class="when-empty-title">Aún no configuras las alertas</span>
+                    <span class="when-empty-sub">Define cuándo quieres recibir alertas cuando esta fuente salga de lo esperado.</span>
+                    <button type="button" class="when-empty-btn" onclick="whenConfigure(this)"><i data-lucide="settings-2"></i> Configurar alertas</button>
+                  </div>
+                  <div class="when-config" data-when-config="">
+                    <div class="when-graphic" data-when-graphic="">
+                      <div class="winrec-head"><span class="winrec-head-label"><i data-lucide="calendar-clock"></i> Ventana de monitoreo</span></div>
+                      <div class="winrec-timeline">
+                        <div class="winrec-track" data-when-track=""><div class="winrec-band" style="left:33.33%;width:50%"></div></div>
+                        <div class="winrec-ticks"><span>12 a.m.</span><span>6 a.m.</span><span>12 m.</span><span>6 p.m.</span><span>12 a.m.</span></div>
+                      </div>
+                      <div class="when-detail-line" data-when-line=""></div>
+                      <div class="winrec-badges-label">Ventana de tiempo</div>
+                      <div class="winrec-badges">
+                        <span class="winrec-badge"><i data-lucide="clock"></i>08:00 a.m. – 09:00 a.m.</span>
+                        <span class="winrec-badge"><i data-lucide="globe"></i>CO · Bogotá</span>
+                        <button type="button" class="winrec-edit" onclick="sdGotoConfig()" title="Editar en configuración" aria-label="Editar en configuración"><i data-lucide="pencil"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2 · ¿Dónde? -->
+              <div class="tm-prog-card">
+                <div class="tm-prog-card-header">
+                  <div class="tm-prog-card-headtext">
+                    <span class="tm-prog-card-title"><svg class="tm-prog-card-title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 21a2 2 0 0 0 3.4 0"></path><path d="M3.3 15.3A1 1 0 0 0 4 17h16a1 1 0 0 0 .7-1.7C19.4 14 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.4 6-2.7 7.3"></path></svg> ¿Dónde notificar?</span>
+                    <span class="tm-prog-card-aux">Activa uno o varios canales y configura sus destinatarios</span>
+                  </div>
+                </div>
+                <div class="tm-prog-card-body">
+                  <div class="notif-chan-warning">
+                    <i data-lucide="alert-triangle"></i>
+                    <span>Te hace falta configurar al menos un canal para recibir las alertas. Activa Email o Slack, o cambia <strong>¿Cuándo notificar?</strong> a <strong>Nunca</strong>.</span>
+                  </div>
+                  <div class="notif-chan-list">
+                    <div class="tm-notif-card">
+                      <div class="tm-notif-row">
+                        <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
+                        <div class="tm-notif-row-body"><div class="tm-notif-row-title">Email</div><div class="tm-notif-row-sub">Recibe un correo cuando esta fuente tenga una anomalía.</div></div>
+                        <button type="button" class="tm-notif-row-toggle" onclick="toggleChannel(this)" aria-label="Activar email"></button>
+                      </div>
+                      <div class="tm-notif-config"><div class="tm-notif-field"><div class="tm-notif-field-label">Destinatarios</div><div class="tm-chip-input"><input type="email" placeholder="Agregar correo..." onkeydown="addChip(event, this, 'email')"></div></div></div>
+                    </div>
+                    <div class="tm-notif-card">
+                      <div class="tm-notif-row">
+                        <span class="tm-notif-row-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="13" y="2" width="3" height="8" rx="1.5"></rect><rect x="13" y="14" width="3" height="8" rx="1.5"></rect><rect x="2" y="13" width="8" height="3" rx="1.5"></rect><rect x="14" y="13" width="8" height="3" rx="1.5"></rect></svg></span>
+                        <div class="tm-notif-row-body"><div class="tm-notif-row-title">Slack</div><div class="tm-notif-row-sub">Recibe un mensaje en el canal cuando esta fuente tenga una anomalía.</div></div>
+                        <button type="button" class="tm-notif-row-toggle" onclick="toggleChannel(this)" aria-label="Activar Slack"></button>
+                      </div>
+                      <div class="tm-notif-config">
+                        <div class="tm-notif-field"><div class="tm-notif-field-label">Canales</div><div class="tm-chip-input"><input type="text" placeholder="Agregar canal..." onkeydown="addChip(event, this, 'channel')"></div></div>
+                        <div class="tm-notif-field"><div class="tm-notif-field-label">Etiquetar a personas <span class="opt">· opcional</span></div><div class="tm-chip-input"><input type="text" placeholder="Pegar ID de usuario (ej. U01ABC23DEF)…" onkeydown="addChip(event, this, 'mention')"></div>
+                          <div class="tm-notif-hint"><i data-lucide="info"></i><span>Usa el <strong>ID de usuario</strong> de Slack, no <code>@nombre</code>. En Slack: perfil de la persona › menú <strong>⋮</strong> › <strong>Copiar id. de miembro</strong>.</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3 · Idioma -->
+              <div class="tm-prog-card is-row">
+                <div class="tm-prog-card-header">
+                  <span class="tm-prog-card-title"><svg class="tm-prog-card-title-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Idioma</span>
+                  <button class="tm-notif-row-lang">Español <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                </div>
+              </div>
+            </div>
+          </div><!-- /sd-content-scroll -->
+          <div class="sd-foot">
+            <button class="an-fbtn" onclick="closeSource()">Salir</button>
+            <button class="inline-flex items-center gap-2 h-[36px] px-4 rounded-lg text-[13px] font-semibold text-white" style="background:var(--primary);" onclick="closeSource()">Guardar</button>
+          </div>
+        </div><!-- /tm-dialog-content -->
+      </div><!-- /tm-dialog-body -->
+    </div><!-- /tm-dialog-shell -->
   </div>
 
   <!-- ============ DIALOG: Monitoreo inteligente (portado de config-system-kpi) ============ -->
@@ -3064,7 +3304,7 @@
             </div>
 
             <!-- ====== NOTIFICACIONES ====== -->
-            <div id="dsec-notif" class="tm-dialog-section notif-when-never" style="display: none;">
+            <div id="dsec-notif" class="tm-dialog-section notif-when-never" data-notif-section style="display: none;">
 
               <!-- Alertas — arco narrativo en 3 tarjetas (mismo patrón tm-prog-card que
                    Programación): 1) ¿CUÁNDO? · 2) ¿DÓNDE? (canales) · 3) IDIOMA. -->
@@ -3241,17 +3481,18 @@
 
               <div class="tm-dialog-section">
 
-              <!-- 💬 [4] Sensibilidad ↔ gráfica (feedback 25-jun):
+              <!-- 💬 [4] Sensibilidad ↔ gráfica (feedback 25-jun + 30-jun):
                    · La FRANJA AZUL = inputs de límite inferior/superior del usuario. Es FIJA: solo cambia
                      con esos inputs, NO con la sensibilidad.
-                   · Nula  = solo marca rojo lo que sale de la franja (supera los límites del usuario).
-                   · Media = eso + los puntos más cercanos al borde, aunque estén dentro de la franja.
-                   · Alta  = eso + puntos adicionales hacia el centro.
-                   · La marca crece HACIA ADENTRO (umbral punteado) mientras la franja queda quieta.
-                   · El conteo se DERIVA de los puntos rojos sobre los ÚLTIMOS 30 DÍAS (consistente: sin el
-                     desfase 7d-lista / 30d-gráfica que dejaba picos viejos sin marcar).
+                   · Extremo izq "Solo mi umbral" = alerta de umbral fija: solo marca rojo lo que sale de la franja.
+                   · Medio = eso + los puntos más cercanos al borde, aunque estén dentro de la franja.
+                   · Extremo der "Detección adaptativa" = el sistema decide qué es anómalo según el patrón.
+                   · La marca crece HACIA ADENTRO (umbral punteado) mientras la franja queda quieta, pero
+                     NUNCA llega al centro: queda un núcleo normal (CORE=0.30). Aun en 100% no se cubre toda
+                     la gráfica — la detección adaptativa no marca "todo punto", solo lo inusual (fix 30-jun).
+                   · El conteo se DERIVA de los puntos rojos sobre los ÚLTIMOS 30 DÍAS.
                    Datos MOCKEADOS; en prod el BE devuelve la serie + la lista de outliers con un tag de bajo
-                   qué nivel (nula/media/alta) califica cada punto, y la UI filtra dinámicamente. -->
+                   qué nivel califica cada punto, y la UI filtra dinámicamente. -->
               <div class="tm-dialog-preview-card">
                 <div class="sens-chart-head">
                   <div>
@@ -3338,12 +3579,12 @@
                   <span class="sens-row-icon"><i data-lucide="gauge"></i></span>
                   <div class="sens-row-body">
                     <div class="sens-row-title" id="sens-title">Sensibilidad</div>
-                    <div class="sens-row-sub" id="sens-sub">Avisa al acercarse al límite, pasado un umbral intermedio.</div>
+                    <div class="sens-row-sub" id="sens-sub">Combina tu umbral con detección de patrones: marca también desviaciones inusuales cerca del borde.</div>
                   </div>
                   <div class="sens-pct" id="sens-pct">50%</div>
                 </div>
                 <input type="range" class="sens-slider" id="sens-slider" min="0" max="100" step="1" value="50" oninput="onSensSlider(this)" aria-label="Sensibilidad">
-                <div class="sens-slider-scale"><span>Nula</span><span>Media</span><span>Alta</span></div>
+                <div class="sens-slider-scale"><span>Solo mi umbral</span><span>Media</span><span>Detección adaptativa</span></div>
               </div>
               </div>
               </div>
@@ -3789,7 +4030,7 @@
     const AN_TABLEROS = ['Adquirencia', 'Conciliación bancaria', 'Tesorería', 'Pagos LATAM'];
     let anActiveFilter = []; // [{type, value, icon}] — varios por tipo permitidos
     let savedFilters = [     // filtros recurrentes (guardados) — reutilizables en los paquetes de notificación
-      { name: 'Incidentes de Adquirencia', filters: [{ type: 'Tablero', value: 'Adquirencia', icon: 'layout-grid' }, { type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }] }
+      { name: 'Incidentes de Adquirencia', filters: [{ type: 'Entidad', value: 'Adquirencia', icon: 'layout-grid' }, { type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }] }
     ];
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function groupFilters(list) { // agrupa [{type,value,icon}] por tipo, preservando orden de aparición
@@ -3798,6 +4039,7 @@
       return order.map(t => map[t]);
     }
     function fGroups() { return groupFilters(anActiveFilter); }
+    function groupIcon(g) { return g.type === 'Entidad' ? 'layers' : g.icon; }
     function closeFilterMenus(except) {
       ['anFMenu', 'anSMenu', 'anGMenu', 'anPkgFMenu'].forEach(id => { if (id !== except) { const e = document.getElementById(id); if (e) e.classList.remove('open'); } });
     }
@@ -3806,35 +4048,33 @@
     function toggleGMenu(e) { e.stopPropagation(); closeFilterMenus('anGMenu'); renderGList(); document.getElementById('anGMenu').classList.toggle('open'); }
     function fGoto(page) { document.querySelectorAll('#anFMenu .an-fmenu-page').forEach(p => p.classList.toggle('hidden', p.dataset.fpage !== page)); markOptChecks(); }
     function buildFLists() {
-      const rec = document.getElementById('fListRecurso');
-      if (rec && !rec.dataset.built) {
-        rec.innerHTML = AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Recurso" data-fval="' + esc(s[0]) + '" data-ficon="database"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        rec.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Recurso', b.dataset.fval, 'database')));
-        rec.dataset.built = '1';
-      }
-      const tab = document.getElementById('fListTablero');
-      if (tab && !tab.dataset.built) {
-        tab.innerHTML = AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Tablero" data-fval="' + esc(t) + '" data-ficon="layout-grid"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        tab.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Tablero', b.dataset.fval, 'layout-grid')));
-        tab.dataset.built = '1';
+      const ent = document.getElementById('fListEntidad');
+      if (ent && !ent.dataset.built) {
+        // Entidades afectadas = tableros + recursos en una sola lista (todo combina con O)
+        let html = '<div class="an-fmenu-grouplbl">Tableros</div>';
+        html += AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Entidad" data-fval="' + esc(t) + '" data-ficon="layout-grid"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        html += '<div class="an-fmenu-grouplbl">Recursos</div>';
+        html += AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Entidad" data-fval="' + esc(s[0]) + '" data-ficon="database"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        ent.innerHTML = html;
+        ent.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Entidad', b.dataset.fval, b.dataset.ficon)));
+        ent.dataset.built = '1';
       }
       markOptChecks();
       if (window.lucide) lucide.createIcons();
     }
     function fFilterList(input, which) {
-      const id = which === 'recurso' ? 'fListRecurso' : 'fListTablero', q = input.value.toLowerCase();
+      const id = 'fListEntidad', q = input.value.toLowerCase();
       document.querySelectorAll('#' + id + ' .an-fmenu-opt').forEach(o => { o.style.display = o.textContent.toLowerCase().includes(q) ? '' : 'none'; });
     }
-    function fPickFecha() { addFilter('Fecha', 'Últimos 30 días', 'calendar'); }
     function isFilterActive(type, value) { return anActiveFilter.some(f => f.type === type && f.value === value); }
     function markOptChecks() {
       document.querySelectorAll('#anFMenu .an-fmenu-opt').forEach(o => { const t = o.dataset.ftype, v = o.dataset.fval; if (t && v) o.classList.toggle('is-on', isFilterActive(t, v)); });
     }
     function addFilter(type, value, icon) {
       if (type === 'Fecha') {                                  // Fecha = valor único (rango), reemplaza
+        const was = isFilterActive('Fecha', value);
         anActiveFilter = anActiveFilter.filter(f => f.type !== 'Fecha');
-        anActiveFilter.push({ type: type, value: value, icon: icon });
-        document.getElementById('anFMenu').classList.remove('open');
+        if (!was) anActiveFilter.push({ type: type, value: value, icon: icon });
       } else {                                                  // resto = multiselect (toggle)
         const i = anActiveFilter.findIndex(f => f.type === type && f.value === value);
         if (i >= 0) anActiveFilter.splice(i, 1); else anActiveFilter.push({ type: type, value: value, icon: icon });
@@ -3849,7 +4089,7 @@
       if (!groups.length) { el.innerHTML = ''; return; }
       const chips = groups.map(g => {
         const val = g.values.map(v => esc(v)).join(' <em>o</em> ');
-        return '<span class="an-fchip"><span class="an-fchip-type"><i data-lucide="' + g.icon + '"></i> ' + g.type + '</span>' +
+        return '<span class="an-fchip"><span class="an-fchip-type"><i data-lucide="' + groupIcon(g) + '"></i> ' + g.type + '</span>' +
           '<span class="an-fchip-val">' + val + '</span>' +
           '<button class="an-fchip-x" aria-label="Quitar filtro" onclick="clearFilterType(\'' + g.type + '\')"><i data-lucide="x"></i></button></span>';
       }).join('<span class="an-fconj">y</span>');
@@ -3865,7 +4105,7 @@
       prev.className = 'an-prevchips';
       const groups = fGroups();
       prev.innerHTML = groups.length
-        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + g.icon + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '</span>').join('')
+        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + groupIcon(g) + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '</span>').join('')
         : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
       if (window.lucide) lucide.createIcons();
     }
@@ -3909,36 +4149,44 @@
     let pkgNextId = 1;
     let notifPackages = []; // arranca en first-run (empty state)
     const PKG_TEMPLATES = [
-      { name: 'Incidentes confirmados', desc: 'Estado: Confirmado · al confirmarse', scope: [{ type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }], events: { created: false, confirmed: true }, updates: false },
-      { name: 'Archivos faltantes o fallidos', desc: 'Tipo: Archivo faltante o fallido · al crearse', scope: [{ type: 'Tipo', value: 'Archivo faltante', icon: 'tag' }, { type: 'Tipo', value: 'Archivo fallido', icon: 'tag' }], events: { created: true, confirmed: false }, updates: false }
+      { name: 'Incidentes confirmados', desc: 'Todos · al confirmarse, en tiempo real', scope: [], realtime: { enabled: true, created: false, confirmed: true, updates: false }, digest: { enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 } },
+      { name: 'Archivos faltantes o fallidos', desc: 'Tipo: Archivo faltante o fallido · al crearse', scope: [{ type: 'Tipo', value: 'Archivo faltante', icon: 'tag' }, { type: 'Tipo', value: 'Archivo fallido', icon: 'tag' }], realtime: { enabled: true, created: true, confirmed: false, updates: false }, digest: { enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 } }
     ];
     let pkgEditingId = null, pkgEditingScope = [];
+    function pkgTnLabel(n) { return n === 1 ? 'hasta ayer (t-1)' : 'hasta hace ' + n + ' días (t-' + n + ')'; }
     function pkgCardHtml(p) {
       const groups = groupFilters(p.scope);
       const scope = groups.length ? groups.map(g => g.type + ': ' + g.values.join(' o ')).join('  ·  ') : 'Todos los incidentes';
-      const when = []; if (p.events.created) when.push('al crearse'); if (p.events.confirmed) when.push('al confirmarse');
-      const whenT = when.length ? when.join(' y ') : 'sin momento definido';
+      const rt = p.realtime || {}, dg = p.digest || {};
       const ch = [];
       if (p.channels.emails.length) ch.push(p.channels.emails.length + ' correo' + (p.channels.emails.length > 1 ? 's' : ''));
       if (p.channels.slack.length) ch.push(p.channels.slack.length + ' canal' + (p.channels.slack.length > 1 ? 'es' : ''));
+      let tags = '';
+      if (rt.enabled) {
+        const when = []; if (rt.created) when.push('al crearse'); if (rt.confirmed) when.push('al confirmarse');
+        const whenT = when.length ? when.join(' y ') : 'sin momento';
+        tags += '<span class="an-pkg-tag"><i data-lucide="zap"></i> Tiempo real: ' + whenT + '</span>';
+        if (rt.updates) tags += '<span class="an-pkg-tag"><i data-lucide="refresh-cw"></i> con actualizaciones</span>';
+      }
+      if (dg.enabled) tags += '<span class="an-pkg-tag"><i data-lucide="mails"></i> Resumen ' + esc(dg.hora || '08:00') + ' · ' + pkgTnLabel(dg.tn || 1) + '</span>';
+      if (!rt.enabled && !dg.enabled) tags += '<span class="an-pkg-tag"><i data-lucide="alert-circle"></i> sin entrega activa</span>';
+      tags += (ch.length ? '<span class="an-pkg-tag"><i data-lucide="send"></i> ' + ch.join(' · ') + '</span>' : '<span class="an-pkg-tag"><i data-lucide="alert-circle"></i> sin canales</span>');
       return '<div class="an-pkg' + (p.active ? '' : ' is-off') + '">' +
         '<div class="an-pkg-top"><div class="an-pkg-info"><div class="an-pkg-name">' + esc(p.name) + '</div>' +
         '<div class="an-pkg-scope"><i data-lucide="filter"></i> ' + esc(scope) + '</div></div>' +
         '<button type="button" class="tm-notif-row-toggle' + (p.active ? ' is-on' : '') + '" onclick="pkgToggleActive(' + p.id + ')" aria-label="Activar"></button></div>' +
-        '<div class="an-pkg-foot"><div class="an-pkg-tags">' +
-        '<span class="an-pkg-tag"><i data-lucide="git-commit-horizontal"></i> ' + whenT + '</span>' +
-        (p.updates ? '<span class="an-pkg-tag"><i data-lucide="refresh-cw"></i> con actualizaciones</span>' : '') +
-        (ch.length ? '<span class="an-pkg-tag"><i data-lucide="send"></i> ' + ch.join(' · ') + '</span>' : '<span class="an-pkg-tag"><i data-lucide="alert-circle"></i> sin canales</span>') +
+        '<div class="an-pkg-foot"><div class="an-pkg-tags">' + tags +
         '</div><div class="an-pkg-actions"><button onclick="pkgDuplicate(' + p.id + ')" aria-label="Duplicar"><i data-lucide="copy"></i></button><button onclick="pkgEdit(' + p.id + ')" aria-label="Editar"><i data-lucide="pencil"></i></button><button onclick="pkgDelete(' + p.id + ')" aria-label="Eliminar"><i data-lucide="trash-2"></i></button></div></div>' +
         '</div>';
     }
     function pkgDuplicate(id) {
       const p = notifPackages.find(x => x.id === id); if (!p) return;
+      const rt = p.realtime || {}, dg = p.digest || {};
       const copy = {
         id: pkgNextId++, name: p.name + ' (copia)',
         scope: p.scope.map(f => ({ ...f })),
-        events: { created: p.events.created, confirmed: p.events.confirmed },
-        updates: p.updates,
+        realtime: { enabled: !!rt.enabled, created: !!rt.created, confirmed: !!rt.confirmed, updates: !!rt.updates },
+        digest: { enabled: !!dg.enabled, hora: dg.hora || '08:00', zona: dg.zona || 'CO · Bogotá (GMT-5)', tn: dg.tn || 1 },
         channels: { emails: p.channels.emails.slice(), slack: p.channels.slack.slice(), mentions: (p.channels.mentions || []).slice() },
         active: true
       };
@@ -3948,12 +4196,37 @@
       const t = PKG_TEMPLATES[i]; if (!t) return;
       pkgNew();
       document.getElementById('anPkgName').value = t.name;
-      document.getElementById('anPkgEvCreated').checked = !!t.events.created;
-      document.getElementById('anPkgEvConfirmed').checked = !!t.events.confirmed;
-      document.getElementById('anPkgUpdates').classList.toggle('is-on', !!t.updates);
+      pkgApplyRealtime(t.realtime); pkgApplyDigest(t.digest);
       pkgEditingScope = t.scope.map(f => ({ ...f }));
       const sel = document.getElementById('anPkgScopeSel'); if (sel) sel.value = '';
       renderPkgScopeChips(); pkgMarkChecks();
+    }
+    // Aplica el estado de cada entrega a la UI del editor
+    function pkgApplyRealtime(rt) {
+      rt = rt || { enabled: true, created: true, confirmed: false, updates: false };
+      document.getElementById('anPkgRealtime').classList.toggle('is-on', !!rt.enabled);
+      document.getElementById('anPkgRealtimeBody').classList.toggle('hidden', !rt.enabled);
+      document.getElementById('anPkgEvCreated').checked = !!rt.created;
+      document.getElementById('anPkgEvConfirmed').checked = !!rt.confirmed;
+      document.getElementById('anPkgUpdates').classList.toggle('is-on', !!rt.updates);
+    }
+    function pkgApplyDigest(dg) {
+      dg = dg || { enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 };
+      document.getElementById('anPkgDigest').classList.toggle('is-on', !!dg.enabled);
+      document.getElementById('anPkgDigestBody').classList.toggle('hidden', !dg.enabled);
+      document.getElementById('anPkgDigestHora').value = dg.hora || '08:00';
+      const z = document.getElementById('anPkgDigestZona'); if (z && dg.zona) z.value = dg.zona;
+      document.getElementById('anPkgDigestTn').value = String(dg.tn || 1);
+      pkgDigestHint();
+    }
+    function pkgToggleRealtime(btn) { const on = btn.classList.toggle('is-on'); document.getElementById('anPkgRealtimeBody').classList.toggle('hidden', !on); }
+    function pkgToggleDigest(btn) { const on = btn.classList.toggle('is-on'); document.getElementById('anPkgDigestBody').classList.toggle('hidden', !on); if (on) pkgDigestHint(); }
+    function pkgDigestHint() {
+      const n = +document.getElementById('anPkgDigestTn').value || 1;
+      const span = document.querySelector('#anPkgDigestHint span'); if (!span) return;
+      span.innerHTML = n === 1
+        ? 'El resumen siempre cierra el <strong>día anterior</strong>: cada día recibes lo agrupado hasta ayer. La hora solo define <strong>cuándo llega</strong>, no qué período cubre.'
+        : 'Tu operación trabaja con <strong>' + n + ' días de rezago</strong>: hoy recibes lo que sigue abierto <strong>hasta hace ' + n + ' días (t-' + n + ')</strong>. La hora solo define cuándo llega, no qué período cubre.';
     }
     function renderPkgList() {
       const el = document.getElementById('anPkgList'); if (!el) return;
@@ -3972,8 +4245,8 @@
             '<div class="an-onb-diagram">' +
               '<div class="an-onb-ghost">' +
                 '<div class="an-onb-ghost-top"><span class="an-onb-ghost-name">Nombre de la notificación</span><span class="an-onb-ghost-toggle"></span></div>' +
-                '<div class="an-onb-ghost-scope"><i data-lucide="filter"></i> Tablero · Estado · Tipo…</div>' +
-                '<div class="an-onb-ghost-tags"><span>al confirmarse</span></div>' +
+                '<div class="an-onb-ghost-scope"><i data-lucide="filter"></i> Tablero · Recurso · Tipo…</div>' +
+                '<div class="an-onb-ghost-tags"><span>tiempo real</span><span>resumen diario</span></div>' +
               '</div>' +
               '<svg class="an-onb-wires" viewBox="0 0 460 30" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M230 0 V13 M110 13 H350 M110 13 V30 M350 13 V30" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path><path class="an-onb-wire-flow" d="M230 0 V13 M110 13 H350 M110 13 V30 M350 13 V30" vector-effect="non-scaling-stroke"></path></svg>' +
               '<div class="an-onb-channels">' +
@@ -4029,7 +4302,7 @@
       const el = document.getElementById('anPkgScopeChips'); if (!el) return;
       const groups = groupFilters(pkgEditingScope);
       el.innerHTML = groups.length
-        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + g.icon + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '<i data-lucide="x" class="an-prevchip-x" onclick="pkgClearType(\'' + g.type + '\')"></i></span>').join('')
+        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + groupIcon(g) + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '<i data-lucide="x" class="an-prevchip-x" onclick="pkgClearType(\'' + g.type + '\')"></i></span>').join('')
         : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
       if (window.lucide) lucide.createIcons();
     }
@@ -4037,20 +4310,19 @@
     function pkgToggleFMenu(e) { e.stopPropagation(); closeFilterMenus('anPkgFMenu'); pkgFGoto('main'); document.getElementById('anPkgFMenu').classList.toggle('open'); pkgBuildLists(); }
     function pkgFGoto(page) { document.querySelectorAll('#anPkgFMenu .an-fmenu-page').forEach(p => p.classList.toggle('hidden', p.dataset.fpage !== page)); pkgMarkChecks(); }
     function pkgBuildLists() {
-      const rec = document.getElementById('pkgFListRecurso');
-      if (rec && !rec.dataset.built) {
-        rec.innerHTML = AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Recurso" data-fval="' + esc(s[0]) + '" onclick="pkgAddFilter(\'Recurso\', this.dataset.fval, \'database\')"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        rec.dataset.built = '1';
-      }
-      const tab = document.getElementById('pkgFListTablero');
-      if (tab && !tab.dataset.built) {
-        tab.innerHTML = AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Tablero" data-fval="' + esc(t) + '" onclick="pkgAddFilter(\'Tablero\', this.dataset.fval, \'layout-grid\')"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        tab.dataset.built = '1';
+      const ent = document.getElementById('pkgFListEntidad');
+      if (ent && !ent.dataset.built) {
+        let html = '<div class="an-fmenu-grouplbl">Tableros</div>';
+        html += AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Entidad" data-fval="' + esc(t) + '" data-ficon="layout-grid" onclick="pkgAddFilter(\'Entidad\', this.dataset.fval, \'layout-grid\')"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        html += '<div class="an-fmenu-grouplbl">Recursos</div>';
+        html += AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Entidad" data-fval="' + esc(s[0]) + '" data-ficon="database" onclick="pkgAddFilter(\'Entidad\', this.dataset.fval, \'database\')"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        ent.innerHTML = html;
+        ent.dataset.built = '1';
       }
       pkgMarkChecks(); if (window.lucide) lucide.createIcons();
     }
     function pkgFFilterList(input, which) {
-      const id = which === 'recurso' ? 'pkgFListRecurso' : 'pkgFListTablero', q = input.value.toLowerCase();
+      const id = 'pkgFListEntidad', q = input.value.toLowerCase();
       document.querySelectorAll('#' + id + ' .an-fmenu-opt').forEach(o => { o.style.display = o.textContent.toLowerCase().includes(q) ? '' : 'none'; });
     }
     function pkgIsActive(type, value) { return pkgEditingScope.some(f => f.type === type && f.value === value); }
@@ -4099,9 +4371,8 @@
       pkgEditingId = null; pkgEditingScope = [];
       document.getElementById('anPkgEditorTitle').textContent = 'Nueva notificación';
       document.getElementById('anPkgName').value = '';
-      document.getElementById('anPkgEvCreated').checked = true;
-      document.getElementById('anPkgEvConfirmed').checked = false;
-      document.getElementById('anPkgUpdates').classList.remove('is-on');
+      pkgApplyRealtime({ enabled: true, created: true, confirmed: false, updates: false });
+      pkgApplyDigest({ enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 });
       pkgSetChannels([], [], []);
       pkgFillScopeSelect(false); document.getElementById('anPkgScopeSel').value = '';
       renderPkgScopeChips(); pkgMarkChecks(); pkgWarn([]); pkgShowEditor(true); if (window.lucide) lucide.createIcons();
@@ -4111,9 +4382,7 @@
       pkgEditingId = id; pkgEditingScope = p.scope.map(f => ({ ...f }));
       document.getElementById('anPkgEditorTitle').textContent = 'Editar notificación';
       document.getElementById('anPkgName').value = p.name;
-      document.getElementById('anPkgEvCreated').checked = p.events.created;
-      document.getElementById('anPkgEvConfirmed').checked = p.events.confirmed;
-      document.getElementById('anPkgUpdates').classList.toggle('is-on', p.updates);
+      pkgApplyRealtime(p.realtime); pkgApplyDigest(p.digest);
       pkgSetChannels(p.channels.emails, p.channels.slack, p.channels.mentions || []);
       pkgFillScopeSelect(true); document.getElementById('anPkgScopeSel').value = 'keep';
       renderPkgScopeChips(); pkgMarkChecks(); pkgWarn([]); pkgShowEditor(true); if (window.lucide) lucide.createIcons();
@@ -4127,19 +4396,22 @@
       w.classList.remove('hidden'); if (window.lucide) lucide.createIcons();
     }
     function pkgSave() {
+      const rtOn = document.getElementById('anPkgRealtime').classList.contains('is-on');
+      const dgOn = document.getElementById('anPkgDigest').classList.contains('is-on');
       const evCreated = document.getElementById('anPkgEvCreated').checked;
       const evConfirmed = document.getElementById('anPkgEvConfirmed').checked;
       const channels = pkgReadChannels();
       const problems = [];
-      if (!evCreated && !evConfirmed) problems.push('Elige al menos un momento del ciclo de vida (al crearse o al confirmarse).');
+      if (!rtOn && !dgOn) problems.push('Activa al menos una entrega: en tiempo real o resumen consolidado.');
+      if (rtOn && !evCreated && !evConfirmed) problems.push('En tiempo real, elige al menos un momento (al crearse o al confirmarse).');
       if (!channels.emails.length && !channels.slack.length) problems.push('Agrega al menos un canal: un correo o un canal de Slack.');
       if (problems.length) { pkgWarn(problems); return; }
       pkgWarn([]);
       const name = document.getElementById('anPkgName').value.trim() || 'Notificación sin nombre';
       const data = {
         name: name, scope: pkgEditingScope.map(f => ({ ...f })),
-        events: { created: evCreated, confirmed: evConfirmed },
-        updates: document.getElementById('anPkgUpdates').classList.contains('is-on'),
+        realtime: { enabled: rtOn, created: evCreated, confirmed: evConfirmed, updates: document.getElementById('anPkgUpdates').classList.contains('is-on') },
+        digest: { enabled: dgOn, hora: document.getElementById('anPkgDigestHora').value || '08:00', zona: document.getElementById('anPkgDigestZona').value, tn: +document.getElementById('anPkgDigestTn').value || 1 },
         channels: channels, active: true
       };
       if (pkgEditingId != null) { Object.assign(notifPackages.find(x => x.id === pkgEditingId), data); }
@@ -4149,85 +4421,13 @@
     function pkgDelete(id) { notifPackages = notifPackages.filter(p => p.id !== id); renderPkgList(); }
     function pkgToggleActive(id) { const p = notifPackages.find(x => x.id === id); if (p) { p.active = !p.active; renderPkgList(); } }
 
-    // ======== Resumen consolidado (sección propia) ========
-    let resScope = [];
-    function resFillSelect() {
-      const sel = document.getElementById('anResScopeSel'); if (!sel) return;
-      let html = '<option value="all">Todos mis incidentes</option>';
-      savedFilters.forEach((s, i) => html += '<option value="saved:' + i + '">' + esc(s.name) + '</option>');
-      html += '<option value="current">Filtro actual de la vista de incidentes</option>';
-      sel.innerHTML = html;
-    }
-    function resScopeFromSelect() {
-      const v = document.getElementById('anResScopeSel').value;
-      if (v === 'all') resScope = [];
-      else if (v === 'current') resScope = anActiveFilter.map(f => ({ ...f }));
-      else if (v.indexOf('saved:') === 0) { const i = +v.split(':')[1]; resScope = (savedFilters[i] ? savedFilters[i].filters : []).map(f => ({ ...f })); }
-      renderResScopeChips();
-    }
-    function renderResScopeChips() {
-      const el = document.getElementById('anResScopeChips'); if (!el) return;
-      const g = groupFilters(resScope);
-      el.innerHTML = g.length
-        ? g.map(x => '<span class="an-prevchip"><i data-lucide="' + x.icon + '"></i> ' + x.type + ': ' + esc(x.values.join(' o ')) + '</span>').join('')
-        : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
-      if (window.lucide) lucide.createIcons();
-    }
-    let resSaved = false; // ¿ya hay una config guardada?
-    function resSetState(s) { // 'empty' | 'edit' | 'saved'
-      document.getElementById('anResEmpty').classList.toggle('hidden', s !== 'empty');
-      document.getElementById('anResConfig').classList.toggle('hidden', s !== 'edit');
-      document.getElementById('anResSaved').classList.toggle('hidden', s !== 'saved');
-      const hs = document.getElementById('anResHeaderSub'); if (hs) hs.style.display = (s === 'empty') ? 'none' : '';
-    }
-    function resActivate() { // first-run → editar (con defaults)
-      const t = document.querySelector('#anResConfig .tm-notif-row-toggle'); if (t) t.classList.add('is-on');
-      resSetState('edit');
-    }
-    function resConfigToggle(btn) { const on = btn.classList.toggle('is-on'); if (!on) resPause(); }
-    function resEdit() { const t = document.querySelector('#anResConfig .tm-notif-row-toggle'); if (t) t.classList.add('is-on'); resSetState('edit'); }
-    function resCancel() { resSetState(resSaved ? 'saved' : 'empty'); }
-    function resPause() { resSaved = false; resSetState('empty'); }
-    function resSelText(id) { const s = document.getElementById(id); return s ? s.options[s.selectedIndex].text : ''; }
-    function resFmtHora(v) {
-      if (!v) return '';
-      const p = v.split(':'); let h = +p[0]; const m = p[1] || '00';
-      const ap = h < 12 ? 'a.m.' : 'p.m.'; h = h % 12; if (h === 0) h = 12;
-      return h + ':' + m + ' ' + ap;
-    }
-    function resSave() {
-      const hora = resFmtHora((document.getElementById('anResHora') || {}).value || '08:00');
-      const zona = resSelText('anResZona');
-      const incluir = resSelText('anResIncluir');
-      const g = groupFilters(resScope);
-      const scopeTxt = g.length ? g.map(x => x.type + ': ' + x.values.join(' o ')).join(' · ') : 'Todos mis incidentes';
-      const emails = [...document.querySelectorAll('#anResCardEmail .tm-chip')].map(c => c.childNodes[0].textContent.trim());
-      const slack = [...document.querySelectorAll('#anResCardSlack .tm-chip')].map(c => c.childNodes[0].textContent.trim());
-      const emailOn = document.getElementById('anResCardEmail').classList.contains('is-open');
-      const slackOn = document.getElementById('anResCardSlack').classList.contains('is-open');
-      const ch = [];
-      if (emailOn && emails.length) ch.push(emails.join(', '));
-      if (slackOn && slack.length) ch.push(slack.join(', '));
-      document.getElementById('anResSumWhen').textContent = hora + ' · ' + zona;
-      document.getElementById('anResSumInclude').textContent = 'Incluye: ' + incluir.toLowerCase();
-      document.getElementById('anResSumScope').textContent = scopeTxt;
-      document.getElementById('anResSumChannels').textContent = ch.length ? ch.join(' · ') : 'sin canales';
-      resSaved = true; resSetState('saved'); if (window.lucide) lucide.createIcons();
-    }
-    function resInit() {
-      resFillSelect();
-      if (!resSaved) { const sel = document.getElementById('anResScopeSel'); if (sel) sel.value = 'all'; resScope = []; renderResScopeChips(); }
-      resSetState(resSaved ? 'saved' : 'empty');
-    }
-
     function anConfNav(el, cfg) {
       document.querySelectorAll('#anLeftConfig .an-confitem').forEach(c => c.classList.toggle('is-sel', c === el));
-      const pages = { ingesta: 'anCfgIngesta', notif: 'anCfgNotif', resumen: 'anCfgResumen', soon: 'anCfgSoon' };
+      const pages = { ingesta: 'anCfgIngesta', notif: 'anCfgNotif', soon: 'anCfgSoon' };
       Object.values(pages).forEach(id => { const e = document.getElementById(id); if (e) e.classList.add('hidden'); });
       const show = document.getElementById(pages[cfg] || 'anCfgIngesta'); if (show) show.classList.remove('hidden');
-      if (cfg === 'ingesta') renderIngesta();
+      if (cfg === 'ingesta') { renderIngesta(); closeSource(); }
       if (cfg === 'notif') { renderPkgList(); pkgShowEditor(false); }
-      if (cfg === 'resumen') resInit();
       if (window.lucide) lucide.createIcons();
     }
     // Grilla de fuentes (Ingesta de datos). active: 1 = "Monitoreo activo" · 0 = "Activar monitoreo AI"
@@ -4247,21 +4447,67 @@
     let anIngRendered = false;
     function renderIngesta() {
       if (anIngRendered) return;
-      const grid = document.getElementById('anIngGrid'); if (!grid) return;
+      renderSourceGrid('anIngGrid');
+      anIngRendered = true;
+    }
+    // ---- Detalle de fuente (alertas por fuente · Ingesta) ----
+    function openSource(name) {
+      const n = document.getElementById('sdSourceName'); if (n) n.textContent = name;
+      document.getElementById('sdSecConfig').classList.remove('hidden');
+      document.getElementById('sdSecAlertas').classList.add('hidden');
+      document.querySelectorAll('#sourceDialog .tm-dialog-nav-item').forEach((it, i) => it.classList.toggle('is-active', i === 0));
+      const sc = document.querySelector('#sourceDialog .sd-content-scroll'); if (sc) sc.scrollTop = 0;
+      document.getElementById('sourceDialog').classList.add('open');
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeSource() {
+      const d = document.getElementById('sourceDialog'); if (d) d.classList.remove('open');
+    }
+    function sdNav(sec, el) {
+      el.parentElement.querySelectorAll('.tm-dialog-nav-item').forEach(n => n.classList.toggle('is-active', n === el));
+      document.getElementById('sdSecConfig').classList.toggle('hidden', sec !== 'config');
+      document.getElementById('sdSecAlertas').classList.toggle('hidden', sec !== 'alertas');
+      const sc = document.querySelector('#sourceDialog .sd-content-scroll'); if (sc) sc.scrollTop = 0;
+      if (window.lucide) lucide.createIcons();
+    }
+    function sdGotoConfig() { const nav = document.querySelector('#sourceDialog .tm-dialog-nav-item'); if (nav) sdNav('config', nav); }
+    function sdAiToggle(btn) { btn.closest('.sd-ai').classList.toggle('is-open'); }
+    function sdToggleInd(btn) {
+      btn.classList.toggle('is-on');
+      const ind = btn.closest('.sd-ind'); if (ind) ind.classList.toggle('is-on', btn.classList.contains('is-on'));
+    }
+    function sdRadio(el) {
+      el.parentElement.querySelectorAll('.sd-radio').forEach(r => r.classList.toggle('is-sel', r === el));
+    }
+    function sdSug(el, val) {
+      const input = el.closest('.sd-field').querySelector('input'); if (input) input.value = val;
+    }
+
+    // ---- Sub-tabs dentro del panel de config del tablero (Ingesta / Métricas) ----
+    function showMetricas() {
+      document.getElementById('bodyMetricas').classList.remove('hidden');
+      document.getElementById('bodyIngesta').classList.add('hidden');
+      document.getElementById('navMetricas').classList.add('active');
+      document.getElementById('navIngesta').classList.remove('active');
+    }
+    let monitorIngRendered = false;
+    function showIngesta() {
+      document.getElementById('bodyIngesta').classList.remove('hidden');
+      document.getElementById('bodyMetricas').classList.add('hidden');
+      document.getElementById('navIngesta').classList.add('active');
+      document.getElementById('navMetricas').classList.remove('active');
+      if (!monitorIngRendered) { renderSourceGrid('monitorIngGrid'); monitorIngRendered = true; }
+    }
+    // Render del grid de fuentes (reutilizado por Ingesta del tablero y por Anomalías→Config)
+    function renderSourceGrid(gridId) {
+      const grid = document.getElementById(gridId); if (!grid) return;
       grid.innerHTML = AN_SOURCES.map(([name, num, active]) =>
-        '<div class="an-src"><div class="an-src-info"><div class="an-src-name">' + name + '</div><div class="an-src-num">' + num + '</div></div>' +
+        '<div class="an-src" data-src="' + esc(name) + '" onclick="openSource(this.dataset.src)"><div class="an-src-info"><div class="an-src-name">' + esc(name) + '</div><div class="an-src-num">' + num + '</div></div>' +
         (active
           ? '<button class="an-src-status is-active"><i data-lucide="circle-check"></i> Monitoreo activo</button>'
           : '<button class="an-src-status"><i data-lucide="gem"></i> Activar monitoreo AI</button>') +
         '</div>').join('');
-      anIngRendered = true;
       if (window.lucide) lucide.createIcons();
-    }
-
-    // ---- Sub-tabs dentro del panel de config (nav persistente) ----
-    function showMetricas() {
-      document.getElementById('bodyMetricas').classList.remove('hidden');
-      document.getElementById('navMetricas').classList.add('active');
     }
     // ¿Dónde? — enciende/apaga un canal y revela su config inline (configuración progresiva)
     function toggleChannel(btn) {
@@ -4269,7 +4515,8 @@
       const on = btn.classList.contains('is-on');
       const card = btn.closest('.tm-notif-card');
       if (card) card.classList.toggle('is-open', on);
-      if (!isChannelInvalid()) showChannelWarning(false); // al activar un canal, desaparece el aviso
+      const section = btn.closest('[data-notif-section]');
+      showChannelWarning(isChannelInvalid(section), section);
     }
     // Agrega un chip (correo / canal / mención) al presionar Enter
     function addChip(e, input, type) {
@@ -4346,9 +4593,9 @@
       const body = scope.querySelector('[data-when-body]'); if (body) body.classList.remove('is-unset');
       renderWhen(scope, mode);
       // Atenúa ¿Dónde?/Idioma cuando es "Nunca"
-      const section = scope.closest('#dsec-notif'); if (section) section.classList.toggle('notif-when-never', mode === 'never');
+      const section = scope.closest('[data-notif-section]'); if (section) section.classList.toggle('notif-when-never', mode === 'never');
       const sel = opt.closest('.when-select'); if (sel) sel.classList.remove('open');
-      if (!isChannelInvalid()) showChannelWarning(false); // oculta el aviso si ya es válido (p. ej. "Nunca")
+      showChannelWarning(isChannelInvalid(section), section); // muestra/oculta el aviso según el scope
     }
     // CTA del empty-state: configura con el valor recomendado (Solo al final)
     function whenConfigure(btn) {
@@ -4359,12 +4606,13 @@
     // Init: en primer ingreso (unset) no pinta config; al configurar, renderWhen toma el relevo.
     document.querySelectorAll('[data-when-scope]').forEach(s => renderWhen(s, whenMode));
     // Inválido = hay un modo activo (no unset ni nunca) y no hay ningún canal activo.
-    function isChannelInvalid() {
-      const active = document.querySelectorAll('.notif-chan-list .tm-notif-row-toggle.is-on').length;
+    function isChannelInvalid(section) {
+      const root = section || document;
+      const active = root.querySelectorAll('.notif-chan-list .tm-notif-row-toggle.is-on').length;
       return whenMode !== 'never' && whenMode !== 'unset' && active === 0;
     }
-    function showChannelWarning(show) {
-      const warn = document.getElementById('notif-chan-warning');
+    function showChannelWarning(show, section) {
+      const warn = (section || document).querySelector('.notif-chan-warning');
       if (warn) warn.classList.toggle('show', show);
     }
     // Cierra el dropdown al hacer clic fuera
@@ -4381,9 +4629,9 @@
     }
     // ---- Sensibilidad (nivel KPI) ----
     const SENS_COPY = {
-      'Nula':  { t: 'Sensibilidad · nula',  s: 'Solo avisa cuando el valor supera el límite fijo que definiste.', level: 'nula'  },
-      'Media': { t: 'Sensibilidad · media', s: 'Avisa al acercarse al límite, pasado un umbral intermedio.',      level: 'media' },
-      'Alta':  { t: 'Sensibilidad · alta',  s: 'Avisa ante cualquier desviación inusual, sin esperar al límite fijo.', level: 'alta'  }
+      'Umbral': { t: 'Solo mi umbral',        s: 'Alerta de umbral fija: solo avisa cuando el valor sale de los límites que definiste.', level: 'umbral' },
+      'Media':  { t: 'Sensibilidad · media',  s: 'Combina tu umbral con detección de patrones cerca del borde.',                          level: 'media'  },
+      'Adapt':  { t: 'Detección adaptativa',  s: 'El sistema decide qué es anómalo según el patrón, sin esperar al límite. No marca todo.', level: 'adapt'  }
     };
 
     // La FRANJA AZUL = límite inferior/superior que pone el usuario (FIJA, solo cambia con los inputs).
@@ -4520,7 +4768,11 @@
       const value = s.values, lower = s.lower, upper = s.upper, lowerOn = s.lowerOn, upperOn = s.upperOn;
       const center = (lower + upper) / 2;
       const semi = (upper - lower) / 2;
-      const mark = semi * (1 - frac);                // umbral interior
+      // La banda de atención crece con la sensibilidad, pero NUNCA llega al centro: aun en 100%
+      // queda un núcleo normal sin marcar. La detección adaptativa no marca "todo punto", solo
+      // lo inusual; por eso el extremo derecho del slider no debe pintar toda la gráfica.
+      const CORE = 0.30;                              // 30% central siempre se considera normal
+      const mark = semi * (1 - frac * (1 - CORE));   // umbral interior (mínimo = semi*CORE)
       const hasYellow = frac > 0.001 && mark < semi - 0.5;
       const n = value.length;
       const W = 520, H = 190, padL = 32, padR = 12, padTop = 12, padBot = 40;
@@ -4593,9 +4845,9 @@
       const pctEl = document.getElementById('sens-pct'); if (pctEl) pctEl.textContent = pct + '%';
       const sub = document.getElementById('sens-sub');
       if (sub) sub.textContent = pct === 0
-        ? 'Funciona como umbral fijo: solo avisa cuando el valor supera el límite que definiste.'
-        : pct <= 66 ? 'Avisa al acercarse al límite, pasado un umbral intermedio.'
-        : 'Avisa ante cualquier desviación inusual, sin esperar al límite.';
+        ? 'Alerta de umbral fija: solo avisa cuando el valor sale de los límites que definiste. El sistema no agrega nada.'
+        : pct <= 66 ? 'Combina tu umbral con detección de patrones: además del límite, marca desviaciones inusuales cerca del borde.'
+        : 'Detección adaptativa: el sistema decide qué es anómalo según el patrón histórico, sin esperar a que cruce el límite. No marca todo, solo lo inusual.';
       const cn = document.getElementById('sens-impact-count'); if (cn) cn.textContent = total;
       const r = document.getElementById('sens-impact-red'); if (r) r.textContent = red;
       const y = document.getElementById('sens-impact-yellow'); if (y) y.textContent = yellow;
@@ -4703,7 +4955,8 @@
     function dlgNext() {
       // Gate: salir de Notificaciones exige al menos un canal (salvo "Nunca").
       // La alerta aparece justo al intentar avanzar, no antes.
-      if (dlgCurrentSec === 'notif' && isChannelInvalid()) { showChannelWarning(true); return; }
+      const _nsec = document.getElementById('dsec-notif');
+      if (dlgCurrentSec === 'notif' && isChannelInvalid(_nsec)) { showChannelWarning(true, _nsec); return; }
       const idx = WIZARD.indexOf(dlgCurrentSec);
       if (idx > -1 && idx < WIZARD.length - 1) goSec(WIZARD[idx + 1]);
       else closeMonitorDialog(); // último paso (o fuera del wizard) = Guardar
