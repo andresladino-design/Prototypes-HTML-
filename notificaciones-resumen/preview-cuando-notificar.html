@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Preview · ¿Cuándo notificar? (barra como explicador)</title>
+<title>Preview · ¿Cuándo notificar? (2 ejes: timing + alcance)</title>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
   :root{
@@ -16,116 +16,140 @@
     --green-text:hsl(var(--success)); --green-soft:hsl(138 76% 96%);
     --red-text:hsl(var(--destructive)); --red-soft:hsl(0 86% 97%);
     --amber-text:hsl(var(--warning)); --amber-soft:hsl(55 92% 92%);
-    --orange:#e8833a;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;background:#f4f4f6;color:var(--text-primary);padding:32px 16px;-webkit-font-smoothing:antialiased}
   .stage{max-width:520px;margin:0 auto}
   .stage-note{font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:18px}
 
+  /* ===== Tarjeta ===== */
   .card{background:#fff;border:1px solid var(--border-default);border-radius:14px;overflow:hidden}
   .card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px 12px}
   .card-title{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--text-primary)}
   .card-title .lucide{width:16px;height:16px;color:var(--text-tertiary)}
   .card-body{padding:0 16px 14px}
 
-  /* ===== Dropdown (patrón when-select del prototipo) ===== */
+  /* ===== Dropdown ¿Cuándo? (patrón when-select) ===== */
   .when-select{position:relative;flex-shrink:0}
   .when-select-btn{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px;border:1px solid var(--border-strong);border-radius:8px;background:#fff;font:inherit;font-size:12.5px;font-weight:500;color:var(--text-primary);cursor:pointer;transition:border-color .12s}
   .when-select-btn:hover{border-color:hsl(var(--primary-hsl)/.4)}
-  .when-select-btn svg{width:14px;height:14px;color:var(--text-tertiary);transition:transform .2s}
-  .when-select.open .when-select-btn svg{transform:rotate(180deg)}
+  .when-select-btn .chev{width:14px;height:14px;color:var(--text-tertiary);transition:transform .2s}
+  .when-select.open .when-select-btn .chev{transform:rotate(180deg)}
+  .cur-ic{display:inline-flex}.cur-ic .lucide{width:14px;height:14px;color:var(--text-tertiary)}
   .when-menu{position:absolute;top:calc(100% + 4px);right:0;z-index:20;min-width:262px;padding:4px;border-radius:10px;background:#fff;border:1px solid var(--border-default);box-shadow:0 8px 24px rgba(20,20,40,.12);display:none;flex-direction:column;gap:2px}
   .when-select.open .when-menu{display:flex}
-  .when-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;padding:8px 10px;border:0;border-radius:7px;background:none;cursor:pointer;font:inherit;transition:background .12s}
+  .when-opt{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;padding:8px 10px;border:0;border-radius:7px;background:none;cursor:pointer;font:inherit;transition:background .12s}
   .when-opt:hover{background:var(--bg-hover)}
+  .when-opt .oic{width:16px;height:16px;flex-shrink:0;margin-top:1px;color:var(--text-tertiary)}
+  .when-opt.is-sel .oic{color:var(--primary-text)}
+  .when-opt .otx{display:flex;flex-direction:column;gap:2px;min-width:0}
   .when-opt .ot{font-size:13px;font-weight:500;color:var(--text-primary);display:flex;align-items:center;gap:7px}
   .when-opt .od{font-size:11.5px;color:var(--text-tertiary);line-height:1.35}
   .when-opt.is-sel .ot{color:var(--primary-text)}
-  .tag{font-size:9.5px;font-weight:600;letter-spacing:.02em;padding:1px 6px;border-radius:5px;text-transform:uppercase}
-  .tag.rec{background:var(--green-soft);color:var(--green-text)}
+  .tag{font-size:9.5px;font-weight:600;letter-spacing:.02em;padding:1px 6px;border-radius:5px;text-transform:uppercase;background:var(--green-soft);color:var(--green-text)}
 
-  /* ===== Detalle ===== */
-  .detail-line{font-size:12.5px;color:var(--text-secondary);line-height:1.45;margin:2px 2px 12px}
+  /* ===== 2º eje: alcance (segmented) ===== */
+  .scope-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 4px}
+  .scope-label{font-size:12px;font-weight:600;color:var(--text-secondary)}
+  .scope-seg{display:inline-flex;background:hsl(240 5% 96%);border-radius:8px;padding:3px;gap:2px;transition:opacity .15s}
+  .scope-opt{border:0;background:none;font:inherit;font-size:11.5px;font-weight:500;color:var(--text-tertiary);padding:5px 10px;border-radius:6px;cursor:pointer;transition:background .12s,color .12s}
+  .scope-opt.is-sel{background:#fff;color:var(--text-primary);box-shadow:0 1px 2px rgba(20,20,30,.08),0 0 0 1px var(--border-default)}
+  .scope-seg.is-disabled{opacity:.45;pointer-events:none}
+  .scope-note{font-size:11px;color:var(--text-muted);margin:0 0 12px;min-height:14px}
+  .scope-note:empty{margin:0}
+
+  /* ===== Detalle / preview ===== */
+  .detail{border:1px solid var(--border-default);border-radius:11px;padding:12px 13px;background:#fcfcfd}
+  .detail-line{font-size:12.5px;color:var(--text-secondary);line-height:1.45;margin-bottom:10px}
   .detail-line b{color:var(--text-primary)}
+  .preview-label{font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px}
+  .preview-label.is-hidden{display:none}
+  .ntf{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px;color:var(--text-secondary)}
+  .ntf .dot{flex-shrink:0;width:9px;height:9px;border-radius:50%}
+  .ntf .when{margin-left:auto;font-size:11px;color:var(--text-muted);white-space:nowrap}
+  .dot.red{background:var(--red-text)}.dot.green{background:var(--green-text)}.dot.amber{background:var(--amber-text)}.dot.orange{background:#e8833a}
+  .preview-foot{font-size:11px;color:var(--text-muted);margin-top:8px;display:flex;align-items:center;gap:5px}
+  .preview-foot.is-hidden{display:none}
+  .preview-foot .lucide{width:13px;height:13px;flex-shrink:0}
 
-  /* ===== Ventana de monitoreo como EXPLICADOR ===== */
-  .win{padding:13px 14px;border:1px solid var(--border-default);border-radius:11px;background:#fcfcfd}
-  .win-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:14px}
-  .win-label{font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--text-muted);display:flex;align-items:center;gap:6px}
+  .filter{margin-top:11px;padding-top:11px;border-top:1px dashed var(--border-default);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);cursor:pointer;user-select:none}
+  .chk{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--border-strong);flex-shrink:0;position:relative;transition:.12s}
+  .filter.on .chk{background:var(--primary);border-color:var(--primary)}
+  .filter.on .chk::after{content:"";position:absolute;left:5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+
+  /* ===== Ventana de monitoreo (referencia) ===== */
+  .win{margin-top:12px;padding:11px 13px;border:1px solid var(--border-default);border-radius:11px;background:#fff;transition:opacity .15s}
+  .win.dim{opacity:.5}
+  .win-label{font-size:10.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
   .win-label .lucide{width:13px;height:13px}
-  .win-count{font-size:11.5px;font-weight:600;color:var(--text-secondary)}
-  .win-count.zero{color:var(--text-muted);font-weight:500}
-
-  .win-track{position:relative;height:10px;border-radius:6px;background:hsl(240 5% 92%);margin:0 4px}
-  .win-band{position:absolute;top:0;bottom:0;left:33.33%;width:50%;border-radius:6px;background:hsl(var(--primary-hsl)/.16)}
-  /* marcadores = notificaciones */
-  .mk{position:absolute;top:50%;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.18);cursor:default;z-index:2;transition:transform .12s}
-  .mk:hover{transform:translate(-50%,-50%) scale(1.25);z-index:3}
-  .mk[data-tip]:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:nowrap;background:hsl(240 6% 12%);color:#fff;font-size:11px;font-weight:500;padding:4px 8px;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:5}
-  .mk[data-tip]:hover::before{content:"";position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:hsl(240 6% 12%);z-index:5}
-  .mk.amber{background:var(--amber-text)} .mk.red{background:var(--red-text)} .mk.orange{background:var(--orange)} .mk.green{background:var(--green-text)}
-  .mk.final{width:15px;height:15px}
-
-  .win-ticks{display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-muted);margin-top:7px}
-
-  .win-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;padding-top:11px;border-top:1px dashed var(--border-default)}
-  .lg{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-secondary)}
-  .lg .dot{width:9px;height:9px;border-radius:50%}
-  .lg .amber{background:var(--amber-text)} .lg .red{background:var(--red-text)} .lg .orange{background:var(--orange)} .lg .green{background:var(--green-text)}
-
-  .win-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+  .win-track{position:relative;height:8px;border-radius:5px;background:hsl(240 5% 92%);margin:0 2px}
+  .win-band{position:absolute;top:0;bottom:0;left:33.33%;width:50%;border-radius:5px;background:hsl(var(--primary-hsl)/.18)}
+  .win-ticks{display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-muted);margin-top:5px}
+  .win-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;align-items:center}
   .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);background:hsl(240 5% 96%);border-radius:6px;padding:3px 8px}
   .badge .lucide{width:12px;height:12px;color:var(--text-tertiary)}
   .win-edit{margin-left:auto;width:26px;height:26px;border-radius:6px;border:1px solid var(--border-default);background:#fff;color:var(--text-tertiary);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
   .win-edit .lucide{width:13px;height:13px}
 
-  .win.dim .win-track,.win.dim .win-legend{opacity:.45}
-
-  .hint{margin:14px auto 0;max-width:520px;font-size:11.5px;color:var(--text-muted);background:#fff;border:1px solid var(--border-default);border-radius:10px;padding:10px 12px;line-height:1.5}
+  .hint{margin:14px auto 0;max-width:520px;font-size:11.5px;color:var(--text-muted);background:#fff;border:1px solid var(--border-default);border-radius:10px;padding:10px 12px;line-height:1.55}
   .hint b{color:var(--text-secondary)}
 </style>
 </head>
 <body>
 <div class="stage">
-  <div class="stage-note">Preview aislado · la barra de la ventana es el explicador · pasa el mouse por los puntos · cambia de opción</div>
+  <div class="stage-note">2 ejes · ¿Cuándo? (timing) + ¿Qué? (alcance) · juega con ambos selectores</div>
 
   <div class="card">
     <div class="card-header">
       <span class="card-title"><i data-lucide="bell"></i> ¿Cuándo notificar?</span>
       <div class="when-select" id="sel">
         <button type="button" class="when-select-btn" onclick="toggleMenu()">
+          <span class="cur-ic" id="cur-ic"></span>
           <span id="cur">Solo al final</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
         </button>
         <div class="when-menu">
           <button type="button" class="when-opt" onclick="pick('never','Nunca')">
-            <span class="ot">Nunca</span>
-            <span class="od">No recibirás avisos. El monitoreo igual registra todo in-app.</span>
+            <i data-lucide="bell-off" class="oic"></i>
+            <span class="otx"><span class="ot">Nunca</span><span class="od">No recibirás avisos. El monitoreo igual registra todo in-app.</span></span>
           </button>
           <button type="button" class="when-opt is-sel" onclick="pick('final','Solo al final')">
-            <span class="ot">Solo al final <span class="tag rec">recomendado</span></span>
-            <span class="od">Al cerrar la ventana, el estado final del incidente.</span>
+            <i data-lucide="bell" class="oic"></i>
+            <span class="otx"><span class="ot">Solo al final <span class="tag">recomendado</span></span><span class="od">Al cerrar la ventana, el estado final del incidente.</span></span>
           </button>
           <button type="button" class="when-opt" onclick="pick('live','En tiempo real')">
-            <span class="ot">En tiempo real</span>
-            <span class="od">Cada cambio de estado, a medida que ocurre.</span>
+            <i data-lucide="bell-ring" class="oic"></i>
+            <span class="otx"><span class="ot">En tiempo real</span><span class="od">Cada cambio de estado, a medida que ocurre.</span></span>
           </button>
         </div>
       </div>
     </div>
 
     <div class="card-body">
-      <div class="detail-line" id="d-line"></div>
-
-      <div class="win" id="win">
-        <div class="win-head">
-          <span class="win-label"><i data-lucide="calendar-clock"></i> Ventana de monitoreo</span>
-          <span class="win-count" id="d-count"></span>
+      <!-- 2º eje: alcance -->
+      <div class="scope-row">
+        <span class="scope-label">¿Qué notificar?</span>
+        <div class="scope-seg" id="scope-seg">
+          <button class="scope-opt is-sel" data-scope="incident" onclick="setScope('incident',this)">Solo el incidente</button>
+          <button class="scope-opt" data-scope="signals" onclick="setScope('signals',this)">Incidente y sus señales</button>
         </div>
-        <div class="win-track" id="d-track"><div class="win-band"></div></div>
+      </div>
+      <div class="scope-note" id="scope-note"></div>
+
+      <!-- DETALLE -->
+      <div class="detail">
+        <div class="detail-line" id="d-line"></div>
+        <div class="preview-label" id="d-prevlabel">Recibirás algo así</div>
+        <div id="d-preview"></div>
+        <div class="preview-foot" id="d-footwrap"><i data-lucide="git-commit-horizontal"></i> <span id="d-foot"></span></div>
+        <label class="filter" id="d-filter" onclick="togFilter(this)" hidden><span class="chk"></span> Solo cuando la severidad sea alta</label>
+      </div>
+
+      <!-- Ventana de monitoreo -->
+      <div class="win" id="win">
+        <div class="win-label"><i data-lucide="calendar-clock"></i> Ventana de monitoreo</div>
+        <div class="win-track"><div class="win-band"></div></div>
         <div class="win-ticks"><span>12 a.m.</span><span>6 a.m.</span><span>12 m.</span><span>6 p.m.</span><span>12 a.m.</span></div>
-        <div class="win-legend" id="d-legend"></div>
         <div class="win-badges">
           <span class="badge"><i data-lucide="repeat"></i> Diario</span>
           <span class="badge"><i data-lucide="clock"></i> 08:00 a.m. – 08:00 p.m.</span>
@@ -137,74 +161,90 @@
   </div>
 
   <div class="hint">
-    <b>La barra explica:</b> cada punto es una notificación, ubicada a la hora en que llegaría. "Solo al final" = un punto al cierre; "En tiempo real" = varios a lo largo de la ventana.<br>
-    <b>Solo al final:</b> si el incidente se resolvió durante la ventana, no hay punto (no llega nada).<br>
-    <b>A validar con Iván:</b> qué estado reporta BADS exactamente al cierre.
+    <b>Cómo se lee:</b> <b>¿Cuándo?</b> = el <i>momento</i> (Nunca · solo el estado final al cierre · en tiempo real). <b>¿Qué?</b> = el <i>alcance</i> (solo el incidente, o además todas las señales emitidas durante él).<br>
+    El alcance <b>solo aplica en tiempo real</b>: "Solo al final" manda un único aviso con el estado de cierre, sin señales intermedias.<br>
+    <b>A validar con Iván:</b> "estado final al cierre" vs. confirmación por workflow runner.
   </div>
 </div>
 
 <script>
-  const ORDER = ['never','final','live'];
-  const TYPE_LABEL = {amber:'Señal', red:'Incidente abierto', orange:'Reconfirmado', green:'Resuelto'};
-  const pct = h => (h/24*100);
-  const MODES = {
-    never:{
-      line:'No enviaremos notificaciones de este monitoreo. El monitoreo seguirá analizando y registrando incidentes in-app.',
-      count:'Sin avisos', zero:true, ev:[]
-    },
-    final:{
-      line:'Al cerrar la ventana te comunico el <b>estado final</b> del incidente. Si se resolvió antes del cierre, no recibes nada.',
-      count:'1 aviso · al cierre',
-      ev:[{t:20.0, type:'red', cls:'final', label:'Estado final del incidente', tip:'Estado final del incidente · 8:00 p.m.'}]
-    },
-    live:{
-      line:'Te aviso de <b>cada cambio de estado</b> (señales e incidente) a medida que ocurre durante la ventana.',
-      count:'4 avisos · en vivo',
-      ev:[
-        {t:14.5, type:'amber',  tip:'Señal: conteo por debajo · 2:30 p.m.'},
-        {t:18.2, type:'red',    tip:'Incidente abierto · faltan archivos · 6:12 p.m.'},
-        {t:19.0, type:'orange', tip:'Reconfirmado · severidad sube · 7:00 p.m.'},
-        {t:19.75,type:'green',  tip:'Resuelto · 7:45 p.m.'}
-      ]
-    }
-  };
+  const ICON = { never:'bell-off', final:'bell', live:'bell-ring' };
+  // Ciclo de vida del incidente (mock). kind: 'signal' (amber) | 'incident' (red/orange/green)
+  const EV = [
+    { t:'2:30 p.m.', dot:'amber',  kind:'signal',   txt:'Señal: conteo por debajo de lo esperado' },
+    { t:'3:10 p.m.', dot:'amber',  kind:'signal',   txt:'Señal: sigue descendiendo' },
+    { t:'6:12 p.m.', dot:'red',    kind:'incident', txt:'Incidente abierto · faltan archivos de Banco X' },
+    { t:'7:00 p.m.', dot:'orange', kind:'incident', txt:'Reconfirmado · severidad sube' },
+    { t:'8:00 a.m.', dot:'green',  kind:'incident', txt:'Resuelto' },
+  ];
+  let timing = 'final', scope = 'incident', sevOnly = false;
+
   function toggleMenu(){ document.getElementById('sel').classList.toggle('open'); }
-  function pick(mode,label){
-    const m = MODES[mode];
+  function pick(t,label){
+    timing = t;
     document.getElementById('cur').textContent = label;
-    const opts = document.querySelectorAll('.when-opt');
-    opts.forEach(o=>o.classList.remove('is-sel'));
-    opts[ORDER.indexOf(mode)].classList.add('is-sel');
-    document.getElementById('d-line').innerHTML = m.line;
-
-    // marcadores sobre la barra
-    const track = document.getElementById('d-track');
-    track.querySelectorAll('.mk').forEach(n=>n.remove());
-    m.ev.forEach(e=>{
-      const mk = document.createElement('span');
-      mk.className = 'mk '+e.type+(e.cls?(' '+e.cls):'');
-      mk.style.left = pct(e.t)+'%';
-      mk.setAttribute('data-tip', e.tip);
-      track.appendChild(mk);
-    });
-
-    // count + leyenda
-    const c = document.getElementById('d-count');
-    c.textContent = m.count; c.classList.toggle('zero', !!m.zero);
-    const seen = new Set(), legend = [];
-    m.ev.forEach(e=>{ const lbl = e.label || TYPE_LABEL[e.type]; if(!seen.has(lbl)){ seen.add(lbl); legend.push([e.type,lbl]); } });
-    document.getElementById('d-legend').innerHTML = legend.length
-      ? legend.map(([t,lbl])=>'<span class="lg"><span class="dot '+t+'"></span>'+lbl+'</span>').join('')
-      : '<span class="lg" style="color:var(--text-muted)">El monitoreo sigue registrando, solo que en silencio.</span>';
-
-    document.getElementById('win').classList.toggle('dim', mode==='never');
+    document.getElementById('cur-ic').innerHTML = '<i data-lucide="'+ICON[t]+'"></i>';
+    document.querySelectorAll('.when-opt').forEach((o,i)=>o.classList.toggle('is-sel', ['never','final','live'][i]===t));
     document.getElementById('sel').classList.remove('open');
-    lucide.createIcons();
+    render();
   }
+  function setScope(s,btn){
+    if (timing !== 'live') return;            // alcance solo aplica en tiempo real
+    scope = s;
+    document.querySelectorAll('.scope-opt').forEach(o=>o.classList.remove('is-sel'));
+    btn.classList.add('is-sel');
+    render();
+  }
+  function togFilter(el){ sevOnly = !sevOnly; el.classList.toggle('on', sevOnly); render(); }
+
+  function rowsHTML(list){
+    return list.map(e=>`<div class="ntf"><span class="dot ${e.dot}"></span> ${e.txt} <span class="when">${e.t}</span></div>`).join('');
+  }
+  function render(){
+    const line = document.getElementById('d-line');
+    const prev = document.getElementById('d-preview');
+    const prevLabel = document.getElementById('d-prevlabel');
+    const footWrap = document.getElementById('d-footwrap');
+    const foot = document.getElementById('d-foot');
+    const filter = document.getElementById('d-filter');
+    const seg = document.getElementById('scope-seg');
+    const note = document.getElementById('scope-note');
+    const win = document.getElementById('win');
+    const sevTxt = sevOnly ? ' · solo si la severidad es alta' : '';
+
+    // Eje alcance: solo habilitado en tiempo real
+    const scopeActive = timing === 'live';
+    seg.classList.toggle('is-disabled', !scopeActive);
+    note.textContent = timing === 'live'
+      ? (scope === 'incident' ? 'Recibes los cambios del incidente, sin las señales.' : 'Recibes el incidente y cada señal emitida durante él.')
+      : (timing === 'final' ? 'El alcance aplica solo en tiempo real.' : '');
+
+    if (timing === 'never'){
+      line.innerHTML = 'No enviaremos notificaciones de este monitoreo. El monitoreo seguirá analizando y registrando incidentes in-app.';
+      prevLabel.classList.add('is-hidden'); prev.innerHTML = '';
+      footWrap.classList.add('is-hidden'); filter.hidden = true;
+      win.classList.add('dim');
+    } else if (timing === 'final'){
+      line.innerHTML = 'Al cerrar la ventana te comunico el <b>estado final</b> del incidente. Si se resolvió antes del cierre, no recibes nada.';
+      prevLabel.classList.remove('is-hidden');
+      prev.innerHTML = rowsHTML([{ t:'8:00 p.m.', dot:'red', txt:'Estado final del incidente' }]);
+      footWrap.classList.remove('is-hidden'); foot.textContent = 'Un solo aviso, al cierre' + sevTxt + '.';
+      filter.hidden = false; win.classList.remove('dim');
+    } else { // live
+      line.innerHTML = 'Te aviso de <b>cada cambio de estado</b> a medida que ocurre durante la ventana.';
+      prevLabel.classList.remove('is-hidden');
+      const list = scope === 'incident' ? EV.filter(e=>e.kind==='incident') : EV;
+      prev.innerHTML = rowsHTML(list);
+      footWrap.classList.remove('is-hidden');
+      foot.textContent = (scope === 'incident' ? 'Solo los cambios del incidente' : 'El stream completo: señales + incidente') + sevTxt + '.';
+      filter.hidden = false; win.classList.remove('dim');
+    }
+    if (window.lucide) lucide.createIcons();
+  }
+
   document.addEventListener('click',e=>{ if(!e.target.closest('.when-select')) document.getElementById('sel').classList.remove('open'); });
   pick('final','Solo al final');
   lucide.createIcons();
 </script>
 </body>
 </html>
-</content>

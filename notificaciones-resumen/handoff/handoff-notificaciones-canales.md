@@ -1,5 +1,7 @@
 # Handoff — Notificaciones (¿Cuándo? → ¿Dónde? → Idioma)
 
+> ⚠️ **Reencuadre 30-jun:** esta sección del diálogo del KPI pasó a llamarse **"Alertas"** (señales del KPI), separada de las **Notificaciones de incidentes** (que viven en Anomalías → Configuración, ver `handoff-anomalias-filtros-notificaciones.md`). El timing y los canales descritos aquí siguen válidos para **Alertas**; donde el texto diga "incidente", léase **alerta/señal** del KPI. Las notificaciones de incidentes NO se configuran desde aquí.
+
 Fecha: 2026-06-26 (rediseño pm)
 Origen: `notificaciones-resumen/index.html` → sección `#dsec-notif` del diálogo de monitoreo (prototipo validado)
 Registro: **Interno (Operation Center)** — operador Simetrik configurando el monitoreo inteligente de un gráfico (K Cast)
