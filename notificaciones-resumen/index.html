@@ -1565,6 +1565,13 @@
     .an-soon { font-size: 10px; font-weight: 600; color: var(--text-secondary); background: hsl(240 5% 94%); border-radius: 5px; padding: 1px 6px; }
     .an-confdiv { height: 1px; background: var(--border-default); margin: 8px 12px; }
     .an-ingesta { flex: 1; min-width: 0; overflow-y: auto; padding: 18px 22px 28px; }
+    /* Cambio del inspector de Ohana sobre #anCfgNotif (centrar el contenido).
+       - `safe center` en lugar de `center`: centra cuando el contenido cabe (first-run, pocas
+         tarjetas) y cae a alineado-al-inicio cuando desborda, para que el título + "Crear
+         notificación" sigan alcanzables por scroll (evita el clip de flexbox centrado + overflow).
+       - El guard `.hidden` mantiene el toggle de navegación (un ID le gana a la clase .hidden de Tailwind). */
+    #anCfgNotif { display: flex; justify-content: safe center; align-items: safe center; }
+    #anCfgNotif.hidden { display: none; }
     .an-ing-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
     .an-ing-sub { font-size: 13px; color: var(--text-tertiary); line-height: 1.5; max-width: 760px; margin-bottom: 16px; }
     .an-ing-search { display: flex; align-items: center; gap: 9px; height: 40px; padding: 0 13px; border: 1px solid var(--border-default); border-radius: 9px; background: #fff; max-width: 520px; margin-bottom: 18px; }
