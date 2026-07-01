@@ -2423,7 +2423,7 @@
               <i data-lucide="bell" class="an-confitem-ic"></i>
               <span class="an-confitem-tx">
                 <span class="an-confitem-t">Notificaciones de incidentes</span>
-                <span class="an-confitem-d">De cuáles incidentes te avisamos, cuándo (en tiempo real o resumen diario) y por dónde</span>
+                <span class="an-confitem-d">De cuáles incidentes te avisamos, cuándo (por evento o resumen diario) y por dónde</span>
               </span>
             </button>
           </div>
@@ -2596,17 +2596,17 @@
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
                   <div class="an-cfg-title"><i data-lucide="bell"></i> ¿Cuándo quieres que te avisemos?</div>
-                  <div class="an-cfg-sub">Define cómo se entrega esta notificación. Puedes activar las dos: avisos al instante y un resumen diario, ambos sobre el mismo alcance.</div>
+                  <div class="an-cfg-sub">Define cómo se entrega esta notificación. Puedes activar las dos: un aviso por cada evento y un resumen diario, ambos sobre el mismo alcance.</div>
                 </div>
 
-                <!-- Entrega 1: en tiempo real -->
+                <!-- Entrega 1: aviso por evento -->
                 <div class="an-deliv">
                   <div class="an-deliv-row">
                     <div class="an-deliv-info">
-                      <div class="an-deliv-title"><i data-lucide="zap"></i> En tiempo real</div>
-                      <div class="an-deliv-sub">Un aviso por cada evento, apenas ocurre.</div>
+                      <div class="an-deliv-title"><i data-lucide="zap"></i> Aviso por evento</div>
+                      <div class="an-deliv-sub">Uno por cada evento, apenas ocurre.</div>
                     </div>
-                    <button type="button" class="tm-notif-row-toggle is-on" id="anPkgRealtime" onclick="pkgToggleRealtime(this)" aria-label="Avisos en tiempo real"></button>
+                    <button type="button" class="tm-notif-row-toggle is-on" id="anPkgRealtime" onclick="pkgToggleRealtime(this)" aria-label="Aviso por evento"></button>
                   </div>
                   <div class="an-deliv-body" id="anPkgRealtimeBody">
                     <div class="an-deliv-field">
@@ -2659,7 +2659,7 @@
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
                   <div class="an-cfg-title"><i data-lucide="send"></i> ¿Dónde notificar?</div>
-                  <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios. Aplica a ambas entregas (tiempo real y resumen).</div>
+                  <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios. Aplica a ambas entregas (por evento y resumen).</div>
                 </div>
                 <div class="notif-chan-list">
                   <div class="tm-notif-card" id="anPkgCardEmail">
@@ -4164,7 +4164,7 @@
     let pkgNextId = 1;
     let notifPackages = []; // arranca en first-run (empty state)
     const PKG_TEMPLATES = [
-      { name: 'Incidentes confirmados', desc: 'Todos · al confirmarse, en tiempo real', scope: [], realtime: { enabled: true, created: false, confirmed: true, updates: false }, digest: { enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 } },
+      { name: 'Incidentes confirmados', desc: 'Todos · al confirmarse, por evento', scope: [], realtime: { enabled: true, created: false, confirmed: true, updates: false }, digest: { enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 } },
       { name: 'Archivos faltantes o fallidos', desc: 'Tipo: Archivo faltante o fallido · al crearse', scope: [{ type: 'Tipo', value: 'Archivo faltante', icon: 'tag' }, { type: 'Tipo', value: 'Archivo fallido', icon: 'tag' }], realtime: { enabled: true, created: true, confirmed: false, updates: false }, digest: { enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 } }
     ];
     let pkgEditingId = null, pkgEditingScope = [];
@@ -4184,7 +4184,7 @@
         if (rt.confirmed) when.push('al confirmarse');
         if (rt.resolved) when.push('al resolverse');
         const whenT = !when.length ? 'sin momento' : when.length === 1 ? when[0] : when.slice(0, -1).join(', ') + ' y ' + when[when.length - 1];
-        tags += '<span class="an-pkg-tag"><i data-lucide="zap"></i> Tiempo real: ' + whenT + '</span>';
+        tags += '<span class="an-pkg-tag"><i data-lucide="zap"></i> Por evento: ' + whenT + '</span>';
         if (rt.updates) tags += '<span class="an-pkg-tag"><i data-lucide="refresh-cw"></i> con actualizaciones</span>';
       }
       if (dg.enabled) tags += '<span class="an-pkg-tag"><i data-lucide="mails"></i> Resumen ' + esc(dg.hora || '08:00') + ' · ' + pkgTnLabel(dg.tn || 1) + '</span>';
@@ -4268,7 +4268,7 @@
               '<div class="an-onb-ghost">' +
                 '<div class="an-onb-ghost-top"><span class="an-onb-ghost-name">Nombre de la notificación</span><span class="an-onb-ghost-toggle"></span></div>' +
                 '<div class="an-onb-ghost-scope"><i data-lucide="filter"></i> Tablero · Recurso · Tipo…</div>' +
-                '<div class="an-onb-ghost-tags"><span>tiempo real</span><span>resumen diario</span></div>' +
+                '<div class="an-onb-ghost-tags"><span>por evento</span><span>resumen diario</span></div>' +
               '</div>' +
               '<svg class="an-onb-wires" viewBox="0 0 460 30" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M230 0 V13 M110 13 H350 M110 13 V30 M350 13 V30" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"></path><path class="an-onb-wire-flow" d="M230 0 V13 M110 13 H350 M110 13 V30 M350 13 V30" vector-effect="non-scaling-stroke"></path></svg>' +
               '<div class="an-onb-channels">' +
@@ -4428,8 +4428,8 @@
       const anyMoment = evCreated || evWatching || evConfirmed || evResolved;
       const channels = pkgReadChannels();
       const problems = [];
-      if (!rtOn && !dgOn) problems.push('Activa al menos una entrega: en tiempo real o resumen consolidado.');
-      if (rtOn && !anyMoment) problems.push('En tiempo real, elige al menos un momento del incidente (al crearse, en observación, al confirmarse o al resolverse).');
+      if (!rtOn && !dgOn) problems.push('Activa al menos una entrega: aviso por evento o resumen consolidado.');
+      if (rtOn && !anyMoment) problems.push('En el aviso por evento, elige al menos un momento del incidente (al crearse, en observación, al confirmarse o al resolverse).');
       if (!channels.emails.length && !channels.slack.length) problems.push('Agrega al menos un canal: un correo o un canal de Slack.');
       if (problems.length) { pkgWarn(problems); return; }
       pkgWarn([]);
