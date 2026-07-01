@@ -1,242 +1,186 @@
-# Handoff — Sensibilidad y Límites del gráfico (slider + severidad por bandas)
+# Handoff — Detección de anomalías por serie (límites fijos vs. sistema adaptativo)
 
-Fecha: 2026-06-26
-Origen: `notificaciones-resumen/index.html` → paso **Series y valores** del diálogo de monitoreo (prototipo validado). Bloques: gráfica `#sens-chart` + editor de límites contextual `#cat-limits` + slider `.sens-card` + grilla `#series-block` (POR SERIE).
-Registro: **Interno (Operation Center)** — operador Simetrik calibrando cómo el monitoreo evalúa un gráfico (KPI "Conteo De Registros", COUNT_DISTINCT).
-Patrón de presentación: **Centro de control vertical** — gráfica con selector de categoría → límites de esa categoría → slider de sensibilidad → grilla de todas las series.
+Fecha: 2026-07-01
+Origen: `notificaciones-resumen/index.html` → paso **Series y valores** del diálogo de monitoreo (KPI "Conteo De Registros", COUNT_DISTINCT). Bloque `#nsWrap` (clases `ns-*`, estado `NS_*` en JS).
+Registro: **Interno (Operation Center)** — operador Simetrik configurando cómo el monitoreo detecta anomalías de un gráfico.
+Patrón de presentación: **colapsables inline** con modelo **configuración general + override por serie**.
 
-> **Reescrito el 26-jun:** este handoff reemplaza el modelo anterior (segmented Nula/Media/Alta + franja azul). El rediseño (sesión 25-jun, 4:42 PM) unifica **severidad = sensibilidad** y cambia el control a un **slider continuo**.
-
-> **Actualización 30-jun (pm) — design review con ingeniería:**
-> - **Título de la sección** (`#sens-title`): **"Sensibilidad de detección"** (antes solo "Sensibilidad"; la palabra sola no comunicaba el espectro umbral↔adaptativo).
-> - **Reencuadre de los extremos del slider.** "Nula" confundía (se leía como "mutear el sistema"). Escala nueva: izq **"Solo mi umbral"** · centro **"Media"** · der **"Detección adaptativa"**. El copy contextual (`#sens-sub`) explica el espectro: izq = *alerta de umbral fija, solo avisa cuando el valor sale de tus límites, el sistema no agrega nada*; der = *el sistema decide qué es anómalo según el patrón histórico, sin esperar al límite; no marca todo, solo lo inusual*.
-> - **Valor sugerido en los límites de categoría** (`#catlim-lower`/`#catlim-upper`): muestran "Valor sugerido: X" (clic para aplicar), se ocultan cuando el valor ya coincide (comentario Ohana).
-> - **Fix de la representación al 100%.** La banda de atención antes llegaba al **centro** (`mark = semi·(1−frac)` → 0 en 100%), dando la idea de que "cualquier punto se notifica". Ahora se conserva un **núcleo normal** (`CORE = 0.30`): `mark = semi·(1 − frac·(1−CORE))`, mínimo `semi·0.30`. Aun al máximo queda una franja central sin marcar — coherente con que la detección adaptativa no marca todo punto. Verificable en el mini-dashboard de impacto (al 100% siguen quedando puntos normales).
-> - El glosario de cara al usuario **no usa "nula"**.
-
-> **Actualización de layout (26-jun pm):**
-> - **Gráfica + impacto + límites + sensibilidad en UNA sola card** (`.tm-dialog-preview-card`, blanca con borde), separadas por **divisores**. El bloque de límites+sensibilidad (`.cat-config-box`) es ahora una **sección inferior** de esa card, no una card aparte. Razón: lo que se edita en límites/sensibilidad **impacta la gráfica de arriba**, así que se leen como una unidad.
-> - **Impacto = mini-dashboard** (no la frase de antes): bajo la gráfica, un caption + **3 tiles** (avisos / urgentes / de atención) con números grandes que cambian al mover el slider. Reemplaza el footer `.sens-impact`.
-> - **Sensibilidad** dentro de la sección va en **card gris suave** (`muted/0.5`, sin borde); los **límites** quedan sobre el blanco de la card.
-> - **Header de límites = "Límites de {nombre de la métrica}"** (dinámico; toma `#dlg-content-title`, o el nombre de la serie al enfocar), con el **mismo estilo** que el título de la gráfica (13.5px/500/#1F1B2E, sin uppercase) — ya no el textito en mayúsculas.
+> **Reescrito completo el 1-jul-2026.** Este handoff reemplaza el modelo anterior (slider de sensibilidad 0–100 + severidad por dos bandas + grilla "POR SERIE" + selector de categoría sobre la gráfica). Origen del rediseño: Granola 1-jul "Configuración de alertas — límites vs. sensibilidad adaptativa" y "…diseño de interfaz con collapsables", + investigación de patrones (ver §11) + iteración validada en prototipo. El modelo viejo (`.sens-*`, `.cat-*`, `.tm-series-*`, `.tm-dialog-preview-card`) quedó **deprecado**.
 
 ---
 
 ## 1. Contexto y objetivo
 
-Define **qué tan grave** es cada desviación de un gráfico y **qué la dispara**, con un modelo de **dos bandas** (severidad = sensibilidad, son lo mismo):
+Un gráfico/KPI se descompone en varias **series** (por fuente: Banco_Occidente, PayU_Latam, ERP_SAP…). El operador define **cómo se detecta una anomalía** en cada serie. Ya no es "una perilla de sensibilidad": es una pregunta explícita con dos caminos.
 
-| Banda | La define | Severidad | Color |
-|---|---|---|---|
-| **Exterior (dura)** | Los **límites** del usuario (mín/máx) | `URGENT` | Rojo |
-| **Interior (atención)** | La **sensibilidad** (qué tan adentro del límite empieza a importar) | `REQUIRES_ATTENTION` | Amarillo |
+**Pregunta rectora (por serie y por defecto):** *¿Cómo quieres detectar las anomalías?*
 
-- Lo que **supera el límite** → siempre rojo / urgente.
-- Lo que cae en la **banda amarilla interior** → de atención.
-- La sensibilidad es un **multiplicador del límite**: el slider cierra la banda amarilla desde los bordes hacia el centro. `0%` → no hay amarillo (solo el límite duro). `100%` → todo el interior es amarillo.
+| Modo | Qué hace | Controles |
+|---|---|---|
+| **Límites fijos** | Tú defines el mínimo y el máximo válidos; avisa si el valor sale de ahí | inputs mín/máx (activables por bound) + valor sugerido |
+| **Sistema adaptativo** | Simetrik aprende el comportamiento normal y avisa de lo inusual | nivel de sensibilidad (Alta/Media/Baja) + opción "Agregar límites de seguridad" |
 
-Todo opera **por categoría**: el KPI agregado ("Todas las categorías") y cada serie (fuente). El selector de la gráfica manda: al elegir una categoría, debajo aparecen **sus** límites + **su** slider y la gráfica muestra **su** serie.
+**Modelo de configuración = general + override:**
+- **Límites generales de {métrica}** (card "Todas las categorías"): la configuración **base** que heredan todas las series.
+- **Límites por serie**: cada serie hereda la base hasta que la configuras; al editarla queda con su propia config. Una serie recién agregada entra **"Sin configurar"**.
 
-Objetivo: que el operador calibre el monitoreo con una sola perilla continua entendiendo, con un dato real, cuántas veces le habríamos avisado (y de qué severidad) en la ventana histórica.
+Objetivo: que el operador entienda **qué gana con cada modo** y vea, con un dato real (simulación sobre el histórico), cuántos avisos generaría — sin caja negra: input → output visible en la gráfica y en los números.
 
 ## 2. Usuario y registro
 
-- **Registro:** Interno / Op Center. Power user recurrente, alta tolerancia a densidad.
-- **Modo de uso:** ajuste fino por KPI; compara el efecto de mover la perilla contra el histórico antes de guardar.
-- **Dato clave al primer vistazo:** ¿cuántas señales generaría esta config y de qué severidad?
+- **Registro:** Interno / Op Center. Power user, alta tolerancia a densidad, uso recurrente.
+- **Modo de uso:** configurar el KPI una vez (config general) y personalizar solo las series que lo ameriten.
+- **Dato clave al primer vistazo:** de cada serie, **cómo está detectando** (badge de modo) y **cuántos avisos** daría.
+- **Primera versión = evangelizar:** hay que enseñar el modelo mental (adaptativo vs fijo). Por eso la config es explicativa, no una tabla densa. La vista súper-colapsada a tabla queda para una iteración futura (usuarios expertos).
 
-## 3. Historias de usuario
+## 3. Estructura de la vista (`#nsWrap`)
 
-**HU-1 — Graduar la sensibilidad con una perilla continua y ver su impacto**
-> Como operador, quiero mover un slider de sensibilidad y ver en vivo, sobre la gráfica y con un dato real, cuántas señales urgentes y de atención generaría, para calibrar sin recibir ruido ni perderme desviaciones.
-- **Slider continuo 0–100%** (escala Nula · Media · Alta) con readout de %. Reemplaza el segmented de 3 opciones.
-- Al moverlo: la **banda amarilla** crece/se cierra hacia el centro, los puntos se re-clasifican y el **mini-dashboard de impacto** se recalcula.
-- **Mini-dashboard de impacto** (debajo de la gráfica, no en el footer del slider): caption `Con esta sensibilidad, en los últimos 30 días habrías recibido:` + **3 tiles** con número grande — **avisos en total** · **urgentes** (rojo) · **de atención** (ámbar). Los números cambian en vivo al mover el slider (mucho más legible que la frase anterior). _Insight de la sesión 26-jun: el impacto enterrado en una frase no se leía como "lo que estoy configurando"._
+```
+Límites generales de Conteo De Registros            ← encabezado de sección
+  ▸ [layers] Todas las categorías  [Sistema adaptativo] sens. media   ← colapsable (config base)
 
-**HU-2 — Definir los límites duros (banda roja) por bound, activables**
-> Como operador, quiero fijar el límite inferior y superior, activarlos/desactivarlos por separado, para monitorear solo los bordes que importan.
-- Dos inputs (inferior / superior) + **checkbox on/off** por bound. Al apagar uno: input atenuado e inerte (conserva valor) y **ese lado del gráfico desaparece** — se quitan su zona roja, su banda amarilla, su línea de límite y su umbral; los puntos de ese lado dejan de marcarse.
-- Editar un input **redibuja la banda roja** de la gráfica en vivo. El monitoreo propone un **valor sugerido** (hint).
+Límites por serie                        [ 6 de 6 series ]  ← encabezado + badge outline (contador)
+  ▸ Banco_Occidente   [Sistema adaptativo] sens. media          🗑
+  ▸ PayU_Latam        [Límites fijos] mín 2 · máx 9             🗑
+  ▸ ERP_SAP           [Sin configurar]                          🗑
+  … (una fila por serie)
+  [ + Agregar serie ]                    ← solo si quedan series en el catálogo
+```
 
-**HU-3 — Ajustar todo por categoría sin perder el contexto del gráfico (centro de control)**
-> Como operador, quiero que al elegir una categoría en el selector de la gráfica, debajo aparezcan sus límites y su sensibilidad, sin tener que hacer scroll y perder la gráfica.
-- El **selector de categoría** (sobre la gráfica) manda: cambia la serie graficada, el editor de límites y el slider, todo en su sitio.
-- Cada categoría **recuerda su propia sensibilidad y límites**. Herencia: una serie sin ajuste propio **usa el % del global** ("Todas"); al moverla, queda como override.
+- **Colapsables inline, una abierta a la vez** (abrir una cierra las demás; global y series comparten esa regla).
+- Al abrir una fila, se despliega **la card de configuración** (§5) inline.
+- El **badge de cada fila** refleja el modo efectivo: `Sistema adaptativo` (azul), `Límites fijos` (ámbar) o `Sin configurar` (outline punteado). Al lado, un resumen: sensibilidad (adaptativo) o rango mín/máx (fijo).
 
-**HU-4 — Graduar la sensibilidad de cada serie sin entrar a cada una**
-> Como operador, quiero ajustar la sensibilidad de varias series de un vistazo desde la lista.
-- En la grilla **POR SERIE** (visible solo en "Todas las categorías"), cada fila tiene un **pill de %** que abre un **mini-slider en popover**. Mover = override de esa serie. El pill muestra el % efectivo y marca si **hereda** el global.
+## 4. Agregar / quitar series
 
-**HU-5 — Enfocar una serie y volver**
-> Como operador, quiero saltar al detalle de una serie desde la lista, y tener una salida clara para volver.
-- Cada fila tiene un **botón de acceso rápido** (ícono `maximize-2`) que enfoca esa serie: la gráfica + límites + slider cambian a ella y la grilla se oculta.
-- **Volver (chip con ✕):** al enfocar una serie, el selector de la gráfica la muestra como chip con una **✕** (oculta el chevron). Clic en la ✕ → vuelve a "Todas las categorías" (reaparece la grilla) sin abrir el menú. El botón sigue abriendo el menú para saltar directo a otra serie.
+- **Catálogo fijo** de N series (en el prototipo, 6). El contador ("Límites por serie") es un **badge outline**: `{activas} de {total} series`.
+- **Quitar** (🗑 por fila): saca la serie del monitoreo; vuelve al catálogo disponible. Sin límite mínimo (se pueden quitar todas).
+- **Agregar** (botón `+ Agregar serie`, dashed): aparece **solo si hay series disponibles**; abre un menú con las no agregadas. Si están todas, el botón no aparece.
+- Al agregar, la serie entra **"Sin configurar"** y **se abre automáticamente** para configurarla. Queda "Sin configurar" hasta que el usuario elige un modo (cualquier edición la marca configurada).
 
-## 4. Arquitectura de componentes desyk
+## 5. La card de configuración (global y por serie, mismo template)
+
+Orden de la información (de arriba a abajo):
+
+1. **Gráfica · últimos 30 días** (título pequeño + leyenda). **Se muestra completa** (histórico), sin marca "AHORA" ni tramo proyectado.
+   - **Por serie:** línea del valor + **banda "rango esperado"** (solo en modo adaptativo) + **líneas de límite fijo** (en modo fijo, o si hay límites de seguridad).
+   - **Global ("Todas las categorías"):** **todas las series superpuestas** (líneas tenues) — comunica que es el agregado. No dibuja banda (series de distinta escala); sí las líneas de límite si aplica.
+2. **Pregunta:** `¿Cómo quieres detectar las anomalías (por defecto / de esta serie)?` → dos radios: **Límites fijos** / **Sistema adaptativo**.
+3. **Panel según el modo:**
+   - *Límites fijos:* grid de **Límite inferior / superior**, cada uno con **checkbox** (incluir ese bound) + input numérico + **chip azul "Valor sugerido: N"** (clic para aplicar; se oculta si el valor ya coincide).
+   - *Sistema adaptativo:* segmented **Alta / Media (recomendada) / Baja** + checkbox **"Agregar límites de seguridad"** que revela el mismo grid de límites (mín/máx que avisan sí o sí).
+4. **Caja de resultado (blanca, unificada)** — antes eran dos bloques, ahora uno:
+   - Texto contextual: `Te avisamos cuando la serie se comporte distinto a lo habitual (sensibilidad media). Se ajusta solo.` (varía por modo/seguridad).
+   - Separador sutil.
+   - **Simulación** (3 números inline): `avisos en total` · `fuera de límites` (rojo) · `comportamiento inusual` (ámbar). Se recalcula en vivo.
+
+> La caja de resultado ya **no** lleva el caption "Con esta configuración… habrías recibido" ni fondo azul: el texto del aviso hace de introducción y los números van debajo, en fondo blanco.
+
+## 6. Arquitectura de componentes / clases
 
 | Mock (prototipo) | Componente desyk | Notas |
 |---|---|---|
-| `#sens-chart` (SVG render JS) | gráfico custom (SVG) | dibuja zonas rojo/amarillo, líneas de límite y umbral, serie y puntos clasificados |
-| `.cat-select` / `.cat-menu` | `Select` / `DropdownMenu` | selector de categoría sobre la gráfica; "Todas las categorías" + una opción por serie, con check en la activa. Con una serie enfocada muestra un **chip con ✕** (`.cat-clear`) para volver a "Todas" |
-| `.sens-slider` (`input[range]`) | `Slider` | 0–100, continuo; pista ámbar; thumb con borde `--primary` |
-| `.sens-row` + `.sens-pct` | row de control | ícono `gauge` + título/sub dinámico + readout `%` a la derecha; dentro de la **card gris** (`muted/0.5`) de sensibilidad |
-| `.sens-kpi-wrap` / `.sens-kpi` (×3) | mini-dashboard (stat tiles) | caption + 3 tiles (avisos / urgentes / de atención); número 17px; vive **debajo de la gráfica**, dentro de la card de comportamiento. Reemplaza `.sens-impact` |
-| `.tm-dialog-preview-card` (contenedor) | `Card` (blanca, borde) | **una sola card** que envuelve: gráfica → mini-dashboard → (divisor) límites → (divisor) sensibilidad gris |
-| `.cat-config-box` | sección dentro de la card | límites + sensibilidad como sección inferior, separada de la gráfica por `border-top`. No es card propia |
-| `#cat-limits` (`.tm-limits-block`) | bloque de campos | editor de límites; **header = "Límites de {métrica/serie}"** con estilo de título (13.5/500), no uppercase |
-| `.tm-limit-field` + `.tm-limit-check` | `Checkbox` + grupo de campo | on/off por bound; `is-off` atenúa el input |
-| `.tm-limit-input` | `Input` (numérico, `tabular-nums`) | edita el límite; redibuja la banda en vivo |
-| `#series-block` / `.tm-series-grid` | grid (table-like) | POR SERIE; visible **solo en "Todas"** |
-| `.tm-series-sens` (pill + popover) | `Button` + `Popover` + `Slider` | sensibilidad por serie inline; pill muestra % efectivo / "hereda" |
-| `.tm-series-focus` | `IconButton` (`maximize-2`) | enfoca la serie |
-| `.tm-series-del` | `IconButton` (`trash-2`) | quita la serie del override por-serie |
+| `#nsWrap` | contenedor de la sección | render por JS (`nsInit` → `nsRenderList`) |
+| `.ns-secth` + `#nsCnt` | encabezado de sección + `Badge` outline | "Límites generales de {métrica}" · "Límites por serie" `{n de N series}`. **Sin mayúsculas sostenidas.** |
+| `.ns-acc` / `.ns-acc-item` / `.ns-acc-hd` / `.ns-acc-body` | `Accordion` | colapsable; una abierta a la vez (`nsToggle`) |
+| `.ns-acc-item.ns-gl` | item destacado | la card "Todas las categorías" (fondo tenue) |
+| `.ns-acc-toprow` + `.ns-acc-del` | fila + `IconButton` (`trash-2`) | quitar serie (`nsRemoveSeries`) |
+| `.ns-badge` (`.adapt` / `.fijo` / `.unset`) | `Badge` | modo de detección o "Sin configurar" |
+| `.ns-addwrap` / `.ns-add-btn` / `.ns-add-menu` | `Button` (dashed) + `DropdownMenu` | agregar serie (`nsAddSeries`) |
+| `.ns-radio` (×2) | `RadioCard` | Límites fijos / Sistema adaptativo (`nsSetMode`) |
+| `.ns-seg` | `SegmentedControl` | Alta / Media / Baja (`nsSetLevel`) |
+| `.ns-check` | `Checkbox` | "Agregar límites de seguridad" (`nsToggleSafety`) |
+| `.ns-lim` (grid) | `Checkbox` + `Input` numérico | bound on/off (`nsSetBoundOn`) + valor (`nsSetLim`) |
+| `.ns-limsug` | `Chip` (clic) | valor sugerido (`nsApplySug`); se oculta si ya coincide |
+| `svg.ns-chart` | gráfico custom (SVG) | render `nsDraw`; línea/banda/límites, sin AHORA |
+| `.ns-alert` (+ `.ns-alert-body` / `.ns-impact-row`) | `Card` neutra | aviso contextual + simulación, en **fondo blanco** |
 
-**Modelo de datos (fuente única en el prototipo, `DS_AN_CATS`):**
+**Modelo de datos (fuente única en el prototipo):**
 
 ```
-type Category = {
-  id: string                  // 'all' | resource_id
-  name: string                // 'Todas las categorías' | 'Banco_Occidente' | ...
-  isAggregate?: boolean
-  values: number[]            // serie de la ventana (del BE)
-  lower: number; upper: number
-  lowerOn: boolean; upperOn: boolean   // on/off por bound (off → extiende al extremo de datos)
-  sens?: number               // 0..100; undefined = hereda el global ("all")
-}
+NS_GLOBAL = { mode:'adaptativo'|'fijo', level:'alta'|'media'|'baja', safety:bool,
+              fixedLo, fixedHi, loOn, hiOn, sug:{lo,hi} }        // config base
+NS_SERIES[] = { id, name, data:number[], sug:{lo,hi},
+                active:bool,        // está en el monitoreo (agregada)
+                configured:bool,    // false = "Sin configurar"
+                customized:bool,    // false = hereda NS_GLOBAL
+                cfg:{...} }         // su config propia cuando customized
 ```
 
-**Lógica clave (del prototipo):**
-- `mark = semiAncho * (1 - frac)` donde `frac = sens/100`. Anomalía: `|v - centro| > semiAncho` → **rojo**; `mark < |v - centro| ≤ semiAncho` → **amarillo**.
-- `sensPctFor(cat)` = `cat.sens` si existe, si no el `sens` del global, si no 50 (herencia).
-- Bound off (`lowerOn`/`upperOn` = false) → ese lado **no se dibuja** (sin zona/línea/umbral) y sus puntos no se clasifican. El eje Y se ajusta a los datos + solo los límites activos.
-- **Borde suave:** sobre cada línea de límite activa con banda amarilla, una franja de gradiente (~16px) funde rojo↔amarillo (`<linearGradient>` con stops por tokens).
-- **Ejes:** valores en Y (ticks redondos + gridlines punteadas) y fechas rotadas en X, 1:1 con los puntos.
-- El selector, el editor de límites, el slider, la grilla y la gráfica **leen/escriben el mismo modelo** (siempre sincronizados).
+**Lógica clave:**
+- **Herencia:** una serie con `customized=false` muestra/usa `NS_GLOBAL` (`nsView`). La primera edición la "forkea" (`nsBeforeEdit`: copia el global y marca `customized=true` + `configured=true`).
+- **Sin configurar:** `configured=false` → badge "Sin configurar", sin resumen; no cuenta en la simulación agregada del global.
+- **Simulación:** por serie, sobre TODA la ventana (ya no hay corte "AHORA"). Adaptativo: outlier si `|v − baseline| > margen(nivel)`; fijo/seguridad: fuera de `[lo,hi]` activos. El global agrega los conteos de las series configuradas, cada una con su propio baseline.
+- Todo (badges, resúmenes, gráfica, simulación) se re-renderiza desde el mismo estado.
 
-## 5. Estados
+## 7. Estados
 
-- **Loading:** skeleton de la gráfica + editor de límites + slider (no spinner).
-- **Inicial:** categoría = "Todas las categorías", slider 50%, ambos límites activos con valor sugerido, grilla POR SERIE visible.
-- **Categoría = serie:** gráfica/límites/slider de esa serie; **grilla oculta**; el selector muestra chip con ✕ para volver.
-- **Serie heredando global:** el pill de % va atenuado ("hereda"); el popover dice "Hereda el global. Mover para personalizar."
-- **Bound apagado:** input atenuado e inerte (conserva valor); ese lado de la banda desaparece.
-- **Error de validación:** valor no numérico / inferior ≥ superior → borde `destructive` + microcopy.
+- **Inicial:** "Todas las categorías" adaptativo/media; las series iniciales configuradas (heredando); contador `N de N`.
+- **Serie heredando:** badge del modo del global; al editar pasa a personalizada.
+- **Serie sin configurar:** badge outline "Sin configurar"; al abrir muestra la card (preview con la base) para configurarla.
+- **Global expandido:** todas las series superpuestas + simulación agregada + explicación de que es la base.
+- **Bound apagado:** input atenuado e inerte (conserva valor); ese límite no marca ni se dibuja.
+- **Sin series disponibles:** el botón "Agregar serie" no aparece. **Todas quitadas:** lista vacía, botón muestra las N.
+- **Validación:** valor no numérico / `lower ≥ upper` con ambos activos → error + microcopy (pendiente de cablear en el prototipo).
 
-## 6. Copy completo (glosario aplicado)
+## 8. Copy (glosario aplicado)
 
-> Glosario Op Center: **monitoreo** (no "agente"/"Agente IA"), **incidente**, **señal**, **KPI**, **Tablero**. Severidades = enums del sistema (`URGENT` / `REQUIRES_ATTENTION`); en copy de usuario: "urgente" / "de atención".
+> Glosario Op Center: **monitoreo** (no "agente"/"Agente IA"), **incidente**, **señal**, **KPI**, **Tablero**. Sin em-dashes. Sin mayúsculas sostenidas en títulos.
 
-**Gráfica**
-- Título: `Comportamiento del KPI · últimos 30 días`
-- Leyenda: `Fuera de límites · urgente` (rojo) · `Zona de atención · medio` (amarillo)
+- Encabezados: `Límites generales de {métrica}` · `Límites por serie` + badge `{n} de {N} series`.
+- Card "Todas las categorías": badge de modo + resumen. Gráfica: `Todas las categorías · últimos 30 días`, leyenda `Series` (+ `Límite fijo` si aplica).
+- Pregunta: `¿Cómo quieres detectar las anomalías (por defecto)?` (global) / `…de esta serie?` (serie).
+- Radios: **Límites fijos** — `Tú defines el mínimo y el máximo válidos.` · **Sistema adaptativo** — `Simetrik aprende lo normal y avisa de lo inusual.`
+- Sensibilidad: `Alta` (`Detecta hasta cambios chicos`) · `Media` (`Recomendada`) · `Baja` (`Solo lo muy fuera de lo normal`).
+- Seguridad: `Agregar límites de seguridad` — `Un mínimo/máximo que avisa sí o sí, aunque el sistema lo vea normal. Para valores que jamás deberían pasar.`
+- Límites: `Límite inferior` / `Límite superior` · chip `Valor sugerido: N`.
+- Aviso (por modo):
+  - fijo: `Te avisamos solo cuando la serie se salga del rango que definiste. Predecible y bajo tu control.`
+  - adaptativo: `Te avisamos cuando la serie se comporte distinto a lo habitual (sensibilidad {nivel}). Se ajusta solo.`
+  - adaptativo + seguridad: `…y siempre que cruce tus límites de seguridad.`
+  - (global: "cada serie" en vez de "la serie").
+- Simulación: `{N} avisos en total` · `{X} fuera de límites` · `{Y} comportamiento inusual`.
 
-**Mini-dashboard de impacto** (debajo de la gráfica)
-- Caption: `Con esta sensibilidad, en los últimos 30 días habrías recibido:`
-- Tiles: `{N}` `avisos en total` · `{X}` `urgentes` (rojo) · `{Y}` `de atención` (ámbar)
-
-**Sensibilidad** (slider, en card gris)
-- Título: `Sensibilidad` · readout `{pct}%`
-- Sub (por rango): `0%` → `Funciona como umbral fijo: solo avisa cuando el valor supera el límite que definiste.` · `1–66%` → `Avisa al acercarse al límite, pasado un umbral intermedio.` · `67–100%` → `Avisa ante cualquier desviación inusual, sin esperar al límite.`
-- Escala: `Nula` · `Media` · `Alta`
-
-**Límites**
-- Header (dinámico): `Límites de {nombre de la métrica}` en agregado (toma `#dlg-content-title`, p. ej. `Límites de Conteo De Registros`); al enfocar una serie, `Límites de {serie}` (p. ej. `Límites de Banco_Occidente`)
-- Labels: `Límite inferior` · `Límite superior`
-- Hint sugerido (global): `Valor sugerido: <N>`
-
-**Pill de sensibilidad por serie**
-- Pill: `{pct}%`
-- Popover: título `Sensibilidad`, valor `{pct}%`, pie `Hereda el global. Mover para personalizar.` / `Personalizada para esta serie.`
-
-## 7. Microinteracciones
+## 9. Microinteracciones
 
 | Interacción | Detalle |
 |---|---|
-| Mover slider | re-render de bandas + puntos + contador en vivo |
-| Cambiar categoría (selector) | gráfica, límites y slider cambian a la categoría; grilla muestra/oculta |
-| Apagar bound | input → `opacity .45` + inerte, transición `120ms`; banda redibuja |
-| Editar límite | banda roja redibuja en vivo; sincroniza la fila de la grilla |
-| Abrir pill de serie | popover con mini-slider (`200ms ease-out`); cierra al clic fuera |
-| Enfocar serie | gráfica/límites/slider cambian a la serie; grilla se oculta |
+| Abrir colapsable | cierra los demás; despliega la card; render de gráfica + simulación |
+| Elegir modo / nivel / seguridad | re-render de panel, gráfica, aviso y simulación en vivo |
+| Editar límite / toggle bound | redibuja banda/línea y recalcula simulación; chip sugerido se muestra/oculta |
+| Agregar serie | entra "Sin configurar" y se abre automáticamente |
+| Quitar serie | sale de la lista; actualiza contador y botón de agregar |
 
-Durations canónicas: 120 / 200 / 320 ms ease-out. Sin spinners; skeleton.
+Durations canónicas: 120 / 200 / 320 ms ease-out. Sin spinners; skeleton. Light mode.
 
-## 8. AI integration
+## 10. Mapeo BADS / preguntas para ingeniería
 
-- El **valor sugerido** de cada límite y la **serie/ventana** los provee el monitoreo (BADS). La UI deja claro que el sugerido viene del monitoreo (hint), y el override es manual.
-- La **sensibilidad** modula qué tan adentro del límite el monitoreo llama "de atención". No badges "AI", no sparkles.
-- Empty/contexto: el bloque "Análisis inteligente" (paso Fuente) resume la línea base del agregado. (Se evaluó mostrar una narrativa por serie al enfocar y se descartó: no va en esta versión.)
+- **Sistema adaptativo** → detección de patrón de BADS (`TRIGGER` / `TRAJECTORY` / `NEW_SERIES`). El **nivel** (Alta/Media/Baja) debe mapear a un parámetro real del detector (ancho de banda / umbral) → **confirmar valores por nivel con BE**.
+- **Límites fijos** y **límites de seguridad** → umbral duro del usuario (condición adicional OR sobre el adaptativo). Coincide con el modelo Anodot (adaptativo + hard limit apilados).
+- **Severidad** (`URGENT` / `REQUIRES_ATTENTION`) sigue siendo **system-assigned** (no la elige el usuario). Confirmar si el modo/nivel influye.
+- **Banda "rango esperado"** dibujada y **simulación** ("habrías recibido N") requieren que el BE devuelva la banda + el conteo por config sobre la ventana → hoy **mockeado**.
+- **Herencia:** una serie sin config propia hereda la general; el override por-serie con adaptativo es poco común en la industria (Splunk lo prohíbe) — si se restringe, el override por serie podría limitarse a **límites duros**. Decisión de producto pendiente.
 
-## 9. Endpoints esperados
+**Endpoint esperado (borrador):** `GET/PUT /monitoring/{chartId}/detection` con `general` (config base) + `series[]` (`{id, active, configured, override?}`); `data`, `band`, `suggested`, `signals` read-only del BE. Misma ventana (30 días) para serie, banda y conteo.
 
-`GET /monitoring/{chartId}/sensitivity` →
-```json
-{
-  "windowDays": 30,
-  "categories": [
-    {
-      "id": "all", "name": "Todas las categorías", "isAggregate": true,
-      "sensitivity": 50,
-      "limits": {
-        "lower": { "value": 1, "enabled": true, "suggested": 25.20 },
-        "upper": { "value": 20, "enabled": true, "suggested": 79.00 }
-      },
-      "series": [ { "t": "2026-04-01", "value": 12 }, "… ventana" ],
-      "signals": { "urgent": 6, "attention": 2 }
-    },
-    {
-      "id": "79008", "name": "Banco_Occidente",
-      "sensitivity": null,
-      "limits": { "lower": { "value": 8.4, "enabled": true }, "upper": { "value": 25, "enabled": true } },
-      "series": [ "… " ]
-    }
-  ]
-}
-```
-`PUT /monitoring/{chartId}/sensitivity` con el shape de config (por categoría: `sensitivity` + `limits` con on/off). `series`, `signals` y `suggested` son **read-only** (los provee el monitoreo / BE).
+## 11. Investigación que respalda el diseño (1-jul)
 
-> **Severidad derivada de las bandas (no campo aparte):** dado `limits` + `sensitivity` por categoría, el BE clasifica cada punto de la ventana: fuera del límite → `URGENT`; dentro de la banda de atención → `REQUIRES_ATTENTION`. `signals.urgent/attention` alimentan el contador. `sensitivity: null` ⇒ heredar el global.
-> **Misma ventana** para serie, conteo y marcado (30 días) — evita el desfase histórico 7d/30d.
+- **Patrón dominante en monitoreo** (Datadog, New Relic, Dynatrace): una config declarativa + el motor instancia por serie automáticamente; override **por excepción**. La lista de series es de **inspección**, no de edición masiva inline.
+- **Adaptativo + límite duro coexisten** como condiciones apilables (Anodot) → nuestro "sistema adaptativo + límites de seguridad".
+- **UX (NN/g):** para editar config compleja de muchos ítems, evitar accordion "pesado"; se eligió **colapsables inline con una sola abierta** + **default global** (el default enseña el modelo mental) por ser lo más claro para una v1 que debe evangelizar.
+- **Diferenciador de mercado:** simulación de impacto en vivo ("con esta config habrías recibido N"). Se mantiene.
 
-## 10. Edge cases y validaciones
+## 12. Checklist pre-implementación
 
-- Valor no numérico o vacío con bound activo → error, bloquea guardar.
-- `lower >= upper` (ambos activos) → error de coherencia.
-- Ambos bounds apagados → permitido (sin banda roja); con sensibilidad 0% no hay monitoreo efectivo: advertir al guardar.
-- Recalcular `suggested` (nuevo aprendizaje) con override activo → mantener override; actualizar el sugerido mostrado.
-- Serie con `sensitivity: null` → muestra el % heredado; al editar pasa a override.
-- Muchas series → la grilla hace scroll; el popover del pill no debe quedar cortado (abrir hacia arriba en las últimas filas — pendiente).
-
-## 11. Test cases sugeridos
-
-1. Mover el slider re-clasifica puntos (rojo/amarillo) y actualiza el contador `N — X urgentes · Y de atención` en vivo.
-2. Editar un límite redibuja la banda roja y sincroniza la fila de la grilla; y viceversa.
-3. Apagar un bound atenúa el input, lo vuelve inerte, conserva valor y **quita ese lado del gráfico** (zona, línea, umbral, marcado).
-4. Cambiar de categoría en el selector mueve gráfica + límites + slider y muestra/oculta la grilla.
-5. Cada categoría recuerda su % y límites; una serie sin override hereda el global.
-6. El pill de % por serie abre el popover; mover el mini-slider personaliza esa serie (deja de "heredar").
-7. El botón de foco enfoca la serie (grilla oculta); el selector muestra chip con ✕ y al hacer clic vuelve a "Todas" (grilla visible) sin abrir el menú.
-8. `lower >= upper` con ambos activos dispara error de coherencia.
-
-## 12. Tokens utilizados
-
-`--primary` (thumb del slider, foco input, check de categoría) · `--primary-text` (readout %, pill) · `--warning` (banda amarilla, pista del slider, severidad media) · `--destructive` (banda roja, línea de límite, severidad urgente) · `--border-default` (inputs, cards, popover) · `muted-foreground` (labels, escala) · `text-primary`. Radius: `9–11px` inputs/cards, `8px` botones, `999px` slider/thumb.
-
-## 13. Checklist pre-PR
-
-- [ ] Slider continuo (`Slider` desyk) reemplaza el segmented; escala Nula/Media/Alta + readout %
-- [ ] Coloreado invertido: rojo = fuera de límites · amarillo = zona de atención (anillo interior)
-- [ ] Severidad derivada de las bandas (urgente / de atención), no de un campo suelto
-- [ ] Selector de categoría manda: gráfica + límites + slider + visibilidad de grilla
-- [ ] Sensibilidad y límites **por categoría** con herencia del global
-- [ ] Pill de % + popover por serie en la grilla (visible solo en "Todas")
-- [ ] Botón de foco por serie; grilla oculta al enfocar; **chip con ✕ en el selector para volver a "Todas"**
-- [ ] Límites con on/off por bound; off → **se quita ese lado del gráfico** (zona/línea/umbral/marcado)
-- [x] Borde suave (gradiente rojo↔amarillo) sobre cada límite activo con banda amarilla
-- [x] Ejes: valores en Y (+ gridlines) y fechas rotadas en X
-- [ ] **Impacto = mini-dashboard** (3 tiles: avisos / urgentes / de atención) debajo de la gráfica, números en vivo — reemplaza el footer `.sens-impact`
-- [ ] **Una sola card** envuelve gráfica + impacto + límites + sensibilidad, separadas por divisores; sensibilidad en **card gris** (`muted/0.5`)
-- [ ] Header de límites = **"Límites de {métrica/serie}"** (dinámico), con estilo de título (no uppercase)
-- [ ] Glosario: "monitoreo" (no "agente"), "incidente", "señal", "KPI"
-- [ ] Microinteracciones 120/200/320 ms ease-out · light mode · A11y (labels, foco, contraste AA)
-- [ ] Pendiente: que el popover del pill no se corte en las últimas filas; **Fase 5** (límites como % relativos). Nota: la **narrativa por serie** se probó y se descartó (no va en esta versión).
+- [ ] Dos secciones tituladas (sin uppercase): **Límites generales de {métrica}** + **Límites por serie** (contador en badge outline).
+- [ ] Colapsables inline, una abierta a la vez (global + series).
+- [ ] Card de config compartida: gráfica completa (sin AHORA) → pregunta modo → panel (fijo/adaptativo) → caja blanca aviso+simulación.
+- [ ] Modo **Límites fijos** (mín/máx con on/off por bound + valor sugerido en chip).
+- [ ] Modo **Sistema adaptativo** (Alta/Media/Baja + "Agregar límites de seguridad").
+- [ ] Card "Todas las categorías" = base heredable; gráfica con **todas las series superpuestas** + **simulación agregada** + explicación.
+- [ ] Herencia general → serie; edición marca personalizada.
+- [ ] Estado **"Sin configurar"** para series agregadas; agregar abre la card.
+- [ ] **Agregar / quitar serie** (catálogo, botón dashed condicionado, papelera por fila).
+- [ ] Aviso + simulación **unificados** en fondo blanco (sin caption redundante).
+- [ ] Glosario ("monitoreo", no "agente"), sin em-dashes, tokens desyk, 120/200/320 ms, A11y AA.
+- [ ] BE: banda + simulación + sugeridos + señales reales (hoy mockeados); mapeo de nivel → parámetro del detector.
