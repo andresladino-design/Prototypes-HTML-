@@ -1712,6 +1712,10 @@
     .an-pkg-empty-d { font-size: 12.5px; }
     .an-pkg-input { width: 100%; height: 38px; border: 1px solid var(--border-default); border-radius: 8px; padding: 0 11px; font: inherit; font-size: 13px; color: var(--text-primary); background: #fff; outline: 0; }
     .an-pkg-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px hsl(var(--primary-hsl) / 0.12); }
+    .an-pkg-input.is-error { border-color: var(--red-text, hsl(0 72% 51%)); box-shadow: 0 0 0 3px hsl(0 72% 51% / 0.12); }
+    .an-req { color: var(--red-text, hsl(0 72% 51%)); font-weight: 700; }
+    .an-field-err { font-size: 12px; color: var(--red-text, hsl(0 72% 51%)); margin-top: 6px; }
+    .an-field-err.hidden { display: none; }
     /* ---- Empty states / first-run (onboarding) ---- */
     .an-onb { max-width: 560px; margin: 8px auto 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 20px 0 32px; }
     .an-onb-head { display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -2545,15 +2549,16 @@
             <div class="an-cfg">
               <!-- Nombre -->
               <div class="an-cfg-card">
-                <label class="an-cfg-lbl">Nombre de la notificación</label>
-                <input type="text" id="anPkgName" class="an-pkg-input" placeholder="Ej. Incidentes de Adquirencia" maxlength="50">
+                <label class="an-cfg-lbl" for="anPkgName">Nombre de la notificación <span class="an-req">*</span></label>
+                <input type="text" id="anPkgName" class="an-pkg-input" placeholder="Ej. Incidentes de Adquirencia" maxlength="50" oninput="pkgClearFieldError(this)">
+                <div class="an-field-err hidden" id="anPkgNameErr">Ponle un nombre para identificar esta notificación.</div>
               </div>
 
               <!-- Bloque 1 · Entidades afectadas -->
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
                   <div class="an-cfg-title"><i data-lucide="layers"></i> ¿Qué entidades te interesan?</div>
-                  <div class="an-cfg-sub">Los tableros, gráficos o recursos que te importan. Todo lo que agregues se combina con <strong>o</strong>, o aplica un filtro guardado. <em>El tipo y el cuándo se definen abajo, por separado.</em></div>
+                  <div class="an-cfg-sub">Los tableros, gráficos o recursos que te importan; se combinan con <strong>o</strong>. Si no eliges ninguna, entran todas.</div>
                 </div>
                 <div class="an-cfg-field">
                   <label class="an-cfg-lbl">Entidades afectadas</label>
@@ -2576,8 +2581,8 @@
               <!-- Bloque 2 · Tipo de incidente (chips seleccionables) -->
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
-                  <div class="an-cfg-title"><i data-lucide="tag"></i> ¿Qué tipos de incidente?</div>
-                  <div class="an-cfg-sub">Las categorías de problema que te importan. Se combinan con <strong>o</strong>. Si no eliges ninguno, entran todos los tipos.</div>
+                  <div class="an-cfg-title"><i data-lucide="tag"></i> ¿Qué tipos de incidente te interesan?</div>
+                  <div class="an-cfg-sub">Las categorías de problema que te importan; se combinan con <strong>o</strong>. Si no eliges ninguno, entran todos.</div>
                 </div>
                 <div class="an-cfg-field">
                   <div class="an-typechips">
@@ -2594,7 +2599,7 @@
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
                   <div class="an-cfg-title"><i data-lucide="bell"></i> ¿Cuándo quieres que te avisemos?</div>
-                  <div class="an-cfg-sub">Define cómo se entrega esta notificación. Puedes activar las dos: un aviso por cada evento y un resumen diario, ambos sobre el mismo alcance.</div>
+                  <div class="an-cfg-sub">Elige cómo te avisamos: al instante por cada evento, un resumen diario, o ambos. Sobre el mismo alcance.</div>
                 </div>
 
                 <!-- Entrega 1: aviso por evento -->
@@ -2656,8 +2661,8 @@
               <!-- Canales -->
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
-                  <div class="an-cfg-title"><i data-lucide="send"></i> ¿Dónde notificar?</div>
-                  <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios. Aplica a ambas entregas (por evento y resumen).</div>
+                  <div class="an-cfg-title"><i data-lucide="send"></i> ¿Dónde quieres que te avisemos?</div>
+                  <div class="an-cfg-sub">Activa uno o varios canales y configura sus destinatarios; aplican a ambas entregas (por evento y resumen).</div>
                 </div>
                 <div class="notif-chan-list">
                   <div class="tm-notif-card" id="anPkgCardEmail">
@@ -4428,6 +4433,7 @@
       pkgEditingId = null; pkgEditingScope = [];
       document.getElementById('anPkgEditorTitle').textContent = 'Nueva notificación';
       document.getElementById('anPkgName').value = '';
+      pkgClearFieldError(document.getElementById('anPkgName'));
       pkgApplyRealtime({ enabled: true, created: true, confirmed: false, updates: false });
       pkgApplyDigest({ enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 });
       pkgSetChannels([], [], []);
@@ -4439,6 +4445,7 @@
       pkgEditingId = id; pkgEditingScope = p.scope.map(f => ({ ...f }));
       document.getElementById('anPkgEditorTitle').textContent = 'Editar notificación';
       document.getElementById('anPkgName').value = p.name;
+      pkgClearFieldError(document.getElementById('anPkgName'));
       pkgApplyRealtime(p.realtime); pkgApplyDigest(p.digest);
       pkgSetChannels(p.channels.emails, p.channels.slack, p.channels.mentions || []);
       pkgFillScopeSelect(true); document.getElementById('anPkgScopeSel').value = 'keep';
@@ -4448,9 +4455,15 @@
     function pkgWarn(problems) {
       const w = document.getElementById('anPkgWarn'); if (!w) return;
       if (!problems.length) { w.classList.add('hidden'); w.innerHTML = ''; return; }
-      w.innerHTML = '<i data-lucide="alert-triangle"></i><div>Esta notificación no avisaría de ningún incidente:<ul>' +
+      const head = problems.length === 1 ? 'Falta un dato para guardar esta notificación:' : 'Faltan algunos datos para guardar esta notificación:';
+      w.innerHTML = '<i data-lucide="alert-triangle"></i><div>' + head + '<ul>' +
         problems.map(p => '<li>' + p + '</li>').join('') + '</ul></div>';
       w.classList.remove('hidden'); if (window.lucide) lucide.createIcons();
+    }
+    // Limpia el estado de error de un campo al escribir
+    function pkgClearFieldError(input) {
+      input.classList.remove('is-error');
+      const err = document.getElementById(input.id + 'Err'); if (err) err.classList.add('hidden');
     }
     function pkgSave() {
       const rtOn = document.getElementById('anPkgRealtime').classList.contains('is-on');
@@ -4460,14 +4473,30 @@
       const evConfirmed = document.getElementById('anPkgEvConfirmed').checked;
       const evResolved = document.getElementById('anPkgEvResolved').checked;
       const anyMoment = evCreated || evWatching || evConfirmed || evResolved;
+      const emailOn = document.getElementById('anPkgCardEmail').classList.contains('is-open');
+      const slackOn = document.getElementById('anPkgCardSlack').classList.contains('is-open');
       const channels = pkgReadChannels();
+      const nameInput = document.getElementById('anPkgName');
+      const name = nameInput.value.trim();
       const problems = [];
+      // Obligatorio: nombre
+      if (!name) {
+        problems.push('Ponle un nombre a la notificación.');
+        nameInput.classList.add('is-error');
+        const ne = document.getElementById('anPkgNameErr'); if (ne) ne.classList.remove('hidden');
+      }
+      // Obligatorio: al menos una entrega
       if (!rtOn && !dgOn) problems.push('Activa al menos una entrega: aviso por evento o resumen consolidado.');
+      // Si el aviso por evento está activo, al menos un momento
       if (rtOn && !anyMoment) problems.push('En el aviso por evento, elige al menos un momento del incidente (al crearse, en observación, al confirmarse o al resolverse).');
-      if (!channels.emails.length && !channels.slack.length) problems.push('Agrega al menos un canal: un correo o un canal de Slack.');
+      // Canales: al menos uno activo, y cada canal activo con destinatarios
+      if (!emailOn && !slackOn) problems.push('Activa al menos un canal: Email o Slack.');
+      else {
+        if (emailOn && !channels.emails.length) problems.push('El canal Email está activo: agrega al menos un correo.');
+        if (slackOn && !channels.slack.length) problems.push('El canal Slack está activo: agrega al menos un canal de Slack.');
+      }
       if (problems.length) { pkgWarn(problems); return; }
       pkgWarn([]);
-      const name = document.getElementById('anPkgName').value.trim() || 'Notificación sin nombre';
       const data = {
         name: name, scope: pkgEditingScope.map(f => ({ ...f })),
         realtime: { enabled: rtOn, created: evCreated, watching: evWatching, confirmed: evConfirmed, resolved: evResolved, updates: document.getElementById('anPkgUpdates').classList.contains('is-on') },

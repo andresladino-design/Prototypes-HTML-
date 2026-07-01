@@ -64,7 +64,7 @@ Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta 
      - **Aviso por evento** (toggle): **momento(s) del ciclo de vida** del incidente, multiselección — **Cuando se cree** / **Cuando entre en observación** / **Cuando se confirme** / **Cuando se resuelva** + **Recibir actualizaciones** (toggle; reconfirmaciones, cambios de hipótesis, otros recursos afectados). *(Los estados del incidente se eligen aquí como momentos, no en el alcance, para no duplicarlos.)*
      - **Resumen consolidado** (toggle): **hora** + **zona horaria** (default 08:00 · CO Bogotá) + **"Qué período resume"** = **t-1 … t-5** con microcopy: *el corte siempre cierra el día anterior; la hora solo define cuándo llega, no qué período cubre*. 1×día, agrupa los incidentes del alcance.
    - **Canales** → mismo patrón que el "¿Dónde notificar?" del KPI: **tarjetas de canal activables** (Email / Slack) con toggle; Email → destinatarios; Slack → canales + **Etiquetar a personas por ID de usuario** (no `@nombre`; nota "Copiar id. de miembro"). **Aplican a ambas entregas.** Si el canal está apagado, no se notifica por ahí.
-   - **Validación:** guarda solo si hay **≥1 entrega activa** (aviso por evento o resumen), en el aviso por evento **≥1 momento**, y **≥1 canal**.
+   - **Validación (al Guardar):** **Nombre obligatorio** (campo con borde rojo + mensaje inline si falta); **≥1 entrega activa** (aviso por evento o resumen); si aviso por evento, **≥1 momento**; **≥1 canal activo**; y **cada canal activo con destinatarios** (Email on → ≥1 correo; Slack on → ≥1 canal). Los faltantes se listan en una alerta (`.an-pkg-warn`, ámbar) con encabezado singular/plural. Alcance (entidades/tipo) es opcional (vacío = todos).
    - Acciones: Cancelar / Guardar notificación.
 
 ### QUITADO del formulario anterior (no va)
@@ -257,7 +257,7 @@ Refs: `fe-solutions-mf/.../skills/desyk/references/`.
 **Resumen consolidado (entrega del paquete, 30-jun pm):** ya no es una máquina de 3 estados aparte. Es un **toggle** dentro del editor (`digest.enabled`) que despliega su sub-form (hora · zona · t-n). Se guarda con el paquete; el card de la lista muestra su tag ("Resumen 08:00 · hasta hace 4 días (t-4)").
 
 ## G. Validaciones / edge cases
-- **Regla que no notifica nada** (bloquear Guardar + `Alert warning`): exige **≥1 entrega activa** (aviso por evento o resumen); si aviso por evento, **≥1 momento** (created/watching/confirmed/resolved); **y ≥1 canal activo** (correo o Slack). Una mención sin canal de Slack no entrega.
+- **Reglas de validación** (bloquear Guardar + `Alert warning`): **Nombre obligatorio**; **≥1 entrega activa** (aviso por evento o resumen); si aviso por evento, **≥1 momento** (created/watching/confirmed/resolved); **≥1 canal activo**; **cada canal activo con destinatarios** (Email→≥1 correo, Slack→≥1 canal). Una mención sin canal de Slack no entrega. Alcance opcional (vacío = todos).
 - **Scope vacío** = "Todos mis incidentes" (válido, no es error).
 - Canal con toggle **apagado** → no se leen sus destinatarios al guardar.
 - Severidad: no exponer como filtro ni condición (system-assigned).
