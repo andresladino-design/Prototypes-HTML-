@@ -4330,7 +4330,9 @@
       if (el) {
         const ents = pkgEditingScope.filter(f => f.type === 'Entidad');
         el.innerHTML = ents.length
-          ? '<span class="an-prevchip"><i data-lucide="layers"></i> ' + ents.map(e => esc(e.value)).join(' <em>o</em> ') + '<i data-lucide="x" class="an-prevchip-x" onclick="pkgClearType(\'Entidad\')"></i></span>'
+          ? '<span class="an-fchip"><span class="an-fchip-type"><i data-lucide="layers"></i> Entidad</span>' +
+            '<span class="an-fchip-val">' + ents.map(e => esc(e.value)).join(' <em>o</em> ') + '</span>' +
+            '<button class="an-fchip-x" aria-label="Quitar filtro" onclick="pkgClearType(\'Entidad\')"><i data-lucide="x"></i></button></span>'
           : '<span class="an-prevchip">Todas las entidades</span>';
       }
       // Tipo: refleja el estado activo en los chips seleccionables
