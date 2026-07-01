@@ -1397,6 +1397,8 @@
 
     /* ---- Configuración: nav de config (izq) + Ingesta de datos (der) ---- */
     .an-confnav { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; overflow-y: auto; }
+    .an-confnav-label { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: .02em; padding: 6px 12px 4px; }
+    .an-confnav-label:first-child { padding-top: 2px; }
     .an-confitem { display: flex; align-items: flex-start; gap: 11px; width: 100%; text-align: left; border: 0; border-radius: 10px; background: none; padding: 12px; cursor: pointer; transition: background .12s; }
     .an-confitem:hover { background: hsl(240 5% 97%); }
     .an-confitem.is-sel { background: hsl(240 5% 96%); }
@@ -1412,7 +1414,10 @@
          tarjetas) y cae a alineado-al-inicio cuando desborda, para que el título + "Crear
          notificación" sigan alcanzables por scroll (evita el clip de flexbox centrado + overflow).
        - El guard `.hidden` mantiene el toggle de navegación (un ID le gana a la clase .hidden de Tailwind). */
-    #anCfgNotif { display: flex; justify-content: safe center; align-items: safe center; }
+    /* Con notificaciones creadas (o editando): alineado arriba-izquierda. El empty/onboarding
+       (.an-onb, inyectado en la lista cuando no hay paquetes) se mantiene centrado. */
+    #anCfgNotif { display: flex; justify-content: flex-start; align-items: flex-start; }
+    #anCfgNotif:has(.an-onb) { justify-content: safe center; align-items: safe center; }
     #anCfgNotif.hidden { display: none; }
     .an-ing-title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
     .an-ing-sub { font-size: 13px; color: var(--text-tertiary); line-height: 1.5; max-width: 760px; margin-bottom: 16px; }
@@ -1769,8 +1774,20 @@
     .an-table-pager { display: flex; align-items: center; justify-content: space-between; padding: 12px 2px 0; font-size: 12.5px; color: var(--text-muted); }
     .an-table-pager .an-pg { gap: 5px; }
 
+  /* ===== Análisis inteligente (narrativa previa al monitoreo) ===== */
+  .ns-ai-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .ns-ai-icon{flex-shrink:0;width:20px;height:20px;display:inline-flex}
+  .ns-ai-title{font-size:15px;font-weight:600;color:var(--primary-text)}
+  .ns-ai-card{background:hsl(var(--accent) / 0.5);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+  .ns-ai-divider{height:1px;background:var(--border-subtle)}
+  .ns-ai-foot{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-muted)}
+  .ns-ai-foot svg{width:14px;height:14px;flex-shrink:0;color:var(--text-tertiary)}
+
   /* ===== Detección de anomalías por serie (default global + override, colapsables inline) ===== */
   .ns-wrap{margin-top:4px}
+  .ns-skel{display:flex;align-items:center;gap:10px;height:48px;padding:0 15px;border:1px solid var(--border-default);border-radius:12px;background:#fff;margin-bottom:8px}
+  .ns-skel-bar{height:10px;border-radius:6px;background:linear-gradient(90deg,hsl(240 5% 92%) 0%,hsl(240 5% 97%) 50%,hsl(240 5% 92%) 100%);background-size:200% 100%;animation:nsShimmer 1.3s linear infinite}
+  @keyframes nsShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .ns-wrap > .ns-secth:first-of-type{margin-top:12px}
   .ns-secth{font-size:13px;font-weight:600;color:var(--text-secondary);margin:18px 2px 10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
   .ns-secth .ns-cnt{font-size:11px;color:var(--text-muted);font-weight:500;text-transform:none;letter-spacing:0}
@@ -1788,24 +1805,9 @@
   .ns-acc-item.open .ns-acc-chev{transform:rotate(180deg)}
   .ns-acc-body{padding:0 15px 15px;display:none}
   .ns-acc-item.open .ns-acc-body{display:block}
-  .ns-acc-toprow{display:flex;align-items:stretch}
-  .ns-acc-toprow .ns-acc-hd{flex:1;min-width:0}
-  .ns-acc-del{appearance:none;border:0;background:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:0 14px;border-left:1px solid var(--border-subtle)}
-  .ns-acc-del:hover{color:var(--red-text);background:hsl(var(--destructive) / .06)}
-  .ns-acc-del .lucide{width:15px;height:15px}
-  .ns-addwrap{position:relative;margin-top:10px}
-  .ns-add-btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px dashed var(--border-strong);background:#fff;border-radius:11px;font:inherit;font-size:13px;font-weight:600;color:var(--text-secondary);padding:11px 14px;cursor:pointer}
-  .ns-add-btn:hover{border-color:var(--primary);color:var(--primary-text);background:var(--primary-soft)}
-  .ns-add-btn .lucide{width:15px;height:15px}
-  .ns-add-menu{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;background:#fff;border:1px solid var(--border-default);border-radius:11px;box-shadow:0 12px 30px rgba(20,20,40,.14);padding:6px;display:none;max-height:240px;overflow:auto}
-  .ns-addwrap.open .ns-add-menu{display:block}
-  .ns-add-opt{display:flex;align-items:center;gap:9px;width:100%;border:0;background:none;font:inherit;font-size:13px;color:var(--text-primary);padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
-  .ns-add-opt:hover{background:var(--muted)}
-  .ns-add-opt .lucide{width:15px;height:15px;color:var(--text-muted)}
   .ns-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;border-radius:999px;padding:3px 9px;white-space:nowrap}
   .ns-badge.adapt{color:var(--primary-text);background:var(--primary-soft);border:1px solid hsl(var(--primary-hsl) / .22)}
   .ns-badge.fijo{color:var(--amber-text);background:var(--amber-soft);border:1px solid hsl(var(--warning) / .3)}
-  .ns-badge.unset{color:var(--text-muted);background:transparent;border:1px dashed var(--border-strong)}
   .ns-sum{font-size:12px;color:var(--text-tertiary)}
   .ns-sum b{color:var(--text-secondary);font-weight:600}
   .ns-cardhead{display:flex;justify-content:flex-start;align-items:center;gap:16px}
@@ -2361,6 +2363,7 @@
 
         <div id="anLeftConfig" class="flex flex-col flex-1 min-h-0 hidden">
           <div class="an-confnav">
+            <div class="an-confnav-label">Configuración de monitoreo</div>
             <button class="an-confitem is-sel" onclick="anConfNav(this,'ingesta')">
               <i data-lucide="database" class="an-confitem-ic"></i>
               <span class="an-confitem-tx">
@@ -2390,6 +2393,7 @@
               </span>
             </button>
             <div class="an-confdiv"></div>
+            <div class="an-confnav-label">Notificaciones</div>
             <button class="an-confitem" onclick="anConfNav(this,'notif')">
               <i data-lucide="bell" class="an-confitem-ic"></i>
               <span class="an-confitem-tx">
@@ -3466,6 +3470,65 @@
 
               <div class="tm-dialog-section">
 
+              <!-- Análisis inteligente: narrativa que Simetrik entrega antes de monitorear
+                   (sugiere los límites). Portado de config-system-kpi, adaptado a vanilla.
+                   Header arriba + card (stats + descripción + "Ver análisis detallado" colapsable + footer).
+                   Datos MOCKEADOS; en prod los provee el BE. -->
+              <div class="ns-ai" style="margin-bottom:16px;">
+                <div class="ns-ai-head">
+                  <span class="ns-ai-icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#nsAiGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <defs><linearGradient id="nsAiGrad" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#b638ff"></stop><stop offset="100%" stop-color="#5490fe"></stop></linearGradient></defs>
+                      <path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path>
+                      <path d="M12 8a4 4 0 0 0 4 4 4 4 0 0 0-4 4 4 4 0 0 0-4-4 4 4 0 0 0 4-4z"></path>
+                    </svg>
+                  </span>
+                  <span class="ns-ai-title">Análisis inteligente</span>
+                </div>
+                <div class="ds-think" id="nsAiThink" style="padding:0;display:none;">
+                  <button type="button" class="ds-think-trigger" aria-expanded="true" onclick="var o=this.getAttribute('aria-expanded')==='true'; this.setAttribute('aria-expanded', o?'false':'true'); var s=document.getElementById('nsAiSteps'); s.style.display=o?'none':'flex';">
+                    <svg class="ds-think-spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                    <span class="ds-think-label">Pensando…</span>
+                    <svg class="ds-think-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </button>
+                  <div class="ds-think-steps" id="nsAiSteps"></div>
+                </div>
+                <div class="ns-ai-card" id="nsAiCard">
+                  <div class="ds-an-stats">
+                    <div class="ds-an-stat"><span class="ds-an-stat-label">Media</span><span class="ds-an-stat-value">15.4</span></div>
+                    <div class="ds-an-stat"><span class="ds-an-stat-label">Límite inferior sugerido</span><span class="ds-an-stat-value">10</span></div>
+                    <div class="ds-an-stat"><span class="ds-an-stat-label">Límite superior sugerido</span><span class="ds-an-stat-value">24</span></div>
+                  </div>
+                  <p class="ds-an-desc"><strong>Línea base estable y limpia</strong> - <strong>30 días</strong> de observaciones de baja dispersión, sin brechas ni valores atípicos. <em>Una línea base simple para anclar el monitoreo.</em></p>
+                  <button type="button" class="ds-an-detail-toggle" onclick="this.classList.toggle('is-open'); var b=this.parentElement.querySelector('.ds-an-detail-body'); b.style.display=this.classList.contains('is-open')?'flex':'none';">
+                    <svg class="ds-an-detail-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    Ver análisis detallado
+                  </button>
+                  <div class="ds-an-detail-body" style="display:none;">
+                    <div class="ds-an-section">
+                      <h4 class="ds-an-section-title">Tendencia</h4>
+                      <p class="ds-an-section-text">El conteo se ha mantenido <em>estable</em> en torno a <strong>15/día</strong> durante los últimos <strong>30 días</strong>, con un margen estrecho. <em>Una línea base limpia para anclar el monitoreo.</em></p>
+                    </div>
+                    <div class="ds-an-section">
+                      <h4 class="ds-an-section-title">Estacionalidad</h4>
+                      <p class="ds-an-section-text">No se detecta un patrón <strong>semanal</strong> ni <strong>mensual</strong> claro en la ventana: los valores fluctúan sin un ritmo recurrente. <em>Una línea base simple para anclarse.</em></p>
+                    </div>
+                    <div class="ds-an-section">
+                      <h4 class="ds-an-section-title">Valores atípicos</h4>
+                      <p class="ds-an-section-text"><strong>No hay valores atípicos</strong> en la ventana: todas las observaciones están dentro del rango operativo (~<strong>15/día</strong>). Los umbrales anclados reflejarán una distribución limpia.</p>
+                    </div>
+                    <div class="ds-an-section">
+                      <h4 class="ds-an-section-title">Brechas de datos</h4>
+                      <p class="ds-an-section-text"><strong>No hay días faltantes</strong> en la ventana de línea base: la cadencia de recolección es limpia.</p>
+                    </div>
+                  </div>
+                  <div class="ns-ai-divider"></div>
+                  <div class="ns-ai-foot">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                    Este análisis refleja el agregado de todas las categorías.
+                  </div>
+                </div>
+              </div>
               <!-- Detección de anomalías: "Configuración por defecto" (todas las series la heredan)
                    + POR SERIE en colapsables inline para personalizar excepciones. Cada serie:
                    límites fijos o sistema adaptativo (sandbox validado 1-jul). Badge Heredado/Personalizado.
@@ -4581,6 +4644,7 @@
         .forEach(e => e.style.display = isSeries ? '' : 'none');
       dlgCurrentSec = sec;
       updateWizardFooter();
+      if (sec === 'series' && typeof nsAiThink === 'function') nsAiThink();
     }
     document.querySelectorAll('#monitorDialog [data-sec]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -4648,14 +4712,14 @@
     const NS_LEVELS={alta:2,media:3.5,baja:5.5};
     const NS_LVLLBL={alta:'alta',media:'media',baja:'baja'};
     function nsCfg(o){ return Object.assign({mode:'adaptativo',level:'media',safety:false,fixedLo:10,fixedHi:24,loOn:true,hiOn:true},o); }
-    const NS_GLOBAL=nsCfg({sug:{lo:10,hi:24}});
+    const NS_GLOBAL=nsCfg({mode:'fijo',sug:{lo:10,hi:24}}); // por defecto: límites fijos
     const NS_SERIES=[
       {id:'occ', name:'Banco_Occidente',  data:[12,14,15,13,17,10,8,13,17,20,18,15,13,18,15,12,16,14,15,15,20,13,4,14], sug:{lo:10,hi:24}, customized:false, cfg:nsCfg()},
-      {id:'payu',name:'PayU_Latam',        data:[5,6,7,5,6,6,5,9,7,6,12,6,5,7,6,5,7,6,6,7,6,11,5,6], sug:{lo:2,hi:9}, customized:true, cfg:nsCfg({mode:'fijo',fixedLo:2,fixedHi:9})},
+      {id:'payu',name:'PayU_Latam',        data:[5,6,7,5,6,6,5,9,7,6,12,6,5,7,6,5,7,6,6,7,6,11,5,6], sug:{lo:2,hi:9}, customized:false, cfg:nsCfg()},
       {id:'erp', name:'ERP_SAP',           data:[15,14,15,14,15,18,15,15,16,14,15,21,15,15,16,14,15,15,4,15,15,16,14,15], sug:{lo:10,hi:20}, customized:false, cfg:nsCfg()},
       {id:'lib', name:'Libro_Mayor',       data:[16,17,16,23,17,16,18,16,17,16,17,23,16,17,16,16,17,17,16,24,17,16,17,16], sug:{lo:12,hi:25}, customized:false, cfg:nsCfg()},
       {id:'tes', name:'Tesoreria_Interna', data:[18,19,18,18,25,19,18,18,3,19,18,18,19,18,18,25,18,19,18,18,3,19,18,18], sug:{lo:13,hi:26}, customized:false, cfg:nsCfg()},
-      {id:'visa',name:'Visa_Acquiring',    data:[8,9,8,9,8,10,9,9,15,8,9,9,2,9,9,10,8,9,15,9,9,10,8,9], sug:{lo:4,hi:13}, customized:true, cfg:nsCfg({mode:'adaptativo',level:'baja',safety:true,fixedLo:3,fixedHi:14})},
+      {id:'visa',name:'Visa_Acquiring',    data:[8,9,8,9,8,10,9,9,15,8,9,9,2,9,9,10,8,9,15,9,9,10,8,9], sug:{lo:4,hi:13}, customized:false, cfg:nsCfg()},
     ];
     NS_SERIES.forEach(s=>{ s.active=true; s.configured=true; }); // catálogo fijo de 6; empiezan agregadas y configuradas
     const nsById=id=>NS_SERIES.find(s=>s.id===id);
@@ -4717,9 +4781,7 @@
         +'<div class="ns-panel">'+nsPanel(v,sg)+'</div>'
         +'<div class="ns-alert"><i data-lucide="info"></i><div class="ns-alert-body"><span class="ns-alert-txt"></span>'
         +'<div class="ns-impact-row">'
-        +'<div class="ns-impact-kpi"><div class="ns-impact-num ns-im-total">0</div><div class="ns-impact-lbl">avisos en total</div></div>'
-        +'<div class="ns-impact-kpi"><div class="ns-impact-num red ns-im-red">0</div><div class="ns-impact-lbl">fuera de límites</div></div>'
-        +'<div class="ns-impact-kpi"><div class="ns-impact-num amber ns-im-amber">0</div><div class="ns-impact-lbl">comportamiento inusual</div></div>'
+        +'<div class="ns-impact-kpi"><div class="ns-impact-num ns-im-total">0</div><div class="ns-impact-lbl">avisos en los últimos 30 días</div></div>'
         +'</div></div></div>';
     }
     function nsMovingAvg(a,w){const h=(w/2)|0,o=[];for(let i=0;i<a.length;i++){let s=0,n=0;for(let j=i-h;j<=i+h;j++)if(j>=0&&j<a.length){s+=a[j];n++;}o.push(s/n);}return o;}
@@ -4761,8 +4823,6 @@
         });
       });
       svg.innerHTML=g+band+fixed+now+lines+dots;
-      nsHost.querySelector('.ns-im-red').textContent=red;
-      nsHost.querySelector('.ns-im-amber').textContent=amber;
       nsHost.querySelector('.ns-im-total').textContent=red+amber;
     }
     function nsRenderAlert(){
@@ -4788,30 +4848,28 @@
       item.classList.add('open'); nsEDIT=nsResolve(id); nsHost=document.getElementById('nsBody-'+id); nsRenderDetail();
     }
     function nsRowHTML(s){
-      return '<div class="ns-acc-item" data-nsacc="'+s.id+'"><div class="ns-acc-toprow">'
+      return '<div class="ns-acc-item" data-nsacc="'+s.id+'">'
         +'<button type="button" class="ns-acc-hd" onclick="nsToggle(\''+s.id+'\')"><span class="ns-acc-name">'+s.name+'</span>'
         +'<span class="ns-acc-meta"><span data-nsbadge="'+s.id+'"></span><span class="ns-sum" data-nssum="'+s.id+'"></span></span>'
         +'<i class="ns-acc-chev" data-lucide="chevron-down"></i></button>'
-        +'<button type="button" class="ns-acc-del" title="Quitar serie" aria-label="Quitar serie" onclick="nsRemoveSeries(\''+s.id+'\',event)"><i data-lucide="trash-2"></i></button>'
-        +'</div><div class="ns-acc-body" id="nsBody-'+s.id+'"></div></div>';
+        +'<div class="ns-acc-body" id="nsBody-'+s.id+'"></div></div>';
     }
     function nsRenderList(){
-      if(nsEDIT && !nsEDIT.isGlobal){ nsEDIT=null; nsHost=null; } // una card de serie abierta se colapsa al agregar/quitar
-      const active=NS_SERIES.filter(s=>s.active);
-      document.getElementById('nsSeriesAcc').innerHTML=active.map(nsRowHTML).join('');
-      const cnt=document.getElementById('nsCnt'); if(cnt) cnt.textContent=active.length+' de '+NS_SERIES.length+' series';
-      const avail=NS_SERIES.filter(s=>!s.active);
-      const aw=document.getElementById('nsAddWrap');
-      if(avail.length){
-        aw.innerHTML='<button type="button" class="ns-add-btn" onclick="nsAddToggle(event)"><i data-lucide="plus"></i>Agregar serie</button>'
-          +'<div class="ns-add-menu">'+avail.map(s=>'<button type="button" class="ns-add-opt" onclick="nsAddSeries(\''+s.id+'\')"><i data-lucide="plus"></i>'+s.name+'</button>').join('')+'</div>';
-      } else { aw.innerHTML=''; }
+      if(nsEDIT && !nsEDIT.isGlobal){ nsEDIT=null; nsHost=null; }
+      document.getElementById('nsSeriesAcc').innerHTML=NS_SERIES.map(nsRowHTML).join('');
+      const cnt=document.getElementById('nsCnt'); if(cnt) cnt.textContent=NS_SERIES.length+' series';
       nsUpdateBadges();
       if(window.lucide) lucide.createIcons();
     }
-    function nsRemoveSeries(id,ev){ if(ev)ev.stopPropagation(); const s=nsById(id); if(!s)return; s.active=false; nsRenderList(); }
-    function nsAddToggle(ev){ if(ev)ev.stopPropagation(); const aw=document.getElementById('nsAddWrap'); if(aw)aw.classList.toggle('open'); }
-    function nsAddSeries(id){ const s=nsById(id); if(!s)return; s.active=true; s.configured=false; s.customized=false; s.cfg=nsCfg(NS_GLOBAL); const aw=document.getElementById('nsAddWrap'); if(aw)aw.classList.remove('open'); nsRenderList(); nsToggle(id); }
+    // Skeleton de carga: se muestra en #nsWrap mientras corre el análisis ("Pensando…")
+    function nsSkelRows(nn){ let r=''; for(let i=0;i<nn;i++){ r+='<div class="ns-skel"><span class="ns-skel-bar" style="width:140px"></span><span class="ns-skel-bar" style="width:96px;margin-left:auto"></span></div>'; } return r; }
+    function nsShowSkeleton(){
+      document.getElementById('nsWrap').innerHTML=
+        '<div class="ns-secth">Límites generales de Conteo De Registros</div>'
+        +'<div class="ns-acc">'+nsSkelRows(1)+'</div>'
+        +'<div class="ns-secth">Límites por serie <span class="ns-cnt">'+NS_SERIES.length+' series</span></div>'
+        +'<div class="ns-acc">'+nsSkelRows(NS_SERIES.length)+'</div>';
+    }
     function nsInit(){
       document.getElementById('nsWrap').innerHTML=
         '<div class="ns-secth">Límites generales de Conteo De Registros</div>'
@@ -4820,10 +4878,34 @@
         +'<span class="ns-acc-meta"><span data-nsgbadge></span><span class="ns-sum" data-nsgsum></span></span><i class="ns-acc-chev" data-lucide="chevron-down"></i></button>'
         +'<div class="ns-acc-body" id="nsBody-__g"></div></div></div>'
         +'<div class="ns-secth">Límites por serie <span class="ns-cnt" id="nsCnt"></span></div>'
-        +'<div class="ns-acc" id="nsSeriesAcc"></div>'
-        +'<div class="ns-addwrap" id="nsAddWrap"></div>';
+        +'<div class="ns-acc" id="nsSeriesAcc"></div>';
       nsRenderList();
-      document.addEventListener('click',function(e){ if(!e.target.closest('#nsAddWrap')){ const aw=document.getElementById('nsAddWrap'); if(aw)aw.classList.remove('open'); } });
+    }
+
+    /* ===== Análisis inteligente: estado "Pensando…" (carga del análisis) ===== */
+    const NS_AI_STEPS=['Consultando datos históricos del recurso…','Calculando línea base estadística…','Detectando patrones y estacionalidad…','Identificando valores atípicos…','Generando análisis narrativo…'];
+    let nsAiTimer=null;
+    function nsAiStepIcon(){ return '<span class="ds-think-step-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="url(#nsAiGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path><path d="M12 8a4 4 0 0 0 4 4 4 4 0 0 0-4 4 4 4 0 0 0-4-4 4 4 0 0 0 4-4z"></path></svg></span>'; }
+    function nsAiThink(){
+      const think=document.getElementById('nsAiThink'), card=document.getElementById('nsAiCard'), steps=document.getElementById('nsAiSteps');
+      if(!think||!card||!steps) return;
+      if(nsAiTimer){ clearTimeout(nsAiTimer); nsAiTimer=null; }
+      think.style.display=''; card.style.display='none';
+      nsShowSkeleton();
+      let k=0;
+      function render(){
+        steps.innerHTML=NS_AI_STEPS.slice(0,k).map((s,i)=>{
+          const latest=i===k-1;
+          const icon=latest?nsAiStepIcon():'<span class="ds-think-dot" aria-hidden="true"></span>';
+          return '<div class="ds-think-step'+(latest?' is-latest':'')+'">'+icon+'<span>'+s+'</span></div>';
+        }).join('');
+      }
+      function tick(){
+        k++; render();
+        if(k<NS_AI_STEPS.length){ nsAiTimer=setTimeout(tick,750); }
+        else { nsAiTimer=setTimeout(function(){ think.style.display='none'; card.style.display=''; nsInit(); }, 800); }
+      }
+      tick();
     }
 
     nsInit();
