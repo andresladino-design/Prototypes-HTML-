@@ -2,7 +2,7 @@
 
 Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **métricas de gráficos** (K Cast) para el monitoreo inteligente de Operation Center.
 
-**Última actualización:** 2026-06-30
+**Última actualización:** 2026-07-01
 **Estado:** 🟢 Activo
 
 ## Cómo verlo
@@ -15,13 +15,12 @@ Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **
 ### Vista de Anomalías (tab superior "Anomalías")
 - **Alertas (en el KPI):** el diálogo del gráfico configura *Alertas* (señales), no incidentes. "Historial" → **"Alertas levantadas"** (con columna ¿Notificada?).
 - **Filtros de Gestión:** multiselect dentro de cada categoría (combina con **`o`**), entre categorías con **`Y`**; **filtros guardados** reutilizables; sin filtro de Severidad (hasta que sea configurable).
-- **Notificaciones de incidentes = paquetes de reglas:** lista de tarjetas; cada paquete tiene scope ("Notifícame incidentes sobre…"), momento del ciclo de vida (al crearse / al confirmarse), updates y canales. Un incidente se evalúa contra todos los paquetes activos.
-- **Resumen consolidado:** sección propia en el nav (1×día), reutiliza filtros.
+- **Notificaciones de incidentes = paquetes de reglas:** lista de tarjetas; cada paquete tiene alcance ("Entidades afectadas": tableros/recursos con `o` + tipo), momentos del ciclo de vida (al crearse / en observación / al confirmarse / al resolverse + updates) y canales. Un incidente se evalúa contra todos los paquetes activos.
+- **Resumen consolidado:** modo de entrega **dentro del paquete** (1×día), sobre el mismo alcance y canales, con hora + zona + período t-n. Ya no es una sección propia del nav.
 
 ### Diálogo de monitoreo del KPI
-- **¿Cuándo notificar?** — control con slider animado (*Todo el tiempo* vs *Solo al cierre*) y resumen visual de la ventana de monitoreo; se habilita solo al activar un canal (Email/Slack).
-- **3 modos de hard limit** por bound (on/off + valor sugerido) en user KPIs, replicando el patrón de system KPIs.
-- **Sensibilidad** configurable (nula/media/alta) a nivel de KPI.
+- **Alertas · ¿Cuándo notificar?** — eje de timing de 3 estados (*Nunca* / *Solo al final* / *En tiempo real*); la barra de la ventana de monitoreo actúa de explicador (las notificaciones aparecen como marcadores a su hora). Los canales se exigen de forma reactiva al pasar de paso.
+- **Series y valores · detección por serie** — narrativa "Análisis inteligente" (con carga "Pensando…") + configuración general + override por serie: **Límites fijos** vs **Sistema adaptativo** (Alta/Media/Baja + límites de seguridad), con simulación de alertas sobre el histórico.
 - Tabs segmentadas e iconografía unificada.
 - Archivos de apoyo: `templates.html`, `slack-alternativas.html`, `slack-blockkit*.json`.
 - Spec de plantillas Slack del agente (default/compact/ultra-compact): `slack-templates-agente.README.md`.
@@ -35,11 +34,16 @@ Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **
 
 ## Changelog
 
+### 2026-07-01
+- **Detección de anomalías rediseñada por serie:** se reemplazó el slider de sensibilidad (nula/media/alta) por narrativa "Análisis inteligente" + configuración general + override por serie (**Límites fijos** vs **Sistema adaptativo**), con simulación de alertas.
+- **Resumen consolidado** dejó de ser sección propia del nav: pasó a ser un **modo de entrega dentro del paquete** (mismo alcance y canales + período t-n), decisión del design review del 30-jun pm.
+- **Handoff reorganizado en 3 estructuras** (por épica de ingeniería) en `handoff/`: filtros en vista de incidentes · configuración de detección en tableros/monitoreo · notificaciones + vista de Anomalías. Consolida los 5 handoffs previos y el plan del 30-jun (ambos preservados en el historial de git).
+
 ### 2026-06-30
 - **Vista de Anomalías** con filtros multiselect (O dentro de categoría / Y entre categorías) + **filtros guardados**; quitado el filtro de Severidad.
 - **Notificaciones de incidentes** reconstruidas como **paquetes de reglas** (lista de tarjetas + editor): scope "Notifícame incidentes sobre…", momento del ciclo de vida, updates, canales. Quitados los checkboxes de severidad/responsable/etiquetado y la sección "Qué incluir".
 - **Resumen consolidado** movido a **sección propia** en el nav de Configuración.
-- Handoff enumerado: `handoff/handoff-anomalias-filtros-notificaciones.md`. Plan: `plan-notificaciones-paquetes-30jun.md`.
+- Handoff enumerado en `handoff/` (3 estructuras: filtros, config de detección, notificaciones + vista de Anomalías; ver `handoff/README.md`).
 - Basado en la sesión Granola del 30-jun y comentarios de Ohana.
 
 ### 2026-06-25

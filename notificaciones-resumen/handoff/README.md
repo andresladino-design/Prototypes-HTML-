@@ -1,31 +1,34 @@
-# Handoff — Diálogo de monitoreo inteligente (notificaciones-resumen)
+# Handoff — Monitoreo inteligente de anomalías (notificaciones-resumen)
 
-Specs autocontenidas para implementar las secciones del diálogo de monitoreo de un gráfico (KPI "Conteo De Registros") en Operation Center. Origen: prototipo validado `index.html`.
+Specs autocontenidas para implementar el rediseño del monitoreo de anomalías de Operation Center. Origen: prototipo validado `../index.html`.
 
-## Archivos
+El handoff está organizado en **3 estructuras de detalle**, una por épica de ingeniería. Cada una es un `.md` autocontenido (contexto, cambios de UI enumerados, historias de UX, copy, mapeo desyk/BADS, estados, edge cases y checklist).
 
-| Archivo | Cubre | Componentes mock |
-|---|---|---|
-| [`handoff-notificaciones-canales.md`](./handoff-notificaciones-canales.md) | Notificaciones en 3 cards: **¿Cuándo?** (eje de timing Nunca/Solo al final/En tiempo real + **barra-explicador con marcadores** + empty-state de primer ingreso) → **¿Dónde?** (canales Email/Slack) → **Idioma** | `#dsec-notif`, `tm-prog-card`, `.when-select`, `.winrec-timeline`+`.winrec-mk`, `.tm-notif-card`, `.tm-chip-input` |
-| [`handoff-limites-sensibilidad.md`](./handoff-limites-sensibilidad.md) | **Detección de anomalías por serie** (reescrito 1-jul). **Narrativa "Análisis inteligente"** previa (límites sugeridos + Tendencia/Estacionalidad/Atípicos/Brechas) con carga **"Pensando…"** + **skeleton**. Modelo **general + override**: **Límites generales de {métrica}** + **Límites por serie** en **colapsables inline** (6 series fijas, sin agregar/quitar). Cada serie: **Límites fijos** (default) vs **Sistema adaptativo** (Alta/Media/Baja + límites de seguridad), gráfica completa (sin AHORA), **aviso + total único** de alertas. Deprecado el slider/bandas/grilla anterior. | `.ns-ai*`, `.ds-think`, `.ns-skel`, `#nsWrap`, `.ns-acc*`, `.ns-radio`, `.ns-seg`, `.ns-lim`, `.ns-alert`, `svg.ns-chart` |
-| [`handoff-notif-email-sinGrafica-slack-ultracompact.md`](./handoff-notif-email-sinGrafica-slack-ultracompact.md) | **Plantillas del Resumen de incidentes**: Email **sin gráfica** (MJML) + Slack Block Kit **ultra-compact**, ambas armadas 1:1 desde el JSON de incidentes (BADS), texto verbatim. Origen: `templates.html` | MJML (email) · Slack Block Kit `section`/`context`/`divider` (no desyk) |
-| [`handoff-anomalias-historias-ux.md`](./handoff-anomalias-historias-ux.md) | **Historias de UX** (5 HU) que complementan el handoff de Anomalías: filtrar+guardar, crear notificación (first-run/plantilla), definir alcance/momento/canales, mantener notificaciones (editar/duplicar/pausar), resumen consolidado. Con estados de interfaz, criterios funcionales/experiencia, a11y. | persona: operador de Op Center |
-| [`handoff-anomalias-filtros-notificaciones.md`](./handoff-anomalias-filtros-notificaciones.md) | **Vista de Anomalías** (cada cambio de UI enumerado). **Actualizado 1-jul:** **Filtros de Gestión** = Recurso, Tablero, Estado, Tipo, Fecha estática (multiselect O/Y, sin Severidad, botón Guardados icon-only) · **Notificaciones = paquetes de reglas**: alcance en dos bloques (**Entidades afectadas** con OR + conector "o" · **Tipo** en chips) + **dos entregas: aviso por evento (momentos por estado) + resumen consolidado (t-n)** · validaciones (nombre obligatorio, entrega, canal con destinatarios) · empty states/diagramas/motion. La unificación "Entidades afectadas" es **solo del editor**, no de Gestión. **Incluye Guía de implementación** (modelo BADS; mapeo desyk de `fe-solutions-mf`; shapes, máquinas de estado, validaciones). Origen: Granola 30-jun (am+pm) + Ohana | `#viewAnomalias`, `#anFMenu`, `#anCfgNotif` (`.an-pkg*`, `.an-deliv*`, `.an-scope-join`), `.an-onb-*` |
+## Las 3 estructuras
+
+| # | Estructura | Archivo | Qué cubre |
+|---|---|---|---|
+| **1** | **Filtros en la vista de incidentes** | [`handoff-1-filtros-incidentes.md`](./handoff-1-filtros-incidentes.md) | Los filtros de la lista de incidentes en **Anomalías → Gestión**: multiselect por categoría (Recurso, Tablero, Estado, Tipo, Fecha estática), lógica de combinación **O/Y**, quitar Severidad, y **filtros guardados** reutilizables (icon-only). Incluye HU-1 y el mapeo BADS de Estado/Tipo. Recurso y Tablero van **separados** (no se unifican aquí). |
+| **2** | **Configuración de detección de anomalías (vista de tableros / monitoreo)** | [`handoff-2-config-anomalias-tableros.md`](./handoff-2-config-anomalias-tableros.md) | Todo lo que define **cómo se detecta una anomalía**, dentro del diálogo de monitoreo del KPI (wizard **Programación → Alertas → Series y valores**) y en la config **por fuente** (Ingesta). Sección A: **Alertas del KPI** (¿Cuándo/¿Dónde/Idioma). Sección B: **detección por serie** (Análisis inteligente + carga, general + override, Límites fijos vs Sistema adaptativo, simulación). Sección C: **Alertas por fuente** (modal de fuente + mapeo `problem_category`). |
+| **3** | **Notificaciones de incidentes + vista de Anomalías (config y gestión)** | [`handoff-3-notificaciones-y-vista-anomalias.md`](./handoff-3-notificaciones-y-vista-anomalias.md) | Los **paquetes de notificación** (lista + editor con alcance "Entidades afectadas" OR, momentos del ciclo de vida, **resumen consolidado t-n** como entrega), first-run con diagrama, HU-2 a HU-5, **plantillas Email (MJML) + Slack (Block Kit)** del resumen, y los **fixes de UI** de la vista de Anomalías (segmented Gestión · Alertas levantadas · Configuración). |
+
+### Cómo se relacionan
+- La **detección** (Handoff 2) origina las señales/alertas que BADS agrupa en **incidentes**.
+- Los incidentes se **filtran** en la lista de Gestión (Handoff 1) y se **notifican** por reglas/paquetes (Handoff 3).
+- Los **filtros guardados** se crean en Gestión (Handoff 1); el editor de notificación (Handoff 3) los reutiliza, colapsando Tablero/Recurso a "Entidad".
 
 ## Cómo consumir
-
-1. Cada `.md` es autocontenido (contexto, HU, mapeo desyk, estados, copy, endpoints, edge cases, tests, checklist).
+1. Cada `.md` es autocontenido: se puede implementar como épica independiente.
 2. Para implementar: abrí rama nueva y usá `/simetrik-ui craft <handoff>.md` como input, o pasáselo al dev.
-3. Para revisar el copy: `/simetrik-ui clarify <handoff>.md`.
-4. Cuando esté en código: `/simetrik-ui audit <implementación>`.
+3. Para revisar el copy: `/simetrik-ui clarify <handoff>.md`. Cuando esté en código: `/simetrik-ui audit <implementación>`.
+4. Regla del equipo: **donde un cambio de UI no se enumere explícitamente, no se ejecuta en desarrollo.** Por eso cada handoff lista todos los cambios, incluso los chicos.
 
 ## Notas transversales
+- **Registro:** Interno / Operation Center. Desktop (shell de OC). Power user, alta tolerancia a densidad.
+- **Glosario:** **monitoreo** (nunca "agente"/"Agente IA"/"IA" de cara al usuario), **incidente**, **señal/alerta**, **KPI**, **Tablero**, **Recurso**, **serie/categoría**.
+- **Severidad** (`URGENT` / `REQUIRES_ATTENTION`) es **system-assigned** por el workflow runner de BADS → no se expone como filtro ni condición hasta que sea configurable.
+- Light mode consistente. Microinteracciones canónicas **120 / 200 / 320 ms**, ease-out `cubic-bezier(0.22,1,0.36,1)`. Skeleton sobre spinner. Sin em-dashes, sin mayúsculas sostenidas en títulos.
+- Guía de implementación (BADS Brain v2.8 + componentes desyk de `fe-solutions-mf`) incluida en cada handoff, acotada a su alcance.
 
-- Registro: **Interno / Op Center**. Glosario: **monitoreo**, **incidente**, **gráfico/KPI**, **valor sugerido**.
-- Light mode consistente. Microinteracciones canon 120/200/320 ms ease-out. Skeleton sobre spinner.
-- `schedule` (recurrencia/horario/timezone), `series`, `suggested` y `signals` son read-only en estas secciones (provienen de Programación y del monitoreo / BE respectivamente).
-- **El diálogo es un wizard de 3 pasos:** Programación → Notificaciones → Series y valores (footer Atrás/Cancelar + Siguiente/Guardar).
-- En Notificaciones (rediseño 26-jun pm), **"¿Cuándo?" es un eje de timing**: **Nunca / Solo al final / En tiempo real** (señales e incidentes van juntos). Default real **`unset`** (primer ingreso) → empty-state con CTA "Configurar notificaciones". La **barra de la ventana es el explicador** (notificaciones como marcadores a su hora). Gating de canales **reactivo al Siguiente** (modo ≠ Nunca/unset y sin canal → alerta, no avanza). ⚠️ Validar con Iván el estado que reporta BADS al cierre.
-- **Severidad = sensibilidad** (2 bandas: rojo = fuera de límites/urgente, amarillo = zona de atención/medio). Slider continuo 0–100% + **mini-dashboard de impacto** (3 tiles). Todo **por categoría** (el selector manda límites + slider + grilla), con herencia del global. Gráfica + impacto + límites + sensibilidad en **una sola card**. **Actualizado 30-jun pm:** extremos reencuadrados — izq **"Solo mi umbral"** (alerta de umbral fija) ↔ der **"Detección adaptativa"** (el sistema decide qué es anómalo); se quita "nula". La banda **nunca llega al centro** (núcleo normal `CORE=0.30`): aun al 100% no se cubre toda la gráfica.
-- **Resumen de incidentes** (botón en la vista de monitoreo): label corto "Resumen de incidentes"; el popover aclara alcance ("de este tablero") y hora configurable ("a la hora que elijas", sin "cada mañana"). Plantillas en `handoff-notif-email-sinGrafica-slack-ultracompact.md`.
-- Copy: **no se usa el concepto de "agente"/"Agente IA"** de cara al usuario — usar **"monitoreo"** (o voz pasiva). La sección Programación no tiene doc de handoff propio (su copy vive en `index.html`).
+## Origen
+Estas 3 estructuras consolidan 5 handoffs previos que estaban organizados por tema (filtros+notificaciones, historias UX, límites/sensibilidad, plantillas email/slack, canales). Su contenido se reorganizó por épica de ingeniería. Los originales se conservan en el **historial de git** (borrados de la carpeta; recuperables con `git log --diff-filter=D` + `git show`).
