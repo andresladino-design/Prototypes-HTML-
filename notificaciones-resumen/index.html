@@ -1894,6 +1894,12 @@
     #anPkgScopeChipsEnt { flex-direction: column; align-items: stretch; }
     #anPkgScopeChipsEnt .an-fchip { width: 100%; align-self: stretch; }
     #anPkgScopeChipsEnt .an-fchip-val { flex: 1 1 auto; }
+    /* Conector "o" entre Tablero y Recurso (estilo join de query builder BI) */
+    .an-scope-join { display: flex; align-items: stretch; }
+    .an-scope-join-chips { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+    .an-scope-join-rail { position: relative; width: 30px; flex-shrink: 0; }
+    .an-scope-join-rail::before { content: ""; position: absolute; left: 13px; right: 3px; top: 17px; bottom: 17px; border: 1.5px solid var(--border-strong); border-right: 0; border-radius: 8px 0 0 8px; }
+    .an-scope-join-or { position: absolute; left: 5px; top: 50%; transform: translateY(-50%); background: #fff; font-size: 11px; font-weight: 700; letter-spacing: .03em; color: var(--text-tertiary); text-transform: uppercase; padding: 2px 3px; }
     .an-fchip-val { max-width: 300px; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.4; }
     .an-applied-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
     .an-save-filter { font-size: 12.5px; font-weight: 600; color: var(--primary-text); background: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
@@ -4354,10 +4360,14 @@
           '<span class="an-fchip an-fchip--wrap"><span class="an-fchip-type"><i data-lucide="' + icon + '"></i> ' + label + '</span>' +
           '<span class="an-fchip-val">' + items.map(e => esc(e.value)).join(' <em>o</em> ') + '</span>' +
           '<button class="an-fchip-x" aria-label="Quitar ' + label.toLowerCase() + 's" onclick="pkgClearEntKind(\'' + kind + '\')"><i data-lucide="x"></i></button></span>';
-        let html = '';
-        if (tableros.length) html += chip('Tablero', 'layout-grid', tableros, 'tablero');
-        if (recursos.length) html += chip('Recurso', 'database', recursos, 'recurso');
-        el.innerHTML = html;
+        const chips = [];
+        if (tableros.length) chips.push(chip('Tablero', 'layout-grid', tableros, 'tablero'));
+        if (recursos.length) chips.push(chip('Recurso', 'database', recursos, 'recurso'));
+        // Con dos grupos, se unen con un conector "o" a la izquierda (como el join de un query builder)
+        el.innerHTML = chips.length === 2
+          ? '<div class="an-scope-join"><div class="an-scope-join-rail"><span class="an-scope-join-or">o</span></div>' +
+            '<div class="an-scope-join-chips">' + chips.join('') + '</div></div>'
+          : chips.join('');
       }
       // Tipo: refleja el estado activo en los chips seleccionables
       document.querySelectorAll('.an-typechip').forEach(c => c.classList.toggle('is-on', pkgIsActive('Tipo', c.dataset.tipo)));
