@@ -58,7 +58,7 @@ Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta 
 2. **Editor de paquete** (al crear/editar), con estos bloques **que no se interfieren** *(reestructurado 30-jun pm)*:
    - **Nombre** de la notificación.
    - **El alcance va en DOS bloques separados** (el Estado salió: se pisaba con el momento — changelog #5):
-     - **Bloque 1 · "¿Qué entidades te interesan?"** → botón **"Agregar entidad"** (menú con buscador + lista de tableros/recursos, OR) + select **"aplica un filtro guardado"** (guardados / "Filtro actual de la vista" / "Todos mis incidentes"; al aplicarlo **solo se conservan Entidad y Tipo**, se descarta el Estado) + chip agrupado del alcance.
+     - **Bloque 1 · "¿Qué entidades te interesan?"** → botón **"Agregar entidad"** (menú con buscador + lista de tableros/recursos, OR) + **botón de ícono (bookmark) "Aplicar un filtro guardado"** (menú con los filtros guardados, mismo patrón que "Guardados" de Gestión; al aplicarlo **solo se conservan Entidad y Tipo** y Tablero/Recurso se colapsan a Entidad) + chips agrupados por Tablero / Recurso.
      - **Bloque 2 · "¿Qué tipos de incidente?"** → **chips seleccionables** (multiselect OR) de las 5 categorías de BADS. Vacío = todos los tipos.
    - **Bloque 3 · "¿Cuándo quieres que te avisemos?"** → dos **entregas** sobre el mismo alcance, combinables:
      - **Aviso por evento** (toggle): **momento(s) del ciclo de vida** del incidente, multiselección — **Cuando se cree** / **Cuando entre en observación** / **Cuando se confirme** / **Cuando se resuelva** + **Recibir actualizaciones** (toggle; reconfirmaciones, cambios de hipótesis, otros recursos afectados). *(Los estados del incidente se eligen aquí como momentos, no en el alcance, para no duplicarlos.)*
