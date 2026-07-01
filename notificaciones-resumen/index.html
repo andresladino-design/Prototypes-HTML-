@@ -1145,6 +1145,10 @@
 .tm-limit-input:focus { border-color: hsl(var(--primary-hsl)); }
 /* Bound desactivado: input atenuado e inerte (conserva su valor); el badge sigue visible. */
 .tm-limit-field.is-off .tm-limit-input { opacity: 0.45; pointer-events: none; }
+.cat-sug { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 11.5px; color: var(--primary-text); cursor: pointer; }
+.cat-sug .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+.cat-sug b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.tm-limit-field.is-off .cat-sug { display: none; }
 .tm-limit-chip {
       align-self: flex-start; display: inline-flex; align-items: center; gap: 5px;
       border: none; background: rgba(37, 99, 235, 0.07); color: #2563eb;
@@ -3558,6 +3562,7 @@
                       Límite inferior
                     </label>
                     <input class="tm-limit-input" id="catlim-lower" data-bound="lower" value="1" oninput="onCatLimit(this)">
+                    <span class="cat-sug" id="catlim-lower-sug" onclick="catLimSug('lower')" hidden><span class="dot"></span>Valor sugerido: <b></b></span>
                   </div>
                   <div class="tm-limit-field" data-bound="upper">
                     <label class="tm-limit-field-label">
@@ -3565,6 +3570,7 @@
                       Límite superior
                     </label>
                     <input class="tm-limit-input" id="catlim-upper" data-bound="upper" value="20" oninput="onCatLimit(this)">
+                    <span class="cat-sug" id="catlim-upper-sug" onclick="catLimSug('upper')" hidden><span class="dot"></span>Valor sugerido: <b></b></span>
                   </div>
                 </div>
               </div>
@@ -3578,7 +3584,7 @@
                 <div class="sens-row">
                   <span class="sens-row-icon"><i data-lucide="gauge"></i></span>
                   <div class="sens-row-body">
-                    <div class="sens-row-title" id="sens-title">Sensibilidad</div>
+                    <div class="sens-row-title" id="sens-title">Sensibilidad de detección</div>
                     <div class="sens-row-sub" id="sens-sub">Combina tu umbral con detección de patrones: marca también desviaciones inusuales cerca del borde.</div>
                   </div>
                   <div class="sens-pct" id="sens-pct">50%</div>
@@ -4525,8 +4531,8 @@
       let val = input.value.trim();
       if (!val) return;
       if (type === 'channel') val = '# ' + val.replace(/^#\s*/, '');
-      // Slack mention = ID de usuario (no @nombre). Lo mostramos como chip mono con @ de marca.
-      if (type === 'mention') val = '@' + val.replace(/^@/, '');
+      // Slack mention = ID de usuario (no @nombre): NO anteponer arroba, no es un handle de usuario.
+      if (type === 'mention') val = val.replace(/^@/, '');
       const chip = document.createElement('span');
       chip.className = 'tm-chip' + (type === 'mention' ? ' tm-chip--id' : '');
       chip.appendChild(document.createTextNode(val));
@@ -4670,11 +4676,33 @@
         inp.disabled = !on;
         const field = inp.closest('.tm-limit-field');
         if (field) { field.classList.toggle('is-off', !on); const chk = field.querySelector('.tm-limit-check'); if (chk) chk.checked = on; }
+        // Valor sugerido por el monitoreo: se muestra solo si difiere del valor actual (clic = aplicar).
+        const sug = lim['sug' + b.charAt(0).toUpperCase() + b.slice(1)];
+        const sugEl = document.getElementById(id + '-sug');
+        if (sugEl) {
+          const show = on && typeof sug === 'number' && sug !== lim[b];
+          sugEl.hidden = !show;
+          if (show) { const bEl = sugEl.querySelector('b'); if (bEl) bEl.textContent = sug; }
+        }
       });
     }
+    // Aplica el valor sugerido a un límite de la categoría activa (comentario Ohana: mostrar sugerencias)
+    function catLimSug(bound) {
+      const lim = DS_AN_CATS[sensCat]; if (!lim) return;
+      const sug = lim['sug' + bound.charAt(0).toUpperCase() + bound.slice(1)];
+      if (typeof sug !== 'number') return;
+      lim[bound] = sug;
+      renderCatLimits(); renderSens(); syncGridRow(sensCat);
+    }
     function onCatLimit(input) {
+      const b = input.dataset.bound;
       const v = parseFloat(input.value);
-      if (!isNaN(v)) DS_AN_CATS[sensCat][input.dataset.bound] = v;
+      if (!isNaN(v)) DS_AN_CATS[sensCat][b] = v;
+      // Oculta la sugerencia si el valor ya coincide con la sugerida
+      const lim = DS_AN_CATS[sensCat];
+      const sug = lim['sug' + b.charAt(0).toUpperCase() + b.slice(1)];
+      const sugEl = document.getElementById(input.id + '-sug');
+      if (sugEl) sugEl.hidden = !(typeof sug === 'number' && sug !== v && lim[b + 'On'] !== false);
       renderSens();              // redibuja la banda de la gráfica
       syncGridRow(sensCat);      // mantiene la grilla POR SERIE al día
     }
@@ -4999,13 +5027,13 @@
     // propio rango (mismos valores que la grilla POR SERIE). El selector cambia la categoría mostrada.
     // Datos MOCKEADOS; en prod el BE devuelve la serie real por categoría y marca lo que sale del rango.
     const DS_AN_CATS = {
-      'Todas las categorías': { lower: 1,   upper: 20,   values: [12,15,13,13,11,12,26,14,22,21,17,15,12,21,16,25,25], narrative: 'Refleja el agregado de todas las categorías. Línea base estable con un aumento de fin de mes de +38.5% y varios picos sobre el límite superior.' },
-      'Banco_Occidente':      { lower: 8.4, upper: 25,   values: [14,18,16,20,15,17,22,19,26,21,18,16,14,23,20,27,24], narrative: 'Banco_Occidente se mueve alrededor de 18, con 2 picos que superan el límite superior (25) en el último mes. Sin valores bajo el mínimo.' },
-      'ERP_SAP':              { lower: 1,   upper: 5.6,  values: [3,4,3,5,2,4,6,4,5,7,5,3,2,6,4,7,5], narrative: 'ERP_SAP es de bajo volumen (≈4). Cruza el límite superior (5.6) en los días de cierre; conviene revisar si esos picos son esperados.' },
-      'Libro_Mayor':          { lower: 9.8, upper: 23.2, values: [13,16,14,18,12,15,21,17,24,20,18,15,13,22,19,25,22], narrative: 'Libro_Mayor mantiene una banda media-alta con 2 excedentes sobre 23.2. Comportamiento cíclico hacia fin de mes.' },
-      'PayU_Latam':           { lower: 1,   upper: 9.1,  values: [5,7,6,8,4,6,10,7,9,11,8,6,5,9,7,10,9], narrative: 'PayU_Latam ronda 7 con 3 picos que pasan el límite superior (9.1). Variabilidad moderada, sin caídas bajo el mínimo.' },
-      'Tesoreria_Interna':    { lower: 9.6, upper: 24.4, values: [14,17,15,19,13,16,22,18,25,21,19,16,14,23,20,26,23], narrative: 'Tesoreria_Interna se concentra entre 14 y 23, con 2 excedentes sobre 24.4. Patrón estable de media-alta.' },
-      'Visa_Acquiring':       { lower: 4,   upper: 11.8, values: [6,8,7,9,5,7,11,8,12,13,10,8,6,11,9,13,11], narrative: 'Visa_Acquiring oscila cerca de 9 con 3 picos sobre el límite superior (11.8). Sin observaciones bajo el mínimo (4).' }
+      'Todas las categorías': { lower: 1,   upper: 20,   sugLower: 10,  sugUpper: 24,   values: [12,15,13,13,11,12,26,14,22,21,17,15,12,21,16,25,25], narrative: 'Refleja el agregado de todas las categorías. Línea base estable con un aumento de fin de mes de +38.5% y varios picos sobre el límite superior.' },
+      'Banco_Occidente':      { lower: 8.4, upper: 25,   sugLower: 13,  sugUpper: 26,   values: [14,18,16,20,15,17,22,19,26,21,18,16,14,23,20,27,24], narrative: 'Banco_Occidente se mueve alrededor de 18, con 2 picos que superan el límite superior (25) en el último mes. Sin valores bajo el mínimo.' },
+      'ERP_SAP':              { lower: 1,   upper: 5.6,  sugLower: 2,   sugUpper: 6.5,  values: [3,4,3,5,2,4,6,4,5,7,5,3,2,6,4,7,5], narrative: 'ERP_SAP es de bajo volumen (≈4). Cruza el límite superior (5.6) en los días de cierre; conviene revisar si esos picos son esperados.' },
+      'Libro_Mayor':          { lower: 9.8, upper: 23.2, sugLower: 12,  sugUpper: 24,   values: [13,16,14,18,12,15,21,17,24,20,18,15,13,22,19,25,22], narrative: 'Libro_Mayor mantiene una banda media-alta con 2 excedentes sobre 23.2. Comportamiento cíclico hacia fin de mes.' },
+      'PayU_Latam':           { lower: 1,   upper: 9.1,  sugLower: 4,   sugUpper: 10.5, values: [5,7,6,8,4,6,10,7,9,11,8,6,5,9,7,10,9], narrative: 'PayU_Latam ronda 7 con 3 picos que pasan el límite superior (9.1). Variabilidad moderada, sin caídas bajo el mínimo.' },
+      'Tesoreria_Interna':    { lower: 9.6, upper: 24.4, sugLower: 13,  sugUpper: 25,   values: [14,17,15,19,13,16,22,18,25,21,19,16,14,23,20,26,23], narrative: 'Tesoreria_Interna se concentra entre 14 y 23, con 2 excedentes sobre 24.4. Patrón estable de media-alta.' },
+      'Visa_Acquiring':       { lower: 4,   upper: 11.8, sugLower: 5,   sugUpper: 12.5, values: [6,8,7,9,5,7,11,8,12,13,10,8,6,11,9,13,11], narrative: 'Visa_Acquiring oscila cerca de 9 con 3 picos sobre el límite superior (11.8). Sin observaciones bajo el mínimo (4).' }
     };
     function renderDsAnChart(catKey) {
       const svg = document.getElementById('ds-an-chart');
