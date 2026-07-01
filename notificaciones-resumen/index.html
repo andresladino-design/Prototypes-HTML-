@@ -1882,6 +1882,9 @@
     /* conector lógico entre categorías (Y) y entre valores (o) */
     .an-fconj { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-tertiary); padding: 0 2px; text-transform: uppercase; }
     .an-fchip-val em { font-style: normal; color: var(--text-tertiary); font-weight: 600; padding: 0 4px; }
+    /* Variante para el alcance del paquete: el valor puede envolver (nombres de recurso largos) sin recortar la x */
+    .an-fchip--wrap { max-width: 100%; }
+    .an-fchip--wrap .an-fchip-val { max-width: none; white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; }
     .an-fchip-val { max-width: 300px; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.4; }
     .an-applied-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
     .an-save-filter { font-size: 12.5px; font-weight: 600; color: var(--primary-text); background: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
@@ -4329,11 +4332,16 @@
       const el = document.getElementById('anPkgScopeChipsEnt');
       if (el) {
         const ents = pkgEditingScope.filter(f => f.type === 'Entidad');
-        el.innerHTML = ents.length
-          ? '<span class="an-fchip"><span class="an-fchip-type"><i data-lucide="layers"></i> Entidad</span>' +
-            '<span class="an-fchip-val">' + ents.map(e => esc(e.value)).join(' <em>o</em> ') + '</span>' +
-            '<button class="an-fchip-x" aria-label="Quitar filtro" onclick="pkgClearType(\'Entidad\')"><i data-lucide="x"></i></button></span>'
-          : '<span class="an-prevchip">Todas las entidades</span>';
+        const tableros = ents.filter(e => e.icon === 'layout-grid');
+        const recursos = ents.filter(e => e.icon !== 'layout-grid');
+        const chip = (label, icon, items, kind) =>
+          '<span class="an-fchip an-fchip--wrap"><span class="an-fchip-type"><i data-lucide="' + icon + '"></i> ' + label + '</span>' +
+          '<span class="an-fchip-val">' + items.map(e => esc(e.value)).join(' <em>o</em> ') + '</span>' +
+          '<button class="an-fchip-x" aria-label="Quitar ' + label.toLowerCase() + 's" onclick="pkgClearEntKind(\'' + kind + '\')"><i data-lucide="x"></i></button></span>';
+        let html = '';
+        if (tableros.length) html += chip('Tablero', 'layout-grid', tableros, 'tablero');
+        if (recursos.length) html += chip('Recurso', 'database', recursos, 'recurso');
+        el.innerHTML = html || '<span class="an-prevchip">Todas las entidades</span>';
       }
       // Tipo: refleja el estado activo en los chips seleccionables
       document.querySelectorAll('.an-typechip').forEach(c => c.classList.toggle('is-on', pkgIsActive('Tipo', c.dataset.tipo)));
@@ -4376,6 +4384,11 @@
       renderPkgScopeChips(); pkgMarkChecks(); pkgSyncSavedSel();
     }
     function pkgClearType(type) { pkgEditingScope = pkgEditingScope.filter(f => f.type !== type); renderPkgScopeChips(); pkgMarkChecks(); pkgSyncSavedSel(); }
+    // Limpia solo una clase de entidad (tableros vs recursos) desde su chip
+    function pkgClearEntKind(kind) {
+      pkgEditingScope = pkgEditingScope.filter(f => !(f.type === 'Entidad' && (kind === 'tablero' ? f.icon === 'layout-grid' : f.icon !== 'layout-grid')));
+      renderPkgScopeChips(); pkgMarkChecks(); pkgSyncSavedSel();
+    }
     function chipHtml(v, cls) { return '<span class="tm-chip' + (cls ? ' ' + cls : '') + '">' + esc(v) + '<button type="button" class="tm-chip-x" aria-label="Quitar" onclick="this.parentElement.remove()">&times;</button></span>'; }
     function pkgToggleChannel(btn) {
       btn.classList.toggle('is-on');
