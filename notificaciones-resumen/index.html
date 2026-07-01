@@ -1792,6 +1792,13 @@
     .an-pkg-scope-tools .an-fmenu-wrap { flex-shrink: 0; }
     .an-pkg-scope-saved { flex: 1; min-width: 0; }
     .an-prevchip-x { cursor: pointer; margin-left: 5px; width: 12px !important; height: 12px !important; color: var(--text-muted) !important; }
+    /* Chips seleccionables del bloque Tipo (multiselect OR, 5 opciones fijas) */
+    .an-typechips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .an-typechip { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; border: 1px solid var(--border-default); border-radius: 999px; background: #fff; font: inherit; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; transition: background .12s, border-color .12s, color .12s; }
+    .an-typechip .lucide { width: 14px; height: 14px; color: var(--text-tertiary); }
+    .an-typechip:hover { border-color: var(--border-strong); }
+    .an-typechip.is-on { background: hsl(var(--primary-hsl) / .08); border-color: hsl(var(--primary-hsl) / .5); color: var(--primary-text); font-weight: 600; }
+    .an-typechip.is-on .lucide { color: var(--primary-text); }
     .an-prevchip-x:hover { color: var(--text-primary) !important; }
 
     /* ---- Historial: resumen (izq) + tabla (der) ---- */
@@ -2545,54 +2552,48 @@
                 <input type="text" id="anPkgName" class="an-pkg-input" placeholder="Ej. Incidentes de Adquirencia" maxlength="50">
               </div>
 
-              <!-- Bloque 1 · Scope -->
+              <!-- Bloque 1 · Entidades afectadas -->
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
-                  <div class="an-cfg-title"><i data-lucide="filter"></i> ¿Qué incidentes te interesan?</div>
-                  <div class="an-cfg-sub">El alcance: los tableros, gráficos o recursos (y tipos) que te importan. Todo lo que agregues se combina con <strong>o</strong>, o aplica un filtro guardado. <em>El cuándo lo defines abajo, por separado.</em></div>
+                  <div class="an-cfg-title"><i data-lucide="layers"></i> ¿Qué entidades te interesan?</div>
+                  <div class="an-cfg-sub">Los tableros, gráficos o recursos que te importan. Todo lo que agregues se combina con <strong>o</strong>, o aplica un filtro guardado. <em>El tipo y el cuándo se definen abajo, por separado.</em></div>
                 </div>
                 <div class="an-cfg-field">
-                  <label class="an-cfg-lbl">Define el alcance</label>
+                  <label class="an-cfg-lbl">Entidades afectadas</label>
                   <div class="an-pkg-scope-tools">
                     <div class="an-fmenu-wrap">
-                      <button class="an-fbtn" onclick="pkgToggleFMenu(event)"><i data-lucide="filter"></i> Filtrar</button>
+                      <button class="an-fbtn" onclick="pkgToggleFMenu(event)"><i data-lucide="plus"></i> Agregar entidad</button>
                       <div class="an-fmenu" id="anPkgFMenu" onclick="event.stopPropagation()">
-                        <div class="an-fmenu-page" data-fpage="main">
-                          <div class="an-fmenu-head">Agregar filtro</div>
-                          <button class="an-fmenu-item" onclick="pkgFGoto('entidad')"><i data-lucide="layers"></i> Entidades afectadas <i data-lucide="chevron-right" class="chev"></i></button>
-                          <button class="an-fmenu-item" onclick="pkgFGoto('tipo')"><i data-lucide="tag"></i> Tipo <i data-lucide="chevron-right" class="chev"></i></button>
-                        </div>
-                        <div class="an-fmenu-page hidden" data-fpage="entidad">
-                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Entidades afectadas</button>
-                          <div class="an-fmenu-hint">Tableros, gráficos o recursos. Todo lo que elijas se combina con <strong>o</strong> (no compiten entre sí).</div>
-                          <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero o recurso" oninput="pkgFFilterList(this,'entidad')"></div>
-                          <div class="an-fmenu-list" id="pkgFListEntidad"></div>
-                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Entidad')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
-                        </div>
-                        <div class="an-fmenu-page hidden" data-fpage="tipo">
-                          <button class="an-fmenu-back" onclick="pkgFGoto('main')"><i data-lucide="chevron-left"></i> Tipo</button>
-                          <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                          <div class="an-fmenu-list">
-                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo faltante" onclick="pkgAddFilter('Tipo','Archivo faltante','tag')"><i data-lucide="tag"></i> Archivo faltante <i data-lucide="check" class="an-fopt-check"></i></button>
-                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo fallido" onclick="pkgAddFilter('Tipo','Archivo fallido','tag')"><i data-lucide="tag"></i> Archivo fallido <i data-lucide="check" class="an-fopt-check"></i></button>
-                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo vacío" onclick="pkgAddFilter('Tipo','Archivo vacío','tag')"><i data-lucide="tag"></i> Archivo vacío <i data-lucide="check" class="an-fopt-check"></i></button>
-                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo duplicado" onclick="pkgAddFilter('Tipo','Archivo duplicado','tag')"><i data-lucide="tag"></i> Archivo duplicado <i data-lucide="check" class="an-fopt-check"></i></button>
-                            <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Variación de volumen" onclick="pkgAddFilter('Tipo','Variación de volumen','tag')"><i data-lucide="tag"></i> Variación de volumen <i data-lucide="check" class="an-fopt-check"></i></button>
-                          </div>
-                          <div class="an-fmenu-foot"><button onclick="pkgClearType('Tipo')">Limpiar</button><button class="is-apply" onclick="pkgFGoto('main')">Listo</button></div>
-                        </div>
+                        <div class="an-fmenu-hint">Tableros, gráficos o recursos. Todo lo que elijas se combina con <strong>o</strong> (no compiten entre sí).</div>
+                        <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero o recurso" oninput="pkgFFilterList(this,'entidad')"></div>
+                        <div class="an-fmenu-list" id="pkgFListEntidad"></div>
+                        <div class="an-fmenu-foot"><button onclick="pkgClearType('Entidad')">Limpiar</button><button class="is-apply" onclick="pkgCloseFMenu()">Listo</button></div>
                       </div>
                     </div>
                     <select id="anPkgScopeSel" class="an-pkg-scope-saved" onchange="pkgScopeFromSelect()"></select>
                   </div>
-                </div>
-                <div class="an-cfg-field">
-                  <label class="an-cfg-lbl">Tu alcance</label>
-                  <div class="an-prevchips" id="anPkgScopeChips"></div>
+                  <div class="an-prevchips" id="anPkgScopeChipsEnt" style="margin-top:10px;"></div>
                 </div>
               </div>
 
-              <!-- Bloque 2 · ¿Cuándo te avisamos? (entregas: tiempo real + resumen) -->
+              <!-- Bloque 2 · Tipo de incidente (chips seleccionables) -->
+              <div class="an-cfg-card">
+                <div class="an-cfg-head">
+                  <div class="an-cfg-title"><i data-lucide="tag"></i> ¿Qué tipos de incidente?</div>
+                  <div class="an-cfg-sub">Las categorías de problema que te importan. Se combinan con <strong>o</strong>. Si no eliges ninguno, entran todos los tipos.</div>
+                </div>
+                <div class="an-cfg-field">
+                  <div class="an-typechips">
+                    <button type="button" class="an-typechip" data-tipo="Archivo faltante" onclick="pkgToggleTipo(this)"><i data-lucide="tag"></i> Archivo faltante</button>
+                    <button type="button" class="an-typechip" data-tipo="Archivo fallido" onclick="pkgToggleTipo(this)"><i data-lucide="tag"></i> Archivo fallido</button>
+                    <button type="button" class="an-typechip" data-tipo="Archivo vacío" onclick="pkgToggleTipo(this)"><i data-lucide="tag"></i> Archivo vacío</button>
+                    <button type="button" class="an-typechip" data-tipo="Archivo duplicado" onclick="pkgToggleTipo(this)"><i data-lucide="tag"></i> Archivo duplicado</button>
+                    <button type="button" class="an-typechip" data-tipo="Variación de volumen" onclick="pkgToggleTipo(this)"><i data-lucide="tag"></i> Variación de volumen</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bloque 3 · ¿Cuándo te avisamos? (entregas: aviso por evento + resumen) -->
               <div class="an-cfg-card">
                 <div class="an-cfg-head">
                   <div class="an-cfg-title"><i data-lucide="bell"></i> ¿Cuándo quieres que te avisemos?</div>
@@ -4312,26 +4313,41 @@
       html += '<option value="current">Filtro actual de la vista de incidentes</option>';
       sel.innerHTML = html;
     }
+    // El alcance del paquete solo admite Entidad + Tipo (el Estado vive en el "momento", no aquí).
+    function pkgScopeKeep(list) { return (list || []).filter(f => f.type === 'Entidad' || f.type === 'Tipo').map(f => ({ ...f })); }
     function pkgScopeFromSelect() {
       const v = document.getElementById('anPkgScopeSel').value;
       if (v === '' || v === 'keep') { /* placeholder / conserva pkgEditingScope */ }
       else if (v === 'all') pkgEditingScope = [];
-      else if (v === 'current') pkgEditingScope = anActiveFilter.map(f => ({ ...f }));
-      else if (v.indexOf('saved:') === 0) { const i = +v.split(':')[1]; pkgEditingScope = (savedFilters[i] ? savedFilters[i].filters : []).map(f => ({ ...f })); }
+      else if (v === 'current') pkgEditingScope = pkgScopeKeep(anActiveFilter);
+      else if (v.indexOf('saved:') === 0) { const i = +v.split(':')[1]; pkgEditingScope = pkgScopeKeep(savedFilters[i] ? savedFilters[i].filters : []); }
       renderPkgScopeChips(); pkgMarkChecks();
     }
     function pkgSyncSavedSel() { const sel = document.getElementById('anPkgScopeSel'); if (sel) sel.value = ''; }
+    // Alcance dividido en dos bloques: Entidades afectadas (chips) + Tipo (chips seleccionables).
     function renderPkgScopeChips() {
-      const el = document.getElementById('anPkgScopeChips'); if (!el) return;
-      const groups = groupFilters(pkgEditingScope);
-      el.innerHTML = groups.length
-        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + groupIcon(g) + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '<i data-lucide="x" class="an-prevchip-x" onclick="pkgClearType(\'' + g.type + '\')"></i></span>').join('')
-        : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
+      const el = document.getElementById('anPkgScopeChipsEnt');
+      if (el) {
+        const ents = pkgEditingScope.filter(f => f.type === 'Entidad');
+        el.innerHTML = ents.length
+          ? '<span class="an-prevchip"><i data-lucide="layers"></i> ' + ents.map(e => esc(e.value)).join(' <em>o</em> ') + '<i data-lucide="x" class="an-prevchip-x" onclick="pkgClearType(\'Entidad\')"></i></span>'
+          : '<span class="an-prevchip">Todas las entidades</span>';
+      }
+      // Tipo: refleja el estado activo en los chips seleccionables
+      document.querySelectorAll('.an-typechip').forEach(c => c.classList.toggle('is-on', pkgIsActive('Tipo', c.dataset.tipo)));
+      pkgMarkChecks();
       if (window.lucide) lucide.createIcons();
     }
-    // Menú de filtros inline del editor (opera sobre pkgEditingScope)
-    function pkgToggleFMenu(e) { e.stopPropagation(); closeFilterMenus('anPkgFMenu'); pkgFGoto('main'); document.getElementById('anPkgFMenu').classList.toggle('open'); pkgBuildLists(); }
-    function pkgFGoto(page) { document.querySelectorAll('#anPkgFMenu .an-fmenu-page').forEach(p => p.classList.toggle('hidden', p.dataset.fpage !== page)); pkgMarkChecks(); }
+    // Chips de Tipo (bloque propio): toggle sobre pkgEditingScope
+    function pkgToggleTipo(btn) {
+      const v = btn.dataset.tipo;
+      const i = pkgEditingScope.findIndex(f => f.type === 'Tipo' && f.value === v);
+      if (i >= 0) pkgEditingScope.splice(i, 1); else pkgEditingScope.push({ type: 'Tipo', value: v, icon: 'tag' });
+      renderPkgScopeChips(); pkgSyncSavedSel();
+    }
+    // Menú de entidades inline del editor (opera sobre pkgEditingScope)
+    function pkgToggleFMenu(e) { e.stopPropagation(); closeFilterMenus('anPkgFMenu'); document.getElementById('anPkgFMenu').classList.toggle('open'); pkgBuildLists(); }
+    function pkgCloseFMenu() { const m = document.getElementById('anPkgFMenu'); if (m) m.classList.remove('open'); }
     function pkgBuildLists() {
       const ent = document.getElementById('pkgFListEntidad');
       if (ent && !ent.dataset.built) {
