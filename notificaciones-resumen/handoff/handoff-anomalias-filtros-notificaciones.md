@@ -61,7 +61,7 @@ Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta 
    - **Nombre** de la notificación.
    - **Bloque 1 · "¿Qué incidentes te interesan?"** (alcance). **Solo entidades + tipo** (el Estado salió de aquí: se pisaba con el momento — ver changelog #5). Filtrar inline (menú **Entidades afectadas / Tipo**) **o** select "Reutiliza un filtro" (guardados / "Filtro actual de la vista" / "Todos mis incidentes") + chips de "Tu alcance". *El scope ES un filtro.*
    - **Bloque 2 · "¿Cuándo quieres que te avisemos?"** → dos **entregas** sobre el mismo alcance, combinables:
-     - **En tiempo real** (toggle): momento del incidente (**Cuando se cree** / **Cuando se confirme**) + **Recibir actualizaciones** (toggle; reconfirmaciones, cambios de hipótesis, otros recursos afectados).
+     - **En tiempo real** (toggle): **momento(s) del ciclo de vida** del incidente, multiselección — **Cuando se cree** / **Cuando entre en observación** / **Cuando se confirme** / **Cuando se resuelva** + **Recibir actualizaciones** (toggle; reconfirmaciones, cambios de hipótesis, otros recursos afectados). *(Los estados del incidente se eligen aquí como momentos, no en el alcance, para no duplicarlos.)*
      - **Resumen consolidado** (toggle): **hora** + **zona horaria** (default 08:00 · CO Bogotá) + **"Qué período resume"** = **t-1 … t-5** con microcopy: *el corte siempre cierra el día anterior; la hora solo define cuándo llega, no qué período cubre*. 1×día, agrupa los incidentes del alcance.
    - **Canales** → mismo patrón que el "¿Dónde notificar?" del KPI: **tarjetas de canal activables** (Email / Slack) con toggle; Email → destinatarios; Slack → canales + **Etiquetar a personas por ID de usuario** (no `@nombre`; nota "Copiar id. de miembro"). **Aplican a ambas entregas.** Si el canal está apagado, no se notifica por ahí.
    - **Validación:** guarda solo si hay **≥1 entrega activa** (tiempo real o resumen), en tiempo real **≥1 momento**, y **≥1 canal**.
@@ -189,7 +189,7 @@ Fuente: `ProductEngineeringBrain/versions/v2.8/operation-center/funcionalidades/
 Flujo real: **`oc-bads-incident`** (Pulsar) → **op-center-backend** evalúa cada evento contra las **reglas activas** (nuestros "paquetes") → **`notifications-service`** → Sphere (**SES / Slack / Pusher in-app**).
 
 - Cada **paquete = filtro (scope) + momento (evento del ciclo de vida) + updates + canales**. Evaluación tipo filtro de Gmail por evento.
-- **Momento → eventos del incidente:** "Cuando se cree" = evento de creación (`WATCHING`); "Cuando se confirme" = `status_changed → CONFIRMED`. "Updates" = `status_changed`/reconfirmación/`MERGED`.
+- **Momento → eventos del incidente (multiselección):** "Cuando se cree" = creación (`OPEN`/`WATCHING`); "Cuando entre en observación" = `status_changed → WATCHING`/`UNDER_INVESTIGATION`; "Cuando se confirme" = `status_changed → CONFIRMED`; "Cuando se resuelva" = `status_changed → RESOLVED`. "Updates" = `status_changed`/reconfirmación/`MERGED`.
 - Binding **N:M** (un incidente puede notificar por varios canales; un canal sirve a varias reglas).
 - Backend ya define: **idempotencia** `X-Simetrik-Delivery-Id: {uuid}`, **retry** 3 intentos backoff (1s/5s/25s) Slack/webhook, **`webhook_delivery_log`**. El FE no maneja esto, pero el "qué se envía" debe calzar con el payload de `notifications-service` (contexto del incidente + recipients + channel config).
 
@@ -206,7 +206,7 @@ Estado que mantiene el prototipo *(modelo 30-jun pm: scope sin Estado; entregas 
   ],
   "realtime": {                    // entrega por evento (opcional)
     "enabled": true,
-    "created": true, "confirmed": true,  // momento del ciclo de vida (≥1 si enabled)
+    "created": true, "watching": false, "confirmed": true, "resolved": false,  // momento(s) del ciclo de vida (≥1 si enabled)
     "updates": true                       // recibir status_changed posteriores
   },
   "digest": {                      // entrega consolidada 1×día (opcional) — mismo scope + canales
@@ -222,7 +222,7 @@ Estado que mantiene el prototipo *(modelo 30-jun pm: scope sin Estado; entregas 
   "active": true
 }
 ```
-- **Validación FE:** `realtime.enabled || digest.enabled`; si `realtime.enabled` → `created || confirmed`; `channels.emails.length || channels.slack.length`.
+- **Validación FE:** `realtime.enabled || digest.enabled`; si `realtime.enabled` → `created || watching || confirmed || resolved`; `channels.emails.length || channels.slack.length`.
 - **`Entidad`** = tablero **o** recurso. El backend resuelve un tablero a sus resources; todos los `Entidad` del scope se combinan con **OR** entre sí (no jerárquico, no AND tablero∧recurso).
 
 ## D. Lógica de filtros (scope)
@@ -257,7 +257,7 @@ Refs: `fe-solutions-mf/.../skills/desyk/references/`.
 **Resumen consolidado (entrega del paquete, 30-jun pm):** ya no es una máquina de 3 estados aparte. Es un **toggle** dentro del editor (`digest.enabled`) que despliega su sub-form (hora · zona · t-n). Se guarda con el paquete; el card de la lista muestra su tag ("Resumen 08:00 · hasta hace 4 días (t-4)").
 
 ## G. Validaciones / edge cases
-- **Regla que no notifica nada** (bloquear Guardar + `Alert warning`): exige **≥1 momento** (created/confirmed) **y ≥1 canal activo** (correo o Slack). Una mención sin canal de Slack no entrega.
+- **Regla que no notifica nada** (bloquear Guardar + `Alert warning`): exige **≥1 entrega activa** (tiempo real o resumen); si tiempo real, **≥1 momento** (created/watching/confirmed/resolved); **y ≥1 canal activo** (correo o Slack). Una mención sin canal de Slack no entrega.
 - **Scope vacío** = "Todos mis incidentes" (válido, no es error).
 - Canal con toggle **apagado** → no se leen sus destinatarios al guardar.
 - Severidad: no exponer como filtro ni condición (system-assigned).
