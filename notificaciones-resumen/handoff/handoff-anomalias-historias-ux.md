@@ -124,7 +124,7 @@ para mantener mis avisos al día sin rehacer trabajo.
 
 ## HU-5 · Recibir un resumen consolidado diario de una notificación
 
-> 🔄 **Reencuadrada 30-jun pm:** el resumen ya **no** es un objeto/flujo aparte. Es una **segunda entrega** dentro de una notificación (HU-3): el operador, en el mismo editor, activa "Resumen consolidado" sobre el **mismo alcance y canales** que ya definió, elige **hora** y **período (t-n)**. Puede tener tiempo real, resumen, o ambos. Los estados empty→activar→form→saved de la versión anterior quedan obsoletos.
+> 🔄 **Reencuadrada 30-jun pm:** el resumen ya **no** es un objeto/flujo aparte. Es una **segunda entrega** dentro de una notificación (HU-3): el operador, en el mismo editor, activa "Resumen consolidado" sobre el **mismo alcance y canales** que ya definió, elige **hora** y **período (t-n)**. Puede tener aviso por evento, resumen, o ambos. Los estados empty→activar→form→saved de la versión anterior quedan obsoletos.
 
 **Usuario:** operador que no quiere notificaciones sueltas todo el día.
 **Contexto:** prefiere un único consolidado a una hora fija, sin volver a definir el filtro.

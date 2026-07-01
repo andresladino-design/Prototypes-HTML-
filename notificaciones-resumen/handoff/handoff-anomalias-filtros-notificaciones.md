@@ -15,10 +15,10 @@
 Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta sección.
 
 1. **Tablero + Recurso → un solo bloque "Entidades afectadas" (OR).** Eran entidades jerárquicas tratadas como filtros planos independientes: dejaban armar condiciones imposibles (un recurso que no pertenece al tablero elegido → nunca notifica). Ahora es **una sola categoría** que lista tableros y recursos juntos; **todo lo seleccionado se combina con `o`** (no compiten). Aplica en los filtros de Gestión **y** en el alcance del paquete. → reemplaza "Recurso/Tablero" separados de Épica 1 y Épica 2.
-2. **Resumen consolidado deja de ser sección propia → es un MODO DE ENTREGA dentro del paquete.** El bloque "¿Cuándo quieres que te avisemos?" del editor tiene **dos entregas** sobre el mismo alcance: **En tiempo real** (por evento) y **Resumen consolidado** (1×día). Se pueden activar las dos. El alcance y los canales se **heredan del grupo** (no se repiten filtros). → **anula la Épica 3** como sección independiente.
+2. **Resumen consolidado deja de ser sección propia → es un MODO DE ENTREGA dentro del paquete.** El bloque "¿Cuándo quieres que te avisemos?" del editor tiene **dos entregas** sobre el mismo alcance: **Aviso por evento** (uno por cada evento, apenas ocurre) y **Resumen consolidado** (1×día). Se pueden activar las dos. El alcance y los canales se **heredan del grupo** (no se repiten filtros). → **anula la Épica 3** como sección independiente.
 3. **Parámetro t-n (1 a 5) en el resumen + microcopy de período.** El corte del resumen siempre cierra el día anterior; la **hora solo define cuándo llega, no qué período cubre**. El selector "Qué período resume" (t-1 … t-5) cubre el **lag operativo** del cliente (operaciones a t-4, etc.): "hoy recibo lo que sigue abierto hasta hace n días".
 4. **Filtro dinámico de fecha (t-n) en la lista de incidentes**, guardable. Rango **relativo** (Hoy, t-1 … t-5) que **se mueve solo cada día** (mañana muestra hasta el día siguiente sin tocar el calendario).
-5. **Separar "¿qué incidentes te interesan?" (alcance) de "¿cuándo te avisamos?" (momento).** El **Estado** sale del alcance del paquete (se pisaba con el momento creado/confirmado). El alcance es solo entidades + tipo; el momento vive en la entrega "En tiempo real".
+5. **Separar "¿qué incidentes te interesan?" (alcance) de "¿cuándo te avisamos?" (momento).** El **Estado** sale del alcance del paquete (se pisaba con el momento creado/confirmado). El alcance es solo entidades + tipo; el momento vive en la entrega "Aviso por evento".
 6. **Slider de sensibilidad reencuadrado.** Se quita "nula" (se leía como "mutear"). Extremos: izq **"Solo mi umbral"** (alerta de umbral fija) ↔ der **"Detección adaptativa"** (el sistema decide qué es anómalo). **Fix del 100%:** la banda de atención **nunca llega al centro** (núcleo normal, `CORE=0.30`); aun al máximo no se pinta toda la gráfica, porque la detección adaptativa no marca "todo punto", solo lo inusual.
 7. **Pendiente con Iván (notification center):** confirmar que el ID de usuario de Slack se soporta como **parámetro del template** antes de comprometer el etiquetado. Además: **2 templates** (creación vs updates) y **desacoplar en el listener** la lógica compartida entre tópicos de señales e incidentes.
 
@@ -61,10 +61,10 @@ Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta 
    - **Nombre** de la notificación.
    - **Bloque 1 · "¿Qué incidentes te interesan?"** (alcance). **Solo entidades + tipo** (el Estado salió de aquí: se pisaba con el momento — ver changelog #5). Filtrar inline (menú **Entidades afectadas / Tipo**) **o** select "Reutiliza un filtro" (guardados / "Filtro actual de la vista" / "Todos mis incidentes") + chips de "Tu alcance". *El scope ES un filtro.*
    - **Bloque 2 · "¿Cuándo quieres que te avisemos?"** → dos **entregas** sobre el mismo alcance, combinables:
-     - **En tiempo real** (toggle): **momento(s) del ciclo de vida** del incidente, multiselección — **Cuando se cree** / **Cuando entre en observación** / **Cuando se confirme** / **Cuando se resuelva** + **Recibir actualizaciones** (toggle; reconfirmaciones, cambios de hipótesis, otros recursos afectados). *(Los estados del incidente se eligen aquí como momentos, no en el alcance, para no duplicarlos.)*
+     - **Aviso por evento** (toggle): **momento(s) del ciclo de vida** del incidente, multiselección — **Cuando se cree** / **Cuando entre en observación** / **Cuando se confirme** / **Cuando se resuelva** + **Recibir actualizaciones** (toggle; reconfirmaciones, cambios de hipótesis, otros recursos afectados). *(Los estados del incidente se eligen aquí como momentos, no en el alcance, para no duplicarlos.)*
      - **Resumen consolidado** (toggle): **hora** + **zona horaria** (default 08:00 · CO Bogotá) + **"Qué período resume"** = **t-1 … t-5** con microcopy: *el corte siempre cierra el día anterior; la hora solo define cuándo llega, no qué período cubre*. 1×día, agrupa los incidentes del alcance.
    - **Canales** → mismo patrón que el "¿Dónde notificar?" del KPI: **tarjetas de canal activables** (Email / Slack) con toggle; Email → destinatarios; Slack → canales + **Etiquetar a personas por ID de usuario** (no `@nombre`; nota "Copiar id. de miembro"). **Aplican a ambas entregas.** Si el canal está apagado, no se notifica por ahí.
-   - **Validación:** guarda solo si hay **≥1 entrega activa** (tiempo real o resumen), en tiempo real **≥1 momento**, y **≥1 canal**.
+   - **Validación:** guarda solo si hay **≥1 entrega activa** (aviso por evento o resumen), en el aviso por evento **≥1 momento**, y **≥1 canal**.
    - Acciones: Cancelar / Guardar notificación.
 
 ### QUITADO del formulario anterior (no va)
@@ -257,7 +257,7 @@ Refs: `fe-solutions-mf/.../skills/desyk/references/`.
 **Resumen consolidado (entrega del paquete, 30-jun pm):** ya no es una máquina de 3 estados aparte. Es un **toggle** dentro del editor (`digest.enabled`) que despliega su sub-form (hora · zona · t-n). Se guarda con el paquete; el card de la lista muestra su tag ("Resumen 08:00 · hasta hace 4 días (t-4)").
 
 ## G. Validaciones / edge cases
-- **Regla que no notifica nada** (bloquear Guardar + `Alert warning`): exige **≥1 entrega activa** (tiempo real o resumen); si tiempo real, **≥1 momento** (created/watching/confirmed/resolved); **y ≥1 canal activo** (correo o Slack). Una mención sin canal de Slack no entrega.
+- **Regla que no notifica nada** (bloquear Guardar + `Alert warning`): exige **≥1 entrega activa** (aviso por evento o resumen); si aviso por evento, **≥1 momento** (created/watching/confirmed/resolved); **y ≥1 canal activo** (correo o Slack). Una mención sin canal de Slack no entrega.
 - **Scope vacío** = "Todos mis incidentes" (válido, no es error).
 - Canal con toggle **apagado** → no se leen sus destinatarios al guardar.
 - Severidad: no exponer como filtro ni condición (system-assigned).
