@@ -29,12 +29,12 @@ Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta 
 **Dónde:** Anomalías → Gestión → barra "Filtrar / Ordenar / Guardados".
 
 ### Cambios de UI (enumerados)
-1. **Multiselect dentro de cada categoría.** Al abrir Entidades afectadas / Estado / Tipo, se pueden marcar **varios valores**. Cada opción muestra un **check** al elegirse; el submenú **no se cierra** (footer con "Limpiar" y "Listo").
+1. **Multiselect dentro de cada categoría.** Al abrir Recurso / Tablero / Estado / Tipo, se pueden marcar **varios valores**. Cada opción muestra un **check** al elegirse; el submenú **no se cierra** (footer con "Limpiar" y "Listo"). *(Nota: la unificación "Entidades afectadas" es SOLO del editor de notificación; en Gestión Recurso y Tablero van separados — ver changelog #1.)*
 2. **Lógica de combinación:** dentro de una categoría los valores se unen con **`o`** (OR); entre categorías distintas, con **`Y`** (AND). En los chips aplicados: el valor se lee `A o B`; entre chips aparece un conector **"Y"**.
 3. **Quitar el filtro "Severidad".** Eliminado del menú. Motivo: no exponer severidad hasta que el usuario pueda **definir sus propios niveles**. (Vuelve cuando sea configurable.)
 4. **Filtros que quedan:** **Recurso**, **Tablero**, **Estado**, **Tipo**, **Fecha** (rango estático "Últimos 30 días"). *(La unificación "Entidades afectadas" y la Fecha dinámica NO aplican aquí; son solo del editor de notificación — ver changelog #1 y #4.)*
    - **Tipo** = problem categories reales de BADS (Ingesta): Archivo faltante, Archivo fallido, Archivo vacío, Archivo duplicado, Variación de volumen.
-5. **Filtros guardados (recurrentes).** Botón **"Guardar filtro"** en el panel de chips → nombrar inline. Botón **"Guardados"** en la barra → menú con los filtros guardados (cargar / eliminar). Sin automatizaciones: solo guardar y reutilizar.
+5. **Filtros guardados (recurrentes).** Botón **"Guardar filtro"** en el panel de chips → nombrar inline. Botón **"Guardados"** en la barra (**solo ícono** bookmark, con tooltip/aria-label) → menú con los filtros guardados (cargar / eliminar). Sin automatizaciones: solo guardar y reutilizar. *(Estos filtros guardados son los que el editor de notificación reutiliza vía su botón "Aplicar un filtro guardado".)*
 
 ### Nota crítica para ingeniería
 ⚠️ **Producción HOY no soporta multiselect dentro de cada filtro.** Es un cambio nuevo de endpoints/UI. Documentarlo como tal. Según el equipo: casi 100% frontend + poco backend (Ayed puede apoyar).
@@ -48,7 +48,7 @@ Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta 
 > **Cambio de paradigma:** ya **no** es un formulario único de config global. Es una **lista de paquetes (reglas)**. Un incidente se evalúa contra todos los paquetes **activos**; si coincide con varios, se notifica por cada vía. Cada usuario crea los suyos (quien configura, recibe).
 
 ### Cambios de UI (enumerados)
-1. **Vista de lista plana** de todas las notificaciones configuradas. Cada tarjeta: nombre, resumen del alcance, toggle activo/inactivo, tags (momento · actualizaciones · canales) y acciones **Duplicar / Editar / Eliminar**. Botón **"Crear notificación"** arriba a la derecha.
+1. **Vista de lista plana** de todas las notificaciones configuradas. Cada tarjeta: nombre, resumen del alcance, toggle activo/inactivo, tags de entrega (**"Por evento: al crearse, …"** · **con actualizaciones** · **"Resumen 08:00 · hasta hace 4 días (t-4)"** · canales) y acciones **Duplicar / Editar / Eliminar**. Botón **"Crear notificación"** arriba a la derecha.
    - **Empty state / first-run (activo, con forma):** en first-run el header se aligera (oculta subtítulo + botón de arriba) y el empty state lleva la explicación + el CTA. Contiene: **mini-diagrama** (notificación fantasma → wires → previews de **Email** y **Slack**, comunica "1 notificación llega por varios canales") + **plantillas para empezar** ("Incidentes confirmados de mis tableros", "Archivos faltantes o fallidos") que abren el editor **pre-llenado** + CTA primario **"Crear notificación"**. No es un "Sin resultados" plano.
    - El diagrama va dentro de un frame **"Vista previa"** (tintado + caption + `pointer-events:none`) para que se lea como ilustración, no como UI clickeable; las plantillas/CTA quedan fuera del frame.
    - **Motion pedagógico:** pulso de flujo (dashes en primario recorriendo los wires → enseña la dirección a los canales, loop 1.6s) + entrada escalonada (fade+rise, 320ms ease-out, delays 0/70/140/210/280ms). Solo transform/opacity/stroke-dashoffset; respeta `prefers-reduced-motion: reduce`.
@@ -100,11 +100,11 @@ Esta tanda **supersede** partes del documento. Donde haya conflicto, manda esta 
 ### Cambios de UI (enumerados)
 1. **Grid de fuentes** (ya existía): cada fuente con "Activar monitoreo AI" / "Monitoreo activo". Ahora la tarjeta es **clickeable** → abre el detalle (reemplaza la grid; "Volver" regresa).
 2. **Modal de detalle de fuente** (`#sourceDialog`, overlay) con **sidebar izquierdo de 2 ítems**: **Configuración** y **Alertas** (mismo patrón visual que el sidebar del diálogo del KPI, pero solo esos dos). Adaptado a vanilla desde `config-system-kpi/index.html` → `inline-source-detail`:
-   - **Configuración** =
-   - **Análisis inteligente** (colapsable): resumen + límites sugeridos (Media / inferior / superior). Estático.
-   - **Ventana de tiempo**: llega a las · avisar si pasa de las · zona horaria → señal de **archivo faltante/tarde**.
-   - **Cómo se monitorea**: radio *Igual todos los días* / *Por día de la semana* (este último marcado **Próx.**).
-   - **Comportamiento de la fuente**: Cantidad de archivos (mín/máx + sugerencia) · Cantidad de registros (mín/máx) · **Otros comportamientos**: Archivos vacíos / duplicados / fallidos (switch + umbral %).
+   - **Configuración** (1er ítem del sidebar) contiene:
+     - **Análisis inteligente** (colapsable): resumen + límites sugeridos (Media / inferior / superior). Estático.
+     - **Ventana de tiempo**: llega a las · avisar si pasa de las · zona horaria → señal de **archivo faltante/tarde**.
+     - **Cómo se monitorea**: radio *Igual todos los días* / *Por día de la semana* (este último marcado **Próx.**).
+     - **Comportamiento de la fuente**: Cantidad de archivos (mín/máx + sugerencia) · Cantidad de registros (mín/máx) · **Otros comportamientos**: Archivos vacíos / duplicados / fallidos (switch + umbral %).
    - **Alertas** (2do ítem del sidebar) = **mismo patrón de 3 tarjetas que las Alertas del KPI**: ¿Cuándo notificar? (Nunca / Solo al final / En tiempo real + empty state + ventana de monitoreo, editar→Configuración) · ¿Dónde notificar? (Email/Slack + ID de Slack) · Idioma. Las funciones del patrón (`whenPick`, `renderWhen`, `toggleChannel`, `isChannelInvalid`/`showChannelWarning`) son **scope-aware** vía `data-notif-section` (un warning por sección, no chocan KPI vs fuente).
    - Footer: Salir / Guardar.
 
@@ -226,11 +226,13 @@ Estado que mantiene el prototipo *(modelo 30-jun pm: scope sin Estado; entregas 
 - **`Entidad`** = tablero **o** recurso. El backend resuelve un tablero a sus resources; todos los `Entidad` del scope se combinan con **OR** entre sí (no jerárquico, no AND tablero∧recurso).
 
 ## D. Lógica de filtros (scope)
-- **Dentro de una categoría: OR.** Entre categorías distintas: **AND.** → `entidad ∈ {tableros∪recursos} AND tipo ∈ {...}`.
-- ⚠️ **Entidad NO se trata como jerarquía:** tablero y recurso van en la **misma** categoría con OR; nunca `tablero AND recurso` (generaba condiciones imposibles — fix 30-jun pm).
-- **Fecha (lista de incidentes):** rango **relativo dinámico** (t-n), se recalcula cada día; persistir el offset, no la fecha absoluta.
+- **Dentro de una categoría: OR.** Entre categorías distintas: **AND.**
+  - **Alcance del paquete:** `entidad ∈ {tableros∪recursos} AND tipo ∈ {...}`.
+  - **Filtros de Gestión (lista):** `recurso ∈ {...} AND tablero ∈ {...} AND estado ∈ {...} AND tipo ∈ {...}` (categorías separadas).
+- ⚠️ **En el paquete, Entidad NO se trata como jerarquía:** tablero y recurso van en la **misma** categoría con OR; nunca `tablero AND recurso` (generaba condiciones imposibles — fix 30-jun pm). En Gestión sí van como dos categorías (es una lista para navegar, no una regla).
+- **Fecha (lista de Gestión):** rango **estático** ("Últimos 30 días"), valor único. *(El t-n dinámico se probó y se revirtió; el t-n vive solo en el período del resumen del paquete.)*
 - **Multiselect dentro de cada filtro: producción NO lo soporta hoy** → historia de eng (endpoints). ~100% FE + poco backend.
-- **Filtros guardados**: entidad propia reutilizable (se referencian desde el scope del paquete).
+- **Filtros guardados**: entidad propia reutilizable. Se crean en Gestión (vocabulario Recurso/Tablero/Estado/Tipo); al aplicarlos en el paquete, Tablero/Recurso se **colapsan** a Entidad y Estado se descarta (`pkgScopeKeep`).
 
 ## E. Mapeo a componentes desyk (`@simetrikinc/desyk-components`)
 Refs: `fe-solutions-mf/.../skills/desyk/references/`.
