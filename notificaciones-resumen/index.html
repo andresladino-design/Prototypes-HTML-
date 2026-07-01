@@ -1890,6 +1890,10 @@
     /* Variante para el alcance del paquete: el valor puede envolver (nombres de recurso largos) sin recortar la x */
     .an-fchip--wrap { max-width: 100%; }
     .an-fchip--wrap .an-fchip-val { max-width: none; white-space: normal; overflow: visible; text-overflow: clip; word-break: break-word; }
+    /* Alcance del paquete: chips a todo el ancho, apilados; el valor llena el centro y la x queda a la derecha */
+    #anPkgScopeChipsEnt { flex-direction: column; align-items: stretch; }
+    #anPkgScopeChipsEnt .an-fchip { width: 100%; align-self: stretch; }
+    #anPkgScopeChipsEnt .an-fchip-val { flex: 1 1 auto; }
     .an-fchip-val { max-width: 300px; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.4; }
     .an-applied-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 2px; }
     .an-save-filter { font-size: 12.5px; font-weight: 600; color: var(--primary-text); background: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
