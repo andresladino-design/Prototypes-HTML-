@@ -1484,6 +1484,7 @@
     .an-fbtn { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: 1px solid var(--border-default); border-radius: 8px; background: #fff; font: inherit; font-size: 12.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: border-color .12s; }
     .an-fbtn:hover { border-color: hsl(var(--primary-hsl) / .4); }
     .an-fbtn .lucide { width: 14px; height: 14px; color: var(--text-tertiary); }
+    .an-fbtn-icon { width: 32px; padding: 0; justify-content: center; }
     .an-cards { flex: 1; overflow-y: auto; padding: 2px 12px 10px; display: flex; flex-direction: column; gap: 10px; }
     .an-card { display: block; width: 100%; text-align: left; border: 1px solid var(--border-default); border-radius: 12px; background: #fff; padding: 13px 14px 11px; cursor: pointer; transition: border-color .12s, background .12s; }
     .an-card:hover { border-color: hsl(var(--primary-hsl) / .35); }
@@ -2333,7 +2334,7 @@
             </div>
           </div>
           <div class="an-fmenu-wrap">
-            <button class="an-fbtn" onclick="toggleGMenu(event)"><i data-lucide="bookmark"></i> Guardados</button>
+            <button class="an-fbtn an-fbtn-icon" onclick="toggleGMenu(event)" title="Filtros guardados" aria-label="Filtros guardados"><i data-lucide="bookmark"></i></button>
             <div class="an-fmenu" id="anGMenu" onclick="event.stopPropagation()">
               <div class="an-fmenu-head">Filtros guardados</div>
               <div class="an-fmenu-list" id="anGList"></div>
