@@ -2612,7 +2612,9 @@
                     <div class="an-deliv-field">
                       <label class="an-cfg-lbl">En qué momento del incidente</label>
                       <label class="an-check"><input type="checkbox" id="anPkgEvCreated" checked> Cuando se cree</label>
+                      <label class="an-check"><input type="checkbox" id="anPkgEvWatching"> Cuando entre en observación</label>
                       <label class="an-check"><input type="checkbox" id="anPkgEvConfirmed"> Cuando se confirme</label>
+                      <label class="an-check"><input type="checkbox" id="anPkgEvResolved"> Cuando se resuelva</label>
                     </div>
                     <div class="an-deliv-toggle-row">
                       <div>
@@ -4176,8 +4178,12 @@
       if (p.channels.slack.length) ch.push(p.channels.slack.length + ' canal' + (p.channels.slack.length > 1 ? 'es' : ''));
       let tags = '';
       if (rt.enabled) {
-        const when = []; if (rt.created) when.push('al crearse'); if (rt.confirmed) when.push('al confirmarse');
-        const whenT = when.length ? when.join(' y ') : 'sin momento';
+        const when = [];
+        if (rt.created) when.push('al crearse');
+        if (rt.watching) when.push('en observación');
+        if (rt.confirmed) when.push('al confirmarse');
+        if (rt.resolved) when.push('al resolverse');
+        const whenT = !when.length ? 'sin momento' : when.length === 1 ? when[0] : when.slice(0, -1).join(', ') + ' y ' + when[when.length - 1];
         tags += '<span class="an-pkg-tag"><i data-lucide="zap"></i> Tiempo real: ' + whenT + '</span>';
         if (rt.updates) tags += '<span class="an-pkg-tag"><i data-lucide="refresh-cw"></i> con actualizaciones</span>';
       }
@@ -4198,7 +4204,7 @@
       const copy = {
         id: pkgNextId++, name: p.name + ' (copia)',
         scope: p.scope.map(f => ({ ...f })),
-        realtime: { enabled: !!rt.enabled, created: !!rt.created, confirmed: !!rt.confirmed, updates: !!rt.updates },
+        realtime: { enabled: !!rt.enabled, created: !!rt.created, watching: !!rt.watching, confirmed: !!rt.confirmed, resolved: !!rt.resolved, updates: !!rt.updates },
         digest: { enabled: !!dg.enabled, hora: dg.hora || '08:00', zona: dg.zona || 'CO · Bogotá (GMT-5)', tn: dg.tn || 1 },
         channels: { emails: p.channels.emails.slice(), slack: p.channels.slack.slice(), mentions: (p.channels.mentions || []).slice() },
         active: true
@@ -4220,7 +4226,9 @@
       document.getElementById('anPkgRealtime').classList.toggle('is-on', !!rt.enabled);
       document.getElementById('anPkgRealtimeBody').classList.toggle('hidden', !rt.enabled);
       document.getElementById('anPkgEvCreated').checked = !!rt.created;
+      document.getElementById('anPkgEvWatching').checked = !!rt.watching;
       document.getElementById('anPkgEvConfirmed').checked = !!rt.confirmed;
+      document.getElementById('anPkgEvResolved').checked = !!rt.resolved;
       document.getElementById('anPkgUpdates').classList.toggle('is-on', !!rt.updates);
     }
     function pkgApplyDigest(dg) {
@@ -4414,18 +4422,21 @@
       const rtOn = document.getElementById('anPkgRealtime').classList.contains('is-on');
       const dgOn = document.getElementById('anPkgDigest').classList.contains('is-on');
       const evCreated = document.getElementById('anPkgEvCreated').checked;
+      const evWatching = document.getElementById('anPkgEvWatching').checked;
       const evConfirmed = document.getElementById('anPkgEvConfirmed').checked;
+      const evResolved = document.getElementById('anPkgEvResolved').checked;
+      const anyMoment = evCreated || evWatching || evConfirmed || evResolved;
       const channels = pkgReadChannels();
       const problems = [];
       if (!rtOn && !dgOn) problems.push('Activa al menos una entrega: en tiempo real o resumen consolidado.');
-      if (rtOn && !evCreated && !evConfirmed) problems.push('En tiempo real, elige al menos un momento (al crearse o al confirmarse).');
+      if (rtOn && !anyMoment) problems.push('En tiempo real, elige al menos un momento del incidente (al crearse, en observación, al confirmarse o al resolverse).');
       if (!channels.emails.length && !channels.slack.length) problems.push('Agrega al menos un canal: un correo o un canal de Slack.');
       if (problems.length) { pkgWarn(problems); return; }
       pkgWarn([]);
       const name = document.getElementById('anPkgName').value.trim() || 'Notificación sin nombre';
       const data = {
         name: name, scope: pkgEditingScope.map(f => ({ ...f })),
-        realtime: { enabled: rtOn, created: evCreated, confirmed: evConfirmed, updates: document.getElementById('anPkgUpdates').classList.contains('is-on') },
+        realtime: { enabled: rtOn, created: evCreated, watching: evWatching, confirmed: evConfirmed, resolved: evResolved, updates: document.getElementById('anPkgUpdates').classList.contains('is-on') },
         digest: { enabled: dgOn, hora: document.getElementById('anPkgDigestHora').value || '08:00', zona: document.getElementById('anPkgDigestZona').value, tn: +document.getElementById('anPkgDigestTn').value || 1 },
         channels: channels, active: true
       };
