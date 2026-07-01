@@ -2274,33 +2274,26 @@
             <div class="an-fmenu" id="anFMenu" onclick="event.stopPropagation()">
               <div class="an-fmenu-page" data-fpage="main">
                 <div class="an-fmenu-head">Filtrar</div>
-                <button class="an-fmenu-item" onclick="fGoto('entidad')"><i data-lucide="layers"></i> Entidades afectadas <i data-lucide="chevron-right" class="chev"></i></button>
+                <button class="an-fmenu-item" onclick="fGoto('recurso')"><i data-lucide="database"></i> Recurso <i data-lucide="chevron-right" class="chev"></i></button>
+                <button class="an-fmenu-item" onclick="fGoto('tablero')"><i data-lucide="layout-grid"></i> Tablero <i data-lucide="chevron-right" class="chev"></i></button>
                 <button class="an-fmenu-item" onclick="fGoto('estado')"><i data-lucide="circle-dot"></i> Estado <i data-lucide="chevron-right" class="chev"></i></button>
                 <button class="an-fmenu-item" onclick="fGoto('tipo')"><i data-lucide="tag"></i> Tipo <i data-lucide="chevron-right" class="chev"></i></button>
                 <div class="an-fmenu-sep"></div>
-                <button class="an-fmenu-item" onclick="fGoto('fecha')"><i data-lucide="calendar-clock"></i> Fecha <i data-lucide="chevron-right" class="chev"></i></button>
+                <button class="an-fmenu-item" onclick="fPickFecha()"><i data-lucide="calendar"></i> Fecha</button>
               </div>
-              <div class="an-fmenu-page hidden" data-fpage="entidad">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Entidades afectadas</button>
-                <div class="an-fmenu-hint">Tableros, gráficos o recursos. Todo lo que elijas se combina con <strong>o</strong> (no compiten entre sí).</div>
-                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero o recurso" oninput="fFilterList(this,'entidad')"></div>
-                <div class="an-fmenu-list" id="fListEntidad"></div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Entidad')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              <div class="an-fmenu-page hidden" data-fpage="recurso">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Recurso</button>
+                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar recurso" oninput="fFilterList(this,'recurso')"></div>
+                <div class="an-fmenu-list" id="fListRecurso"></div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Recurso')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
               </div>
-              <div class="an-fmenu-page hidden" data-fpage="fecha">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Fecha</button>
-                <div class="an-fmenu-hint">Rango <strong>dinámico</strong>: se mueve solo cada día. Guárdalo y siempre verás la ventana relativa a hoy.</div>
-                <div class="an-fmenu-list">
-                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Hoy" onclick="addFilter('Fecha','Hoy','calendar-clock')"><i data-lucide="calendar-clock"></i> Hoy <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 1 día · t-1" onclick="addFilter('Fecha','Desde hace 1 día · t-1','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 1 día <span class="an-fopt-note">t-1</span> <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 2 días · t-2" onclick="addFilter('Fecha','Desde hace 2 días · t-2','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 2 días <span class="an-fopt-note">t-2</span> <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 3 días · t-3" onclick="addFilter('Fecha','Desde hace 3 días · t-3','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 3 días <span class="an-fopt-note">t-3</span> <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 4 días · t-4" onclick="addFilter('Fecha','Desde hace 4 días · t-4','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 4 días <span class="an-fopt-note">t-4</span> <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Desde hace 5 días · t-5" onclick="addFilter('Fecha','Desde hace 5 días · t-5','calendar-clock')"><i data-lucide="calendar-clock"></i> Desde hace 5 días <span class="an-fopt-note">t-5</span> <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <div class="an-fmenu-sep"></div>
-                  <button class="an-fmenu-opt" data-ftype="Fecha" data-fval="Últimos 30 días" onclick="addFilter('Fecha','Últimos 30 días','calendar')"><i data-lucide="calendar"></i> Últimos 30 días <i data-lucide="check" class="an-fopt-check"></i></button>
-                </div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Fecha')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
+              <div class="an-fmenu-page hidden" data-fpage="tablero">
+                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Tablero</button>
+                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
+                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero" oninput="fFilterList(this,'tablero')"></div>
+                <div class="an-fmenu-list" id="fListTablero"></div>
+                <div class="an-fmenu-foot"><button onclick="clearFilterType('Tablero')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
               </div>
               <div class="an-fmenu-page hidden" data-fpage="estado">
                 <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Estado</button>
@@ -4049,7 +4042,7 @@
     const AN_TABLEROS = ['Adquirencia', 'Conciliación bancaria', 'Tesorería', 'Pagos LATAM'];
     let anActiveFilter = []; // [{type, value, icon}] — varios por tipo permitidos
     let savedFilters = [     // filtros recurrentes (guardados) — reutilizables en los paquetes de notificación
-      { name: 'Incidentes de Adquirencia', filters: [{ type: 'Entidad', value: 'Adquirencia', icon: 'layout-grid' }, { type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }] }
+      { name: 'Incidentes de Adquirencia', filters: [{ type: 'Tablero', value: 'Adquirencia', icon: 'layout-grid' }, { type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }] }
     ];
     function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
     function groupFilters(list) { // agrupa [{type,value,icon}] por tipo, preservando orden de aparición
@@ -4067,33 +4060,35 @@
     function toggleGMenu(e) { e.stopPropagation(); closeFilterMenus('anGMenu'); renderGList(); document.getElementById('anGMenu').classList.toggle('open'); }
     function fGoto(page) { document.querySelectorAll('#anFMenu .an-fmenu-page').forEach(p => p.classList.toggle('hidden', p.dataset.fpage !== page)); markOptChecks(); }
     function buildFLists() {
-      const ent = document.getElementById('fListEntidad');
-      if (ent && !ent.dataset.built) {
-        // Entidades afectadas = tableros + recursos en una sola lista (todo combina con O)
-        let html = '<div class="an-fmenu-grouplbl">Tableros</div>';
-        html += AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Entidad" data-fval="' + esc(t) + '" data-ficon="layout-grid"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        html += '<div class="an-fmenu-grouplbl">Recursos</div>';
-        html += AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Entidad" data-fval="' + esc(s[0]) + '" data-ficon="database"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        ent.innerHTML = html;
-        ent.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Entidad', b.dataset.fval, b.dataset.ficon)));
-        ent.dataset.built = '1';
+      const rec = document.getElementById('fListRecurso');
+      if (rec && !rec.dataset.built) {
+        rec.innerHTML = AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Recurso" data-fval="' + esc(s[0]) + '" data-ficon="database"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        rec.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Recurso', b.dataset.fval, 'database')));
+        rec.dataset.built = '1';
+      }
+      const tab = document.getElementById('fListTablero');
+      if (tab && !tab.dataset.built) {
+        tab.innerHTML = AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Tablero" data-fval="' + esc(t) + '" data-ficon="layout-grid"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
+        tab.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Tablero', b.dataset.fval, 'layout-grid')));
+        tab.dataset.built = '1';
       }
       markOptChecks();
       if (window.lucide) lucide.createIcons();
     }
     function fFilterList(input, which) {
-      const id = 'fListEntidad', q = input.value.toLowerCase();
+      const id = which === 'recurso' ? 'fListRecurso' : 'fListTablero', q = input.value.toLowerCase();
       document.querySelectorAll('#' + id + ' .an-fmenu-opt').forEach(o => { o.style.display = o.textContent.toLowerCase().includes(q) ? '' : 'none'; });
     }
+    function fPickFecha() { addFilter('Fecha', 'Últimos 30 días', 'calendar'); }
     function isFilterActive(type, value) { return anActiveFilter.some(f => f.type === type && f.value === value); }
     function markOptChecks() {
       document.querySelectorAll('#anFMenu .an-fmenu-opt').forEach(o => { const t = o.dataset.ftype, v = o.dataset.fval; if (t && v) o.classList.toggle('is-on', isFilterActive(t, v)); });
     }
     function addFilter(type, value, icon) {
       if (type === 'Fecha') {                                  // Fecha = valor único (rango), reemplaza
-        const was = isFilterActive('Fecha', value);
         anActiveFilter = anActiveFilter.filter(f => f.type !== 'Fecha');
-        if (!was) anActiveFilter.push({ type: type, value: value, icon: icon });
+        anActiveFilter.push({ type: type, value: value, icon: icon });
+        document.getElementById('anFMenu').classList.remove('open');
       } else {                                                  // resto = multiselect (toggle)
         const i = anActiveFilter.findIndex(f => f.type === type && f.value === value);
         if (i >= 0) anActiveFilter.splice(i, 1); else anActiveFilter.push({ type: type, value: value, icon: icon });
@@ -4316,8 +4311,15 @@
       html += '<option value="current">Filtro actual de la vista de incidentes</option>';
       sel.innerHTML = html;
     }
-    // El alcance del paquete solo admite Entidad + Tipo (el Estado vive en el "momento", no aquí).
-    function pkgScopeKeep(list) { return (list || []).filter(f => f.type === 'Entidad' || f.type === 'Tipo').map(f => ({ ...f })); }
+    // El alcance del paquete solo admite Entidad + Tipo (el Estado vive en el "momento").
+    // Los filtros de Gestión usan Tablero/Recurso por separado: al importarlos, se colapsan en Entidad.
+    function pkgScopeKeep(list) {
+      return (list || [])
+        .filter(f => ['Entidad', 'Tablero', 'Recurso', 'Tipo'].indexOf(f.type) >= 0)
+        .map(f => (f.type === 'Tablero' || f.type === 'Recurso')
+          ? { type: 'Entidad', value: f.value, icon: f.type === 'Tablero' ? 'layout-grid' : 'database' }
+          : { type: f.type, value: f.value, icon: f.icon });
+    }
     function pkgScopeFromSelect() {
       const v = document.getElementById('anPkgScopeSel').value;
       if (v === '' || v === 'keep') { /* placeholder / conserva pkgEditingScope */ }
