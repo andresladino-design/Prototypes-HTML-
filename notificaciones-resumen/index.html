@@ -2524,7 +2524,7 @@
           <div id="anPkgListView">
             <div class="an-pkg-header">
               <div>
-                <h2 class="an-ing-title">Notificaciones de incidentes</h2>
+                <h2 class="an-ing-title" id="anPkgHeaderTitle">Notificaciones de incidentes</h2>
                 <p class="an-ing-sub" id="anPkgHeaderSub">Cada notificación define de cuáles incidentes te avisamos, cuándo y por dónde. Un incidente se evalúa contra todas tus notificaciones activas; si coincide con varias, te llega por cada vía. Son independientes de las alertas de tus KPIs.</p>
               </div>
               <button class="an-pkg-add" id="anPkgHeaderBtn" onclick="pkgNew()"><i data-lucide="plus"></i> Crear notificación</button>
@@ -4243,9 +4243,10 @@
     }
     function renderPkgList() {
       const el = document.getElementById('anPkgList'); if (!el) return;
-      const hSub = document.getElementById('anPkgHeaderSub'), hBtn = document.getElementById('anPkgHeaderBtn');
+      const hSub = document.getElementById('anPkgHeaderSub'), hBtn = document.getElementById('anPkgHeaderBtn'), hTitle = document.getElementById('anPkgHeaderTitle');
       if (!notifPackages.length) {
-        // first-run: el header pasa a segundo plano; la explicación y el CTA viven en el empty state
+        // first-run: el header entero pasa a segundo plano; título, explicación y CTA viven en el empty state
+        if (hTitle) hTitle.style.display = 'none';
         if (hSub) hSub.style.display = 'none';
         if (hBtn) hBtn.style.display = 'none';
         el.innerHTML =
@@ -4284,6 +4285,7 @@
           '</div>';
         if (window.lucide) lucide.createIcons(); return;
       }
+      if (hTitle) hTitle.style.display = '';
       if (hSub) hSub.style.display = '';
       if (hBtn) hBtn.style.display = '';
       el.innerHTML = notifPackages.map(pkgCardHtml).join('');
