@@ -2573,7 +2573,13 @@
                         <div class="an-fmenu-foot"><button onclick="pkgClearType('Entidad')">Limpiar</button><button class="is-apply" onclick="pkgCloseFMenu()">Listo</button></div>
                       </div>
                     </div>
-                    <select id="anPkgScopeSel" class="an-pkg-scope-saved" onchange="pkgScopeFromSelect()"></select>
+                    <div class="an-fmenu-wrap">
+                      <button class="an-fbtn an-fbtn-icon" onclick="pkgToggleSavedMenu(event)" title="Aplicar un filtro guardado" aria-label="Aplicar un filtro guardado"><i data-lucide="bookmark"></i></button>
+                      <div class="an-fmenu" id="anPkgSavedMenu" onclick="event.stopPropagation()">
+                        <div class="an-fmenu-head">Aplicar un filtro guardado</div>
+                        <div class="an-fmenu-list" id="anPkgSavedList"></div>
+                      </div>
+                    </div>
                   </div>
                   <div class="an-prevchips" id="anPkgScopeChipsEnt" style="margin-top:10px;"></div>
                 </div>
@@ -4060,7 +4066,7 @@
     function fGroups() { return groupFilters(anActiveFilter); }
     function groupIcon(g) { return g.type === 'Entidad' ? 'layers' : g.icon; }
     function closeFilterMenus(except) {
-      ['anFMenu', 'anSMenu', 'anGMenu', 'anPkgFMenu'].forEach(id => { if (id !== except) { const e = document.getElementById(id); if (e) e.classList.remove('open'); } });
+      ['anFMenu', 'anSMenu', 'anGMenu', 'anPkgFMenu', 'anPkgSavedMenu'].forEach(id => { if (id !== except) { const e = document.getElementById(id); if (e) e.classList.remove('open'); } });
     }
     function toggleFMenu(e) { e.stopPropagation(); closeFilterMenus('anFMenu'); fGoto('main'); document.getElementById('anFMenu').classList.toggle('open'); buildFLists(); }
     function toggleSMenu(e) { e.stopPropagation(); closeFilterMenus('anSMenu'); document.getElementById('anSMenu').classList.toggle('open'); }
@@ -4223,7 +4229,6 @@
       document.getElementById('anPkgName').value = t.name;
       pkgApplyRealtime(t.realtime); pkgApplyDigest(t.digest);
       pkgEditingScope = t.scope.map(f => ({ ...f }));
-      const sel = document.getElementById('anPkgScopeSel'); if (sel) sel.value = '';
       renderPkgScopeChips(); pkgMarkChecks();
     }
     // Aplica el estado de cada entrega a la UI del editor
@@ -4309,15 +4314,6 @@
       document.getElementById('anPkgListView').classList.toggle('hidden', show);
       document.getElementById('anPkgEditor').classList.toggle('hidden', !show);
     }
-    function pkgFillScopeSelect(includeKeep) {
-      const sel = document.getElementById('anPkgScopeSel'); if (!sel) return;
-      let html = '<option value="">o aplica un filtro guardado…</option>';
-      if (includeKeep) html += '<option value="keep">Alcance actual de esta notificación</option>';
-      html += '<option value="all">Todos mis incidentes</option>';
-      savedFilters.forEach((s, i) => html += '<option value="saved:' + i + '">' + esc(s.name) + '</option>');
-      html += '<option value="current">Filtro actual de la vista de incidentes</option>';
-      sel.innerHTML = html;
-    }
     // El alcance del paquete solo admite Entidad + Tipo (el Estado vive en el "momento").
     // Los filtros de Gestión usan Tablero/Recurso por separado: al importarlos, se colapsan en Entidad.
     function pkgScopeKeep(list) {
@@ -4327,15 +4323,22 @@
           ? { type: 'Entidad', value: f.value, icon: f.type === 'Tablero' ? 'layout-grid' : 'database' }
           : { type: f.type, value: f.value, icon: f.icon });
     }
-    function pkgScopeFromSelect() {
-      const v = document.getElementById('anPkgScopeSel').value;
-      if (v === '' || v === 'keep') { /* placeholder / conserva pkgEditingScope */ }
-      else if (v === 'all') pkgEditingScope = [];
-      else if (v === 'current') pkgEditingScope = pkgScopeKeep(anActiveFilter);
-      else if (v.indexOf('saved:') === 0) { const i = +v.split(':')[1]; pkgEditingScope = pkgScopeKeep(savedFilters[i] ? savedFilters[i].filters : []); }
-      renderPkgScopeChips(); pkgMarkChecks();
+    // Menú "aplicar un filtro guardado" (botón de ícono, mismo patrón que Guardados de Gestión)
+    function pkgToggleSavedMenu(e) { e.stopPropagation(); closeFilterMenus('anPkgSavedMenu'); renderPkgSavedList(); document.getElementById('anPkgSavedMenu').classList.toggle('open'); }
+    function renderPkgSavedList() {
+      const el = document.getElementById('anPkgSavedList'); if (!el) return;
+      el.innerHTML = savedFilters.length
+        ? savedFilters.map((s, i) => '<button class="an-gitem" onclick="pkgApplySaved(' + i + ')"><i data-lucide="bookmark"></i> ' + esc(s.name) + '</button>').join('')
+        : '<div class="an-gempty">No tienes filtros guardados.<br>Créalos en la vista de incidentes (Gestión).</div>';
+      if (window.lucide) lucide.createIcons();
     }
-    function pkgSyncSavedSel() { const sel = document.getElementById('anPkgScopeSel'); if (sel) sel.value = ''; }
+    function pkgApplySaved(i) {
+      const s = savedFilters[i]; if (!s) return;
+      pkgEditingScope = pkgScopeKeep(s.filters);
+      renderPkgScopeChips(); pkgMarkChecks();
+      const m = document.getElementById('anPkgSavedMenu'); if (m) m.classList.remove('open');
+    }
+    function pkgSyncSavedSel() { /* el menú de guardados no mantiene estado que sincronizar */ }
     // Alcance dividido en dos bloques: Entidades afectadas (chips) + Tipo (chips seleccionables).
     function renderPkgScopeChips() {
       const el = document.getElementById('anPkgScopeChipsEnt');
@@ -4438,7 +4441,6 @@
       pkgApplyRealtime({ enabled: true, created: true, confirmed: false, updates: false });
       pkgApplyDigest({ enabled: false, hora: '08:00', zona: 'CO · Bogotá (GMT-5)', tn: 1 });
       pkgSetChannels([], [], []);
-      pkgFillScopeSelect(false); document.getElementById('anPkgScopeSel').value = '';
       renderPkgScopeChips(); pkgMarkChecks(); pkgWarn([]); pkgShowEditor(true); if (window.lucide) lucide.createIcons();
     }
     function pkgEdit(id) {
@@ -4449,7 +4451,6 @@
       pkgClearFieldError(document.getElementById('anPkgName'));
       pkgApplyRealtime(p.realtime); pkgApplyDigest(p.digest);
       pkgSetChannels(p.channels.emails, p.channels.slack, p.channels.mentions || []);
-      pkgFillScopeSelect(true); document.getElementById('anPkgScopeSel').value = 'keep';
       renderPkgScopeChips(); pkgMarkChecks(); pkgWarn([]); pkgShowEditor(true); if (window.lucide) lucide.createIcons();
     }
     function pkgCancel() { pkgShowEditor(false); }
