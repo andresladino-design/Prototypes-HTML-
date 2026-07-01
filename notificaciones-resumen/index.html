@@ -1097,7 +1097,7 @@
       font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       letter-spacing: -0.01em;
     }
-.tm-dialog-content-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-left: 4px; }
+.tm-dialog-content-pills { display: flex; gap: 6px; flex-wrap: wrap; flex-basis: 100%; margin-left: 0; margin-top: 0; }
 .tm-dialog-content-pill {
       display: inline-flex; align-items: center;
       padding: 4px 12px; border-radius: 999px;
@@ -1927,6 +1927,134 @@
     .an-cfg-link .lucide { width: 14px; height: 14px; }
     .an-table-pager { display: flex; align-items: center; justify-content: space-between; padding: 12px 2px 0; font-size: 12.5px; color: var(--text-muted); }
     .an-table-pager .an-pg { gap: 5px; }
+
+  /* ===== Detección de anomalías por serie (default global + override, colapsables inline) ===== */
+  .ns-wrap{margin-top:4px}
+  .ns-intro{font-size:12px;color:var(--text-tertiary);line-height:1.55;margin:0 2px 4px}
+  .ns-intro b{color:var(--text-secondary);font-weight:600}
+  .ns-wrap > .ns-secth:first-of-type{margin-top:12px}
+  .ns-secth{font-size:13px;font-weight:600;color:var(--text-secondary);margin:18px 2px 10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .ns-secth .ns-cnt{font-size:11px;color:var(--text-muted);font-weight:500;text-transform:none;letter-spacing:0}
+  #nsCnt{border:1px solid var(--border-default);border-radius:999px;padding:2px 10px;color:var(--text-tertiary);font-weight:600}
+  .ns-acc{display:flex;flex-direction:column;gap:8px}
+  .ns-acc-item{border:1px solid var(--border-default);border-radius:12px;background:#fff;overflow:hidden}
+  .ns-acc-item.ns-gl{background:hsl(240 5% 98.5%)}
+  .ns-acc-item.open{border-color:var(--border-strong);box-shadow:0 4px 14px rgba(20,20,40,.05)}
+  .ns-acc-hd{display:flex;align-items:center;gap:12px;padding:13px 15px;cursor:pointer;background:none;border:0;width:100%;font:inherit;text-align:left}
+  .ns-acc-hd:hover{background:hsl(240 5% 98.5%)}
+  .ns-acc-name{font-size:13.5px;font-weight:600;flex-shrink:0;display:flex;align-items:center;gap:7px;color:var(--text-primary)}
+  .ns-acc-name .lucide{width:15px;height:15px;color:var(--primary-text)}
+  .ns-acc-meta{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+  .ns-acc-chev{width:16px;height:16px;color:var(--text-muted);flex-shrink:0;transition:transform .2s}
+  .ns-acc-item.open .ns-acc-chev{transform:rotate(180deg)}
+  .ns-acc-body{padding:0 15px 15px;display:none}
+  .ns-acc-item.open .ns-acc-body{display:block}
+  .ns-acc-toprow{display:flex;align-items:stretch}
+  .ns-acc-toprow .ns-acc-hd{flex:1;min-width:0}
+  .ns-acc-del{appearance:none;border:0;background:none;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;padding:0 14px;border-left:1px solid var(--border-subtle)}
+  .ns-acc-del:hover{color:var(--red-text);background:hsl(var(--destructive) / .06)}
+  .ns-acc-del .lucide{width:15px;height:15px}
+  .ns-addwrap{position:relative;margin-top:10px}
+  .ns-add-btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px dashed var(--border-strong);background:#fff;border-radius:11px;font:inherit;font-size:13px;font-weight:600;color:var(--text-secondary);padding:11px 14px;cursor:pointer}
+  .ns-add-btn:hover{border-color:var(--primary);color:var(--primary-text);background:var(--primary-soft)}
+  .ns-add-btn .lucide{width:15px;height:15px}
+  .ns-add-menu{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;background:#fff;border:1px solid var(--border-default);border-radius:11px;box-shadow:0 12px 30px rgba(20,20,40,.14);padding:6px;display:none;max-height:240px;overflow:auto}
+  .ns-addwrap.open .ns-add-menu{display:block}
+  .ns-add-opt{display:flex;align-items:center;gap:9px;width:100%;border:0;background:none;font:inherit;font-size:13px;color:var(--text-primary);padding:9px 11px;border-radius:8px;cursor:pointer;text-align:left}
+  .ns-add-opt:hover{background:var(--muted)}
+  .ns-add-opt .lucide{width:15px;height:15px;color:var(--text-muted)}
+  .ns-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;border-radius:999px;padding:3px 9px;white-space:nowrap}
+  .ns-badge.inh{color:var(--text-tertiary);background:var(--muted);border:1px solid var(--border-default)}
+  .ns-badge.cust{color:var(--primary-text);background:var(--primary-soft);border:1px solid hsl(var(--primary-hsl) / .22)}
+  .ns-badge.adapt{color:var(--primary-text);background:var(--primary-soft);border:1px solid hsl(var(--primary-hsl) / .22)}
+  .ns-badge.fijo{color:var(--amber-text);background:var(--amber-soft);border:1px solid hsl(var(--warning) / .3)}
+  .ns-badge.unset{color:var(--text-muted);background:transparent;border:1px dashed var(--border-strong)}
+  .ns-badge .dt{width:5px;height:5px;border-radius:50%;background:currentColor}
+  .ns-sum{font-size:12px;color:var(--text-tertiary)}
+  .ns-sum b{color:var(--text-secondary);font-weight:600}
+  .ns-dh{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:6px}
+  .ns-reset{appearance:none;border:0;background:none;font:inherit;font-size:12px;font-weight:600;color:var(--primary-text);cursor:pointer;display:inline-flex;align-items:center;gap:5px;padding:4px 6px;border-radius:7px}
+  .ns-reset:hover{background:var(--primary-soft)}
+  .ns-reset .lucide{width:13px;height:13px}
+  .ns-reset[hidden]{display:none}
+  .ns-cardhead{display:flex;justify-content:flex-start;align-items:center;gap:16px}
+  .ns-kpi-label{font-size:11.5px;font-weight:600;color:var(--text-secondary)}
+  .ns-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:7px;font-size:11px;color:var(--text-tertiary)}
+  .ns-legend span{display:inline-flex;align-items:center;gap:5px}
+  .ns-lg{width:14px;height:8px;border-radius:2px;display:inline-block}
+  .ns-lg-line{background:hsl(var(--primary-hsl));height:2.5px}
+  .ns-lg-band{background:hsl(240 6% 88%)}
+  .ns-lg-fixed{background:var(--amber-text);height:2.5px}
+  .ns-div{height:1px;background:var(--border-subtle);margin:16px 0}
+  .ns-q{font-size:14px;font-weight:600;margin-bottom:11px;color:var(--text-primary)}
+  .ns-radio-row{display:flex;gap:10px}
+  .ns-radio{flex:1;display:flex;gap:9px;align-items:flex-start;border:1px solid var(--border-default);border-radius:10px;padding:12px 13px;background:#fff;cursor:pointer;transition:border-color .12s,background .12s}
+  .ns-radio.sel{border-color:var(--primary);background:var(--primary-soft)}
+  .ns-radio .ns-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border-strong);flex-shrink:0;margin-top:1px;position:relative}
+  .ns-radio.sel .ns-dot{border-color:var(--primary)}
+  .ns-radio.sel .ns-dot::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--primary)}
+  .ns-rt{font-size:13px;font-weight:600;color:var(--text-primary)}
+  .ns-rd{font-size:12px;color:var(--text-tertiary);margin-top:3px;line-height:1.4}
+  .ns-panel{margin-top:14px;padding:14px;border:1px solid var(--border-default);border-radius:11px;background:hsl(240 5% 98.5%)}
+  .ns-lbl{font-size:12px;font-weight:600;color:var(--text-secondary);margin:0 0 8px}
+  .ns-seg{display:flex;border:1px solid var(--border-default);border-radius:9px;overflow:hidden;background:#fff}
+  .ns-seg button{flex:1;appearance:none;border:0;background:transparent;font:inherit;font-size:12px;font-weight:600;color:var(--text-secondary);padding:8px 8px;cursor:pointer;line-height:1.2}
+  .ns-seg button+button{border-left:1px solid var(--border-default)}
+  .ns-seg button .sub{display:block;font-size:11px;font-weight:500;color:var(--text-muted);margin-top:2px}
+  .ns-seg button.sel{background:var(--primary);color:#fff}
+  .ns-seg button.sel .sub{color:hsl(0 0% 100% / .82)}
+  .ns-check{display:flex;gap:10px;align-items:flex-start;cursor:pointer;margin-top:14px}
+  .ns-check input{width:16px;height:16px;accent-color:var(--primary);margin:1px 0 0;flex-shrink:0}
+  .ns-ct{display:block;font-size:13px;font-weight:600;color:var(--text-primary)}
+  .ns-cd{display:block;font-size:12px;color:var(--text-tertiary);margin-top:2px;line-height:1.4}
+  .ns-subblock{margin-top:10px;padding-left:26px}
+  .ns-limits{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ns-lim label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;cursor:pointer}
+  .ns-lim label input{width:15px;height:15px;accent-color:var(--primary);margin:0;flex-shrink:0}
+  .ns-lim input[type=number]{width:100%;height:34px;border:1px solid var(--border-default);border-radius:8px;padding:0 10px;font:inherit;font-size:13px;color:var(--text-primary);outline:0}
+  .ns-lim input[type=number]:focus{border-color:var(--primary);box-shadow:0 0 0 3px hsl(var(--primary-hsl) / .12)}
+  .ns-lim.off input[type=number]{opacity:.45;pointer-events:none;background:var(--muted)}
+  .ns-lim.off label{color:var(--text-muted)}
+  .ns-limsug{display:inline-flex;align-items:center;gap:6px;margin-top:7px;font-size:11px;font-weight:600;color:var(--primary-text);background:var(--primary-soft);border:1px solid hsl(var(--primary-hsl) / .2);border-radius:999px;padding:3px 9px;cursor:pointer}
+  .ns-limsug[hidden]{display:none}
+  .ns-limsug .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
+  .ns-limsug b{font-weight:700;font-variant-numeric:tabular-nums}
+  .ns-alert{display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:10px 12px;border-radius:9px;font-size:12px;line-height:1.45;background:#fff;border:1px solid var(--border-default);color:var(--text-secondary)}
+  .ns-alert .lucide{width:15px;height:15px;flex-shrink:0;margin-top:1px}
+  .ns-alert-body{flex:1;min-width:0}
+  .ns-alert-txt{display:block}
+  .ns-alert .ns-impact-row{margin-top:9px;padding:9px 0 0;border:0;border-top:1px solid var(--border-subtle);background:transparent;border-radius:0}
+  .ns-alert .ns-impact-kpi{padding:0 12px}
+  .ns-alert .ns-impact-kpi:first-child{padding-left:0}
+  .ns-alert .ns-impact-kpi+.ns-impact-kpi{border-left-color:var(--border-default)}
+  svg.ns-chart{width:100%;height:auto;display:block;margin:12px 0 2px}
+  .ns-band{fill:hsl(240 6% 55% / .14)}
+  .ns-band-future{fill:hsl(240 6% 55% / .06)}
+  .ns-metric{fill:none;stroke:hsl(var(--primary-hsl));stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+  .ns-metric-future{fill:none;stroke:hsl(var(--primary-hsl) / .5);stroke-width:2.2;stroke-dasharray:2 4;stroke-linejoin:round;stroke-linecap:round}
+  .ns-metric-multi{fill:none;stroke:hsl(var(--primary-hsl) / .34);stroke-width:1.3;stroke-linejoin:round;stroke-linecap:round}
+  .ns-lg-multi{background:hsl(var(--primary-hsl) / .34);height:2.5px}
+  .ns-gnote{display:flex;gap:8px;align-items:flex-start;margin:0 0 12px;padding:10px 12px;border-radius:9px;background:var(--primary-soft);border:1px solid hsl(var(--primary-hsl) / .15);font-size:12px;line-height:1.45;color:var(--text-secondary)}
+  .ns-gnote .lucide{width:15px;height:15px;color:var(--primary-text);flex-shrink:0;margin-top:1px}
+  .ns-fixed-line{stroke:var(--amber-text);stroke-width:2}
+  .ns-now-line{stroke:var(--text-tertiary);stroke-width:1;stroke-dasharray:3 3}
+  .ns-grid-line{stroke:var(--border-subtle);stroke-width:1}
+  .ns-ax{font-size:8.5px;fill:var(--text-muted)}
+  .ns-dot-red{fill:var(--red-text)}
+  .ns-dot-amber{fill:var(--amber-text)}
+  .ns-bang{fill:var(--red-text);font-weight:800;font-size:13px}
+  .ns-now-lbl{font-size:8.5px;fill:var(--text-tertiary);font-weight:600}
+  .ns-fx-lbl{font-size:8.5px;fill:var(--amber-text);font-weight:600}
+  .ns-impact{margin-top:8px}
+  .ns-impact-cap{font-size:11px;color:var(--text-tertiary);margin-bottom:6px}
+  .ns-impact-cap b{color:var(--primary-text)}
+  .ns-impact-row{display:flex;border:1px solid var(--border-default);border-radius:10px;overflow:hidden;background:hsl(240 5% 98.5%);padding:8px 0}
+  .ns-impact-kpi{flex:1;display:flex;gap:9px;justify-content:flex-start;align-items:center;padding:0 12px}
+  .ns-impact-kpi+.ns-impact-kpi{border-left:1px solid var(--border-default)}
+  .ns-impact-num{font-size:15px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--text-primary)}
+  .ns-impact-num.red{color:var(--red-text)}
+  .ns-impact-num.amber{color:var(--amber-text)}
+  .ns-impact-lbl{font-size:11px;color:var(--text-tertiary);margin-top:2px}
   </style>
 </head>
 
@@ -3204,9 +3332,9 @@
             <span class="tm-dialog-content-header-title" id="dlg-content-title">Conteo De Registros</span>
             <span class="tm-dialog-content-header-chip">COUNT_DISTINCT</span>
             <div class="tm-dialog-content-pills">
-              <span class="tm-dialog-content-pill is-active">Ahora si vamos a probar Camila</span>
-              <span class="tm-dialog-content-pill">Fechacargue</span>
-              <span class="tm-dialog-content-pill">Fuente</span>
+              <span class="tm-dialog-content-pill is-active">Prueba pivot table</span>
+              <span class="tm-dialog-content-pill">SKT_CREATED_DATE</span>
+              <span class="tm-dialog-content-pill">CURRENCY</span>
             </div>
           </div>
 
@@ -3514,165 +3642,11 @@
 
               <div class="tm-dialog-section">
 
-              <!-- 💬 [4] Sensibilidad ↔ gráfica (feedback 25-jun + 30-jun):
-                   · La FRANJA AZUL = inputs de límite inferior/superior del usuario. Es FIJA: solo cambia
-                     con esos inputs, NO con la sensibilidad.
-                   · Extremo izq "Solo mi umbral" = alerta de umbral fija: solo marca rojo lo que sale de la franja.
-                   · Medio = eso + los puntos más cercanos al borde, aunque estén dentro de la franja.
-                   · Extremo der "Detección adaptativa" = el sistema decide qué es anómalo según el patrón.
-                   · La marca crece HACIA ADENTRO (umbral punteado) mientras la franja queda quieta, pero
-                     NUNCA llega al centro: queda un núcleo normal (CORE=0.30). Aun en 100% no se cubre toda
-                     la gráfica — la detección adaptativa no marca "todo punto", solo lo inusual (fix 30-jun).
-                   · El conteo se DERIVA de los puntos rojos sobre los ÚLTIMOS 30 DÍAS.
-                   Datos MOCKEADOS; en prod el BE devuelve la serie + la lista de outliers con un tag de bajo
-                   qué nivel califica cada punto, y la UI filtra dinámicamente. -->
-              <div class="tm-dialog-preview-card">
-                <div class="sens-chart-head">
-                  <div>
-                    <div class="tm-dialog-preview-label" style="margin-bottom:0;">Comportamiento del KPI · últimos 30 días</div>
-                    <div class="sens-chart-legend" style="margin-top:6px;">
-                      <span><i class="lg-red"></i> Fuera de límites · urgente</span>
-                      <span><i class="lg-yellow"></i> Zona de atención · medio</span>
-                    </div>
-                  </div>
-                  <div class="cat-select" id="sens-cat">
-                    <button type="button" class="cat-select-btn" onclick="catMenu(this)">
-                      <span data-cat-cur>Todas las categorías</span>
-                      <span class="cat-clear" id="sens-cat-clear" role="button" aria-label="Volver a todas las categorías" title="Volver a todas" onclick="clearSensCat(event)" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></span>
-                      <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </button>
-                    <div class="cat-menu">
-                      <button type="button" class="cat-opt is-sel" onclick="catPickSens(this,'Todas las categorías')">Todas las categorías <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
-                      <button type="button" class="cat-opt" onclick="catPickSens(this,'Banco_Occidente')">Banco_Occidente <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
-                      <button type="button" class="cat-opt" onclick="catPickSens(this,'ERP_SAP')">ERP_SAP <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
-                      <button type="button" class="cat-opt" onclick="catPickSens(this,'Libro_Mayor')">Libro_Mayor <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
-                      <button type="button" class="cat-opt" onclick="catPickSens(this,'PayU_Latam')">PayU_Latam <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
-                      <button type="button" class="cat-opt" onclick="catPickSens(this,'Tesoreria_Interna')">Tesoreria_Interna <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
-                      <button type="button" class="cat-opt" onclick="catPickSens(this,'Visa_Acquiring')">Visa_Acquiring <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
-                    </div>
-                  </div>
-                </div>
-                <svg class="sens-chart-svg" id="sens-chart" viewBox="0 0 520 190" aria-label="Histórico del KPI con anomalías según sensibilidad"></svg>
-                <div class="sens-kpi-wrap">
-                  <div class="sens-kpi-cap">Con esta sensibilidad, en los últimos 30 días habrías recibido:</div>
-                  <div class="sens-kpi-row">
-                    <div class="sens-kpi">
-                      <div class="sens-kpi-num" id="sens-impact-count">7</div>
-                      <div class="sens-kpi-lbl">avisos en total</div>
-                    </div>
-                    <div class="sens-kpi">
-                      <div class="sens-kpi-num is-red" id="sens-impact-red">2</div>
-                      <div class="sens-kpi-lbl">urgentes</div>
-                    </div>
-                    <div class="sens-kpi">
-                      <div class="sens-kpi-num is-amber" id="sens-impact-yellow">5</div>
-                      <div class="sens-kpi-lbl">de atención</div>
-                    </div>
-                  </div>
-                </div>
-
-              <!-- Límites + sensibilidad: misma card que la gráfica, separados por un divisor
-                   (lo que se edita acá impacta la gráfica de arriba) -->
-              <div class="cat-config-box">
-              <!-- Límites de la categoría seleccionada (los manda el selector de la gráfica) -->
-              <div class="tm-limits-block" id="cat-limits">
-                <div class="tm-limits-header">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                    <polyline points="2 17 12 22 22 17"></polyline>
-                    <polyline points="2 12 12 17 22 12"></polyline>
-                  </svg>
-                  <span id="catlim-name">Límites de Conteo De Registros</span>
-                </div>
-                <div class="tm-limits-grid">
-                  <div class="tm-limit-field" data-bound="lower">
-                    <label class="tm-limit-field-label">
-                      <input type="checkbox" class="tm-limit-check" checked onchange="onCatLimitToggle(this,'lower')">
-                      Límite inferior
-                    </label>
-                    <input class="tm-limit-input" id="catlim-lower" data-bound="lower" value="1" oninput="onCatLimit(this)">
-                    <span class="cat-sug" id="catlim-lower-sug" onclick="catLimSug('lower')" hidden><span class="dot"></span>Valor sugerido: <b></b></span>
-                  </div>
-                  <div class="tm-limit-field" data-bound="upper">
-                    <label class="tm-limit-field-label">
-                      <input type="checkbox" class="tm-limit-check" checked onchange="onCatLimitToggle(this,'upper')">
-                      Límite superior
-                    </label>
-                    <input class="tm-limit-input" id="catlim-upper" data-bound="upper" value="20" oninput="onCatLimit(this)">
-                    <span class="cat-sug" id="catlim-upper-sug" onclick="catLimSug('upper')" hidden><span class="dot"></span>Valor sugerido: <b></b></span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Sensibilidad de la categoría seleccionada (slider) -->
-              <!-- 💬 [6] IMPACTO VISIBLE: la línea de abajo cuantifica la consecuencia de cada nivel
-                   sobre el histórico. Los conteos (nula 4 · media 7 · alta 12) están MOCKEADOS para el
-                   prototipo; en producción el BE debe devolver el conteo de detecciones por nivel sobre
-                   la ventana histórica (e idealmente los puntos para marcarlos en la gráfica). -->
-              <div class="sens-card">
-                <div class="sens-row">
-                  <span class="sens-row-icon"><i data-lucide="gauge"></i></span>
-                  <div class="sens-row-body">
-                    <div class="sens-row-title" id="sens-title">Sensibilidad de detección</div>
-                    <div class="sens-row-sub" id="sens-sub">Combina tu umbral con detección de patrones: marca también desviaciones inusuales cerca del borde.</div>
-                  </div>
-                  <div class="sens-pct" id="sens-pct">50%</div>
-                </div>
-                <input type="range" class="sens-slider" id="sens-slider" min="0" max="100" step="1" value="50" oninput="onSensSlider(this)" aria-label="Sensibilidad">
-                <div class="sens-slider-scale"><span>Solo mi umbral</span><span>Media</span><span>Detección adaptativa</span></div>
-              </div>
-              </div>
-              </div>
-
-              <div class="tm-dialog-series-block" id="series-block">
-                <div class="tm-dialog-series-block-header">
-                  <span style="display: inline-flex; align-items: center; gap: 8px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="4" y1="21" x2="4" y2="14"></line>
-                      <line x1="4" y1="10" x2="4" y2="3"></line>
-                      <line x1="12" y1="21" x2="12" y2="12"></line>
-                      <line x1="12" y1="8" x2="12" y2="3"></line>
-                      <line x1="20" y1="21" x2="20" y2="16"></line>
-                      <line x1="20" y1="12" x2="20" y2="3"></line>
-                    </svg>
-                    Por serie
-                  </span>
-                  <span class="tm-dialog-series-block-counter">6 / 6</span>
-                </div>
-                <div class="tm-series-grid">
-                  <div class="tm-series-grid-head"><span>Fuente</span><span>Límite inferior</span><span>Límite superior</span><span>Sensibilidad</span><span></span><span></span></div>
-                  <div class="tm-series-row">
-                    <button type="button" class="tm-series-fuente">Banco_Occidente <i data-lucide="chevron-down"></i></button>
-                    <input class="tm-series-input" value="8.4"><input class="tm-series-input" value="25">
-                    <button type="button" class="tm-series-del" aria-label="Quitar serie"><i data-lucide="trash-2"></i></button>
-                  </div>
-                  <div class="tm-series-row">
-                    <button type="button" class="tm-series-fuente">PayU_Latam <i data-lucide="chevron-down"></i></button>
-                    <input class="tm-series-input" value="1"><input class="tm-series-input" value="9.1">
-                    <button type="button" class="tm-series-del" aria-label="Quitar serie"><i data-lucide="trash-2"></i></button>
-                  </div>
-                  <div class="tm-series-row">
-                    <button type="button" class="tm-series-fuente">ERP_SAP <i data-lucide="chevron-down"></i></button>
-                    <input class="tm-series-input" value="1"><input class="tm-series-input" value="5.6">
-                    <button type="button" class="tm-series-del" aria-label="Quitar serie"><i data-lucide="trash-2"></i></button>
-                  </div>
-                  <div class="tm-series-row">
-                    <button type="button" class="tm-series-fuente">Libro_Mayor <i data-lucide="chevron-down"></i></button>
-                    <input class="tm-series-input" value="9.8"><input class="tm-series-input" value="23.2">
-                    <button type="button" class="tm-series-del" aria-label="Quitar serie"><i data-lucide="trash-2"></i></button>
-                  </div>
-                  <div class="tm-series-row">
-                    <button type="button" class="tm-series-fuente">Tesoreria_Interna <i data-lucide="chevron-down"></i></button>
-                    <input class="tm-series-input" value="9.6"><input class="tm-series-input" value="24.4">
-                    <button type="button" class="tm-series-del" aria-label="Quitar serie"><i data-lucide="trash-2"></i></button>
-                  </div>
-                  <div class="tm-series-row">
-                    <button type="button" class="tm-series-fuente">Visa_Acquiring <i data-lucide="chevron-down"></i></button>
-                    <input class="tm-series-input" value="4"><input class="tm-series-input" value="11.8">
-                    <button type="button" class="tm-series-del" aria-label="Quitar serie"><i data-lucide="trash-2"></i></button>
-                  </div>
-                </div>
-              </div>
+              <!-- Detección de anomalías: "Configuración por defecto" (todas las series la heredan)
+                   + POR SERIE en colapsables inline para personalizar excepciones. Cada serie:
+                   límites fijos o sistema adaptativo (sandbox validado 1-jul). Badge Heredado/Personalizado.
+                   Datos MOCKEADOS; en prod el BE devuelve serie + banda adaptativa + conteo por config. -->
+              <div class="ns-wrap" id="nsWrap"></div>
 
               </div>
 
@@ -5175,11 +5149,192 @@
       if (!e.target.closest('.cat-select')) document.querySelectorAll('.cat-select.open').forEach(s => s.classList.remove('open'));
     });
 
-    // Render inicial de la gráfica de sensibilidad (slider al 50% por defecto)
-    initSeriesGrid();
-    renderCatLimits();
-    renderSens();
-    updateSeriesGridVisibility();
+    /* ===== Detección de anomalías por serie: default global + override (colapsables inline) ===== */
+    const NS_LEVELS={alta:2,media:3.5,baja:5.5};
+    const NS_LVLLBL={alta:'alta',media:'media',baja:'baja'};
+    function nsCfg(o){ return Object.assign({mode:'adaptativo',level:'media',safety:false,fixedLo:10,fixedHi:24,loOn:true,hiOn:true},o); }
+    const NS_GLOBAL=nsCfg({sug:{lo:10,hi:24}});
+    const NS_SERIES=[
+      {id:'occ', name:'Banco_Occidente',  data:[12,14,15,13,17,10,8,13,17,20,18,15,13,18,15,12,16,14,15,15,20,13,4,14], sug:{lo:10,hi:24}, customized:false, cfg:nsCfg()},
+      {id:'payu',name:'PayU_Latam',        data:[5,6,7,5,6,6,5,9,7,6,12,6,5,7,6,5,7,6,6,7,6,11,5,6], sug:{lo:2,hi:9}, customized:true, cfg:nsCfg({mode:'fijo',fixedLo:2,fixedHi:9})},
+      {id:'erp', name:'ERP_SAP',           data:[15,14,15,14,15,18,15,15,16,14,15,21,15,15,16,14,15,15,4,15,15,16,14,15], sug:{lo:10,hi:20}, customized:false, cfg:nsCfg()},
+      {id:'lib', name:'Libro_Mayor',       data:[16,17,16,23,17,16,18,16,17,16,17,23,16,17,16,16,17,17,16,24,17,16,17,16], sug:{lo:12,hi:25}, customized:false, cfg:nsCfg()},
+      {id:'tes', name:'Tesoreria_Interna', data:[18,19,18,18,25,19,18,18,3,19,18,18,19,18,18,25,18,19,18,18,3,19,18,18], sug:{lo:13,hi:26}, customized:false, cfg:nsCfg()},
+      {id:'visa',name:'Visa_Acquiring',    data:[8,9,8,9,8,10,9,9,15,8,9,9,2,9,9,10,8,9,15,9,9,10,8,9], sug:{lo:4,hi:13}, customized:true, cfg:nsCfg({mode:'adaptativo',level:'baja',safety:true,fixedLo:3,fixedHi:14})},
+    ];
+    const NS_NOW=17;
+    NS_SERIES.forEach(s=>{ s.active=true; s.configured=true; }); // catálogo fijo de 6; empiezan agregadas y configuradas
+    const nsById=id=>NS_SERIES.find(s=>s.id===id);
+    const nsResolve=id=> id==='__g' ? {isGlobal:true,name:'Todas las categorías',cfg:NS_GLOBAL} : nsById(id);
+    let nsEDIT=null, nsHost=null;
+
+    function nsView(e){ return (e && !e.isGlobal && !e.customized) ? NS_GLOBAL : (e.isGlobal?NS_GLOBAL:e.cfg); }
+    function nsBeforeEdit(){ if(nsEDIT && !nsEDIT.isGlobal){ nsEDIT.configured=true; if(!nsEDIT.customized){ nsEDIT.cfg=nsCfg(NS_GLOBAL); nsEDIT.customized=true; } } }
+    function nsEditSug(){ return nsEDIT.isGlobal?NS_GLOBAL.sug:nsEDIT.sug; }
+    function nsEditData(){ return nsEDIT.isGlobal?NS_SERIES[0].data:nsEDIT.data; }
+    function nsEff(s){ return s.isGlobal?NS_GLOBAL:(s.customized?s.cfg:NS_GLOBAL); }
+    function nsSummary(s){ if(!s.isGlobal && s.configured===false) return ''; const v=nsEff(s);
+      if(v.mode==='fijo'){ const p=[]; if(v.loOn)p.push('mín '+v.fixedLo); if(v.hiOn)p.push('máx '+v.fixedHi); return p.join(' · '); }
+      return 'sens. '+NS_LVLLBL[v.level]+(v.safety?' · con seguridad':''); }
+    function nsBadge(s){ if(!s.isGlobal && s.configured===false) return '<span class="ns-badge unset">Sin configurar</span>';
+      return nsEff(s).mode==='fijo' ? '<span class="ns-badge fijo">Límites fijos</span>' : '<span class="ns-badge adapt">Sistema adaptativo</span>'; }
+
+    function nsSetMode(m){ nsBeforeEdit(); nsEDIT.cfg.mode=m; nsRefresh(); }
+    function nsSetLevel(l){ nsBeforeEdit(); nsEDIT.cfg.level=l; nsRefresh(); }
+    function nsToggleSafety(cb){ nsBeforeEdit(); nsEDIT.cfg.safety=cb.checked; nsRefresh(); }
+    function nsSetBoundOn(w,on){ nsBeforeEdit(); if(w==='lo')nsEDIT.cfg.loOn=on; else nsEDIT.cfg.hiOn=on; nsRefresh(); }
+    function nsSetLim(w,val){ nsBeforeEdit(); const n=+val||0; if(w==='lo')nsEDIT.cfg.fixedLo=n; else nsEDIT.cfg.fixedHi=n; nsDraw(); nsSyncChips(); nsUpdateBadges(); }
+    function nsApplySug(w){ nsBeforeEdit(); const sg=nsEditSug(); if(w==='lo')nsEDIT.cfg.fixedLo=sg.lo; else nsEDIT.cfg.fixedHi=sg.hi; nsRefresh(); }
+    function nsReset(){ if(nsEDIT && !nsEDIT.isGlobal){ nsEDIT.customized=false; nsEDIT.cfg=nsCfg(NS_GLOBAL); } nsRefresh(); }
+    function nsSyncChips(){ if(!nsHost)return; const v=nsView(nsEDIT), sg=nsEditSug();
+      const cl=nsHost.querySelector('#nsChipLo'), ch=nsHost.querySelector('#nsChipHi');
+      if(cl)cl.hidden=(!v.loOn||v.fixedLo===sg.lo); if(ch)ch.hidden=(!v.hiOn||v.fixedHi===sg.hi); }
+
+    function nsBoundField(w,label,val,sug,on){const id=w==='lo'?'Lo':'Hi';return '<div class="ns-lim'+(on?'':' off')+'">'
+        +'<label><input type="checkbox" '+(on?'checked':'')+' onchange="nsSetBoundOn(\''+w+'\',this.checked)"> '+label+'</label>'
+        +'<input id="nsLim'+id+'" type="number" value="'+val+'" '+(on?'':'disabled')+' oninput="nsSetLim(\''+w+'\',this.value)">'
+        +'<span class="ns-limsug" id="nsChip'+id+'" onclick="nsApplySug(\''+w+'\')" '+((!on||val===sug)?'hidden':'')+'><span class="dot"></span>Valor sugerido: <b>'+sug+'</b></span></div>'; }
+    function nsLimits(v,sg){ return '<div class="ns-limits">'+nsBoundField('lo','Límite inferior',v.fixedLo,sg.lo,v.loOn)+nsBoundField('hi','Límite superior',v.fixedHi,sg.hi,v.hiOn)+'</div>'; }
+    function nsPanel(v,sg){
+      if(v.mode==='fijo'){ return '<div class="ns-lbl">Rango normal'+(nsEDIT.isGlobal?' del KPI':' de la serie')+'</div>'+nsLimits(v,sg); }
+      return '<div class="ns-lbl">¿Qué tan sensible quieres que sea?</div>'
+        +'<div class="ns-seg">'
+        +'<button class="'+(v.level==='alta'?'sel':'')+'" onclick="nsSetLevel(\'alta\')">Alta<span class="sub">Detecta hasta cambios chicos</span></button>'
+        +'<button class="'+(v.level==='media'?'sel':'')+'" onclick="nsSetLevel(\'media\')">Media<span class="sub">Recomendada</span></button>'
+        +'<button class="'+(v.level==='baja'?'sel':'')+'" onclick="nsSetLevel(\'baja\')">Baja<span class="sub">Solo lo muy fuera de lo normal</span></button>'
+        +'</div>'
+        +'<label class="ns-check"><input type="checkbox" '+(v.safety?'checked':'')+' onchange="nsToggleSafety(this)"><span><span class="ns-ct">Agregar límites de seguridad</span><span class="ns-cd">Un mínimo/máximo que avisa sí o sí, aunque el sistema lo vea normal. Para valores que jamás deberían pasar.</span></span></label>'
+        +(v.safety?'<div class="ns-subblock">'+nsLimits(v,sg)+'</div>':'');
+    }
+    function nsCardHTML(){
+      const v=nsView(nsEDIT), sg=nsEditSug();
+      const isG=nsEDIT.isGlobal, fixedOn=v.mode==='fijo'||(v.mode!=='fijo'&&v.safety);
+      const legend = isG
+        ? '<span><i class="ns-lg ns-lg-multi"></i> Series</span>'+(fixedOn?'<span><i class="ns-lg ns-lg-fixed"></i> Límite fijo</span>':'')
+        : '<span><i class="ns-lg ns-lg-line"></i> Valor</span><span><i class="ns-lg ns-lg-band"></i> Rango esperado (adaptativo)</span><span><i class="ns-lg ns-lg-fixed"></i> Límite fijo</span>';
+      return ''
+        +'<div class="ns-cardhead"><div class="ns-kpi-label">'+(isG?'Todas las categorías · últimos 30 días':'Comportamiento · últimos 30 días')+'</div>'
+        +'<div class="ns-legend">'+legend+'</div></div>'
+        +'<svg class="ns-chart" viewBox="0 0 560 150"></svg>'
+        +'<div class="ns-div"></div>'
+        +'<div class="ns-q">¿Cómo quieres detectar las anomalías'+(nsEDIT.isGlobal?' (por defecto)':' de esta serie')+'?</div>'
+        +'<div class="ns-radio-row">'
+        +'<div class="ns-radio '+(v.mode==='fijo'?'sel':'')+'" onclick="nsSetMode(\'fijo\')"><span class="ns-dot"></span><div><div class="ns-rt">Límites fijos</div><div class="ns-rd">Tú defines el mínimo y el máximo válidos.</div></div></div>'
+        +'<div class="ns-radio '+(v.mode==='adaptativo'?'sel':'')+'" onclick="nsSetMode(\'adaptativo\')"><span class="ns-dot"></span><div><div class="ns-rt">Sistema adaptativo</div><div class="ns-rd">Simetrik aprende lo normal y avisa de lo inusual.</div></div></div>'
+        +'</div>'
+        +'<div class="ns-panel">'+nsPanel(v,sg)+'</div>'
+        +'<div class="ns-alert"><i data-lucide="info"></i><div class="ns-alert-body"><span class="ns-alert-txt"></span>'
+        +'<div class="ns-impact-row">'
+        +'<div class="ns-impact-kpi"><div class="ns-impact-num ns-im-total">0</div><div class="ns-impact-lbl">avisos en total</div></div>'
+        +'<div class="ns-impact-kpi"><div class="ns-impact-num red ns-im-red">0</div><div class="ns-impact-lbl">fuera de límites</div></div>'
+        +'<div class="ns-impact-kpi"><div class="ns-impact-num amber ns-im-amber">0</div><div class="ns-impact-lbl">comportamiento inusual</div></div>'
+        +'</div></div></div>';
+    }
+    function nsMovingAvg(a,w){const h=(w/2)|0,o=[];for(let i=0;i<a.length;i++){let s=0,n=0;for(let j=i-h;j<=i+h;j++)if(j>=0&&j<a.length){s+=a[j];n++;}o.push(s/n);}return o;}
+    function nsDraw(){
+      if(!nsHost)return; const svg=nsHost.querySelector('svg.ns-chart'); if(!svg)return;
+      const v=nsView(nsEDIT), isG=nsEDIT.isGlobal;
+      const adaptiveOn=v.mode!=='fijo', fixedOn=v.mode==='fijo'||(v.mode!=='fijo'&&v.safety);
+      const W=560,H=150,padL=30,padR=26,padT=12,padB=18,lo=0,hi=28;
+      const n=isG?NS_SERIES[0].data.length:nsEDIT.data.length;
+      const X=i=>padL+(W-padL-padR)*(i/(n-1)), Y=x=>padT+(H-padT-padB)*(1-(x-lo)/(hi-lo));
+      const m=NS_LEVELS[v.level];
+      const list=isG?NS_SERIES.filter(s=>s.active):[nsEDIT];
+      let g='';for(let x=0;x<=25;x+=5){const y=Y(x).toFixed(1);g+='<line class="ns-grid-line" x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'"/><text class="ns-ax" x="'+(padL-6)+'" y="'+(+y+3).toFixed(1)+'" text-anchor="end">'+x+'</text>';}
+      // banda adaptativa solo para una serie; en el global se muestran todas las líneas superpuestas
+      let band='';
+      if(!isG && adaptiveOn){
+        const base=nsMovingAvg(nsEDIT.data,5);
+        const up=base.map((b,i)=>({x:X(i),y:Y(Math.min(hi,b+m))})), dn=base.map((b,i)=>({x:X(i),y:Y(Math.max(lo,b-m))}));
+        const seg=(a,b)=>'M'+a.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L')+' L'+b.slice().reverse().map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L')+' Z';
+        band='<path class="ns-band" d="'+seg(up,dn)+'"/>';
+      }
+      let fixed='';
+      if(fixedOn){
+        if(v.hiOn){const yH=Y(v.fixedHi);fixed+='<line class="ns-fixed-line" x1="'+padL+'" y1="'+yH.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yH.toFixed(1)+'"/><text class="ns-bang" x="'+(W-padR+4)+'" y="'+(yH+4).toFixed(1)+'">!</text><text class="ns-fx-lbl" x="'+(W-padR-2)+'" y="'+(yH-4).toFixed(1)+'" text-anchor="end">Límite superior</text>';}
+        if(v.loOn){const yL=Y(v.fixedLo);fixed+='<line class="ns-fixed-line" x1="'+padL+'" y1="'+yL.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yL.toFixed(1)+'"/><text class="ns-bang" x="'+(W-padR+4)+'" y="'+(yL+4).toFixed(1)+'">!</text><text class="ns-fx-lbl" x="'+(W-padR-2)+'" y="'+(yL+11).toFixed(1)+'" text-anchor="end">Límite inferior</text>';}
+      }
+      const now='';
+      let lines='',dots='',red=0,amber=0;
+      list.forEach(function(s){
+        const base=nsMovingAvg(s.data,5);
+        if(isG){ const p=s.data.map((x,i)=>X(i).toFixed(1)+','+Y(x).toFixed(1)); lines+='<path class="ns-metric-multi" d="M'+p.join(' L')+'"/>'; }
+        else { const pts=s.data.map((x,i)=>({x:X(i),y:Y(x)}));
+          lines='<path class="ns-metric" d="M'+pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L')+'"/>'; }
+        s.data.forEach((x,i)=>{
+          const isRed=fixedOn&&((v.hiOn&&x>v.fixedHi)||(v.loOn&&x<v.fixedLo));
+          const isAmber=adaptiveOn&&!isRed&&(x>base[i]+m||x<base[i]-m);
+          if(!isG || s.configured!==false){if(isRed)red++;else if(isAmber)amber++;}
+          if(!isG){ if(isRed)dots+='<circle class="ns-dot-red" cx="'+X(i).toFixed(1)+'" cy="'+Y(x).toFixed(1)+'" r="3.4"/>'; else if(isAmber)dots+='<circle class="ns-dot-amber" cx="'+X(i).toFixed(1)+'" cy="'+Y(x).toFixed(1)+'" r="3"/>'; }
+        });
+      });
+      svg.innerHTML=g+band+fixed+now+lines+dots;
+      nsHost.querySelector('.ns-im-red').textContent=red;
+      nsHost.querySelector('.ns-im-amber').textContent=amber;
+      nsHost.querySelector('.ns-im-total').textContent=red+amber;
+    }
+    function nsRenderAlert(){
+      if(!nsHost)return; const al=nsHost.querySelector('.ns-alert'); if(!al)return; const v=nsView(nsEDIT); let txt='';
+      const suj=nsEDIT.isGlobal?'cada serie':'la serie';
+      if(v.mode==='fijo'){ txt='Te avisamos <b>solo cuando '+suj+' se salga del rango que definiste</b>. Predecible y bajo tu control.'; }
+      else if(!v.safety){ txt='Te avisamos <b>cuando '+suj+' se comporte distinto a lo habitual</b> (sensibilidad '+NS_LVLLBL[v.level]+'). Se ajusta solo.'; }
+      else { txt='Te avisamos <b>cuando '+suj+' se salga de lo habitual</b> (sensibilidad '+NS_LVLLBL[v.level]+') y <b>siempre que cruce tus límites de seguridad</b>.'; }
+      const sp=al.querySelector('.ns-alert-txt'); if(sp) sp.innerHTML=txt;
+    }
+    function nsRenderDetail(){ if(!nsHost)return; nsHost.innerHTML=nsCardHTML(); nsDraw(); nsRenderAlert(); if(window.lucide)lucide.createIcons(); }
+    function nsRefresh(){ nsRenderDetail(); nsUpdateBadges(); }
+    function nsUpdateBadges(){
+      document.querySelectorAll('#nsWrap [data-nsbadge]').forEach(el=>{ const s=nsById(el.dataset.nsbadge); el.innerHTML=s?nsBadge(s):''; });
+      document.querySelectorAll('#nsWrap [data-nssum]').forEach(el=>{ const s=nsById(el.dataset.nssum); el.textContent=s?nsSummary(s):''; });
+      document.querySelectorAll('#nsWrap [data-nsgbadge]').forEach(el=>{ el.innerHTML=nsBadge({isGlobal:true}); });
+      document.querySelectorAll('#nsWrap [data-nsgsum]').forEach(el=>{ el.textContent=nsSummary({isGlobal:true}); });
+    }
+    function nsToggle(id){
+      const item=document.querySelector('#nsWrap [data-nsacc="'+id+'"]'), isOpen=item.classList.contains('open');
+      document.querySelectorAll('#nsWrap .ns-acc-item.open').forEach(el=>el.classList.remove('open'));
+      if(isOpen){ nsHost=null; return; }
+      item.classList.add('open'); nsEDIT=nsResolve(id); nsHost=document.getElementById('nsBody-'+id); nsRenderDetail();
+    }
+    function nsRowHTML(s){
+      return '<div class="ns-acc-item" data-nsacc="'+s.id+'"><div class="ns-acc-toprow">'
+        +'<button type="button" class="ns-acc-hd" onclick="nsToggle(\''+s.id+'\')"><span class="ns-acc-name">'+s.name+'</span>'
+        +'<span class="ns-acc-meta"><span data-nsbadge="'+s.id+'"></span><span class="ns-sum" data-nssum="'+s.id+'"></span></span>'
+        +'<i class="ns-acc-chev" data-lucide="chevron-down"></i></button>'
+        +'<button type="button" class="ns-acc-del" title="Quitar serie" aria-label="Quitar serie" onclick="nsRemoveSeries(\''+s.id+'\',event)"><i data-lucide="trash-2"></i></button>'
+        +'</div><div class="ns-acc-body" id="nsBody-'+s.id+'"></div></div>';
+    }
+    function nsRenderList(){
+      if(nsEDIT && !nsEDIT.isGlobal){ nsEDIT=null; nsHost=null; } // una card de serie abierta se colapsa al agregar/quitar
+      const active=NS_SERIES.filter(s=>s.active);
+      document.getElementById('nsSeriesAcc').innerHTML=active.map(nsRowHTML).join('');
+      const cnt=document.getElementById('nsCnt'); if(cnt) cnt.textContent=active.length+' de '+NS_SERIES.length+' series';
+      const avail=NS_SERIES.filter(s=>!s.active);
+      const aw=document.getElementById('nsAddWrap');
+      if(avail.length){
+        aw.innerHTML='<button type="button" class="ns-add-btn" onclick="nsAddToggle(event)"><i data-lucide="plus"></i>Agregar serie</button>'
+          +'<div class="ns-add-menu">'+avail.map(s=>'<button type="button" class="ns-add-opt" onclick="nsAddSeries(\''+s.id+'\')"><i data-lucide="plus"></i>'+s.name+'</button>').join('')+'</div>';
+      } else { aw.innerHTML=''; }
+      nsUpdateBadges();
+      if(window.lucide) lucide.createIcons();
+    }
+    function nsRemoveSeries(id,ev){ if(ev)ev.stopPropagation(); const s=nsById(id); if(!s)return; s.active=false; nsRenderList(); }
+    function nsAddToggle(ev){ if(ev)ev.stopPropagation(); const aw=document.getElementById('nsAddWrap'); if(aw)aw.classList.toggle('open'); }
+    function nsAddSeries(id){ const s=nsById(id); if(!s)return; s.active=true; s.configured=false; s.customized=false; s.cfg=nsCfg(NS_GLOBAL); const aw=document.getElementById('nsAddWrap'); if(aw)aw.classList.remove('open'); nsRenderList(); nsToggle(id); }
+    function nsInit(){
+      document.getElementById('nsWrap').innerHTML=
+        '<div class="ns-secth">Límites generales de Conteo De Registros</div>'
+        +'<div class="ns-acc"><div class="ns-acc-item ns-gl" data-nsacc="__g">'
+        +'<button type="button" class="ns-acc-hd" onclick="nsToggle(\'__g\')"><span class="ns-acc-name"><i data-lucide="layers"></i>Todas las categorías</span>'
+        +'<span class="ns-acc-meta"><span data-nsgbadge></span><span class="ns-sum" data-nsgsum></span></span><i class="ns-acc-chev" data-lucide="chevron-down"></i></button>'
+        +'<div class="ns-acc-body" id="nsBody-__g"></div></div></div>'
+        +'<div class="ns-secth">Límites por serie <span class="ns-cnt" id="nsCnt"></span></div>'
+        +'<div class="ns-acc" id="nsSeriesAcc"></div>'
+        +'<div class="ns-addwrap" id="nsAddWrap"></div>';
+      nsRenderList();
+      document.addEventListener('click',function(e){ if(!e.target.closest('#nsAddWrap')){ const aw=document.getElementById('nsAddWrap'); if(aw)aw.classList.remove('open'); } });
+    }
+
+    nsInit();
     renderDsAnChart('Todas las categorías');
     lucide.createIcons();
   </script>
