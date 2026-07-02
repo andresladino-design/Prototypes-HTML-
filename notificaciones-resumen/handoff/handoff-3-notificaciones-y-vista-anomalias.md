@@ -82,12 +82,47 @@ Esta tanda **supersede** partes de los documentos previos. Donde haya conflicto,
 
 ## 3. Fixes de UI de la vista de Anomalías (ya aplicados, enumerar en Figma)
 
-- "Historial" → **"Alertas levantadas"** (+ columna **"¿Notificada?"** por alerta).
+- "Historial" → **"Alertas levantadas"**. En producción hoy la pestaña se llama **"Historial"** (`tabs.history`) y su resumen (`HistorySummaryCards`) encabeza **"Total de incidentes"**; el prototipo lo renombra a **"Alertas levantadas"** y el stat pasa a **"Total de alertas"**. (+ columna **"¿Notificada?"** por alerta.) El resto del resumen (Severidad Alta/Media/Baja, Tableros afectados) **ya existe en prod** y se mantiene; ver nota de severidad más abajo.
 - "Notificaciones" → **"Alertas"** en el diálogo del KPI.
 - Botón **"Resumen de incidentes"** sacado de la tab de monitoreo del tablero (vive en Anomalías).
-- Segmented de Anomalías: **Gestión · Alertas levantadas · Configuración** (activo muestra icono + texto; inactivo solo icono).
+- Segmented de Anomalías: **Gestión · Alertas levantadas · Configuración** (activo muestra icono + texto; inactivo solo icono). En prod es un switch de 3 pestañas en el toolbar del aside (`SWITCH_ITEMS`: Gestión/Configuración/Historial); el prototipo solo cambia el label de Historial y el patrón activo/inactivo.
 - Botón de **configuración** dentro de la vista de Anomalías.
 - Revisar diferencias de la **tarjeta de incidente** (Gestión) vs producción → si las hay, van como fix de UI aparte.
+
+> ⚠️ **Nota de severidad (a revisar con producto):** el resumen de "Alertas levantadas" muestra **Severidad Alta/Media/Baja** (bucketing de `URGENT`/`REQUIRES_ATTENTION`/etc. — ya en prod, `HistorySummaryCards`). Esto **convive** con la decisión de **quitar Severidad del filtro de Gestión** (Handoff 1) porque no es configurable por el usuario. No es contradicción introducida por el prototipo (la severidad en el resumen es preexistente), pero conviene decidir si se mantiene o se difiere junto con el resto de la exposición de severidad.
+
+---
+
+## 3b. Nav de Configuración de Anomalías (cambio de IA vs producción)
+
+> **Cambio importante, enumerado como antes → después.** El prototipo reorganiza el nav lateral de la pestaña **Configuración**. No es cosmético: **eleva "Notificaciones de incidentes" a un ítem propio del nav** (hoy no existe ahí) y agrupa el nav en dos secciones. Es la puerta de entrada a los paquetes de notificación de este handoff.
+
+### Antes (producción — `fe-solutions-mf`)
+- La pestaña Configuración renderiza un `VerticalNav` de desyk (`AnomaliesPage.tsx` ~L847-882) con una **lista plana de 4 ítems, sin grupos ni encabezados** (categorías de monitoreo, `monitoringMode.tabs` / `navSubtitle` en `dashboards.anomalies`):
+  - **Ingesta de datos** (activo) — "Vigila que los datos lleguen a tiempo y completos"
+  - **Calidad de datos** — *Pronto*
+  - **Salud de conciliaciones** — *Pronto*
+  - **Métricas de gráficos** — *Pronto*
+- **No hay ítem "Notificaciones de incidentes" en este nav.** Las notificaciones existen solo enterradas dentro del formulario de monitoreo por fuente/gráfico (`SourceMonitoringModal` → `MonitoringConfigForm` / `AnomalyMonitoringConfig`), como sección "Programación y notificaciones", no como sección de configuración a nivel cuenta.
+
+### Después (prototipo — `an-confnav`)
+Mismo `VerticalNav`, pero con **dos grupos con encabezado**:
+
+1. **Grupo "Configuración de monitoreo"** (encabezado `.an-confnav-label`) — los 4 ítems de monitoreo, sin cambios de copy:
+   - **Ingesta de datos** (activo, `database`) — "Vigila que los datos lleguen a tiempo y completos"
+   - **Calidad de datos** — *Pronto* (`shield-check`) — "Revisa que los valores de cada fuente sean correctos"
+   - **Salud de conciliaciones** — *Pronto* (`layers`) — "Verifica que los datos crucen bien entre fuentes"
+   - **Métricas de gráficos** — *Pronto* (`bar-chart-3`) — "Monitorea las métricas de tus gráficos"
+2. **Grupo NUEVO "Notificaciones"** (encabezado `.an-confnav-label`):
+   - **Notificaciones de incidentes** (`bell`) — "De cuáles incidentes te avisamos, cuándo (por evento o resumen diario) y por dónde" → abre la lista de paquetes (sección 2 de este handoff).
+
+### Cambios de UI enumerados
+1. **Agrupar el nav en dos secciones** con encabezados ("Configuración de monitoreo" · "Notificaciones"). Hoy es lista plana.
+2. **Agregar el ítem de nav "Notificaciones de incidentes"** (nuevo grupo), que hoy no existe en la pestaña Configuración. Es el punto de entrada a los paquetes.
+3. Mantener los 4 ítems de monitoreo con su copy y sus badges "Pronto" actuales (solo Ingesta es funcional).
+4. La descripción del ítem de notificaciones cambia respecto de la sección legacy: "De cuáles incidentes te avisamos, cuándo (por evento o resumen diario) y por dónde".
+
+**Impacto en ingeniería:** las notificaciones de incidentes dejan de ser configuración **por fuente/gráfico** y pasan a ser una sección de configuración **a nivel cuenta** (paquetes/reglas del usuario). Es un movimiento de IA, no solo un ítem de menú. Confirmar ruteo (`PANEL_MODE.CONFIG` → sub-ruta de notificaciones) y que el `VerticalNav` de desyk soporte grupos con encabezado.
 
 ---
 
