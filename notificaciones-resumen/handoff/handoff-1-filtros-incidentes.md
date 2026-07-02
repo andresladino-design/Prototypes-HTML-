@@ -24,14 +24,18 @@ Un incidente en esta vista es la entidad `incident` de BADS (agrupa señales/ale
 
 Ubicación: Anomalías → Gestión → barra "Filtrar / Ordenar / Guardados".
 
-1. **Multiselect dentro de cada categoría.** Al abrir Recurso / Tablero / Estado / Tipo, se pueden marcar **varios valores**. Cada opción muestra un **check** al elegirse; el submenú **no se cierra** al marcar (footer con "Limpiar" y "Listo").
+> **Antes → después (vs producción `fe-solutions-mf`).** Hoy el filtro de incidentes (`AnomaliesFilterPopover`) ofrece solo **Fecha · Recurso · Tablero**, es **single-select** y **jerárquico** (Tablero → Página → Gráfico); no hay Estado, ni Tipo, ni Severidad, ni multiselect. El prototipo cambia esto: agrega **Estado** y **Tipo** como categorías nuevas, convierte todo a **multiselect con lógica O/Y**, y aplana el Tablero a selección múltiple. Cada uno de los cambios de abajo se lee contra ese estado actual.
+
+1. **Multiselect dentro de cada categoría.** *(Nuevo: hoy es single-select.)* Al abrir Recurso / Tablero / Estado / Tipo, se pueden marcar **varios valores**. Cada opción muestra un **check** al elegirse; el submenú **no se cierra** al marcar (footer con "Limpiar" y "Listo").
 
 2. **Lógica de combinación O / Y.** Dentro de una misma categoría los valores se unen con **`o`** (OR); entre categorías distintas, con **`Y`** (AND). En los chips aplicados: el valor se lee como `A o B`; entre chips de categorías distintas aparece un conector **"Y"**. La lógica O/Y debe quedar legible en los chips (el operador entiende qué está viendo en pocos segundos).
 
 3. **Quitar el filtro "Severidad".** Eliminado del menú. Motivo: no exponer severidad hasta que el usuario pueda **definir sus propios niveles**. La severidad hoy la asigna el sistema (ver guía de implementación). Vuelve cuando sea configurable.
 
-4. **Filtros que quedan:** **Recurso**, **Tablero**, **Estado**, **Tipo** y **Fecha**.
+4. **Filtros que quedan / se agregan:** **Recurso**, **Tablero**, **Estado**, **Tipo** y **Fecha**.
+   - **Recurso, Tablero y Fecha ya existen** en producción; **Estado y Tipo son categorías NUEVAS** (hoy no se filtra por ellas).
    - **Recurso y Tablero van SEPARADOS**, como dos categorías independientes. No se unifican en esta vista (ver Nota crítica).
+   - **Tablero** pasa de árbol jerárquico single-select (Tablero → Página → Gráfico) a **selección múltiple plana** en el prototipo.
    - **Fecha** = rango **estático** ("Últimos 30 días"), valor único. El rango dinámico t-n que se probó fue **revertido**; el t-n vive solo en el período del resumen del paquete (Handoff 3), no acá.
    - **Tipo** = problem categories reales de BADS (Ingesta): Archivo faltante, Archivo fallido, Archivo vacío, Archivo duplicado, Variación de volumen.
 
@@ -39,6 +43,8 @@ Ubicación: Anomalías → Gestión → barra "Filtrar / Ordenar / Guardados".
    - Botón **"Guardar filtro"** en el panel de chips aplicados → nombrar inline (por ejemplo "Incidentes de Sergio").
    - Botón **"Guardados"** en la barra: **solo ícono** (bookmark), con **tooltip / aria-label**. Abre un menú con los filtros guardados para **cargar** o **eliminar**.
    - Sin automatizaciones: solo guardar y reutilizar. Estos filtros guardados son los que el editor de notificación reutiliza vía su botón "Aplicar un filtro guardado" (Handoff 3).
+
+6. **Ordenar (se mantiene, no es un cambio).** El menú "Ordenar" del prototipo replica el de producción tal cual: **Por defecto** · grupo **Por detección** (Más reciente / Más antigua, sobre `executed_at`) · grupo **Por última actividad** (Más reciente / Más antigua, sobre `updated_at`). **No hay ordenar por severidad.** Se documenta para que no se lea como pendiente ni se rehaga: ya existe idéntico (`AnomaliesSortMenu`).
 
 ---
 
