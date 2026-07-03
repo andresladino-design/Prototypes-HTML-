@@ -31,6 +31,8 @@ Footer del wizard: **Atrás / Cancelar** (izquierda) y **Siguiente / Guardar** (
 
 **B. La configuración por fuente (Ingesta de datos):** desde el detalle del tablero (tab "Ingesta de datos") o desde Anomalías → Configuración → Ingesta. Grid de fuentes → modal de detalle con sidebar Configuración / Alertas. Ver **Sección C**.
 
+**C. Gráficos de conciliación (Pendientes Avanzados / `pending_kpi`):** el mismo diálogo del KPI pero para un chart de conciliación con dos lados. "Series y valores" muestra las 4 métricas y "Límites por lado de conciliación" (Lado A / Lado B). Ver **Sección D**. (Mayormente ya existe en prod.)
+
 ---
 
 # Sección A · Alertas del KPI (¿Cuándo? → ¿Dónde? → Idioma)
@@ -419,6 +421,67 @@ Durations canónicas: 120 / 200 / 320 ms ease-out. Skeleton para carga; spinner 
 ## C.3 Fuera de este prototipo (vive completo en `config-system-kpi`)
 
 Lo más pesado del original (Alpine) se marcó **Próx.** o se omitió: **config por día (tabs Lu→Do), grupos de archivos, y el "análisis inteligente" completo por métrica/día**. La versión fiel y completa está en `config-system-kpi/index.html`; acá quedó una adaptación vanilla con lo esencial.
+
+---
+
+# Sección D · Gráficos de conciliación (Pendientes Avanzados)
+
+> Origen: prototipo `notificaciones-resumen/index.html` → card **"Pendientes Avanzados"** en el grid del tablero + su diálogo de monitoreo (tipo `recon`).
+>
+> ⚠️ **Mayormente YA EXISTE en producción.** El chart `pending_kpi` y su **monitoreo de anomalías con Lado A / Lado B y las 4 métricas de conciliación** ya están implementados (SWAT-1251). Este prototipo **refina la presentación**; no crea el modelo. Verificado contra `fe-solutions-mf` el 2026-07-03.
+
+## D.1 Antes → después (vs producción `fe-solutions-mf`)
+
+**Antes (prod):**
+- El diálogo `AnomalyMonitoringConfig` ya detecta `chart_type === "pending_kpi"` (`isPendingKpi`, `AnomalyMonitoringConfig.tsx:147`) y ramifica todo el flujo (granularidad, columnas, preview, guardado).
+- El paso **"Series y valores"** ya muestra el subtítulo **"Configura los umbrales para Lado A y Lado B"** (`anomalies.main.json:1704-1707`) y las **4 métricas** (`PENDING_KPI_DEFINITIONS`, `constants/pendingKpi.ts`), con **umbrales por lado (A/B)** (`MetricPanelSection/useMetricPanel.ts`, caso `isPendingKpiMulti`) y **stats tabs** `Ambos lados` (`consolidated`) / `A` / `B` (`PENDING_KPI_STATS_TAB`).
+- Los **lados** existen (`PENDING_KPI_SIDE = {A,B,CONSOLIDATED}`, `constants/pendingKpiTypes.ts`) y se resuelven **por columna** (`utils/pendingKpiSides.ts` → `date_columns.{a,b}` / `value_columns.{a,b}`), **no por recurso nombrado**.
+- La pestaña de monitoreo **"Conciliación"** a nivel cuenta está **"Próximamente"** (`MonitoringModeView/TabSoonCard.tsx`, variante `reconciliation`); su ilustración (ERP_SAP → A/B/C) es demo estática.
+
+**Después (prototipo):** confirma y reorganiza la presentación de ese monitoreo:
+- Se accede desde la card **"Pendientes Avanzados"** del grid (botón "Activar monitoreo AI" / badge "Monitoreo activo") → abre el diálogo en modo `recon`.
+- **Sidebar "Series y valores"** lista las **4 métricas** (checkbox + pill "No configurado"); el **título del contenido** = métrica seleccionada.
+- **Contenido:** SIN acordeón global "Todas las categorías"; sección **"Límites por lado de conciliación"** con acordeones **Lado A / Lado B**, cada uno con su **gráfica** + config (Límites fijos vs Sistema adaptativo).
+- **Narrativa "Análisis inteligente"** con **selector de lado** (Ambos lados / Lado A / Lado B) que cambia stats + descripción por lado.
+
+## D.2 Las 4 métricas (labels verbatim de prod)
+
+| id (`pendingKpi.ts`) | archetype | columnas A / B | label UI (es) |
+|---|---|---|---|
+| `TRANSACTIONS` | `reconciliation_unreconciled_count` | `a_total_reconcilable` / `b_total_reconcilable` | **Registros no conciliados** |
+| `VALUE_AMOUNT` | `reconciliation_unreconciled_amount` | `a_total_value` / `b_total_value` | **Valor no conciliado** |
+| `PERCENTAGE_TRANSACTIONS` | `reconciliation_count_percentage` | `a_pct_total_reconciled` / `b_pct_total_reconciled` | **% de registros conciliados** |
+| `PERCENTAGE_AMOUNT` | `reconciliation_amount_percentage` | `a_pct_total_reconciled_value` / `b_pct_total_reconciled_value` | **% de valor conciliado** |
+
+Los archetypes de porcentaje se formatean como `%` (`isPercentagePendingKpiArchetype`).
+
+## D.3 Cambios de UI enumerados (refinamientos vs prod)
+
+1. **Naming:** el prototipo lo llama **"Pendientes Avanzados"**; en código es `pending_kpi` + `PendingKpiAdvancedSection`. Decidir el label de cara al usuario (alinear prototipo ↔ repo).
+2. **Sidebar de 4 métricas** con estado "No configurado" (mismas de `PENDING_KPI_DEFINITIONS`). Es presentación; el catálogo ya existe.
+3. **Sin acordeón global**; sección **"Límites por lado de conciliación"** con **Lado A / Lado B** (acordeones con gráfica por lado). Mapea a los umbrales two-sided de `useMetricPanel`.
+4. **Selector de lado en la narrativa** (Ambos lados / A / B) → mapea a `PENDING_KPI_STATS_TAB`. ⚠️ **A validar:** el prototipo pone el selector **dentro de la narrativa "Análisis inteligente"** con contenido (stats/descripción) **por lado**; en prod las tabs A/B viven en el panel de umbrales/preview. Confirmar si la **narrativa por lado** es nueva.
+5. ⚠️ **Lados por columna, no por recurso nombrado:** el prototipo hardcodea `Banco_Occidente_31_03_2026` / `ERP_SAP_31_03_2026` como nombres de lado; en prod los lados son **columnas** (`a_*`/`b_*`). No introducir nombres de recurso ficticios: usar **Lado A / Lado B** o el label real por columna.
+
+## D.4 Mapeo a repo real (`fe-solutions-mf`)
+
+| Qué | Ruta |
+|---|---|
+| Gate `pending_kpi` | `components/AnomalyMonitoringConfig/AnomalyMonitoringConfig.tsx:147` |
+| Métricas por chart | `components/AnomalyMonitoringConfig/hooks/useChartMetrics/useChartMetrics.ts` |
+| Definición de las 4 métricas | `features/anomalies/constants/pendingKpi.ts` (`PENDING_KPI_DEFINITIONS`) |
+| Lados A/B/consolidated | `features/anomalies/constants/pendingKpiTypes.ts` · `utils/pendingKpiSides.ts` |
+| Umbrales two-sided | `components/AnomalyMonitoringConfig/components/MetricPanelSection/useMetricPanel.ts` (`isPendingKpiMulti`) |
+| Chart pending_kpi (SideMetrics) | `features/dashboards/components/charts/renderers/PendingKpiRenderer/types.ts` |
+| Tab "Conciliación" (Próximamente) | `features/anomalies/components/MonitoringModeView/TabSoonCard.tsx` |
+| Labels | `locales/es/anomalies.main.json:1689-1713` · `locales/es/dashboards.main.json:659-660` |
+
+## D.5 Pendiente / a validar
+
+- **Narrativa por lado:** ¿existe hoy narrativa "Análisis inteligente" por lado, o solo stats/preview? El selector por-lado dentro de la narrativa podría ser nuevo.
+- **Naming** de cara al usuario ("Pendientes Avanzados" vs "Monitoreo de conciliación" / `pending_kpi`).
+- **Nombres de lado:** alinear el prototipo (evitar `Banco_Occidente`/`ERP_SAP` ficticios) con el modelo real por columna.
+- La pestaña **"Conciliación"** a nivel cuenta sigue **Próximamente**; este monitoreo se activa **por chart** desde el tablero.
 
 ---
 

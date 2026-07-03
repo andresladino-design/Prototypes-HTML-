@@ -1792,6 +1792,28 @@
   .ns-secth{font-size:13px;font-weight:600;color:var(--text-secondary);margin:18px 2px 10px;display:flex;justify-content:space-between;align-items:center;gap:12px}
   .ns-secth .ns-cnt{font-size:11px;color:var(--text-muted);font-weight:500;text-transform:none;letter-spacing:0}
   #nsCnt{border:1px solid var(--border-default);border-radius:999px;padding:2px 10px;color:var(--text-tertiary);font-weight:600}
+  /* Métricas de conciliación en el sidebar (Pendientes Avanzados) */
+  .ns-metric-row{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;background:none;border:0;font:inherit;cursor:pointer;padding:10px 12px;border-radius:10px;transition:background .12s ease-out}
+  .ns-metric-row:hover{background:var(--muted)}
+  .ns-metric-row.is-active{background:var(--muted)}
+  .ns-metric-check{width:18px;height:18px;border:1.5px solid var(--border-default);border-radius:6px;background:#fff;flex-shrink:0;margin-top:2px}
+  .ns-metric-body{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+  .ns-metric-name{font-size:14.5px;line-height:1.2;color:var(--text-primary)}
+  .ns-metric-badge{font-size:12px;font-weight:600;color:var(--text-secondary);background:#fff;border:1px solid var(--border-default);border-radius:999px;padding:4px 11px}
+  .ns-metric-div{height:1px;background:var(--border-default);margin:8px 12px}
+  /* Selector de lado en la narrativa (conciliación) */
+  .analysis-side-switch{display:flex;flex-wrap:wrap;gap:4px;background:var(--muted);border-radius:10px;padding:4px;margin-bottom:14px}
+  .analysis-side-tab{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;cursor:pointer;font:inherit;font-size:12.5px;font-weight:600;color:var(--text-secondary);padding:6px 12px;border-radius:8px;transition:background .12s ease-out,box-shadow .12s ease-out}
+  .analysis-side-tab:hover{background:hsl(0 0% 100% / .5)}
+  .analysis-side-tab.is-active{background:#fff;color:var(--text-primary);box-shadow:0 1px 2px rgba(20,20,30,.08),0 0 0 1px var(--border-default)}
+  .analysis-side-dot{width:9px;height:9px;border-radius:999px;flex-shrink:0;display:inline-block}
+  .analysis-side-dot-a{background:var(--primary)}
+  .analysis-side-dot-b{background:hsl(160 68% 48%)}
+  .analysis-side-dot-pair{display:inline-flex;align-items:center}
+  .analysis-side-dot-pair .analysis-side-dot{margin-right:-3px}
+  .analysis-side-dot-pair .analysis-side-dot-b{margin-right:0}
+  .analysis-side-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+  .analysis-side-badge{font-size:10.5px;font-weight:600;color:var(--text-tertiary);background:var(--bg-pill);border-radius:999px;padding:2px 7px;letter-spacing:.02em}
   .ns-acc{display:flex;flex-direction:column;gap:8px}
   .ns-acc-item{border:1px solid var(--border-default);border-radius:12px;background:#fff;overflow:hidden}
   .ns-acc-item.ns-gl{background:hsl(240 5% 98.5%)}
@@ -2117,7 +2139,7 @@
               <div class="ml-auto flex items-center gap-2">
                 <span class="badge" style="background:var(--red-soft);color:var(--red-text);"><i data-lucide="alert-octagon"></i> 8</span>
                 <span class="badge" style="background:var(--amber-soft);color:var(--amber-text);"><i data-lucide="triangle-alert"></i> 86</span>
-                <span class="badge" style="background:var(--primary-soft);color:var(--primary-text);"><i data-lucide="circle-check"></i> Monitoreo activo</span>
+                <span class="badge" style="background:var(--primary-soft);color:var(--primary-text);cursor:pointer;" onclick="openMonitorDialog('Line Chart','user')"><i data-lucide="circle-check"></i> Monitoreo activo</span>
                 <i data-lucide="more-vertical" style="width:16px;height:16px;color:var(--text-muted);cursor:pointer;"></i>
               </div>
             </div>
@@ -2135,7 +2157,7 @@
               <span class="text-[14px] font-semibold" style="color:var(--text-primary);">Bar Chart</span>
               <div class="ml-auto flex items-center gap-2">
                 <span class="badge" style="background:var(--amber-soft);color:var(--amber-text);"><i data-lucide="triangle-alert"></i> 94</span>
-                <span class="badge" style="background:var(--primary-soft);color:var(--primary-text);"><i data-lucide="circle-check"></i> Monitoreo activo</span>
+                <span class="badge" style="background:var(--primary-soft);color:var(--primary-text);cursor:pointer;" onclick="openMonitorDialog('Bar Chart','user')"><i data-lucide="circle-check"></i> Monitoreo activo</span>
                 <i data-lucide="more-vertical" style="width:16px;height:16px;color:var(--text-muted);cursor:pointer;"></i>
               </div>
             </div>
@@ -2154,11 +2176,116 @@
               <div class="ml-auto flex items-center gap-2">
                 <span class="badge" style="background:var(--red-soft);color:var(--red-text);"><i data-lucide="alert-octagon"></i> 11</span>
                 <span class="badge" style="background:var(--amber-soft);color:var(--amber-text);"><i data-lucide="triangle-alert"></i> 83</span>
-                <span class="badge" style="background:var(--primary-soft);color:var(--primary-text);"><i data-lucide="circle-check"></i> Monitoreo activo</span>
+                <span class="badge" style="background:var(--primary-soft);color:var(--primary-text);cursor:pointer;" onclick="openMonitorDialog('Bar Chart','user')"><i data-lucide="circle-check"></i> Monitoreo activo</span>
                 <i data-lucide="more-vertical" style="width:16px;height:16px;color:var(--text-muted);cursor:pointer;"></i>
               </div>
             </div>
             <div id="barChart2"></div>
+          </div>
+
+          <!-- Pendientes Avanzados (reconciliación, split Lado A / Lado B) -->
+          <div class="col-span-2 rounded-xl border bg-white p-4" style="border-color:var(--border-default);">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="layout-grid" style="width:17px;height:17px;color:var(--text-secondary);"></i>
+              <span class="text-[14px] font-semibold" style="color:var(--text-primary);">Pendientes Avanzados</span>
+              <div class="ml-auto flex items-center gap-3">
+                <button class="an-src-status" onclick="openMonitorDialog('Pendientes Avanzados','recon')"><i data-lucide="gem"></i> Activar monitoreo AI</button>
+                <i data-lucide="more-vertical" style="width:16px;height:16px;color:var(--text-muted);cursor:pointer;"></i>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8">
+              <!-- Lado A -->
+              <div>
+                <span class="inline-block text-[12px] px-2.5 py-1 rounded-md mb-3" style="background:var(--bg-pill);color:var(--text-secondary);">Lado A</span>
+
+                <div class="text-[13px] font-semibold mb-2" style="color:var(--text-primary);">Registros</div>
+                <div class="flex items-end gap-10 mb-2.5">
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">0.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">Total conciliado</div>
+                  </div>
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">100.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">No conciliado</div>
+                  </div>
+                </div>
+                <div class="h-2 rounded-full mb-3" style="background:#F0817B;"></div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(138 76% 36%);"></span> Conciliado</span><span style="color:var(--text-primary);">0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(160 68% 48%);"></span> Compensado</span><span style="color:var(--text-primary);">0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(360 72% 65%);"></span> No conciliado</span><span style="color:var(--text-primary);">333,920</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(215 20% 65%);"></span> Ajustado</span><span style="color:var(--text-primary);">0</span></div>
+                </div>
+
+                <div class="text-[13px] font-semibold mb-2 mt-5" style="color:var(--text-primary);">Valores</div>
+                <div class="flex items-end gap-10 mb-2.5">
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">0.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">Total conciliado</div>
+                  </div>
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">100.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">No conciliado</div>
+                  </div>
+                </div>
+                <div class="h-2 rounded-full mb-3" style="background:#F0817B;"></div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(138 76% 36%);"></span> Conciliado</span><span style="color:var(--text-primary);">0.0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(160 68% 48%);"></span> Compensado</span><span style="color:var(--text-primary);">0.0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(360 72% 65%);"></span> No conciliado</span><span style="color:var(--text-primary);">635,034.0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(215 20% 65%);"></span> Ajustado</span><span style="color:var(--text-primary);">0.0</span></div>
+                </div>
+              </div>
+
+              <!-- Lado B -->
+              <div style="border-left:1px solid var(--border-default); padding-left:2rem;">
+                <span class="inline-block text-[12px] px-2.5 py-1 rounded-md mb-3" style="background:var(--bg-pill);color:var(--text-secondary);">Lado B</span>
+
+                <div class="text-[13px] font-semibold mb-2" style="color:var(--text-primary);">Registros</div>
+                <div class="flex items-end gap-10 mb-2.5">
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">0.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">Total conciliado</div>
+                  </div>
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">100.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">No conciliado</div>
+                  </div>
+                </div>
+                <div class="h-2 rounded-full mb-3" style="background:#F0817B;"></div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(138 76% 36%);"></span> Conciliado</span><span style="color:var(--text-primary);">0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(160 68% 48%);"></span> Compensado</span><span style="color:var(--text-primary);">0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(360 72% 65%);"></span> No conciliado</span><span style="color:var(--text-primary);">254,373</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(215 20% 65%);"></span> Ajustado</span><span style="color:var(--text-primary);">0</span></div>
+                </div>
+
+                <div class="text-[13px] font-semibold mb-2 mt-5" style="color:var(--text-primary);">Valores</div>
+                <div class="flex items-end gap-10 mb-2.5">
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">0.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">Total conciliado</div>
+                  </div>
+                  <div>
+                    <div style="color:var(--text-primary);"><span class="text-[26px] font-bold leading-none">100.00</span><span class="text-[13px]" style="color:var(--text-muted);"> %</span></div>
+                    <div class="text-[11.5px] mt-1" style="color:var(--text-muted);">No conciliado</div>
+                  </div>
+                </div>
+                <div class="h-2 rounded-full mb-3" style="background:#F0817B;"></div>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(138 76% 36%);"></span> Conciliado</span><span style="color:var(--text-primary);">0.0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(160 68% 48%);"></span> Compensado</span><span style="color:var(--text-primary);">0.0</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(360 72% 65%);"></span> No conciliado</span><span style="color:var(--text-primary);">77,571,060,616.3</span></div>
+                  <div class="flex items-center justify-between text-[13px]"><span class="flex items-center gap-2" style="color:var(--text-secondary);"><span class="inline-block w-2.5 h-2.5 rounded-full" style="background:hsl(215 20% 65%);"></span> Ajustado</span><span style="color:var(--text-primary);">0.0</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 flex items-center justify-between" style="border-top:1px solid var(--border-default);">
+              <span class="text-[13px] font-medium" style="color:var(--text-primary);">Detalle</span>
+              <i data-lucide="chevron-down" style="width:18px;height:18px;color:var(--text-muted);cursor:pointer;"></i>
+            </div>
           </div>
 
         </div>
@@ -3060,21 +3187,33 @@
           <div class="tm-dialog-nav-section">
             <div class="tm-dialog-nav-section-title">
               <span>Series y valores</span>
-              <span style="text-transform: none; letter-spacing: 0; font-weight: 500;">1 de 1 configuradas</span>
+              <span id="dlgSeriesCount" style="text-transform: none; letter-spacing: 0; font-weight: 500;">1 de 1 configuradas</span>
             </div>
 
-            <button type="button" class="tm-dialog-nav-sub-item is-active" data-sec="series">
-              <span class="tm-dialog-nav-sub-item-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
-              </span>
-              <div class="tm-dialog-nav-item-body">
-                <div class="tm-dialog-nav-sub-item-name">Conteo De Registros</div>
-                <div class="tm-dialog-nav-sub-item-meta">COUNT_DISTINCT</div>
-                <span class="tm-dialog-nav-item-status">mín: 1 · máx: 20 · + por serie</span>
-              </div>
-            </button>
+            <!-- KPI: una serie/métrica -->
+            <div id="dlgSeriesDefault">
+              <button type="button" class="tm-dialog-nav-sub-item is-active" data-sec="series">
+                <span class="tm-dialog-nav-sub-item-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </span>
+                <div class="tm-dialog-nav-item-body">
+                  <div class="tm-dialog-nav-sub-item-name">Conteo De Registros</div>
+                  <div class="tm-dialog-nav-sub-item-meta">COUNT_DISTINCT</div>
+                  <span class="tm-dialog-nav-item-status">mín: 1 · máx: 20 · + por serie</span>
+                </div>
+              </button>
+            </div>
+
+            <!-- Conciliación (Pendientes Avanzados): 4 métricas -->
+            <div id="dlgSeriesRecon" style="display:none;">
+              <button type="button" class="ns-metric-row" data-sec="series" data-metric="Registros no conciliados"><span class="ns-metric-check"></span><span class="ns-metric-body"><span class="ns-metric-name">Registros no conciliados</span><span class="ns-metric-badge">No configurado</span></span></button>
+              <button type="button" class="ns-metric-row" data-sec="series" data-metric="Valor no conciliado"><span class="ns-metric-check"></span><span class="ns-metric-body"><span class="ns-metric-name">Valor no conciliado</span><span class="ns-metric-badge">No configurado</span></span></button>
+              <div class="ns-metric-div"></div>
+              <button type="button" class="ns-metric-row" data-sec="series" data-metric="% de registros conciliados"><span class="ns-metric-check"></span><span class="ns-metric-body"><span class="ns-metric-name">% de registros conciliados</span><span class="ns-metric-badge">No configurado</span></span></button>
+              <button type="button" class="ns-metric-row" data-sec="series" data-metric="% de valor conciliado"><span class="ns-metric-check"></span><span class="ns-metric-body"><span class="ns-metric-name">% de valor conciliado</span><span class="ns-metric-badge">No configurado</span></span></button>
+            </div>
           </div>
 
           <!-- Section: Análisis adicionales -->
@@ -3494,6 +3633,23 @@
                   <div class="ds-think-steps" id="nsAiSteps"></div>
                 </div>
                 <div class="ns-ai-card" id="nsAiCard">
+                  <!-- Selector de lado (solo Pendientes Avanzados / conciliación) -->
+                  <div class="analysis-side-switch" id="nsAiSideSwitch" role="tablist" style="display:none;">
+                    <button type="button" role="tab" class="analysis-side-tab analysis-side-tab-both is-active" data-side="both" onclick="nsAiSetSide(this)" aria-selected="true">
+                      <span class="analysis-side-dot-pair"><span class="analysis-side-dot analysis-side-dot-a"></span><span class="analysis-side-dot analysis-side-dot-b"></span></span>
+                      <span class="analysis-side-name">Ambos lados</span>
+                    </button>
+                    <button type="button" role="tab" class="analysis-side-tab" data-side="a" onclick="nsAiSetSide(this)" aria-selected="false">
+                      <span class="analysis-side-dot analysis-side-dot-a"></span>
+                      <span class="analysis-side-name">Banco_Occidente_31_03_2026</span>
+                      <span class="analysis-side-badge">Lado A</span>
+                    </button>
+                    <button type="button" role="tab" class="analysis-side-tab" data-side="b" onclick="nsAiSetSide(this)" aria-selected="false">
+                      <span class="analysis-side-dot analysis-side-dot-b"></span>
+                      <span class="analysis-side-name">ERP_SAP_31_03_2026</span>
+                      <span class="analysis-side-badge">Lado B</span>
+                    </button>
+                  </div>
                   <div class="ds-an-stats">
                     <div class="ds-an-stat"><span class="ds-an-stat-label">Media</span><span class="ds-an-stat-value">15.4</span></div>
                     <div class="ds-an-stat"><span class="ds-an-stat-label">Límite inferior sugerido</span><span class="ds-an-stat-value">10</span></div>
@@ -3525,7 +3681,7 @@
                   <div class="ns-ai-divider"></div>
                   <div class="ns-ai-foot">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                    Este análisis refleja el agregado de todas las categorías.
+                    <span class="ns-ai-foot-txt">Este análisis refleja el agregado de todas las categorías.</span>
                   </div>
                 </div>
               </div>
@@ -4599,9 +4755,14 @@
     // Wizard: el flujo lineal es Programación → Notificaciones → Series y valores.
     const WIZARD = ['prog', 'notif', 'series'];
     let dlgCurrentSec = 'prog';
+    let MON_KIND = 'user', MON_NAME = '', MON_METRIC = '';
     function openMonitorDialog(name, type) {
+      MON_KIND = type || 'user';   // 'recon' = gráfico de conciliación (Pendientes Avanzados)
+      MON_NAME = name || '';
+      MON_METRIC = '';             // métrica seleccionada en el sidebar (recon)
       const sub = document.getElementById('dlg-subject');
       if (sub) sub.textContent = name;
+      renderSeriesSidebar();       // ajusta el sidebar "Series y valores" según el tipo de gráfico
       document.getElementById('monitorDialog').classList.add('open');
       goSec('prog'); // arranca siempre en el primer paso del wizard
     }
@@ -4638,18 +4799,22 @@
       Object.values(map).forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
       const tgt = document.getElementById(map[sec]); if (tgt) tgt.style.display = '';
       const titles = { prog:'Programación', notif:'Alertas', series:'Conteo De Registros', fuente:'Fuente' };
-      const t = document.getElementById('dlg-content-title'); if (t) t.textContent = titles[sec] || '';
+      const isRecon = MON_KIND === 'recon';
+      const t = document.getElementById('dlg-content-title');
+      if (t) t.textContent = (sec === 'series' && isRecon) ? (MON_METRIC || MON_NAME || 'Métricas') : (titles[sec] || '');
       const isSeries = sec === 'series';
       document.querySelectorAll('#monitorDialog .tm-dialog-content-header-chip, #monitorDialog .tm-dialog-content-pills')
         .forEach(e => e.style.display = isSeries ? '' : 'none');
       dlgCurrentSec = sec;
       updateWizardFooter();
+      // El contenido de "Series y valores" es el mismo (narrativa + config); solo el sidebar cambia por tipo.
       if (sec === 'series' && typeof nsAiThink === 'function') nsAiThink();
     }
     document.querySelectorAll('#monitorDialog [data-sec]').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#monitorDialog [data-sec]').forEach(b => b.classList.remove('is-active'));
         btn.classList.add('is-active');
+        if (btn.dataset.metric) MON_METRIC = btn.dataset.metric; // recon: título = métrica seleccionada
         dlgSection(btn.dataset.sec);
       });
     });
@@ -4723,7 +4888,14 @@
     ];
     NS_SERIES.forEach(s=>{ s.active=true; s.configured=true; }); // catálogo fijo de 6; empiezan agregadas y configuradas
     const nsById=id=>NS_SERIES.find(s=>s.id===id);
-    const nsResolve=id=> id==='__g' ? {isGlobal:true,name:'Todas las categorías',cfg:NS_GLOBAL} : nsById(id);
+    // Lados de conciliación (Pendientes Avanzados): dos "series" sin gráfica ni simulación
+    const NS_SIDES=[
+      {id:'ladoA', name:'Lado A', data:[13,14,13,15,14,16,13,14,15,13,14,22,14,13,15,14,13,14,5,14,15,13,14,14], sug:{lo:10,hi:18}, customized:true, configured:true, cfg:nsCfg({mode:'fijo',fixedLo:10,fixedHi:18})},
+      {id:'ladoB', name:'Lado B', data:[9,10,9,11,10,9,10,9,10,15,9,10,9,10,3,10,9,10,9,10,9,11,9,10], sug:{lo:6,hi:13}, customized:true, configured:true, cfg:nsCfg({mode:'fijo',fixedLo:6,fixedHi:13})},
+    ];
+    const nsSideById=id=>NS_SIDES.find(s=>s.id===id);
+    const nsAny=id=>nsById(id)||nsSideById(id);
+    const nsResolve=id=> id==='__g' ? {isGlobal:true,name:'Todas las categorías',cfg:NS_GLOBAL} : (nsById(id)||nsSideById(id));
     let nsEDIT=null, nsHost=null;
 
     function nsView(e){ return (e && !e.isGlobal && !e.customized) ? NS_GLOBAL : (e.isGlobal?NS_GLOBAL:e.cfg); }
@@ -4752,7 +4924,7 @@
         +'<span class="ns-limsug" id="nsChip'+id+'" onclick="nsApplySug(\''+w+'\')" '+((!on||val===sug)?'hidden':'')+'><span class="dot"></span>Valor sugerido: <b>'+sug+'</b></span></div>'; }
     function nsLimits(v,sg){ return '<div class="ns-limits">'+nsBoundField('lo','Límite inferior',v.fixedLo,sg.lo,v.loOn)+nsBoundField('hi','Límite superior',v.fixedHi,sg.hi,v.hiOn)+'</div>'; }
     function nsPanel(v,sg){
-      if(v.mode==='fijo'){ return '<div class="ns-lbl">Rango normal'+(nsEDIT.isGlobal?' del KPI':' de la serie')+'</div>'+nsLimits(v,sg); }
+      if(v.mode==='fijo'){ return '<div class="ns-lbl">Rango normal'+(nsEDIT.isGlobal?' del KPI':(MON_KIND==='recon'?' de este lado':' de la serie'))+'</div>'+nsLimits(v,sg); }
       return '<div class="ns-lbl">¿Qué tan sensible quieres que sea?</div>'
         +'<div class="ns-seg">'
         +'<button class="'+(v.level==='alta'?'sel':'')+'" onclick="nsSetLevel(\'alta\')">Alta<span class="sub">Detecta hasta cambios chicos</span></button>'
@@ -4765,24 +4937,30 @@
     function nsCardHTML(){
       const v=nsView(nsEDIT), sg=nsEditSug();
       const isG=nsEDIT.isGlobal, fixedOn=v.mode==='fijo'||(v.mode!=='fijo'&&v.safety);
+      const isRecon = (MON_KIND==='recon');
       const legend = isG
         ? '<span><i class="ns-lg ns-lg-multi"></i> Series</span>'+(fixedOn?'<span><i class="ns-lg ns-lg-fixed"></i> Límite fijo</span>':'')
         : '<span><i class="ns-lg ns-lg-line"></i> Valor</span><span><i class="ns-lg ns-lg-band"></i> Rango esperado (adaptativo)</span><span><i class="ns-lg ns-lg-fixed"></i> Límite fijo</span>';
-      return ''
+      const chartBlock = ''
         +'<div class="ns-cardhead"><div class="ns-kpi-label">'+(isG?'Todas las categorías · últimos 30 días':'Comportamiento · últimos 30 días')+'</div>'
         +'<div class="ns-legend">'+legend+'</div></div>'
         +'<svg class="ns-chart" viewBox="0 0 560 150"></svg>'
-        +'<div class="ns-div"></div>'
-        +'<div class="ns-q">¿Cómo quieres detectar las anomalías'+(nsEDIT.isGlobal?' (por defecto)':' de esta serie')+'?</div>'
+        +'<div class="ns-div"></div>';
+      const qSuffix = nsEDIT.isGlobal ? ' (por defecto)' : (isRecon ? ' de este lado' : ' de esta serie');
+      const impact = ''
+        +'<div class="ns-impact-row">'
+        +'<div class="ns-impact-kpi"><div class="ns-impact-num ns-im-total">0</div><div class="ns-impact-lbl">avisos en los últimos 30 días</div></div>'
+        +'</div>';
+      return ''
+        +chartBlock
+        +'<div class="ns-q">¿Cómo quieres detectar las anomalías'+qSuffix+'?</div>'
         +'<div class="ns-radio-row">'
         +'<div class="ns-radio '+(v.mode==='fijo'?'sel':'')+'" onclick="nsSetMode(\'fijo\')"><span class="ns-dot"></span><div><div class="ns-rt">Límites fijos</div><div class="ns-rd">Tú defines el mínimo y el máximo válidos.</div></div></div>'
         +'<div class="ns-radio '+(v.mode==='adaptativo'?'sel':'')+'" onclick="nsSetMode(\'adaptativo\')"><span class="ns-dot"></span><div><div class="ns-rt">Sistema adaptativo</div><div class="ns-rd">Simetrik aprende lo normal y avisa de lo inusual.</div></div></div>'
         +'</div>'
         +'<div class="ns-panel">'+nsPanel(v,sg)+'</div>'
         +'<div class="ns-alert"><i data-lucide="info"></i><div class="ns-alert-body"><span class="ns-alert-txt"></span>'
-        +'<div class="ns-impact-row">'
-        +'<div class="ns-impact-kpi"><div class="ns-impact-num ns-im-total">0</div><div class="ns-impact-lbl">avisos en los últimos 30 días</div></div>'
-        +'</div></div></div>';
+        +impact+'</div></div>';
     }
     function nsMovingAvg(a,w){const h=(w/2)|0,o=[];for(let i=0;i<a.length;i++){let s=0,n=0;for(let j=i-h;j<=i+h;j++)if(j>=0&&j<a.length){s+=a[j];n++;}o.push(s/n);}return o;}
     function nsDraw(){
@@ -4827,7 +5005,7 @@
     }
     function nsRenderAlert(){
       if(!nsHost)return; const al=nsHost.querySelector('.ns-alert'); if(!al)return; const v=nsView(nsEDIT); let txt='';
-      const suj=nsEDIT.isGlobal?'cada serie':'la serie';
+      const suj=nsEDIT.isGlobal?'cada serie':(MON_KIND==='recon'?'este lado':'la serie');
       if(v.mode==='fijo'){ txt='Te avisamos <b>solo cuando '+suj+' se salga del rango que definiste</b>. Predecible y bajo tu control.'; }
       else if(!v.safety){ txt='Te avisamos <b>cuando '+suj+' se comporte distinto a lo habitual</b> (sensibilidad '+NS_LVLLBL[v.level]+'). Se ajusta solo.'; }
       else { txt='Te avisamos <b>cuando '+suj+' se salga de lo habitual</b> (sensibilidad '+NS_LVLLBL[v.level]+') y <b>siempre que cruce tus límites de seguridad</b>.'; }
@@ -4836,8 +5014,8 @@
     function nsRenderDetail(){ if(!nsHost)return; nsHost.innerHTML=nsCardHTML(); nsDraw(); nsRenderAlert(); if(window.lucide)lucide.createIcons(); }
     function nsRefresh(){ nsRenderDetail(); nsUpdateBadges(); }
     function nsUpdateBadges(){
-      document.querySelectorAll('#nsWrap [data-nsbadge]').forEach(el=>{ const s=nsById(el.dataset.nsbadge); el.innerHTML=s?nsBadge(s):''; });
-      document.querySelectorAll('#nsWrap [data-nssum]').forEach(el=>{ const s=nsById(el.dataset.nssum); el.textContent=s?nsSummary(s):''; });
+      document.querySelectorAll('#nsWrap [data-nsbadge]').forEach(el=>{ const s=nsAny(el.dataset.nsbadge); el.innerHTML=s?nsBadge(s):''; });
+      document.querySelectorAll('#nsWrap [data-nssum]').forEach(el=>{ const s=nsAny(el.dataset.nssum); el.textContent=s?nsSummary(s):''; });
       document.querySelectorAll('#nsWrap [data-nsgbadge]').forEach(el=>{ el.innerHTML=nsBadge({isGlobal:true}); });
       document.querySelectorAll('#nsWrap [data-nsgsum]').forEach(el=>{ el.textContent=nsSummary({isGlobal:true}); });
     }
@@ -4864,6 +5042,12 @@
     // Skeleton de carga: se muestra en #nsWrap mientras corre el análisis ("Pensando…")
     function nsSkelRows(nn){ let r=''; for(let i=0;i<nn;i++){ r+='<div class="ns-skel"><span class="ns-skel-bar" style="width:140px"></span><span class="ns-skel-bar" style="width:96px;margin-left:auto"></span></div>'; } return r; }
     function nsShowSkeleton(){
+      if(MON_KIND==='recon'){
+        document.getElementById('nsWrap').innerHTML=
+          '<div class="ns-secth" style="margin-top:0">Límites por lado de conciliación</div>'
+          +'<div class="ns-acc">'+nsSkelRows(2)+'</div>';
+        return;
+      }
       document.getElementById('nsWrap').innerHTML=
         '<div class="ns-secth">Límites generales de Conteo De Registros</div>'
         +'<div class="ns-acc">'+nsSkelRows(1)+'</div>'
@@ -4880,6 +5064,61 @@
         +'<div class="ns-secth">Límites por serie <span class="ns-cnt" id="nsCnt"></span></div>'
         +'<div class="ns-acc" id="nsSeriesAcc"></div>';
       nsRenderList();
+    }
+    // Contenido de "Series y valores" para conciliación (Pendientes Avanzados): sin global, dos lados
+    function nsInitRecon(){
+      nsEDIT=null; nsHost=null;
+      document.getElementById('nsWrap').innerHTML=
+        '<div class="ns-secth" style="margin-top:0">Límites por lado de conciliación</div>'
+        +'<div class="ns-acc" id="nsSidesAcc">'+NS_SIDES.map(nsRowHTML).join('')+'</div>';
+      nsUpdateBadges();
+      if(window.lucide) lucide.createIcons();
+    }
+
+    // Sidebar "Series y valores": alterna entre el ítem de KPI y las métricas de conciliación (Pendientes Avanzados)
+    function renderSeriesSidebar(){
+      const def = document.getElementById('dlgSeriesDefault');
+      const rec = document.getElementById('dlgSeriesRecon');
+      const cnt = document.getElementById('dlgSeriesCount');
+      const isRecon = MON_KIND === 'recon';
+      if (def) def.style.display = isRecon ? 'none' : '';
+      if (rec) rec.style.display = isRecon ? '' : 'none';
+      if (cnt) cnt.textContent = isRecon ? '0 de 4 configuradas' : '1 de 1 configuradas';
+      // Selector de lado en la narrativa: visible solo en conciliación; se resetea a "Ambos lados"
+      const sw = document.getElementById('nsAiSideSwitch');
+      if (sw) {
+        sw.style.display = isRecon ? '' : 'none';
+        sw.querySelectorAll('.analysis-side-tab').forEach(t => {
+          const on = t.dataset.side === 'both';
+          t.classList.toggle('is-active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      }
+      nsAiApplySide(isRecon ? 'both' : 'kpi'); // contenido inicial de la narrativa según el tipo
+    }
+    // Contenido de la narrativa por lado (conciliación) — mockeado; en prod lo provee el BE
+    const NS_AI_SIDE = {
+      kpi:  { mean:'15.4', lo:'10', hi:'24', desc:'<strong>Línea base estable y limpia</strong> - <strong>30 días</strong> de observaciones de baja dispersión, sin brechas ni valores atípicos. <em>Una línea base simple para anclar el monitoreo.</em>', foot:'Este análisis refleja el agregado de todas las categorías.' },
+      both: { mean:'12.0', lo:'6',  hi:'18', desc:'<strong>Ambos lados estables</strong> - <strong>30 días</strong> de baja dispersión en Lado A y Lado B, sin brechas ni valores atípicos. <em>Base limpia para anclar el monitoreo de la conciliación.</em>', foot:'Este análisis refleja el agregado de ambos lados de la conciliación.' },
+      a:    { mean:'14.0', lo:'10', hi:'18', desc:'<strong>Lado A estable</strong> - Banco_Occidente_31_03_2026, <strong>30 días</strong> en torno a <strong>14/día</strong> con un pico aislado. <em>Rango operativo estrecho.</em>', foot:'Este análisis corresponde al Lado A (Banco_Occidente_31_03_2026).' },
+      b:    { mean:'10.0', lo:'6',  hi:'13', desc:'<strong>Lado B estable</strong> - ERP_SAP_31_03_2026, <strong>30 días</strong> en torno a <strong>10/día</strong>, menor volumen que el Lado A. <em>Distribución limpia.</em>', foot:'Este análisis corresponde al Lado B (ERP_SAP_31_03_2026).' },
+    };
+    function nsAiApplySide(side){
+      const card = document.getElementById('nsAiCard'); if (!card) return;
+      const d = NS_AI_SIDE[side] || NS_AI_SIDE.kpi;
+      const vals = card.querySelectorAll('.ds-an-stats .ds-an-stat-value');
+      if (vals[0]) vals[0].textContent = d.mean;
+      if (vals[1]) vals[1].textContent = d.lo;
+      if (vals[2]) vals[2].textContent = d.hi;
+      const desc = card.querySelector('.ds-an-desc'); if (desc) desc.innerHTML = d.desc;
+      const foot = card.querySelector('.ns-ai-foot-txt'); if (foot) foot.textContent = d.foot;
+    }
+    // Cambia el lado activo del selector de la narrativa (conciliación) y actualiza su contenido
+    function nsAiSetSide(btn){
+      const sw = btn.closest('.analysis-side-switch'); if (!sw) return;
+      sw.querySelectorAll('.analysis-side-tab').forEach(t => { t.classList.remove('is-active'); t.setAttribute('aria-selected', 'false'); });
+      btn.classList.add('is-active'); btn.setAttribute('aria-selected', 'true');
+      nsAiApplySide(btn.dataset.side);
     }
 
     /* ===== Análisis inteligente: estado "Pensando…" (carga del análisis) ===== */
@@ -4903,7 +5142,7 @@
       function tick(){
         k++; render();
         if(k<NS_AI_STEPS.length){ nsAiTimer=setTimeout(tick,750); }
-        else { nsAiTimer=setTimeout(function(){ think.style.display='none'; card.style.display=''; nsInit(); }, 800); }
+        else { nsAiTimer=setTimeout(function(){ think.style.display='none'; card.style.display=''; (MON_KIND==='recon'?nsInitRecon():nsInit()); }, 800); }
       }
       tick();
     }
