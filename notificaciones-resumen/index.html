@@ -4938,9 +4938,7 @@
       const v=nsView(nsEDIT), sg=nsEditSug();
       const isG=nsEDIT.isGlobal, fixedOn=v.mode==='fijo'||(v.mode!=='fijo'&&v.safety);
       const isRecon = (MON_KIND==='recon');
-      const legend = isG
-        ? '<span><i class="ns-lg ns-lg-multi"></i> Series</span>'+(fixedOn?'<span><i class="ns-lg ns-lg-fixed"></i> Límite fijo</span>':'')
-        : '<span><i class="ns-lg ns-lg-line"></i> Valor</span><span><i class="ns-lg ns-lg-band"></i> Rango esperado (adaptativo)</span><span><i class="ns-lg ns-lg-fixed"></i> Límite fijo</span>';
+      const legend = '<span><i class="ns-lg ns-lg-line"></i> Valor</span><span><i class="ns-lg ns-lg-band"></i> Rango esperado (adaptativo)</span><span><i class="ns-lg ns-lg-fixed"></i> Límite fijo</span>';
       const chartBlock = ''
         +'<div class="ns-cardhead"><div class="ns-kpi-label">'+(isG?'Todas las categorías · últimos 30 días':'Comportamiento · últimos 30 días')+'</div>'
         +'<div class="ns-legend">'+legend+'</div></div>'
@@ -4971,12 +4969,15 @@
       const n=isG?NS_SERIES[0].data.length:nsEDIT.data.length;
       const X=i=>padL+(W-padL-padR)*(i/(n-1)), Y=x=>padT+(H-padT-padB)*(1-(x-lo)/(hi-lo));
       const m=NS_LEVELS[v.level];
-      const list=isG?NS_SERIES.filter(s=>s.active):[nsEDIT];
+      // Global = una sola línea agregada (media de las series activas); por serie/lado = su propia data
+      const curData = isG
+        ? NS_SERIES[0].data.map(function(_,i){ const act=NS_SERIES.filter(s=>s.active); return act.length ? act.reduce(function(t,s){return t+s.data[i];},0)/act.length : 0; })
+        : nsEDIT.data;
       let g='';for(let x=0;x<=25;x+=5){const y=Y(x).toFixed(1);g+='<line class="ns-grid-line" x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'"/><text class="ns-ax" x="'+(padL-6)+'" y="'+(+y+3).toFixed(1)+'" text-anchor="end">'+x+'</text>';}
       // banda adaptativa solo para una serie; en el global se muestran todas las líneas superpuestas
       let band='';
-      if(!isG && adaptiveOn){
-        const base=nsMovingAvg(nsEDIT.data,5);
+      if(adaptiveOn){
+        const base=nsMovingAvg(curData,5);
         const up=base.map((b,i)=>({x:X(i),y:Y(Math.min(hi,b+m))})), dn=base.map((b,i)=>({x:X(i),y:Y(Math.max(lo,b-m))}));
         const seg=(a,b)=>'M'+a.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L')+' L'+b.slice().reverse().map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L')+' Z';
         band='<path class="ns-band" d="'+seg(up,dn)+'"/>';
@@ -4988,18 +4989,17 @@
       }
       const now='';
       let lines='',dots='',red=0,amber=0;
-      list.forEach(function(s){
-        const base=nsMovingAvg(s.data,5);
-        if(isG){ const p=s.data.map((x,i)=>X(i).toFixed(1)+','+Y(x).toFixed(1)); lines+='<path class="ns-metric-multi" d="M'+p.join(' L')+'"/>'; }
-        else { const pts=s.data.map((x,i)=>({x:X(i),y:Y(x)}));
-          lines='<path class="ns-metric" d="M'+pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L')+'"/>'; }
-        s.data.forEach((x,i)=>{
+      {
+        const base=nsMovingAvg(curData,5);
+        const pts=curData.map((x,i)=>({x:X(i),y:Y(x)}));
+        lines='<path class="ns-metric" d="M'+pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' L')+'"/>';
+        curData.forEach((x,i)=>{
           const isRed=fixedOn&&((v.hiOn&&x>v.fixedHi)||(v.loOn&&x<v.fixedLo));
           const isAmber=adaptiveOn&&!isRed&&(x>base[i]+m||x<base[i]-m);
-          if(!isG || s.configured!==false){if(isRed)red++;else if(isAmber)amber++;}
-          if(!isG){ if(isRed)dots+='<circle class="ns-dot-red" cx="'+X(i).toFixed(1)+'" cy="'+Y(x).toFixed(1)+'" r="3.4"/>'; else if(isAmber)dots+='<circle class="ns-dot-amber" cx="'+X(i).toFixed(1)+'" cy="'+Y(x).toFixed(1)+'" r="3"/>'; }
+          if(isRed)red++;else if(isAmber)amber++;
+          if(isRed)dots+='<circle class="ns-dot-red" cx="'+X(i).toFixed(1)+'" cy="'+Y(x).toFixed(1)+'" r="3.4"/>'; else if(isAmber)dots+='<circle class="ns-dot-amber" cx="'+X(i).toFixed(1)+'" cy="'+Y(x).toFixed(1)+'" r="3"/>';
         });
-      });
+      }
       svg.innerHTML=g+band+fixed+now+lines+dots;
       nsHost.querySelector('.ns-im-total').textContent=red+amber;
     }
