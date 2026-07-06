@@ -1,6 +1,6 @@
 # Handoff 3 — Notificaciones de incidentes + vista de Anomalías (configuración y gestión)
 
-**Prototipo:** [`handoff-3-notificaciones-y-vista-anomalias.html`](./handoff-3-notificaciones-y-vista-anomalias.html) — HTML acotado a esta épica (derivado de `../index.html` → vista de **Anomalías** → segmented **Configuración**, paquetes de notificación, y **Gestión**, lista de incidentes). Lo atenuado en ese HTML no hace parte de esta entrega, y la barra de filtros de Gestión se quitó de ese HTML (es del handoff 1); el editor sí conserva "Aplicar un filtro guardado", que es de esta épica.
+**Prototipo:** [`handoff-3-notificaciones-y-vista-anomalias.html`](./handoff-3-notificaciones-y-vista-anomalias.html) — HTML acotado a esta épica (derivado de `../index.html` → vista de **Anomalías** → segmented **Configuración**, paquetes de notificación, y **Gestión**, lista de incidentes). Lo atenuado en ese HTML no hace parte de esta entrega; la barra de filtros de Gestión aparece atenuada y sin función porque es del handoff 1. El editor sí conserva "Aplicar un filtro guardado", que es de esta épica.
 **Fuente:** sesiones Granola **30-jun-2026** (am: épicas y cambios de UI · **pm: design review con ingeniería/Sergio + Ohana**).
 **Registro:** Interno — **Operation Center**. **Plataforma:** Desktop (shell de OC).
 **Complementa:** Handoff 1 (filtros de la vista de Gestión) y Handoff 2 (detección/Alertas del KPI). Los **filtros guardados** que el editor de notificación reutiliza se crean en la vista de Gestión (Handoff 1).

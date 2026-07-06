@@ -1914,7 +1914,7 @@
 </head>
 
 <body class="h-screen overflow-hidden">
-  <div class="hoff-badge"><b>Handoff 3 · Notificaciones de incidentes y vista de Anomalías</b><span>Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; la barra de filtros de Gestión se quitó de este HTML (es del handoff 1).</span></div>
+  <div class="hoff-badge"><b>Handoff 3 · Notificaciones de incidentes y vista de Anomalías</b><span>Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; la barra de filtros de Gestión está atenuada porque es del handoff 1.</span></div>
   <div class="flex h-full">
 
     <!-- ============ PRIMARY SIDEBAR ============ -->
@@ -2027,6 +2027,11 @@
           <button class="an-seg-tab" data-sub="config" onclick="anSubtab('config',this)" title="Configuración"><i data-lucide="sliders-horizontal"></i><span class="an-seg-label">Configuración</span></button>
         </div>
         <div id="anLeftGestion" class="flex flex-col flex-1 min-h-0">
+        <div class="an-filters">
+          <button class="an-fbtn oos" title="Filtros · fuera de alcance (handoff 1)"><i data-lucide="filter"></i> Filtrar</button>
+          <button class="an-fbtn oos" title="Ordenar · fuera de alcance (handoff 1)"><i data-lucide="arrow-up-down"></i> Ordenar</button>
+          <button class="an-fbtn an-fbtn-icon oos" title="Filtros guardados · fuera de alcance (handoff 1)" aria-label="Filtros guardados"><i data-lucide="bookmark"></i></button>
+        </div>
         <div class="an-cards" id="anCards">
           <button class="an-card is-sel" onclick="anSelect(this)">
             <div class="an-card-title">Archivo faltante - Fuente: source-1-payments-merchant-new</div>
