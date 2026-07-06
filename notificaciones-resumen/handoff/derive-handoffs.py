@@ -207,13 +207,13 @@ build(
     ],
     replacements=tabs_static('anomalias') + [
         (VIEW_ANOM_HIDDEN, '<div id="viewAnomalias" class="flex-1 flex min-h-0">'),
-        # barra de filtros de Gestión: botones visibles como referencia, atenuados y sin función (handoff 1)
+        # barra de filtros de Gestión: botones visibles como referencia, sin función (su lógica es del handoff 1)
         ('<div id="anLeftGestion" class="flex flex-col flex-1 min-h-0">',
          '''<div id="anLeftGestion" class="flex flex-col flex-1 min-h-0">
         <div class="an-filters">
-          <button class="an-fbtn oos" title="Filtros · fuera de alcance (handoff 1)"><i data-lucide="filter"></i> Filtrar</button>
-          <button class="an-fbtn oos" title="Ordenar · fuera de alcance (handoff 1)"><i data-lucide="arrow-up-down"></i> Ordenar</button>
-          <button class="an-fbtn an-fbtn-icon oos" title="Filtros guardados · fuera de alcance (handoff 1)" aria-label="Filtros guardados"><i data-lucide="bookmark"></i></button>
+          <button class="an-fbtn" title="Sin función en este HTML · se implementa en el handoff 1"><i data-lucide="filter"></i> Filtrar</button>
+          <button class="an-fbtn" title="Sin función en este HTML · se implementa en el handoff 1"><i data-lucide="arrow-up-down"></i> Ordenar</button>
+          <button class="an-fbtn an-fbtn-icon" title="Sin función en este HTML · se implementa en el handoff 1" aria-label="Filtros guardados"><i data-lucide="bookmark"></i></button>
         </div>'''),
         # entrar a Configuración aterriza en Notificaciones (la página Ingesta es del handoff 2)
         ("if (which === 'config') renderIngesta();", "if (which === 'config') renderPkgList();"),
@@ -226,7 +226,7 @@ build(
     ],
     title='Handoff 3 · Notificaciones de incidentes y vista de Anomalías',
     banner_b='Handoff 3 · Notificaciones de incidentes y vista de Anomalías',
-    banner_span='Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; la barra de filtros de Gestión está atenuada porque es del handoff 1.',
+    banner_span='Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; la barra de filtros de Gestión no tiene función aquí (se implementa en el handoff 1).',
     header_comment='Derivado de ../index.html — alcance: handoff-3-notificaciones-y-vista-anomalias.md. No editar a mano: los cambios de producto van en index.html y se re-derivan.',
 )
 
