@@ -1914,7 +1914,7 @@
 </head>
 
 <body class="h-screen overflow-hidden">
-  <div class="hoff-badge"><b>Handoff 3 · Notificaciones de incidentes y vista de Anomalías</b><span>Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; los filtros de Gestión se especifican en el handoff 1.</span></div>
+  <div class="hoff-badge"><b>Handoff 3 · Notificaciones de incidentes y vista de Anomalías</b><span>Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; la barra de filtros de Gestión se quitó de este HTML (es del handoff 1).</span></div>
   <div class="flex h-full">
 
     <!-- ============ PRIMARY SIDEBAR ============ -->
@@ -2027,79 +2027,6 @@
           <button class="an-seg-tab" data-sub="config" onclick="anSubtab('config',this)" title="Configuración"><i data-lucide="sliders-horizontal"></i><span class="an-seg-label">Configuración</span></button>
         </div>
         <div id="anLeftGestion" class="flex flex-col flex-1 min-h-0">
-        <div class="an-filters">
-          <div class="an-fmenu-wrap">
-            <button class="an-fbtn" onclick="toggleFMenu(event)"><i data-lucide="filter"></i> Filtrar</button>
-            <div class="an-fmenu" id="anFMenu" onclick="event.stopPropagation()">
-              <div class="an-fmenu-page" data-fpage="main">
-                <div class="an-fmenu-head">Filtrar</div>
-                <button class="an-fmenu-item" onclick="fGoto('recurso')"><i data-lucide="database"></i> Recurso <i data-lucide="chevron-right" class="chev"></i></button>
-                <button class="an-fmenu-item" onclick="fGoto('tablero')"><i data-lucide="layout-grid"></i> Tablero <i data-lucide="chevron-right" class="chev"></i></button>
-                <button class="an-fmenu-item" onclick="fGoto('estado')"><i data-lucide="circle-dot"></i> Estado <i data-lucide="chevron-right" class="chev"></i></button>
-                <button class="an-fmenu-item" onclick="fGoto('tipo')"><i data-lucide="tag"></i> Tipo <i data-lucide="chevron-right" class="chev"></i></button>
-                <div class="an-fmenu-sep"></div>
-                <button class="an-fmenu-item" onclick="fPickFecha()"><i data-lucide="calendar"></i> Fecha</button>
-              </div>
-              <div class="an-fmenu-page hidden" data-fpage="recurso">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Recurso</button>
-                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar recurso" oninput="fFilterList(this,'recurso')"></div>
-                <div class="an-fmenu-list" id="fListRecurso"></div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Recurso')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
-              </div>
-              <div class="an-fmenu-page hidden" data-fpage="tablero">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Tablero</button>
-                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                <div class="an-fmenu-search"><i data-lucide="search"></i><input type="text" placeholder="Buscar tablero" oninput="fFilterList(this,'tablero')"></div>
-                <div class="an-fmenu-list" id="fListTablero"></div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Tablero')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
-              </div>
-              <div class="an-fmenu-page hidden" data-fpage="estado">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Estado</button>
-                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                <div class="an-fmenu-list">
-                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Abierto" data-ficon="circle-dot" onclick="addFilter('Estado','Abierto','circle-dot')"><i data-lucide="circle-dot"></i> Abierto <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Confirmado" data-ficon="circle-dot" onclick="addFilter('Estado','Confirmado','circle-dot')"><i data-lucide="circle-dot"></i> Confirmado <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="En observación" data-ficon="circle-dot" onclick="addFilter('Estado','En observación','circle-dot')"><i data-lucide="circle-dot"></i> En observación <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Estado" data-fval="Resuelto" data-ficon="circle-dot" onclick="addFilter('Estado','Resuelto','circle-dot')"><i data-lucide="circle-dot"></i> Resuelto <i data-lucide="check" class="an-fopt-check"></i></button>
-                </div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Estado')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
-              </div>
-              <div class="an-fmenu-page hidden" data-fpage="tipo">
-                <button class="an-fmenu-back" onclick="fGoto('main')"><i data-lucide="chevron-left"></i> Tipo</button>
-                <div class="an-fmenu-hint">Elige uno o varios (se combinan con <strong>o</strong>)</div>
-                <div class="an-fmenu-list">
-                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo faltante" data-ficon="tag" onclick="addFilter('Tipo','Archivo faltante','tag')"><i data-lucide="tag"></i> Archivo faltante <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo fallido" data-ficon="tag" onclick="addFilter('Tipo','Archivo fallido','tag')"><i data-lucide="tag"></i> Archivo fallido <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo vacío" data-ficon="tag" onclick="addFilter('Tipo','Archivo vacío','tag')"><i data-lucide="tag"></i> Archivo vacío <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Archivo duplicado" data-ficon="tag" onclick="addFilter('Tipo','Archivo duplicado','tag')"><i data-lucide="tag"></i> Archivo duplicado <i data-lucide="check" class="an-fopt-check"></i></button>
-                  <button class="an-fmenu-opt" data-ftype="Tipo" data-fval="Variación de volumen" data-ficon="tag" onclick="addFilter('Tipo','Variación de volumen','tag')"><i data-lucide="tag"></i> Variación de volumen <i data-lucide="check" class="an-fopt-check"></i></button>
-                </div>
-                <div class="an-fmenu-foot"><button onclick="clearFilterType('Tipo')">Limpiar</button><button class="is-apply" onclick="fGoto('main')">Listo</button></div>
-              </div>
-            </div>
-          </div>
-          <div class="an-fmenu-wrap">
-            <button class="an-fbtn" onclick="toggleSMenu(event)"><i data-lucide="arrow-up-down"></i> Ordenar</button>
-            <div class="an-fmenu" id="anSMenu" onclick="event.stopPropagation()">
-              <button class="an-sort-item is-sel" onclick="sPick(this)">Por defecto <i data-lucide="arrow-up-down"></i></button>
-              <div class="an-sort-group">Por detección</div>
-              <button class="an-sort-item" onclick="sPick(this)">Más reciente <i data-lucide="arrow-up"></i></button>
-              <button class="an-sort-item" onclick="sPick(this)">Más antigua <i data-lucide="arrow-down"></i></button>
-              <div class="an-sort-group">Por última actividad</div>
-              <button class="an-sort-item" onclick="sPick(this)">Más reciente <i data-lucide="arrow-up"></i></button>
-              <button class="an-sort-item" onclick="sPick(this)">Más antigua <i data-lucide="arrow-down"></i></button>
-            </div>
-          </div>
-          <div class="an-fmenu-wrap">
-            <button class="an-fbtn an-fbtn-icon" onclick="toggleGMenu(event)" title="Filtros guardados" aria-label="Filtros guardados"><i data-lucide="bookmark"></i></button>
-            <div class="an-fmenu" id="anGMenu" onclick="event.stopPropagation()">
-              <div class="an-fmenu-head">Filtros guardados</div>
-              <div class="an-fmenu-list" id="anGList"></div>
-            </div>
-          </div>
-        </div>
-        <div class="an-applied" id="anApplied"></div>
         <div class="an-cards" id="anCards">
           <button class="an-card is-sel" onclick="anSelect(this)">
             <div class="an-card-title">Archivo faltante - Fuente: source-1-payments-merchant-new</div>
@@ -2562,10 +2489,7 @@
       anHistRendered = true;
       if (window.lucide) lucide.createIcons();
     }
-    // ---- Filtros de la vista de incidentes (multiselect + guardados, reutilizables por la notificación) ----
-    // Lógica: dentro de una categoría los valores se combinan con O (multiselect); entre categorías, con Y.
     const AN_TABLEROS = ['Adquirencia', 'Conciliación bancaria', 'Tesorería', 'Pagos LATAM'];
-    let anActiveFilter = []; // [{type, value, icon}] — varios por tipo permitidos
     let savedFilters = [     // filtros recurrentes (guardados) — reutilizables en los paquetes de notificación
       { name: 'Incidentes de Adquirencia', filters: [{ type: 'Tablero', value: 'Adquirencia', icon: 'layout-grid' }, { type: 'Estado', value: 'Confirmado', icon: 'circle-dot' }] }
     ];
@@ -2575,113 +2499,9 @@
       (list || []).forEach(f => { if (!map[f.type]) { map[f.type] = { type: f.type, icon: f.icon, values: [] }; order.push(f.type); } map[f.type].values.push(f.value); });
       return order.map(t => map[t]);
     }
-    function fGroups() { return groupFilters(anActiveFilter); }
-    function groupIcon(g) { return g.type === 'Entidad' ? 'layers' : g.icon; }
     function closeFilterMenus(except) {
       ['anFMenu', 'anSMenu', 'anGMenu', 'anPkgFMenu', 'anPkgSavedMenu'].forEach(id => { if (id !== except) { const e = document.getElementById(id); if (e) e.classList.remove('open'); } });
     }
-    function toggleFMenu(e) { e.stopPropagation(); closeFilterMenus('anFMenu'); fGoto('main'); document.getElementById('anFMenu').classList.toggle('open'); buildFLists(); }
-    function toggleSMenu(e) { e.stopPropagation(); closeFilterMenus('anSMenu'); document.getElementById('anSMenu').classList.toggle('open'); }
-    function toggleGMenu(e) { e.stopPropagation(); closeFilterMenus('anGMenu'); renderGList(); document.getElementById('anGMenu').classList.toggle('open'); }
-    function fGoto(page) { document.querySelectorAll('#anFMenu .an-fmenu-page').forEach(p => p.classList.toggle('hidden', p.dataset.fpage !== page)); markOptChecks(); }
-    function buildFLists() {
-      const rec = document.getElementById('fListRecurso');
-      if (rec && !rec.dataset.built) {
-        rec.innerHTML = AN_SOURCES.map(s => '<button class="an-fmenu-opt" data-ftype="Recurso" data-fval="' + esc(s[0]) + '" data-ficon="database"><i data-lucide="database"></i> ' + esc(s[0]) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        rec.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Recurso', b.dataset.fval, 'database')));
-        rec.dataset.built = '1';
-      }
-      const tab = document.getElementById('fListTablero');
-      if (tab && !tab.dataset.built) {
-        tab.innerHTML = AN_TABLEROS.map(t => '<button class="an-fmenu-opt" data-ftype="Tablero" data-fval="' + esc(t) + '" data-ficon="layout-grid"><i data-lucide="layout-grid"></i> ' + esc(t) + ' <i data-lucide="check" class="an-fopt-check"></i></button>').join('');
-        tab.querySelectorAll('.an-fmenu-opt').forEach(b => b.addEventListener('click', () => addFilter('Tablero', b.dataset.fval, 'layout-grid')));
-        tab.dataset.built = '1';
-      }
-      markOptChecks();
-      if (window.lucide) lucide.createIcons();
-    }
-    function fFilterList(input, which) {
-      const id = which === 'recurso' ? 'fListRecurso' : 'fListTablero', q = input.value.toLowerCase();
-      document.querySelectorAll('#' + id + ' .an-fmenu-opt').forEach(o => { o.style.display = o.textContent.toLowerCase().includes(q) ? '' : 'none'; });
-    }
-    function fPickFecha() { addFilter('Fecha', 'Últimos 30 días', 'calendar'); }
-    function isFilterActive(type, value) { return anActiveFilter.some(f => f.type === type && f.value === value); }
-    function markOptChecks() {
-      document.querySelectorAll('#anFMenu .an-fmenu-opt').forEach(o => { const t = o.dataset.ftype, v = o.dataset.fval; if (t && v) o.classList.toggle('is-on', isFilterActive(t, v)); });
-    }
-    function addFilter(type, value, icon) {
-      if (type === 'Fecha') {                                  // Fecha = valor único (rango), reemplaza
-        anActiveFilter = anActiveFilter.filter(f => f.type !== 'Fecha');
-        anActiveFilter.push({ type: type, value: value, icon: icon });
-        document.getElementById('anFMenu').classList.remove('open');
-      } else {                                                  // resto = multiselect (toggle)
-        const i = anActiveFilter.findIndex(f => f.type === type && f.value === value);
-        if (i >= 0) anActiveFilter.splice(i, 1); else anActiveFilter.push({ type: type, value: value, icon: icon });
-      }
-      renderApplied(); renderNotifFilterPreview(); markOptChecks();
-    }
-    function clearFilterType(type) { anActiveFilter = anActiveFilter.filter(f => f.type !== type); renderApplied(); renderNotifFilterPreview(); markOptChecks(); }
-    function clearAllFilters() { anActiveFilter = []; renderApplied(); renderNotifFilterPreview(); markOptChecks(); }
-    function renderApplied() {
-      const el = document.getElementById('anApplied'); if (!el) return;
-      const groups = fGroups();
-      if (!groups.length) { el.innerHTML = ''; return; }
-      const chips = groups.map(g => {
-        const val = g.values.map(v => esc(v)).join(' <em>o</em> ');
-        return '<span class="an-fchip"><span class="an-fchip-type"><i data-lucide="' + groupIcon(g) + '"></i> ' + g.type + '</span>' +
-          '<span class="an-fchip-val">' + val + '</span>' +
-          '<button class="an-fchip-x" aria-label="Quitar filtro" onclick="clearFilterType(\'' + g.type + '\')"><i data-lucide="x"></i></button></span>';
-      }).join('<span class="an-fconj">y</span>');
-      el.innerHTML = chips +
-        '<div class="an-applied-actions">' +
-          '<button class="an-save-filter" onclick="saveCurrentFilter()"><i data-lucide="bookmark-plus"></i> Guardar filtro</button>' +
-          '<button class="an-clear-all" onclick="clearAllFilters()">Quitar filtros <i data-lucide="x"></i></button>' +
-        '</div>';
-      if (window.lucide) lucide.createIcons();
-    }
-    function renderNotifFilterPreview() {
-      const prev = document.getElementById('notifFilterPreview'); if (!prev) return;
-      prev.className = 'an-prevchips';
-      const groups = fGroups();
-      prev.innerHTML = groups.length
-        ? groups.map(g => '<span class="an-prevchip"><i data-lucide="' + groupIcon(g) + '"></i> ' + g.type + ': ' + esc(g.values.join(' o ')) + '</span>').join('')
-        : '<span class="an-prevchip">Todos los incidentes que te corresponden</span>';
-      if (window.lucide) lucide.createIcons();
-    }
-    // ---- Filtros guardados (recurrentes) ----
-    function renderGList() {
-      const el = document.getElementById('anGList'); if (!el) return;
-      el.innerHTML = savedFilters.length
-        ? savedFilters.map((s, i) => '<button class="an-gitem" onclick="loadSavedFilter(' + i + ')"><i data-lucide="bookmark"></i> ' + esc(s.name) + '<i data-lucide="x" class="an-gitem-x" onclick="event.stopPropagation();deleteSavedFilter(' + i + ')"></i></button>').join('')
-        : '<div class="an-gempty">No tienes filtros guardados.<br>Aplica filtros y pulsa <strong>Guardar filtro</strong>.</div>';
-      if (window.lucide) lucide.createIcons();
-    }
-    function saveCurrentFilter() {
-      const el = document.getElementById('anApplied'); if (!el || document.getElementById('anSaveRow')) return;
-      const row = document.createElement('div'); row.className = 'an-save-row'; row.id = 'anSaveRow';
-      row.innerHTML = '<input type="text" id="anSaveName" placeholder="Nombra este filtro (ej. Incidentes de Sergio)" maxlength="40">' +
-        '<button class="is-go" onclick="doSaveFilter()">Guardar</button>' +
-        '<button class="is-x" onclick="this.parentElement.remove()">Cancelar</button>';
-      el.appendChild(row);
-      const inp = document.getElementById('anSaveName'); if (inp) { inp.focus(); inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') doSaveFilter(); }); }
-    }
-    function doSaveFilter() {
-      const inp = document.getElementById('anSaveName'); if (!inp) return;
-      const name = inp.value.trim(); if (!name) { inp.focus(); return; }
-      savedFilters.push({ name: name, filters: anActiveFilter.map(f => ({ type: f.type, value: f.value, icon: f.icon })) });
-      const row = document.getElementById('anSaveRow'); if (row) row.remove();
-      renderGList();
-    }
-    function loadSavedFilter(i) {
-      const s = savedFilters[i]; if (!s) return;
-      anActiveFilter = s.filters.map(f => ({ type: f.type, value: f.value, icon: f.icon }));
-      renderApplied(); renderNotifFilterPreview(); markOptChecks();
-      document.getElementById('anGMenu').classList.remove('open');
-    }
-    function deleteSavedFilter(i) { savedFilters.splice(i, 1); renderGList(); }
-    function sPick(el) { document.querySelectorAll('#anSMenu .an-sort-item').forEach(s => s.classList.remove('is-sel')); el.classList.add('is-sel'); document.getElementById('anSMenu').classList.remove('open'); }
-    function goGestionFilter() { const g = document.querySelector('.an-seg-tab[data-sub="gestion"]'); if (g) anSubtab('gestion', g); }
-    renderNotifFilterPreview();
     document.addEventListener('click', e => { if (!e.target.closest('.an-fmenu-wrap')) closeFilterMenus(''); });
     // ======== Paquetes de notificación de incidentes (reglas) ========
     let pkgNextId = 1;

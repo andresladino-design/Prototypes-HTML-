@@ -26,6 +26,9 @@ ASSERTS = {
     2295: '<!-- ============ VISTA MONITOREO',
     2353: '<!-- ============ VISTA ANOMALÍAS',
     2367: '<div id="anLeftGestion"',
+    2368: '<div class="an-filters">',
+    2440: '<div class="an-applied" id="anApplied">',
+    2441: '<div class="an-cards" id="anCards">',
     2489: '</div>',
     2491: '<div id="anLeftConfig"',
     2534: '<div id="anLeftHistorial"',
@@ -50,7 +53,12 @@ ASSERTS = {
     4038: '// Sub-tabs de Anomalías',
     4051: '// Tabla de Historial',
     4080: '// ---- Filtros de la vista de incidentes',
+    4082: 'const AN_TABLEROS',
+    4084: 'let savedFilters',
     4087: 'function esc(s)',
+    4088: 'function groupFilters',
+    4095: 'function closeFilterMenus',
+    4200: "document.addEventListener('click'",
     4166: '// ---- Filtros guardados',
     4198: 'function goGestionFilter()',
     4202: '// ======== Paquetes de notificación',
@@ -183,12 +191,16 @@ build(
     keep_ranges=[
         (1, 1993),            # head + styles + sidebar
         (2073, 2085),         # main + top bar
-        (2353, 2611),         # vista Anomalías completa hasta anRightConfig
+        (2353, 2367),         # vista Anomalías: cabecera + segmented + apertura de Gestión
+        (2441, 2611),         # lista de incidentes + resto del aside + Gestión (sin barra de filtros: handoff 1)
         (2622, 2860),         # config (sin página Ingesta) + historial
         (2862, 2864),         # cierres
         (3884, 3884),         # <script>
         (4031, 4078),         # anSelect + anSubtab + renderHist
-        (4080, 4200),         # filtros + guardados (los reutiliza el editor)
+        (4082, 4082),         # AN_TABLEROS (menú de entidades del editor)
+        (4084, 4092),         # savedFilters (seed) + esc + groupFilters — los reutiliza el editor
+        (4095, 4097),         # closeFilterMenus (menús del editor)
+        (4200, 4200),         # listener global: cerrar menús al hacer clic fuera
         (4202, 4568),         # paquetes de notificación + anConfNav + AN_SOURCES
         (4643, 4664),         # addChip (chips de correo/canal del editor)
         (5152, 5157),         # lucide + cierres
@@ -206,7 +218,7 @@ build(
     ],
     title='Handoff 3 · Notificaciones de incidentes y vista de Anomalías',
     banner_b='Handoff 3 · Notificaciones de incidentes y vista de Anomalías',
-    banner_span='Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; los filtros de Gestión se especifican en el handoff 1.',
+    banner_span='Prototipo acotado a esta épica. Lo atenuado no hace parte de la entrega; la barra de filtros de Gestión se quitó de este HTML (es del handoff 1).',
     header_comment='Derivado de ../index.html — alcance: handoff-3-notificaciones-y-vista-anomalias.md. No editar a mano: los cambios de producto van en index.html y se re-derivan.',
 )
 
