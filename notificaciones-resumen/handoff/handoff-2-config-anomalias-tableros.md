@@ -1,7 +1,7 @@
 # Handoff 2 — Configuración de detección de anomalías (vista de tableros / monitoreo)
 
 Fecha: 2026-07-01 (consolidado)
-Prototipo: `notificaciones-resumen/index.html`
+Prototipo: [`handoff-2-config-anomalias-tableros.html`](./handoff-2-config-anomalias-tableros.html) — HTML acotado a esta épica (derivado de `../index.html`). Lo atenuado en ese HTML no hace parte de esta entrega.
 Registro: Interno / Operation Center — operador Simetrik configurando cómo el monitoreo detecta anomalías de un gráfico/KPI y de una fuente.
 
 **Alcance de este handoff:** toda la configuración de "cómo se detecta una anomalía" que vive DENTRO del diálogo de monitoreo de un gráfico/KPI (wizard Programación → Alertas → Series y valores) y en la configuración por fuente (Ingesta de datos) del detalle del tablero.

@@ -1,6 +1,6 @@
 # Handoff 1 — Filtros en la vista de incidentes
 
-**Prototipo:** `notificaciones-resumen/index.html` → Anomalías → **Gestión** (barra "Filtrar / Ordenar / Guardados").
+**Prototipo:** [`handoff-1-filtros-incidentes.html`](./handoff-1-filtros-incidentes.html) — HTML acotado a esta épica (derivado de `../index.html` → Anomalías → **Gestión**, barra "Filtrar / Ordenar / Guardados"). Lo atenuado en ese HTML no hace parte de esta entrega.
 **Fuente:** sesiones Granola **30-jun-2026** (am: épicas y cambios de UI · pm: design review con ingeniería) + comentarios de Ohana.
 **Registro:** Interno / Operation Center. **Plataforma:** Desktop (shell de OC).
 **Qué cubre:** los filtros de la lista de incidentes en Gestión (Recurso, Tablero, Estado, Tipo, Fecha), su lógica de combinación, el multiselect por categoría y los filtros guardados reutilizables.
