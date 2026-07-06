@@ -34,6 +34,9 @@ Prototipo de configuración de **notificaciones**, **ventana de monitoreo** y **
 
 ## Changelog
 
+### 2026-07-06
+- **Un HTML por handoff** en `handoff/`: cada épica tiene su prototipo acotado (`handoff-N-*.html`), derivado de `index.html` con solo el DOM/JS de su alcance, para segmentar la ejecución y evitar que se cuelen cambios de UI sin intención. Los elementos frontera de otras épicas aparecen atenuados con tooltip "fuera de alcance". Se regeneran con `handoff/derive-handoffs.py` (no se editan a mano).
+
 ### 2026-07-01
 - **Detección de anomalías rediseñada por serie:** se reemplazó el slider de sensibilidad (nula/media/alta) por narrativa "Análisis inteligente" + configuración general + override por serie (**Límites fijos** vs **Sistema adaptativo**), con simulación de alertas.
 - **Resumen consolidado** dejó de ser sección propia del nav: pasó a ser un **modo de entrega dentro del paquete** (mismo alcance y canales + período t-n), decisión del design review del 30-jun pm.
