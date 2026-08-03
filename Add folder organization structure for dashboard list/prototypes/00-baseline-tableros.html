@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baseline — Panel de Tableros (estado actual) · SWAT-577</title>
+
+<!-- Tokens y config derivados de @simetrikinc/desyk-components@1.30.0-0 -->
+<link rel="stylesheet" href="../design/tokens.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../design/tailwind.desyk.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+  /* Color de barra de gráficos: BASE[0] de features/dashboards/constants/colorPalettes.ts */
+  :root { --chart-bar: #475569; }
+  [x-cloak] { display: none !important; }
+  html, body { height: 100%; }
+  /* Scroll del panel — replica scrollbar-medium de desyk */
+  .panel-scroll { overflow-y: auto; scrollbar-gutter: stable; }
+  .panel-scroll::-webkit-scrollbar { width: 0.3rem; }
+  .panel-scroll::-webkit-scrollbar-thumb { background-color: hsl(var(--scroll)); border-radius: .25rem; }
+  .panel-scroll::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+
+<body class="h-full overflow-hidden bg-background text-foreground antialiased">
+
+<!-- =========================================================================
+     BASELINE — réplica del estado ACTUAL en producción (sin carpetas).
+     Fuente: fe-solutions-mf @ 8aebc1879
+       · framework/layout/mainLayout/OcTopNavBar.tsx      (header + tabs)
+       · framework/layout/contentLayout/OcContentLayout.tsx (aside w-72, tabs del panel)
+       · features/dashboards/components/DashboardList        (búsqueda, sort, diálogos)
+       · features/dashboards/components/DashboardListItem    (la fila)
+       · features/dashboards/components/DashboardSection     (header + estados)
+       · shared/components/SidebarList                       (shell del panel)
+     ========================================================================= -->
+
+<div class="flex h-full" x-data="baseline()" x-cloak>
+
+  <!-- ══════════════ RAIL GLOBAL (shell de la plataforma) ══════════════ -->
+  <aside class="flex w-64 shrink-0 flex-col border-r border-border bg-background">
+
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-2">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 text-info" fill="currentColor" aria-hidden="true">
+          <path d="M14.5 3H8.2C5.9 3 4 4.7 4 6.9c0 1.6 1 3 2.6 3.6l7.2 2.6c.7.3 1.2.9 1.2 1.6 0 1-.9 1.8-2 1.8H4.5L3 21h9.8c2.3 0 4.2-1.7 4.2-3.9 0-1.6-1-3-2.6-3.6L7.2 10.9c-.7-.3-1.2-.9-1.2-1.6 0-1 .9-1.8 2-1.8H16L14.5 3z"/>
+        </svg>
+        <span class="text-[15px] font-semibold tracking-tight">Simetrik</span>
+      </div>
+      <button class="rounded-lg p-1.5 text-muted-foreground hover:bg-accent" aria-label="Vista previa">
+        <i data-lucide="eye" class="h-4 w-4"></i>
+      </button>
+    </div>
+
+    <!-- Selector de cuenta / espacio -->
+    <div class="mx-3 flex items-center gap-2 rounded-xl border border-border px-2 py-2">
+      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-semibold text-muted-foreground">D</span>
+      <div class="min-w-0 flex-1 leading-tight">
+        <p class="truncate text-[13px] font-semibold">dataset 1</p>
+        <p class="truncate text-[11px] text-muted-foreground">OC Demos</p>
+      </div>
+      <i data-lucide="chevrons-up-down" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+    </div>
+
+    <!-- Buscador global -->
+    <div class="mx-3 mt-2">
+      <div class="relative">
+        <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
+        <input disabled placeholder="Buscar transacciones"
+               class="h-9 w-full rounded-[0.625rem] border border-solid border-input bg-transparent pl-8 pr-14 text-sm placeholder:text-muted-foreground">
+        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground">⌘ + K</span>
+      </div>
+    </div>
+
+    <!-- Navegación -->
+    <nav class="mt-3 space-y-0.5 px-2">
+      <template x-for="item in globalNav" :key="item.label">
+        <a href="#" @click.prevent
+           class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm"
+           :class="item.active ? 'bg-secondary text-foreground ring-1 ring-border font-medium' : 'text-foreground hover:bg-accent'">
+          <i :data-lucide="item.icon" class="h-4 w-4 shrink-0 text-muted-foreground"></i>
+          <span class="min-w-0 flex-1 truncate" x-text="item.label"></span>
+          <template x-if="item.badge">
+            <span class="shrink-0 rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-secondary-foreground ring-1 ring-inset ring-transparent" x-text="item.badge"></span>
+          </template>
+          <template x-if="item.meta">
+            <span class="shrink-0 text-[11px] text-muted-foreground" x-text="item.meta"></span>
+          </template>
+          <template x-if="item.chevron">
+            <i data-lucide="chevron-right" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+          </template>
+        </a>
+      </template>
+    </nav>
+
+    <!-- Utilidades -->
+    <div class="mt-auto flex items-center gap-1 border-t border-border px-3 py-3">
+      <span class="mr-1 h-7 w-7 shrink-0 rounded-full bg-muted"></span>
+      <template x-for="ic in ['bell','circle-help','settings','clipboard-list']" :key="ic">
+        <button class="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"><i :data-lucide="ic" class="h-4 w-4"></i></button>
+      </template>
+      <button class="ml-auto rounded-lg p-1.5 text-muted-foreground hover:bg-accent"><i data-lucide="chevrons-left" class="h-4 w-4"></i></button>
+    </div>
+  </aside>
+
+  <!-- ══════════════ ÁREA DE LA APP ══════════════ -->
+  <div class="flex min-w-0 flex-1 flex-col">
+
+    <!-- OcTopNavBar: h-14 px-7 -->
+    <header class="flex h-14 shrink-0 items-center justify-between bg-background px-7">
+      <div class="flex min-w-0 items-center gap-2 pr-8">
+        <i data-lucide="radar" class="h-[18px] w-[18px] shrink-0"></i>
+        <span class="truncate whitespace-nowrap text-base font-semibold">Centro de operaciones</span>
+        <span class="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground ring-1 ring-inset ring-transparent">Beta</span>
+      </div>
+
+      <!-- TabsList size="lg" shape="circle" → h-8 rounded-full bg-muted p-1 -->
+      <div class="inline-flex h-8 items-center justify-center rounded-full bg-muted p-1 text-muted-foreground">
+        <template x-for="tab in ocTabs" :key="tab.key">
+          <button class="inline-flex h-6 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 py-1 text-xs font-medium transition-all"
+                  :class="tab.active ? 'bg-background text-foreground shadow' : ''">
+            <i :data-lucide="tab.icon" class="h-3.5 w-3.5"></i>
+            <span x-text="tab.label"></span>
+          </button>
+        </template>
+      </div>
+
+      <div class="flex items-center gap-2"></div>
+    </header>
+
+    <!-- OcContentLayout: px-6 pb-6 gap-6 · card rounded-2xl border -->
+    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden bg-background px-6 pb-6 pt-0">
+      <div class="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
+
+        <!-- ═════ ASIDE: w-72 px-3 pt-3 pb-0 border-r ═════ -->
+        <aside class="relative flex w-72 min-w-72 shrink-0 flex-col overflow-hidden border-r border-border bg-background px-3 pb-0 pt-3">
+
+          <!-- Header del panel: pl-3 pt-1 pb-2 -->
+          <div class="flex items-center justify-between pb-2 pl-3 pt-1">
+            <h2 class="whitespace-nowrap text-sm font-semibold">Tableros</h2>
+            <button class="shrink-0 rounded-xl p-1.5 hover:bg-accent" aria-label="Cerrar panel">
+              <i data-lucide="chevron-left" class="h-4 w-4"></i>
+            </button>
+          </div>
+
+          <!-- Tabs Tableros / Datasets: TabsList h-10 rounded-xl bg-muted p-1 -->
+          <div class="px-3">
+            <div class="inline-flex h-10 w-full items-center justify-center rounded-xl bg-muted p-1 text-muted-foreground">
+              <button class="inline-flex h-8 flex-1 items-center justify-center whitespace-nowrap rounded-lg bg-background px-6 py-2 text-sm font-medium text-foreground shadow transition-all">Tableros</button>
+              <button class="inline-flex h-8 flex-1 items-center justify-center whitespace-nowrap rounded-lg px-6 py-2 text-sm font-medium transition-all">Datasets</button>
+            </div>
+          </div>
+
+          <!-- ═════ SidebarList ═════ -->
+          <div class="flex min-h-0 flex-1 flex-col">
+
+            <!-- topAction: px-3 pt-3 pb-3 · Button variant=outline size=default shape=square -->
+            <div class="px-3 pb-3 pt-3">
+              <button class="inline-flex h-10 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-solid border-border bg-background px-3 py-1 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                <i data-lucide="plus" class="h-4 w-4"></i>
+                Nuevo tablero
+              </button>
+            </div>
+
+            <!-- search: px-3 pb-4 · Input h-10 rounded-[0.625rem] -->
+            <div class="flex flex-col gap-2 px-3 pb-4">
+              <div class="relative">
+                <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
+                <input x-model="searchInput" @input="onSearchInput()"
+                       placeholder="Buscar tablero" aria-label="Buscar tablero"
+                       class="h-10 w-full rounded-[0.625rem] border border-solid border-input bg-transparent py-1 pl-8 pr-3 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-info/50">
+              </div>
+            </div>
+
+            <!-- ScrollArea -->
+            <div class="panel-scroll flex min-h-0 flex-1 flex-col" @scroll="onScroll($event)">
+
+              <!-- ── Configuraciones pendientes ── -->
+              <template x-if="state === 'ready' && pendientes.length">
+                <section class="flex flex-col">
+                  <div class="flex items-center gap-2 px-3">
+                    <span class="text-xs font-medium text-muted-foreground" x-text="`Configuraciones pendientes (${pendientes.length})`"></span>
+                  </div>
+                  <div class="flex flex-1 flex-col px-3">
+                    <div class="flex min-h-6 flex-1 flex-col rounded-md">
+                      <div class="flex flex-col gap-0.5">
+                        <template x-for="d in pendientes" :key="d.id">
+                          <div x-html="row(d)"></div>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </template>
+
+              <!-- ── Favoritos ── -->
+              <template x-if="state === 'ready'">
+                <div class="pt-3">
+                  <section class="flex flex-col">
+                    <div class="flex items-center gap-2 px-3 pb-1">
+                      <span class="text-xs font-medium text-muted-foreground" x-text="`Favoritos (${favoritos.length}/15)`"></span>
+                    </div>
+                    <div class="flex flex-1 flex-col px-3">
+                      <div class="flex min-h-6 flex-1 flex-col rounded-md border border-dashed border-transparent">
+                        <div class="flex flex-col gap-0.5">
+                          <template x-for="d in favoritos" :key="d.id">
+                            <div x-html="row(d, { favorite: true })"></div>
+                          </template>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+              </template>
+
+              <!-- ── Tableros ── -->
+              <section class="mt-3 flex flex-1 flex-col">
+                <div class="flex items-center gap-2 px-3">
+                  <span class="text-xs font-medium text-muted-foreground"
+                        x-text="state === 'ready' ? `Tableros (${totalLabel})` : 'Tableros'"></span>
+                  <template x-if="state === 'ready' && totalLabel > 0">
+                    <button @click="sortAsc = !sortAsc"
+                            class="ml-auto shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted"
+                            :aria-label="sortAsc ? 'Orden A → Z' : 'Orden Z → A'">
+                      <i :data-lucide="sortAsc ? 'arrow-down-a-z' : 'arrow-up-z-a'" class="h-4 w-4"></i>
+                    </button>
+                  </template>
+                </div>
+
+                <div class="flex flex-1 flex-col px-3">
+                  <div class="flex min-h-6 flex-1 flex-col rounded-md">
+
+                    <!-- loading -->
+                    <template x-if="state === 'loading'">
+                      <div class="flex flex-col gap-0.5">
+                        <template x-for="i in 5" :key="i">
+                          <div class="flex h-8 items-center gap-2 rounded-md px-2 py-1.5">
+                            <div class="h-3.5 w-3.5 shrink-0 animate-pulse rounded bg-muted-foreground/20"></div>
+                            <div class="h-3 animate-pulse rounded-sm bg-muted-foreground/20"
+                                 :class="['w-2/3','w-1/2','w-3/4','w-3/5','w-4/5'][(i-1)%5]"></div>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+
+                    <!-- error -->
+                    <template x-if="state === 'error'">
+                      <div class="flex flex-1 items-center justify-center px-2 py-6">
+                        <div class="flex max-w-[640px] flex-col items-center gap-1 bg-transparent text-center">
+                          <i data-lucide="alert-circle" class="h-8 w-8 text-destructive/70"></i>
+                          <p class="text-xs font-semibold text-destructive">No se pudieron cargar los tableros</p>
+                          <p class="text-[11px] text-muted-foreground">Vuelve a intentarlo en unos segundos.</p>
+                          <button @click="state = 'ready'"
+                                  class="mt-1 inline-flex h-7 items-center justify-center gap-1.5 rounded-xl border border-solid border-border bg-background px-2.5 text-xs font-medium hover:bg-accent">
+                            <i data-lucide="refresh-cw" class="h-3 w-3"></i> Reintentar
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- vacío (cuenta sin tableros) -->
+                    <template x-if="state === 'empty'">
+                      <div class="flex flex-1 items-center justify-center">
+                        <div class="flex max-w-[640px] flex-col items-center gap-1 bg-transparent py-6 text-center">
+                          <p class="text-xs font-semibold">Sin tableros</p>
+                          <p class="text-xs text-muted-foreground">Aquí verás los tableros creados.</p>
+                          <button class="mt-1 inline-flex h-7 items-center justify-center gap-1.5 rounded-xl border border-solid border-transparent bg-info px-2.5 text-xs font-medium text-info-foreground hover:bg-info/90">
+                            <i data-lucide="plus" class="h-3.5 w-3.5"></i> Nuevo tablero
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- sin resultados de búsqueda -->
+                    <template x-if="state === 'ready' && appliedSearch && visible.length === 0">
+                      <div class="flex flex-1 items-center justify-center">
+                        <div class="flex max-w-[640px] flex-col items-center gap-1 bg-transparent py-6 text-center">
+                          <i data-lucide="search" class="h-8 w-8 text-muted-foreground"></i>
+                          <p class="text-xs font-semibold" x-text="`No se encontraron tableros para &quot;${appliedSearch}&quot;`"></p>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- lista -->
+                    <template x-if="state === 'ready' && visible.length">
+                      <div>
+                        <div class="flex flex-col gap-0.5">
+                          <template x-for="d in visible" :key="d.id">
+                            <div x-html="row(d)"></div>
+                          </template>
+                        </div>
+                        <template x-if="loadingMore">
+                          <div class="flex flex-col gap-0.5">
+                            <template x-for="i in 3" :key="'nx'+i">
+                              <div class="flex h-8 items-center gap-2 rounded-md px-2 py-1.5">
+                                <div class="h-3.5 w-3.5 shrink-0 animate-pulse rounded bg-muted-foreground/20"></div>
+                                <div class="h-3 animate-pulse rounded-sm bg-muted-foreground/20"
+                                     :class="['w-2/3','w-1/2','w-3/4'][(i-1)%3]"></div>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+
+                  </div>
+                </div>
+              </section>
+
+              <div class="h-3"></div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ═════ CONTENIDO: el tablero abierto (contexto, no es el objeto de estudio) ═════ -->
+        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+
+          <div class="flex shrink-0 items-center justify-between gap-4 px-5 pb-3 pt-4">
+            <div class="flex min-w-0 items-center gap-2">
+              <h1 class="truncate text-[15px] font-semibold" x-text="openDashboard"></h1>
+              <i data-lucide="pencil" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+              <span class="ml-1 inline-flex shrink-0 items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-secondary-foreground ring-1 ring-inset ring-border">
+                <i data-lucide="database" class="h-3 w-3"></i> 4 Datasets usados
+              </span>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+              <button class="rounded-xl p-1.5 hover:bg-accent"><i data-lucide="download" class="h-4 w-4"></i></button>
+              <button class="inline-flex h-8 items-center gap-1.5 rounded-xl px-2 text-sm font-medium hover:bg-accent">
+                <i data-lucide="scan-search" class="h-4 w-4"></i> Contexto
+              </button>
+              <button class="inline-flex h-8 items-center gap-1.5 rounded-xl px-2 text-sm font-medium hover:bg-accent">
+                <i data-lucide="activity" class="h-4 w-4"></i> Monitoreo
+                <span class="rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success ring-1 ring-inset ring-transparent">Activo</span>
+              </button>
+              <button class="inline-flex h-8 items-center gap-1.5 rounded-xl border border-solid border-transparent bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90">
+                <i data-lucide="pencil-line" class="h-4 w-4"></i> Editar tablero
+              </button>
+            </div>
+          </div>
+
+          <!-- Tabs de páginas -->
+          <div class="flex shrink-0 items-center gap-1 border-b border-border px-5">
+            <button class="mr-1 rounded-md p-1.5 text-muted-foreground hover:bg-accent"><i data-lucide="list" class="h-4 w-4"></i></button>
+            <template x-for="(p, i) in pages" :key="p">
+              <button class="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm"
+                      :class="i === 0 ? 'bg-info/10 font-medium text-info' : 'text-muted-foreground hover:bg-accent'">
+                <span x-text="p"></span>
+                <template x-if="i === 0"><i data-lucide="more-vertical" class="h-3 w-3"></i></template>
+              </button>
+            </template>
+          </div>
+
+          <!-- Grid de widgets -->
+          <div class="panel-scroll min-h-0 flex-1 bg-background p-4">
+            <div class="grid grid-cols-2 gap-4">
+
+              <div class="rounded-xl border border-border p-3">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 text-sm font-medium">
+                    <i data-lucide="line-chart" class="h-4 w-4 text-info"></i> Line Chart
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive"><i data-lucide="alert-circle" class="h-3 w-3"></i> 6</span>
+                    <span class="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning"><i data-lucide="triangle-alert" class="h-3 w-3"></i> 43</span>
+                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style="color:hsl(var(--ai-purple));background:hsl(var(--ai-purple)/.08)"><i data-lucide="circle-check" class="h-3 w-3"></i> Monitoreo activo</span>
+                    <button class="rounded-md p-1 text-muted-foreground hover:bg-muted"><i data-lucide="more-vertical" class="h-3 w-3"></i></button>
+                  </div>
+                </div>
+                <div x-html="lineChart()"></div>
+              </div>
+
+              <div class="rounded-xl border border-border p-3">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 text-sm font-medium">
+                    <i data-lucide="bar-chart-3" class="h-4 w-4 text-info"></i> Bar Chart
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-semibold text-warning"><i data-lucide="bell" class="h-3 w-3"></i> 49</span>
+                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style="color:hsl(var(--ai-purple));background:hsl(var(--ai-purple)/.08)"><i data-lucide="circle-check" class="h-3 w-3"></i> Monitoreo activo</span>
+                    <button class="rounded-md p-1 text-muted-foreground hover:bg-muted"><i data-lucide="more-vertical" class="h-3 w-3"></i></button>
+                  </div>
+                </div>
+                <div x-html="barChart(3)"></div>
+              </div>
+
+              <div class="col-span-2 rounded-xl border border-border p-3">
+                <div class="mb-2 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 text-sm font-medium">
+                    <i data-lucide="bar-chart-3" class="h-4 w-4 text-info"></i> Bar Chart
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style="color:hsl(var(--ai-purple));background:hsl(var(--ai-purple)/.08)"><i data-lucide="circle-check" class="h-3 w-3"></i> Monitoreo activo</span>
+                    <button class="rounded-md p-1 text-muted-foreground hover:bg-muted"><i data-lucide="more-vertical" class="h-3 w-3"></i></button>
+                  </div>
+                </div>
+                <div x-html="barChart(6, 320)"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MENÚ DE FILA (⋮ y click derecho) — instancia única ══════════════ -->
+  <div x-show="menu.open" @click.outside="menu.open = false" x-transition.opacity.duration.100ms
+       class="fixed z-50 w-48 rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-md"
+       :style="`left:${menu.x}px; top:${menu.y}px`">
+    <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="pencil-line" class="h-4 w-4"></i> Cambiar nombre</button>
+    <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent" :class="menu.pending && 'pointer-events-none opacity-50'"><i data-lucide="brain" class="h-4 w-4"></i> Agregar contexto</button>
+    <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent" :class="menu.pending && 'pointer-events-none opacity-50'"><i data-lucide="copy" class="h-4 w-4"></i> Duplicar</button>
+    <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent" :class="menu.pending && 'pointer-events-none opacity-50'"><i data-lucide="users-round" class="h-4 w-4"></i> Gestionar acceso</button>
+    <div class="my-1 h-px bg-border"></div>
+    <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar tablero</button>
+  </div>
+
+  <!-- ══════════════ PANEL DE CONTROL (no es parte del producto) ══════════════ -->
+  <div class="fixed bottom-4 right-4 z-50 font-sans">
+    <button @click="devOpen = !devOpen"
+            class="flex h-9 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs font-medium shadow-md">
+      <i data-lucide="sliders-horizontal" class="h-3.5 w-3.5"></i> Estados
+    </button>
+    <div x-show="devOpen" x-transition class="mt-2 w-64 rounded-xl border border-border bg-background p-3 shadow-lg">
+      <p class="mb-1 text-xs font-semibold">Baseline — estado actual</p>
+      <p class="mb-2 text-[11px] leading-snug text-muted-foreground">
+        Réplica del panel en producción, <strong>sin carpetas</strong>. Es el “antes” del handoff de SWAT-577.
+        Este control no existe en el producto.
+      </p>
+      <div class="space-y-1">
+        <template x-for="s in ['ready','loading','error','empty']" :key="s">
+          <button @click="setState(s)"
+                  class="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-accent"
+                  :class="state === s && 'bg-secondary font-medium ring-1 ring-border'">
+            <span x-text="stateLabels[s]"></span>
+            <template x-if="state === s"><i data-lucide="check" class="h-3 w-3"></i></template>
+          </button>
+        </template>
+        <button @click="searchInput='zzz'; onSearchInput(); setState('ready')"
+                class="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-accent">
+          Búsqueda sin resultados
+        </button>
+      </div>
+      <p class="mt-2 border-t border-border pt-2 text-[11px] text-muted-foreground">
+        <span x-text="all.length"></span> tableros · <span x-text="visible.length"></span> renderizados
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function baseline() {
+  const PAGE = 20;
+
+  // ── Mock derivado de la captura de producción ─────────────────────────────
+  const pendingNames = [
+    "ADQ-DASH",
+    "Adquirencia_2026_06_04_conciliacion_visa",
+    "Adquirencia_2026_06_04_conciliacion_master",
+    "Adquirencia_2026_06_04_pagos_pse",
+    "Adquirencia_2026_06_18_conciliacion_visa",
+    "Adquirencia_2026_06_18_conciliacion_master",
+    "Adquirencia_2026_06_18_pagos_pse",
+    "Adquirencia_2026_06_18_recaudos",
+  ];
+  const favNames = [
+    ["Tablero de pruebas anomalias", true],
+    ["Test anomalias y pendientes v2", true],
+    ["Prueba anomalías AM", true],
+    ["Test anomalias y pendientes v3", false],
+    ["Test anomalias y pendientes v4", false],
+  ];
+
+  // 159 tableros: nombres largos y casi idénticos — la evidencia del problema.
+  const suffixes = ["conciliacion_visa","conciliacion_master","pagos_pse","recaudos","dispersiones",
+                    "chargebacks","comisiones","liquidacion","contracargos","ajustes"];
+  const all = [{ id: "d0", name: "Adquirencia", private: false, access: true }];
+  let n = 1;
+  for (let day = 4; day <= 30 && all.length < 159; day++) {
+    for (const s of suffixes) {
+      if (all.length >= 159) break;
+      all.push({
+        id: "d" + n,
+        name: `Adquirencia_2026_06_${String(day).padStart(2, "0")}_${s}`,
+        private: n % 17 === 0,
+        access: n % 41 !== 0,   // un par sin acceso, como en producción
+      });
+      n++;
+    }
+  }
+
+  return {
+    // estado
+    state: "ready",
+    devOpen: false,
+    sortAsc: true,
+    searchInput: "",
+    appliedSearch: "",
+    count: PAGE,
+    loadingMore: false,
+    activeId: "f0",
+    menu: { open: false, x: 0, y: 0, pending: false },
+    openDashboard: "Tablero de pruebas anomalias",
+    pages: ["Anomalias 1", "Anomalias 2", "Anomalias 3", "Página 4"],
+    stateLabels: { ready: "Con datos (155+)", loading: "Cargando", error: "Error de carga", empty: "Cuenta sin tableros" },
+
+    all,
+    pendientes: pendingNames.map((name, i) => ({ id: "p" + i, name, pending: true, access: true })),
+    favoritos: favNames.map(([name, priv], i) => ({ id: "f" + i, name, private: priv, favorite: true, access: true })),
+
+    globalNav: [
+      { label: "Resumen", icon: "flag" },
+      { label: "Accesos directos", icon: "arrow-up-right", meta: "5/5", chevron: true },
+      { label: "Simetrik Agent", icon: "diamond" },
+      { label: "Centro de operaciones", icon: "radar", badge: "Beta", active: true },
+      { label: "Marketplace", icon: "database" },
+      { label: "Automatizar", icon: "send", chevron: true },
+      { label: "Gestionar", icon: "zoom-in", chevron: true },
+      { label: "Auditar", icon: "shield", chevron: true },
+      { label: "Herramientas", icon: "wand-sparkles", chevron: true },
+    ],
+    ocTabs: [
+      { key: "tableros", label: "Tableros", icon: "layout-grid", active: true },
+      { key: "anomalias", label: "Anomalías", icon: "alert-circle" },
+      { key: "pendientes", label: "Pendientes", icon: "clock" },
+      { key: "almacenamiento", label: "Almacenamiento", icon: "hard-drive" },
+      { key: "accountingEntries", label: "Asientos contables", icon: "book-open-text" },
+    ],
+
+    // ── Derivados ───────────────────────────────────────────────────────────
+    get filtered() {
+      const q = this.appliedSearch.trim().toLowerCase();
+      const base = q ? this.all.filter((d) => d.name.toLowerCase().includes(q)) : this.all.slice();
+      base.sort((a, b) => (this.sortAsc ? 1 : -1) * a.name.localeCompare(b.name, "es"));
+      return base;
+    },
+    get visible() { return this.filtered.slice(0, this.count); },
+    get totalLabel() { return this.filtered.length; },
+
+    // ── Acciones ────────────────────────────────────────────────────────────
+    setState(s) {
+      if (s === "ready" && this.state !== "ready") { this.searchInput = ""; this.appliedSearch = ""; }
+      this.state = s;
+      this.count = PAGE;
+    },
+    // Debounce de 300 ms — el mismo SEARCH_DEBOUNCE_MS del producto
+    onSearchInput() {
+      clearTimeout(this._t);
+      this._t = setTimeout(() => { this.appliedSearch = this.searchInput.trim(); this.count = PAGE; }, 300);
+    },
+    // Scroll infinito: el producto usa IntersectionObserver sobre un sentinel
+    onScroll(e) {
+      const el = e.target;
+      if (this.loadingMore || this.count >= this.filtered.length) return;
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) {
+        this.loadingMore = true;
+        setTimeout(() => { this.count += PAGE; this.loadingMore = false; }, 350);
+      }
+    },
+    openMenu(id, x, y, pending) {
+      this.menu = { open: true, x: Math.min(x, window.innerWidth - 200), y: Math.min(y, window.innerHeight - 230), pending: !!pending };
+    },
+
+    // ── Render de fila — replica DashboardListItem ───────────────────────────
+    row(d, opts = {}) {
+      const isFav = !!(d.favorite || opts.favorite);
+      const isActive = this.activeId === d.id;
+      const noAccess = d.access === false;
+
+      const grip = isFav
+        ? `<div class="shrink-0 cursor-grab text-muted-foreground/40 transition-colors group-hover:text-foreground"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg></div>`
+        : "";
+
+      // Badge ámbar de instalación pendiente / Lock privado / Globe público
+      const icon = d.pending
+        ? `<span class="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-warning/15 text-warning"><svg class="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>`
+        : d.private
+          ? `<svg class="h-3.5 w-3.5 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+          : `<svg class="h-3.5 w-3.5 shrink-0 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>`;
+
+      const pin = `<button class="shrink-0 rounded-md p-1 text-muted-foreground/0 transition-colors hover:bg-muted group-hover:text-foreground" aria-label="${isFav ? "Quitar favorito" : "Fijar favorito"}">
+        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${
+          isFav ? `<path d="m2 2 20 20M12 17v5"/><path d="M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h11"/><path d="M15 9.34V6h1a2 2 0 0 0 0-4H7.89"/>`
+                : `<path d="M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1z"/>`
+        }</svg></button>`;
+
+      const dots = `<button class="shrink-0 rounded-md p-1 text-muted-foreground/0 transition-colors hover:bg-muted group-hover:text-foreground"
+          aria-label="Opciones del tablero"
+          onclick="event.stopPropagation(); Alpine.\$data(this.closest('[x-data]')).openMenu('${d.id}', event.clientX, event.clientY, ${!!d.pending})">
+        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="5" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="12" cy="19" r=".6"/></svg></button>`;
+
+      return `<div class="group flex w-full min-w-0 items-center overflow-hidden rounded-md transition-colors ${noAccess ? "opacity-60" : ""} ${isActive ? "bg-accent" : ""}"
+             oncontextmenu="event.preventDefault(); Alpine.\$data(this.closest('[x-data]')).openMenu('${d.id}', event.clientX, event.clientY, ${!!d.pending})">
+          ${grip}
+          <button class="flex min-w-0 flex-1 items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-left text-sm transition-colors ${isActive ? "font-medium" : ""} ${noAccess ? "cursor-not-allowed" : "hover:bg-accent"}"
+                  title="${noAccess ? "Acceso restringido" : d.name.replace(/"/g, "&quot;")}"
+                  ${noAccess ? "disabled" : `onclick="Alpine.\$data(this.closest('[x-data]')).activeId='${d.id}'"`}>
+            ${icon}
+            <span class="block min-w-0 truncate">${d.name}</span>
+          </button>
+          ${noAccess ? "" : pin}
+          ${dots}
+        </div>`;
+    },
+
+    // ── Mocks de gráficos (contexto visual, no objeto de estudio) ────────────
+    lineChart() {
+      const w = 620, h = 300, pad = 34;
+      let pts = "";
+      for (let i = 0; i <= 160; i++) {
+        const x = pad + (i / 160) * (w - pad - 8);
+        const base = h - 40 - Math.abs(Math.sin(i / 7)) * 10 - (i > 140 ? (i - 140) * 0.8 : 0);
+        pts += `${x},${base} `;
+      }
+      const ticks = ["26K", "19.5K", "13K", "6.5K", "0"];
+      const dates = ["2024-12-31","2025-05-18","2025-10-04","2026-02-16","2026-07-07","2027-02-28","2027-07-17","2027-12-31"];
+      return `<svg viewBox="0 0 ${w} ${h}" class="w-full" style="height:280px">
+        ${ticks.map((t, i) => {
+          const y = 20 + i * ((h - 60) / (ticks.length - 1));
+          return `<line x1="${pad}" y1="${y}" x2="${w - 8}" y2="${y}" stroke="hsl(var(--border))" stroke-width="1"/>
+                  <text x="${pad - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="hsl(var(--muted-foreground))">${t}</text>`;
+        }).join("")}
+        <polyline points="${pts}" fill="none" stroke="hsl(var(--foreground))" stroke-width="1"/>
+        ${dates.map((d, i) => `<text x="${pad + (i / (dates.length - 1)) * (w - pad - 20)}" y="${h - 22}" text-anchor="middle" font-size="8" fill="hsl(var(--muted-foreground))">${d}</text>`).join("")}
+        <g transform="translate(${w / 2 - 60}, ${h - 6})">
+          <rect width="7" height="7" y="-7" rx="1" fill="var(--chart-bar)"/>
+          <text x="12" y="-1" font-size="9" fill="hsl(var(--muted-foreground))">SUM(CONTEO_DE_REGISTROS)</text>
+        </g></svg>`;
+    },
+    barChart(labels = 6, height = 300) {
+      const w = 620, h = 300, pad = 40;
+      const cats = ["ERP_SAP","Visa_Acquiring","Banco_Occidente","Libro_Mayor","PayU_Latam","Tesoreria_Interna"];
+      const vals = [105, 91, 65, 91, 101, 65];
+      const bw = (w - pad - 20) / cats.length;
+      const ticks = ["120K", "90K", "60K", "30K", "0"];
+      return `<svg viewBox="0 0 ${w} ${h}" class="w-full" style="height:${height - 20}px">
+        ${ticks.map((t, i) => {
+          const y = 18 + i * ((h - 58) / (ticks.length - 1));
+          return `<line x1="${pad}" y1="${y}" x2="${w - 8}" y2="${y}" stroke="hsl(var(--border))" stroke-width="1"/>
+                  <text x="${pad - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="hsl(var(--muted-foreground))">${t}</text>`;
+        }).join("")}
+        ${vals.map((v, i) => {
+          const bh = (v / 120) * (h - 58);
+          const x = pad + i * bw + bw * 0.18;
+          return `<rect x="${x}" y="${h - 40 - bh}" width="${bw * 0.64}" height="${bh}" fill="var(--chart-bar)"/>`;
+        }).join("")}
+        ${cats.map((c, i) => (labels === 6 || i % 2 === 0)
+          ? `<text x="${pad + i * bw + bw / 2}" y="${h - 26}" text-anchor="middle" font-size="8" fill="hsl(var(--muted-foreground))">${c}</text>` : "").join("")}
+        <g transform="translate(${w / 2 - 60}, ${h - 6})">
+          <rect width="7" height="7" y="-7" rx="1" fill="var(--chart-bar)"/>
+          <text x="12" y="-1" font-size="9" fill="hsl(var(--muted-foreground))">SUM(CONTEO_DE_REGISTROS)</text>
+        </g></svg>`;
+    },
+  };
+}
+
+// Lucide: re-inyectar iconos cuando Alpine re-renderiza
+let raf = null;
+const paint = () => { raf = raf || requestAnimationFrame(() => { raf = null; lucide.createIcons(); }); };
+document.addEventListener("alpine:initialized", () => {
+  paint();
+  new MutationObserver(paint).observe(document.body, { childList: true, subtree: true });
+});
+</script>
+</body>
+</html>

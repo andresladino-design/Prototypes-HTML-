@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carpetas en la lista de tableros · SWAT-577</title>
+
+<link rel="stylesheet" href="../design/tokens.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="../design/tailwind.desyk.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+  :root { --chart-bar: #475569; }
+  [x-cloak] { display: none !important; }
+  html, body { height: 100%; }
+  .panel-scroll { overflow-y: auto; scrollbar-gutter: stable; }
+  .panel-scroll::-webkit-scrollbar { width: .3rem; }
+  .panel-scroll::-webkit-scrollbar-thumb { background-color: hsl(var(--scroll)); border-radius: .25rem; }
+  .panel-scroll::-webkit-scrollbar-track { background: transparent; }
+
+  /* Acordeón de desyk: accordion-down / accordion-up, 0.2s ease-out */
+  .acc { animation: acc-down .2s ease-out; }
+  @keyframes acc-down { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  .chev { transition: transform .2s ease-out; }
+
+  /* Hallazgo I2 de la revisión heurística */
+  @media (prefers-reduced-motion: reduce) {
+    .acc, .chev, * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+
+<body class="h-full overflow-hidden bg-background text-foreground antialiased">
+<div class="flex h-full" x-data="proto()" x-cloak
+     @keydown.escape.window="onEscape()">
+
+  <!-- ═════════ RAIL GLOBAL ═════════ -->
+  <aside class="flex w-64 shrink-0 flex-col border-r border-border bg-background">
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-2">
+        <svg viewBox="0 0 24 24" class="h-5 w-5 text-info" fill="currentColor"><path d="M14.5 3H8.2C5.9 3 4 4.7 4 6.9c0 1.6 1 3 2.6 3.6l7.2 2.6c.7.3 1.2.9 1.2 1.6 0 1-.9 1.8-2 1.8H4.5L3 21h9.8c2.3 0 4.2-1.7 4.2-3.9 0-1.6-1-3-2.6-3.6L7.2 10.9c-.7-.3-1.2-.9-1.2-1.6 0-1 .9-1.8 2-1.8H16L14.5 3z"/></svg>
+        <span class="text-[15px] font-semibold tracking-tight">Simetrik</span>
+      </div>
+      <i data-lucide="eye" class="h-4 w-4 text-muted-foreground"></i>
+    </div>
+    <div class="mx-3 flex items-center gap-2 rounded-xl border border-border px-2 py-2">
+      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-semibold text-sidebar-foreground">D</span>
+      <div class="min-w-0 flex-1 leading-tight">
+        <p class="truncate text-[13px] font-semibold">dataset 1</p>
+        <p class="truncate text-[11px] text-sidebar-foreground">OC Demos</p>
+      </div>
+      <i data-lucide="chevrons-up-down" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+    </div>
+    <div class="mx-3 mt-2 relative">
+      <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
+      <input disabled placeholder="Buscar transacciones" class="h-9 w-full rounded-[0.625rem] border border-solid border-input bg-transparent pl-8 pr-14 text-sm placeholder:text-muted-foreground">
+      <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground">⌘ + K</span>
+    </div>
+    <nav class="mt-3 space-y-0.5 px-2">
+      <template x-for="it in globalNav" :key="it.label">
+        <a href="#" @click.prevent class="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm"
+           :class="it.active ? 'bg-secondary font-medium ring-1 ring-border' : 'hover:bg-accent'">
+          <i :data-lucide="it.icon" class="h-4 w-4 shrink-0 text-muted-foreground"></i>
+          <span class="min-w-0 flex-1 truncate" x-text="it.label"></span>
+          <template x-if="it.badge"><span class="rounded-full bg-secondary px-1.5 py-0.5 text-[9px] font-semibold uppercase text-secondary-foreground" x-text="it.badge"></span></template>
+          <template x-if="it.meta"><span class="text-[11px] text-sidebar-foreground" x-text="it.meta"></span></template>
+          <template x-if="it.chevron"><i data-lucide="chevron-right" class="h-3.5 w-3.5 text-muted-foreground"></i></template>
+        </a>
+      </template>
+    </nav>
+    <div class="mt-auto flex items-center gap-1 border-t border-border px-3 py-3">
+      <span class="mr-1 h-7 w-7 rounded-full bg-muted"></span>
+      <template x-for="ic in ['bell','circle-help','settings','clipboard-list']" :key="ic">
+        <button class="rounded-lg p-1.5 text-muted-foreground hover:bg-accent"><i :data-lucide="ic" class="h-4 w-4"></i></button>
+      </template>
+    </div>
+  </aside>
+
+  <!-- ═════════ APP ═════════ -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="flex h-14 shrink-0 items-center justify-between bg-background px-7">
+      <div class="flex min-w-0 items-center gap-2 pr-8">
+        <i data-lucide="radar" class="h-[18px] w-[18px] shrink-0"></i>
+        <span class="truncate text-base font-semibold">Centro de operaciones</span>
+        <span class="shrink-0 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold text-secondary-foreground">Beta</span>
+      </div>
+      <div class="inline-flex h-8 items-center justify-center rounded-full bg-muted p-1 text-muted-foreground">
+        <template x-for="t in ocTabs" :key="t.key">
+          <button class="inline-flex h-6 items-center gap-1.5 rounded-full px-4 py-1 text-xs font-medium"
+                  :class="t.active ? 'bg-background text-foreground shadow' : ''">
+            <i :data-lucide="t.icon" class="h-3.5 w-3.5"></i><span x-text="t.label"></span>
+          </button>
+        </template>
+      </div>
+      <div></div>
+    </header>
+
+    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6">
+      <div class="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
+
+        <!-- ═══════════ PANEL DE TABLEROS ═══════════ -->
+        <aside class="relative flex w-72 min-w-72 shrink-0 flex-col overflow-hidden border-r border-border bg-background px-3 pt-3">
+
+          <div class="flex items-center justify-between pb-2 pl-3 pt-1">
+            <h2 class="text-sm font-semibold">Tableros</h2>
+            <button class="rounded-xl p-1.5 hover:bg-accent" aria-label="Cerrar panel"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+          </div>
+
+          <div class="px-3">
+            <div class="inline-flex h-10 w-full items-center rounded-xl bg-muted p-1 text-muted-foreground">
+              <button class="inline-flex h-8 flex-1 items-center justify-center rounded-lg bg-background px-6 text-sm font-medium text-foreground shadow">Tableros</button>
+              <button class="inline-flex h-8 flex-1 items-center justify-center rounded-lg px-6 text-sm font-medium">Datasets</button>
+            </div>
+          </div>
+
+          <div class="flex min-h-0 flex-1 flex-col">
+            <div class="px-3 pb-3 pt-3">
+              <button class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">
+                <i data-lucide="plus" class="h-4 w-4"></i> Nuevo tablero
+              </button>
+            </div>
+
+            <div class="px-3 pb-4">
+              <div class="relative">
+                <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
+                <input x-model="searchInput" @input="onSearch()" placeholder="Buscar tablero" aria-label="Buscar tablero"
+                       class="h-10 w-full rounded-[0.625rem] border border-solid border-input bg-transparent py-1 pl-8 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-info/50">
+              </div>
+            </div>
+
+            <div class="panel-scroll flex min-h-0 flex-1 flex-col">
+
+              <!-- Configuraciones pendientes -->
+              <section class="flex flex-col" x-show="!searching">
+                <div class="px-3"><span class="text-xs font-medium text-sidebar-foreground">Configuraciones pendientes (8)</span></div>
+                <div class="flex flex-col gap-0.5 px-3">
+                  <template x-for="d in pendientes" :key="d.id">
+                    <div class="group flex h-8 w-full items-center overflow-hidden rounded-md">
+                      <span class="ml-2 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-warning/15 text-warning"><i data-lucide="info" class="h-2.5 w-2.5"></i></span>
+                      <span class="ml-2 min-w-0 flex-1 truncate text-sm" x-text="d.name" :title="d.name"></span>
+                    </div>
+                  </template>
+                </div>
+              </section>
+
+              <!-- Favoritos -->
+              <section class="mt-3 flex flex-col" x-show="!searching">
+                <div class="px-3 pb-1"><span class="text-xs font-medium text-sidebar-foreground">Favoritos (5/15)</span></div>
+                <div class="flex flex-col gap-0.5 px-3">
+                  <template x-for="d in favoritos" :key="d.id">
+                    <div class="group flex h-8 w-full items-center gap-1 overflow-hidden rounded-md"
+                         :class="activeId === d.id && 'bg-accent'">
+                      <i data-lucide="grip-vertical" class="h-3 w-3 shrink-0 text-muted-foreground/40"></i>
+                      <button class="flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1.5 text-left text-sm hover:bg-accent"
+                              :class="activeId === d.id && 'font-medium'" @click="activeId = d.id">
+                        <i :data-lucide="d.private ? 'lock' : 'globe'" class="h-3.5 w-3.5 shrink-0" :class="d.private ? 'text-muted-foreground' : 'text-info'"></i>
+                        <span class="truncate" x-text="d.name"></span>
+                      </button>
+                    </div>
+                  </template>
+                </div>
+              </section>
+
+              <!-- ══════ TABLEROS ══════ -->
+              <section class="mt-3 flex flex-1 flex-col">
+                <div class="flex items-center gap-2 px-3">
+                  <span class="text-xs font-medium text-sidebar-foreground" x-text="sectionLabel"></span>
+
+                  <!-- I1: disparador de crear carpeta, junto al toggle A→Z -->
+                  <div class="ml-auto flex items-center gap-1.5">
+                    <template x-if="mode === 'after' && variant === 'A'">
+                      <div class="relative" @mouseenter="tip = 'new'" @mouseleave="tip = null">
+                        <button @click="openCreate($event)" :disabled="searching"
+                                aria-label="Nueva carpeta"
+                                class="rounded-md p-1.5 text-sidebar-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40">
+                          <i data-lucide="folder-plus" class="h-4 w-4"></i>
+                        </button>
+                        <div x-show="tip === 'new'" x-transition.opacity
+                             class="pointer-events-none absolute right-0 top-full z-30 mt-1 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[11px] text-background">
+                          <span x-text="searching ? 'No disponible durante la búsqueda' : 'Nueva carpeta'"></span>
+                        </div>
+                      </div>
+                    </template>
+                    <button @click="sortAsc = !sortAsc" :aria-label="sortAsc ? 'Orden A → Z' : 'Orden Z → A'"
+                            class="rounded-md p-1.5 text-sidebar-foreground hover:bg-muted">
+                      <i :data-lucide="sortAsc ? 'arrow-down-a-z' : 'arrow-up-z-a'" class="h-4 w-4"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex flex-1 flex-col px-3 pt-0.5">
+
+                  <!-- ── HU-08 · empty state del feature ── -->
+                  <template x-if="mode === 'after' && !searching && folders.length === 0">
+                    <div class="mb-2 rounded-lg border border-dashed border-muted-foreground/25 px-3 py-3 text-center">
+                      <p class="text-xs font-semibold">Agrupa tus tableros</p>
+                      <p class="mt-0.5 text-xs text-sidebar-foreground">Crea carpetas por contexto para encontrarlos más rápido.</p>
+                      <button @click="openCreate($event)" class="mt-2 inline-flex h-7 items-center gap-1.5 rounded-xl border border-solid border-border bg-background px-2.5 text-xs font-medium hover:bg-accent">
+                        <i data-lucide="folder-plus" class="h-3.5 w-3.5"></i> Nueva carpeta
+                      </button>
+                    </div>
+                  </template>
+
+                  <!-- ══ MODO BÚSQUEDA (aplanado, cruza carpetas · C5/I3) ══ -->
+                  <template x-if="searching">
+                    <div>
+                      <template x-if="results.folders.length">
+                        <ul class="mb-1 flex flex-col gap-0.5">
+                          <template x-for="f in results.folders" :key="'sf'+f.id">
+                            <li>
+                              <button @click="revealFolder(f.id)" class="flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-left text-sm font-medium hover:bg-muted">
+                                <i data-lucide="folder" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
+                                <span class="min-w-0 flex-1 truncate" x-text="f.name"></span>
+                                <span class="text-xs text-sidebar-foreground" x-text="count(f.id)"></span>
+                              </button>
+                            </li>
+                          </template>
+                        </ul>
+                      </template>
+
+                      <template x-if="results.dashboards.length">
+                        <ul class="flex flex-col gap-0.5">
+                          <template x-for="d in results.dashboards" :key="'sd'+d.id">
+                            <li>
+                              <div class="group flex w-full items-center overflow-hidden rounded-md" :class="activeId === d.id && 'bg-accent'">
+                                <button class="flex min-w-0 flex-1 flex-col items-start gap-0 rounded-md px-2 py-1 text-left hover:bg-accent" @click="activeId = d.id">
+                                  <span class="flex w-full min-w-0 items-center gap-2 text-sm">
+                                    <i :data-lucide="d.private ? 'lock' : 'globe'" class="h-3.5 w-3.5 shrink-0" :class="d.private ? 'text-muted-foreground' : 'text-info'"></i>
+                                    <span class="truncate" :title="d.name" x-text="d.name"></span>
+                                  </span>
+                                  <!-- 2ª línea: la carpeta. Contraste accesible, no muted-foreground -->
+                                  <template x-if="d.folderId">
+                                    <span @click.stop="revealFolder(d.folderId)"
+                                          class="ml-[22px] flex items-center gap-1 text-xs text-sidebar-foreground hover:underline">
+                                      <i data-lucide="folder" class="h-3 w-3"></i>
+                                      <span x-text="folderName(d.folderId)"></span>
+                                    </span>
+                                  </template>
+                                </button>
+                                <button @click="openMenu($event, 'dashboard', d.id)" aria-label="Opciones del tablero"
+                                        class="mr-1 shrink-0 rounded-md p-1 text-muted-foreground/0 hover:bg-muted group-hover:text-foreground focus-visible:text-foreground">
+                                  <i data-lucide="ellipsis-vertical" class="h-3 w-3"></i>
+                                </button>
+                              </div>
+                            </li>
+                          </template>
+                        </ul>
+                      </template>
+
+                      <template x-if="!results.folders.length && !results.dashboards.length">
+                        <div class="flex flex-1 flex-col items-center justify-center py-6 text-center">
+                          <i data-lucide="search" class="h-8 w-8 text-muted-foreground"></i>
+                          <p class="mt-1 text-xs font-semibold" x-text="`No se encontraron tableros para «${appliedSearch}»`"></p>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+
+                  <!-- ══ VARIANTE A · acordeón in-place ══ -->
+                  <template x-if="!searching && mode === 'after' && variant === 'A'">
+                    <ul class="flex flex-col gap-0.5">
+                      <template x-for="f in sortedFolders" :key="f.id">
+                        <li>
+                          <!-- Fila de carpeta · 32px · toda la fila es el toggle (🔴 C1) -->
+                          <div class="group flex h-8 w-full items-center overflow-hidden rounded-md transition-colors"
+                               :class="dragOver === f.id ? 'bg-info/5 ring-1 ring-info/50' : 'hover:bg-muted'"
+                               @dragover.prevent="dragOver = f.id" @dragleave="dragOver === f.id && (dragOver = null)"
+                               @drop.prevent="onDrop(f.id)"
+                               @contextmenu.prevent="openMenu($event, 'folder', f.id)">
+                            <button class="flex min-w-0 flex-1 items-center gap-1.5 px-2 py-1.5 text-left"
+                                    :aria-expanded="isOpen(f.id)"
+                                    :aria-label="`${f.name}, ${count(f.id)} tableros`"
+                                    @click="toggle(f.id)">
+                              <i data-lucide="chevron-right" class="chev h-3 w-3 shrink-0 text-sidebar-foreground" :class="isOpen(f.id) && 'rotate-90'"></i>
+                              <i :data-lucide="isOpen(f.id) ? 'folder-open' : 'folder'" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
+                              <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="f.name" :title="f.name"></span>
+                            </button>
+                            <span class="shrink-0 text-xs text-sidebar-foreground" x-text="count(f.id)"></span>
+                            <button @click="openMenu($event, 'folder', f.id)" :aria-label="`Opciones de la carpeta ${f.name}`"
+                                    class="ml-2 mr-1 shrink-0 rounded-md p-1 text-muted-foreground/0 hover:bg-muted group-hover:text-foreground focus-visible:text-foreground">
+                              <i data-lucide="ellipsis-vertical" class="h-3 w-3"></i>
+                            </button>
+                          </div>
+
+                          <!-- Hijos: indentados 16px + guía 1px · role=group (🔴 C3) -->
+                          <ul x-show="isOpen(f.id)" role="group" :aria-label="f.name"
+                              class="acc ml-[14px] flex flex-col gap-0.5 border-l border-sidebar-border pl-1">
+                            <template x-for="d in inFolder(f.id)" :key="d.id">
+                              <li x-html="rowHTML(d)"></li>
+                            </template>
+                            <template x-if="inFolder(f.id).length === 0">
+                              <li class="px-2 py-2 text-center">
+                                <p class="text-xs font-semibold">Sin tableros</p>
+                                <p class="text-xs text-sidebar-foreground">Mueve tableros a esta carpeta desde su menú de opciones.</p>
+                              </li>
+                            </template>
+                          </ul>
+                        </li>
+                      </template>
+
+                      <!-- Sueltos: después, sin indentar -->
+                      <template x-if="unfiled.length">
+                        <li class="mt-1.5">
+                          <div class="flex items-center gap-2 px-2 pb-0.5">
+                            <span class="text-[11px] text-sidebar-foreground">Sin carpeta</span>
+                            <span class="text-[11px] text-muted-foreground" x-text="unfiled.length"></span>
+                            <div class="h-px flex-1 bg-sidebar-border"></div>
+                          </div>
+                          <ul class="flex flex-col gap-0.5">
+                            <template x-for="d in unfiled.slice(0, unfiledShown)" :key="d.id">
+                              <li x-html="rowHTML(d)"></li>
+                            </template>
+                          </ul>
+                          <template x-if="unfiledShown < unfiled.length">
+                            <button @click="unfiledShown += 20" class="mt-1 w-full rounded-md py-1.5 text-xs text-sidebar-foreground hover:bg-muted">
+                              Ver 20 más de <span x-text="unfiled.length - unfiledShown"></span>
+                            </button>
+                          </template>
+                        </li>
+                      </template>
+                    </ul>
+                  </template>
+
+                  <!-- ══ VARIANTE B · drill-down ══ -->
+                  <template x-if="!searching && mode === 'after' && variant === 'B'">
+                    <div>
+                      <template x-if="drill">
+                        <button @click="drill = null" class="mb-1 flex h-8 w-full items-center gap-1.5 rounded-md px-2 text-left text-sm font-medium hover:bg-muted">
+                          <i data-lucide="chevron-left" class="h-4 w-4 shrink-0 text-sidebar-foreground"></i>
+                          <span class="min-w-0 flex-1 truncate" x-text="folderName(drill)"></span>
+                          <span class="text-xs text-sidebar-foreground" x-text="count(drill)"></span>
+                        </button>
+                      </template>
+
+                      <template x-if="!drill">
+                        <ul class="flex flex-col gap-0.5">
+                          <template x-for="f in sortedFolders" :key="'b'+f.id">
+                            <li>
+                              <div class="group flex h-8 w-full items-center overflow-hidden rounded-md transition-colors"
+                                   :class="dragOver === f.id ? 'bg-info/5 ring-1 ring-info/50' : 'hover:bg-muted'"
+                                   @dragover.prevent="dragOver = f.id" @dragleave="dragOver === f.id && (dragOver = null)"
+                                   @drop.prevent="onDrop(f.id)" @contextmenu.prevent="openMenu($event, 'folder', f.id)">
+                                <button class="flex min-w-0 flex-1 items-center gap-1.5 px-2 py-1.5 text-left"
+                                        :aria-label="`${f.name}, ${count(f.id)} tableros. Abrir carpeta`" @click="drill = f.id">
+                                  <i data-lucide="folder" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
+                                  <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="f.name"></span>
+                                </button>
+                                <span class="shrink-0 text-xs text-sidebar-foreground" x-text="count(f.id)"></span>
+                                <i data-lucide="chevron-right" class="ml-1.5 h-3 w-3 shrink-0 text-muted-foreground"></i>
+                                <button @click="openMenu($event, 'folder', f.id)" :aria-label="`Opciones de la carpeta ${f.name}`"
+                                        class="ml-1.5 mr-1 shrink-0 rounded-md p-1 text-muted-foreground/0 hover:bg-muted group-hover:text-foreground">
+                                  <i data-lucide="ellipsis-vertical" class="h-3 w-3"></i>
+                                </button>
+                              </div>
+                            </li>
+                          </template>
+                          <li class="mt-1.5">
+                            <div class="flex items-center gap-2 px-2 pb-0.5">
+                              <span class="text-[11px] text-sidebar-foreground">Sin carpeta</span>
+                              <span class="text-[11px] text-muted-foreground" x-text="unfiled.length"></span>
+                              <div class="h-px flex-1 bg-sidebar-border"></div>
+                            </div>
+                            <ul class="flex flex-col gap-0.5">
+                              <template x-for="d in unfiled.slice(0, unfiledShown)" :key="'bu'+d.id">
+                                <li x-html="rowHTML(d)"></li>
+                              </template>
+                            </ul>
+                            <template x-if="unfiledShown < unfiled.length">
+                              <button @click="unfiledShown += 20" class="mt-1 w-full rounded-md py-1.5 text-xs text-sidebar-foreground hover:bg-muted">
+                                Ver 20 más de <span x-text="unfiled.length - unfiledShown"></span>
+                              </button>
+                            </template>
+                          </li>
+                        </ul>
+                      </template>
+
+                      <template x-if="drill">
+                        <ul class="flex flex-col gap-0.5">
+                          <template x-for="d in inFolder(drill)" :key="'bd'+d.id">
+                            <li x-html="rowHTML(d)"></li>
+                          </template>
+                          <template x-if="inFolder(drill).length === 0">
+                            <li class="px-2 py-3 text-center">
+                              <p class="text-xs font-semibold">Sin tableros</p>
+                              <p class="text-xs text-sidebar-foreground">Mueve tableros a esta carpeta desde su menú de opciones.</p>
+                            </li>
+                          </template>
+                        </ul>
+                      </template>
+                    </div>
+                  </template>
+
+                  <!-- ══ ANTES · lista plana de hoy ══ -->
+                  <template x-if="!searching && mode === 'before'">
+                    <ul class="flex flex-col gap-0.5">
+                      <template x-for="d in allSorted.slice(0, unfiledShown)" :key="'p'+d.id">
+                        <li x-html="rowHTML(d, true)"></li>
+                      </template>
+                      <template x-if="unfiledShown < allSorted.length">
+                        <li><button @click="unfiledShown += 20" class="mt-1 w-full rounded-md py-1.5 text-xs text-sidebar-foreground hover:bg-muted">
+                          Ver 20 más de <span x-text="allSorted.length - unfiledShown"></span>
+                        </button></li>
+                      </template>
+                    </ul>
+                  </template>
+
+                </div>
+              </section>
+              <div class="h-3"></div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ═════ CONTENIDO ═════ -->
+        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div class="flex shrink-0 items-center justify-between gap-4 px-5 pb-3 pt-4">
+            <div class="flex min-w-0 items-center gap-2">
+              <h1 class="truncate text-[15px] font-semibold" x-text="activeName"></h1>
+              <i data-lucide="pencil" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+              <template x-if="activeFolder">
+                <span class="ml-1 inline-flex shrink-0 items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-sidebar-foreground ring-1 ring-inset ring-border">
+                  <i data-lucide="folder" class="h-3 w-3"></i><span x-text="activeFolder"></span>
+                </span>
+              </template>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+              <button class="inline-flex h-8 items-center gap-1.5 rounded-xl px-2 text-sm font-medium hover:bg-accent"><i data-lucide="scan-search" class="h-4 w-4"></i> Contexto</button>
+              <button class="inline-flex h-8 items-center gap-1.5 rounded-xl px-2 text-sm font-medium hover:bg-accent">
+                <i data-lucide="activity" class="h-4 w-4"></i> Monitoreo
+                <span class="rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success">Activo</span>
+              </button>
+              <button class="inline-flex h-8 items-center gap-1.5 rounded-xl bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90">
+                <i data-lucide="pencil-line" class="h-4 w-4"></i> Editar tablero
+              </button>
+            </div>
+          </div>
+
+          <div class="flex shrink-0 items-center gap-1 border-b border-border px-5">
+            <button class="mr-1 rounded-md p-1.5 text-muted-foreground hover:bg-accent"><i data-lucide="list" class="h-4 w-4"></i></button>
+            <template x-for="(p, i) in ['Anomalias 1','Anomalias 2','Anomalias 3','Página 4']" :key="p">
+              <button class="rounded-md px-3 py-1.5 text-sm" :class="i === 0 ? 'bg-info/10 font-medium text-info' : 'text-muted-foreground hover:bg-accent'" x-text="p"></button>
+            </template>
+          </div>
+
+          <div class="panel-scroll min-h-0 flex-1 p-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="rounded-xl border border-border p-3">
+                <div class="mb-2 flex items-center justify-between">
+                  <div class="flex items-center gap-1.5 text-sm font-medium"><i data-lucide="line-chart" class="h-4 w-4 text-info"></i> Line Chart</div>
+                  <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" style="color:hsl(var(--ai-purple));background:hsl(var(--ai-purple)/.08)">Monitoreo activo</span>
+                </div>
+                <div x-html="lineChart()"></div>
+              </div>
+              <div class="rounded-xl border border-border p-3">
+                <div class="mb-2 flex items-center justify-between">
+                  <div class="flex items-center gap-1.5 text-sm font-medium"><i data-lucide="bar-chart-3" class="h-4 w-4 text-info"></i> Bar Chart</div>
+                  <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" style="color:hsl(var(--ai-purple));background:hsl(var(--ai-purple)/.08)">Monitoreo activo</span>
+                </div>
+                <div x-html="barChart()"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MENÚS ══════════ -->
+  <div x-show="menu.open" @click.outside="menu.open = false" x-transition.opacity.duration.100ms
+       class="fixed z-50 w-52 rounded-xl border border-border bg-popover p-1 shadow-md" :style="`left:${menu.x}px; top:${menu.y}px`">
+    <template x-if="menu.type === 'dashboard'">
+      <div>
+        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="pencil-line" class="h-4 w-4"></i> Cambiar nombre</button>
+        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="brain" class="h-4 w-4"></i> Agregar contexto</button>
+        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="copy" class="h-4 w-4"></i> Duplicar</button>
+        <div class="my-1 h-px bg-border"></div>
+        <button @click="openMove(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent">
+          <i data-lucide="folder-input" class="h-4 w-4"></i> Mover a carpeta
+        </button>
+        <template x-if="dashById(menu.id)?.folderId">
+          <button @click="removeFromFolder(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent">
+            <i data-lucide="folder-minus" class="h-4 w-4"></i> Quitar de la carpeta
+          </button>
+        </template>
+        <div class="my-1 h-px bg-border"></div>
+        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar tablero</button>
+      </div>
+    </template>
+    <template x-if="menu.type === 'folder'">
+      <div>
+        <button @click="openRename(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="pencil-line" class="h-4 w-4"></i> Renombrar carpeta</button>
+        <div class="my-1 h-px bg-border"></div>
+        <button @click="openDelete(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar carpeta</button>
+      </div>
+    </template>
+  </div>
+
+  <!-- ══════════ DIÁLOGO · crear / renombrar ══════════ -->
+  <template x-if="dlg.open">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" @click.self="closeDlg()">
+      <div class="w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-lg" role="dialog" aria-modal="true" :aria-label="dlg.mode === 'create' ? 'Crear carpeta' : 'Renombrar carpeta'">
+        <h3 class="text-base font-semibold" x-text="dlg.mode === 'create' ? 'Crear carpeta' : 'Renombrar carpeta'"></h3>
+        <p class="mt-1 text-sm text-sidebar-foreground" x-text="dlg.mode === 'create' ? 'Las carpetas ordenan la lista de tableros de la cuenta.' : 'Cambia el nombre de la carpeta.'"></p>
+        <div class="mt-4 flex flex-col gap-1.5">
+          <label class="text-sm font-medium" for="fname">Nombre de la carpeta</label>
+          <input id="fname" x-ref="fname" x-model="dlg.name" @input="dlg.error = null" @keydown.enter="submitDlg()"
+                 aria-required="true" :aria-invalid="!!dlg.error" maxlength="120"
+                 placeholder="Nombre de la carpeta"
+                 class="h-10 w-full rounded-[0.625rem] border border-solid bg-transparent px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+                 :class="dlg.error ? 'border-destructive focus-visible:ring-destructive/20' : 'border-input focus-visible:ring-info/50'">
+          <template x-if="dlg.error">
+            <p role="alert" class="text-xs text-destructive" x-text="dlg.error"></p>
+          </template>
+          <p class="text-[11px] text-sidebar-foreground">Acepta tildes, espacios y guion bajo. Máximo 100 caracteres.</p>
+        </div>
+        <div class="mt-5 flex justify-end gap-2">
+          <button @click="closeDlg()" class="inline-flex h-10 items-center rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">Cancelar</button>
+          <button @click="submitDlg()" :disabled="!dlg.name.trim()"
+                  class="inline-flex h-10 items-center rounded-xl bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  x-text="dlg.mode === 'create' ? 'Crear' : 'Guardar'"></button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ══════════ DIÁLOGO · mover a carpeta ══════════ -->
+  <template x-if="move.open">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" @click.self="move.open = false">
+      <div class="w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-lg" role="dialog" aria-modal="true" aria-label="Mover a carpeta">
+        <h3 class="text-base font-semibold">Mover a carpeta</h3>
+        <p class="mt-1 truncate text-sm text-sidebar-foreground" x-text="dashById(move.id)?.name"></p>
+
+        <template x-if="move.confirm">
+          <div class="mt-4 rounded-lg border border-warning/40 bg-warning/5 p-3">
+            <p class="text-sm">Este tablero saldrá de <strong x-text="folderName(dashById(move.id)?.folderId)"></strong> y quedará en <strong x-text="folderName(move.confirm)"></strong>.</p>
+            <p class="mt-1 text-xs text-sidebar-foreground">Un tablero puede estar en una sola carpeta.</p>
+            <div class="mt-3 flex justify-end gap-2">
+              <button @click="move.confirm = null" class="inline-flex h-8 items-center rounded-xl border border-solid border-border px-2.5 text-xs font-medium hover:bg-accent">Volver</button>
+              <button @click="doMove(move.id, move.confirm)" class="inline-flex h-8 items-center rounded-xl bg-info px-2.5 text-xs font-medium text-info-foreground hover:bg-info/90">Confirmar cambio</button>
+            </div>
+          </div>
+        </template>
+
+        <template x-if="!move.confirm">
+          <div class="mt-4">
+            <template x-if="folders.length > 7">
+              <div class="relative mb-2">
+                <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
+                <input x-model="move.q" placeholder="Buscar carpeta" class="h-9 w-full rounded-[0.625rem] border border-solid border-input bg-transparent pl-8 text-sm">
+              </div>
+            </template>
+            <ul class="max-h-64 overflow-y-auto rounded-lg border border-border">
+              <template x-for="f in moveOptions" :key="'mv'+f.id">
+                <li>
+                  <button @click="tryMove(move.id, f.id)" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+                          :class="dashById(move.id)?.folderId === f.id && 'opacity-50 pointer-events-none'">
+                    <i data-lucide="folder" class="h-4 w-4 shrink-0 text-sidebar-foreground"></i>
+                    <span class="min-w-0 flex-1 truncate" x-text="f.name"></span>
+                    <span class="text-xs text-sidebar-foreground" x-text="count(f.id)"></span>
+                    <template x-if="dashById(move.id)?.folderId === f.id">
+                      <span class="text-[11px] text-sidebar-foreground">actual</span>
+                    </template>
+                  </button>
+                </li>
+              </template>
+              <template x-if="moveOptions.length === 0">
+                <li class="px-3 py-3 text-center text-xs text-sidebar-foreground">Sin carpetas que coincidan</li>
+              </template>
+            </ul>
+            <button @click="move.open = false; openCreate($event)" class="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-accent">
+              <i data-lucide="folder-plus" class="h-4 w-4 text-sidebar-foreground"></i> Nueva carpeta
+            </button>
+          </div>
+        </template>
+
+        <div class="mt-5 flex justify-end">
+          <button @click="move.open = false" class="inline-flex h-10 items-center rounded-xl border border-solid border-border px-3 text-sm font-medium hover:bg-accent">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ══════════ ALERT DIALOG · eliminar carpeta (HU-06) ══════════ -->
+  <template x-if="del.open">
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4">
+      <div class="w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-lg" role="alertdialog" aria-modal="true" aria-labelledby="delt" aria-describedby="deld">
+        <h3 id="delt" class="text-base font-semibold">¿Eliminar carpeta?</h3>
+        <p id="deld" class="mt-2 text-sm text-sidebar-foreground">
+          <template x-if="count(del.id) > 0">
+            <span>Se eliminará la carpeta «<span class="font-medium text-foreground" x-text="folderName(del.id)"></span>».
+              Los <strong class="text-foreground" x-text="`${count(del.id)} tableros`"></strong> que contiene volverán a la lista de tableros;
+              <strong class="text-foreground">no se eliminarán</strong>.</span>
+          </template>
+          <template x-if="count(del.id) === 0">
+            <span>Se eliminará la carpeta «<span class="font-medium text-foreground" x-text="folderName(del.id)"></span>». Está vacía.</span>
+          </template>
+        </p>
+        <div class="mt-5 flex justify-end gap-2">
+          <button x-ref="delcancel" @click="del.open = false" class="inline-flex h-10 items-center rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">Cancelar</button>
+          <button @click="doDelete()" class="inline-flex h-10 items-center rounded-xl bg-destructive px-3 text-sm font-medium text-destructive-foreground hover:bg-destructive/90">Eliminar carpeta</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ══════════ TOAST con Deshacer (~60s) ══════════ -->
+  <div x-show="toast.show" x-transition
+       class="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-lg">
+    <i :data-lucide="toast.icon || 'check'" class="h-4 w-4 text-success"></i>
+    <span class="text-sm" x-text="toast.msg"></span>
+    <template x-if="toast.undo">
+      <button @click="doUndo()" class="text-sm font-medium text-info hover:underline">Deshacer</button>
+    </template>
+    <button @click="toast.show = false" class="rounded-md p-1 text-muted-foreground hover:bg-muted"><i data-lucide="x" class="h-3 w-3"></i></button>
+  </div>
+
+  <!-- ══════════ PANEL DE DEMO ══════════ -->
+  <div class="fixed bottom-4 right-4 z-40 w-[330px] font-sans">
+    <button @click="devOpen = !devOpen" class="ml-auto flex h-9 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-xs font-medium shadow-md">
+      <i data-lucide="sliders-horizontal" class="h-3.5 w-3.5"></i>
+      <span x-text="devOpen ? 'Ocultar demo' : 'Demo · A/B y estados'"></span>
+    </button>
+
+    <div x-show="devOpen" x-transition class="mt-2 max-h-[78vh] overflow-y-auto rounded-xl border border-border bg-background p-3 shadow-lg">
+      <p class="text-xs font-semibold">SWAT-577 · Carpetas en la lista de tableros</p>
+      <p class="mt-1 text-[11px] leading-snug text-sidebar-foreground">Este panel no existe en el producto. Sirve para comparar las dos variantes y recoger feedback.</p>
+
+      <div class="mt-3 border-t border-border pt-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">Antes / después</p>
+        <div class="mt-1 inline-flex h-8 w-full items-center rounded-xl bg-muted p-1">
+          <button @click="mode = 'before'; unfiledShown = 20" class="h-6 flex-1 rounded-lg text-xs font-medium" :class="mode === 'before' && 'bg-background shadow'">Hoy (plano)</button>
+          <button @click="mode = 'after'; unfiledShown = 20" class="h-6 flex-1 rounded-lg text-xs font-medium" :class="mode === 'after' && 'bg-background shadow'">Con carpetas</button>
+        </div>
+      </div>
+
+      <div class="mt-3 border-t border-border pt-2" x-show="mode === 'after'">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">Variante</p>
+        <div class="mt-1 space-y-1">
+          <button @click="variant = 'A'; drill = null" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent" :class="variant === 'A' && 'bg-secondary ring-1 ring-border'">
+            <span class="font-medium">A · Acordeón in-place</span>
+            <span class="block text-[11px] text-sidebar-foreground">Carpetas y sueltos a la vez. Cero navegación.</span>
+          </button>
+          <button @click="variant = 'B'; drill = null" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent" :class="variant === 'B' && 'bg-secondary ring-1 ring-border'">
+            <span class="font-medium">B · Drill-down con vuelta</span>
+            <span class="block text-[11px] text-sidebar-foreground">Un nivel a la vez, como Almacenamiento.</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-3 border-t border-border pt-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">Escenarios</p>
+        <div class="mt-1 space-y-1">
+          <button @click="scenario('full')" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent">4 carpetas · 100 sueltos <span class="text-sidebar-foreground">(realista)</span></button>
+          <button @click="scenario('none')" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent">Sin carpetas <span class="text-sidebar-foreground">(primer uso · HU-08)</span></button>
+          <button @click="scenario('one')" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent">Una sola carpeta <span class="text-sidebar-foreground">(arranca expandida)</span></button>
+          <button @click="scenario('empty')" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent">Carpeta vacía <span class="text-sidebar-foreground">(recién creada)</span></button>
+          <button @click="scenario('big')" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent">Carpeta con 60 tableros</button>
+          <button @click="searchInput = 'visa'; onSearch()" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent">Búsqueda «visa» <span class="text-sidebar-foreground">(cross-carpeta)</span></button>
+        </div>
+      </div>
+
+      <div class="mt-3 border-t border-border pt-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">Qué queremos decidir con esta demo</p>
+        <ul class="mt-1 space-y-1.5 text-[11px] leading-snug text-sidebar-foreground">
+          <li><strong class="text-foreground">A o B.</strong> Recomendamos <strong class="text-foreground">A</strong>: el gesto más frecuente es cambiar de tablero, y el drill-down le suma clics. B es más consistente con Almacenamiento.</li>
+          <li><strong class="text-foreground">PA-4.</strong> ¿Se descubre el icono <i data-lucide="folder-plus" class="inline h-3 w-3"></i> del header como forma de crear carpeta?</li>
+          <li><strong class="text-foreground">PA-12.</strong> En búsqueda la fila crece a dos líneas para mostrar la carpeta. ¿Molesta al escanear?</li>
+          <li><strong class="text-foreground">PA-14.</strong> Con 100 sueltos, ¿alcanza mover de a uno o hace falta selección múltiple?</li>
+          <li><strong class="text-foreground">PA-2.</strong> ¿El separador «Sin carpeta» se lee bien o hace falta más peso?</li>
+        </ul>
+      </div>
+
+      <div class="mt-3 border-t border-border pt-2 text-[11px] text-sidebar-foreground">
+        <p><strong class="text-foreground" x-text="folders.length"></strong> carpetas ·
+           <strong class="text-foreground" x-text="all.filter(d => d.folderId).length"></strong> en carpeta ·
+           <strong class="text-foreground" x-text="unfiled.length"></strong> sueltos ·
+           <strong class="text-foreground" x-text="Math.round(all.filter(d => d.folderId).length / all.length * 100)"></strong>% organizado</p>
+        <p class="mt-1">Filas visibles ahora: <strong class="text-foreground" x-text="visibleRows"></strong> (métrica de la Ley de Miller)</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function proto() {
+  const LS = "swat577_expanded";
+  const FOLDERS = [
+    { id: "f1", name: "Adquirencia" },
+    { id: "f2", name: "Cierre contable" },
+    { id: "f3", name: "Conciliación diaria" },
+    { id: "f4", name: "Pruebas y QA" },
+  ];
+  const sfx = ["conciliacion_visa","conciliacion_master","pagos_pse","recaudos","dispersiones",
+               "chargebacks","comisiones","liquidacion","contracargos","ajustes"];
+
+  // 159 tableros: 59 en carpetas + 100 sueltos (el caso realista de la cuenta)
+  const build = () => {
+    const out = []; let n = 0;
+    const push = (name, folderId, priv = false) => out.push({ id: "d" + (n++), name, folderId, private: priv });
+    for (let i = 0; i < 24; i++) push(`Adquirencia_2026_06_${String(4 + (i % 20)).padStart(2,"0")}_${sfx[i % sfx.length]}`, "f1", i % 9 === 0);
+    ["junio 2026","mayo 2026","abril 2026","marzo 2026","febrero 2026","enero 2026",
+     "diciembre 2025","noviembre 2025","octubre 2025","septiembre 2025","agosto 2025","julio 2025"]
+      .forEach((m, i) => push(`Cierre ${m}`, "f2", i > 8));
+    ["PSE","Visa","Mastercard","Transferencias","Efectivo","Débito automático","Wallets","Recaudo empresarial"]
+      .forEach((c) => push(`Conciliación diaria — ${c}`, "f3"));
+    for (let i = 1; i <= 15; i++) push(`Test anomalias y pendientes v${i}`, "f4", i <= 3);
+    push("Adquirencia", null);
+    for (let i = 0; i < 99; i++)
+      push(`Adquirencia_2026_06_${String(4 + (i % 26)).padStart(2,"0")}_${sfx[i % sfx.length]}${i > 40 ? "_v2" : ""}`, null, i % 23 === 0);
+    return out;
+  };
+
+  return {
+    // ── estado ──
+    mode: "after", variant: "A", devOpen: true, tip: null,
+    folders: [...FOLDERS],
+    all: build(),
+    expanded: (() => { try { return JSON.parse(localStorage.getItem(LS)) || []; } catch { return []; } })(),
+    activeId: "d24",                 // un tablero dentro de «Cierre contable»
+    sortAsc: true, searchInput: "", appliedSearch: "", unfiledShown: 20,
+    drill: null, dragOver: null, dragId: null,
+    menu: { open: false, x: 0, y: 0, type: "dashboard", id: null },
+    dlg: { open: false, mode: "create", name: "", id: null, error: null },
+    move: { open: false, id: null, q: "", confirm: null },
+    del: { open: false, id: null },
+    toast: { show: false, msg: "", undo: null, icon: "check" },
+    lastTrigger: null,
+
+    globalNav: [
+      { label: "Resumen", icon: "flag" },
+      { label: "Accesos directos", icon: "arrow-up-right", meta: "5/5", chevron: true },
+      { label: "Simetrik Agent", icon: "diamond" },
+      { label: "Centro de operaciones", icon: "radar", badge: "Beta", active: true },
+      { label: "Marketplace", icon: "database" },
+      { label: "Automatizar", icon: "send", chevron: true },
+      { label: "Gestionar", icon: "zoom-in", chevron: true },
+      { label: "Auditar", icon: "shield", chevron: true },
+      { label: "Herramientas", icon: "wand-sparkles", chevron: true },
+    ],
+    ocTabs: [
+      { key: "t", label: "Tableros", icon: "layout-grid", active: true },
+      { key: "a", label: "Anomalías", icon: "alert-circle" },
+      { key: "p", label: "Pendientes", icon: "clock" },
+      { key: "s", label: "Almacenamiento", icon: "hard-drive" },
+      { key: "e", label: "Asientos contables", icon: "book-open-text" },
+    ],
+    pendientes: ["ADQ-DASH","Adquirencia_2026_06_04_visa","Adquirencia_2026_06_04_master","Adquirencia_2026_06_04_pse",
+                 "Adquirencia_2026_06_18_visa","Adquirencia_2026_06_18_master","Adquirencia_2026_06_18_pse","Adquirencia_2026_06_18_recaudos"]
+                 .map((name, i) => ({ id: "p" + i, name })),
+    favoritos: [["Tablero de pruebas anomalias",true],["Test anomalias y pendientes v2",true],["Prueba anomalías AM",true],
+                ["Test anomalias y pendientes v3",false],["Test anomalias y pendientes v4",false]]
+                .map(([name, priv], i) => ({ id: "fav" + i, name, private: priv })),
+
+    // ── init ──
+    init() {
+      // I2: la carpeta del tablero activo se revela; con una sola carpeta, expandida
+      const act = this.dashById(this.activeId);
+      if (act?.folderId && !this.expanded.includes(act.folderId)) this.expanded.push(act.folderId);
+      if (this.folders.length === 1) this.expanded = [this.folders[0].id];
+      this.persist();
+    },
+
+    // ── derivados ──
+    get searching() { return this.appliedSearch.trim().length > 0; },
+    get sortedFolders() {
+      return [...this.folders].sort((a, b) => (this.sortAsc ? 1 : -1) * a.name.localeCompare(b.name, "es"));
+    },
+    get unfiled() { return this.sortDash(this.all.filter((d) => !d.folderId)); },
+    get allSorted() { return this.sortDash(this.all); },
+    get sectionLabel() {
+      if (this.searching) return "Resultados";
+      if (this.mode === "before") return `Tableros (${this.all.length})`;
+      return `Tableros (${this.all.length})`;
+    },
+    get results() {
+      const q = this.appliedSearch.trim().toLowerCase();
+      return {
+        folders: this.folders.filter((f) => f.name.toLowerCase().includes(q)),
+        dashboards: this.sortDash(this.all.filter((d) => d.name.toLowerCase().includes(q))).slice(0, 40),
+      };
+    },
+    get moveOptions() {
+      const q = this.move.q.trim().toLowerCase();
+      return this.sortedFolders.filter((f) => !q || f.name.toLowerCase().includes(q));
+    },
+    get activeName() { return this.dashById(this.activeId)?.name ?? "Tablero"; },
+    get activeFolder() {
+      const f = this.dashById(this.activeId)?.folderId;
+      return f ? this.folderName(f) : null;
+    },
+    get visibleRows() {
+      if (this.mode === "before") return Math.min(this.unfiledShown, this.all.length);
+      if (this.variant === "B") return this.drill ? this.inFolder(this.drill).length + 1
+                                                  : this.folders.length + Math.min(this.unfiledShown, this.unfiled.length) + 1;
+      const kids = this.folders.reduce((a, f) => a + (this.isOpen(f.id) ? this.inFolder(f.id).length : 0), 0);
+      return this.folders.length + kids + Math.min(this.unfiledShown, this.unfiled.length) + 1;
+    },
+
+    // ── helpers ──
+    sortDash(list) { return [...list].sort((a, b) => (this.sortAsc ? 1 : -1) * a.name.localeCompare(b.name, "es")); },
+    dashById(id) { return this.all.find((d) => d.id === id); },
+    folderName(id) { return this.folders.find((f) => f.id === id)?.name ?? ""; },
+    inFolder(id) { return this.sortDash(this.all.filter((d) => d.folderId === id)); },
+    count(id) { return this.all.filter((d) => d.folderId === id).length; },
+    isOpen(id) { return this.expanded.includes(id); },
+    persist() { try { localStorage.setItem(LS, JSON.stringify(this.expanded)); } catch {} },
+    toggle(id) {
+      this.expanded = this.isOpen(id) ? this.expanded.filter((x) => x !== id) : [...this.expanded, id];
+      this.persist();
+    },
+    revealFolder(id) {
+      this.searchInput = ""; this.appliedSearch = "";
+      if (this.variant === "B") { this.drill = id; return; }
+      if (!this.isOpen(id)) this.toggle(id);
+    },
+    onSearch() {
+      clearTimeout(this._t);
+      this._t = setTimeout(() => { this.appliedSearch = this.searchInput.trim(); }, 300);
+    },
+    openMenu(e, type, id) {
+      e.stopPropagation();
+      this.menu = { open: true, x: Math.min(e.clientX, innerWidth - 220), y: Math.min(e.clientY, innerHeight - 300), type, id };
+    },
+    notify(msg, undo = null, icon = "check") {
+      this.toast = { show: true, msg, undo, icon };
+      clearTimeout(this._toast);
+      this._toast = setTimeout(() => (this.toast.show = false), 60000);   // ~60s, estándar del OC
+    },
+
+    // ── crear / renombrar ──
+    openCreate(e) {
+      this.menu.open = false; this.lastTrigger = e?.currentTarget ?? null;
+      this.dlg = { open: true, mode: "create", name: "", id: null, error: null };
+      this.$nextTick(() => this.$refs.fname?.focus());
+    },
+    openRename(id) {
+      this.menu.open = false;
+      this.dlg = { open: true, mode: "rename", name: this.folderName(id), id, error: null };
+      this.$nextTick(() => { this.$refs.fname?.focus(); this.$refs.fname?.select(); });
+    },
+    validate(name, excludeId) {
+      const t = name.trim();
+      if (!t) return "Escribe un nombre para la carpeta";
+      if (t.length > 100) return "El nombre no puede superar 100 caracteres";
+      if (this.folders.some((f) => f.name.toLowerCase() === t.toLowerCase() && f.id !== excludeId))
+        return "Ya existe una carpeta con este nombre";
+      return null;
+    },
+    submitDlg() {
+      const err = this.validate(this.dlg.name, this.dlg.id);
+      if (err) { this.dlg.error = err; return; }
+      const name = this.dlg.name.trim();
+      if (this.dlg.mode === "create") {
+        const id = "f" + Date.now();
+        this.folders.push({ id, name });
+        this.expanded = [...this.expanded, id];
+        this.persist();
+        this.notify("Carpeta creada");
+      } else {
+        const f = this.folders.find((x) => x.id === this.dlg.id);
+        if (f) f.name = name;
+        this.notify("Carpeta renombrada");
+      }
+      this.closeDlg();
+    },
+    closeDlg() {
+      this.dlg.open = false;
+      this.lastTrigger?.focus?.();     // 🔴 C2: el foco vuelve al disparador
+    },
+
+    // ── mover / quitar ──
+    openMove(id) { this.menu.open = false; this.move = { open: true, id, q: "", confirm: null }; },
+    tryMove(id, folderId) {
+      const cur = this.dashById(id)?.folderId;
+      if (cur && cur !== folderId) { this.move.confirm = folderId; return; }   // D3: exclusiva → confirmar
+      this.doMove(id, folderId);
+    },
+    doMove(id, folderId) {
+      const d = this.dashById(id); if (!d) return;
+      const prev = d.folderId;
+      d.folderId = folderId;
+      if (!this.isOpen(folderId)) this.toggle(folderId);
+      this.move = { open: false, id: null, q: "", confirm: null };
+      this.notify(`Tablero movido a «${this.folderName(folderId)}»`, () => { d.folderId = prev; });
+    },
+    removeFromFolder(id) {
+      this.menu.open = false;
+      const d = this.dashById(id); if (!d) return;
+      const prev = d.folderId;
+      d.folderId = null;
+      this.notify("Tablero quitado de la carpeta", () => { d.folderId = prev; });
+    },
+    doUndo() {
+      if (typeof this.toast.undo === "function") this.toast.undo();
+      this.toast.show = false;
+    },
+
+    // ── eliminar carpeta (desagrupa) ──
+    openDelete(id) { this.menu.open = false; this.del = { open: true, id }; this.$nextTick(() => this.$refs.delcancel?.focus()); },
+    doDelete() {
+      const id = this.del.id;
+      const affected = this.all.filter((d) => d.folderId === id);
+      const name = this.folderName(id);
+      affected.forEach((d) => (d.folderId = null));           // ON DELETE SET NULL
+      this.folders = this.folders.filter((f) => f.id !== id);
+      this.expanded = this.expanded.filter((x) => x !== id);
+      this.persist();
+      if (this.drill === id) this.drill = null;
+      this.del.open = false;
+      this.notify(`Carpeta «${name}» eliminada · ${affected.length} tableros en la lista`, () => {
+        this.folders.push({ id, name });
+        affected.forEach((d) => (d.folderId = id));
+      });
+    },
+
+    // ── drag & drop (atajo · D7) ──
+    onDrop(folderId) {
+      this.dragOver = null;
+      if (!this.dragId) return;
+      this.tryMove(this.dragId, folderId);
+      this.dragId = null;
+    },
+
+    onEscape() {
+      if (this.menu.open) { this.menu.open = false; return; }
+      if (this.move.open) { this.move.open = false; return; }
+      if (this.dlg.open) { this.closeDlg(); return; }
+      if (this.del.open) { this.del.open = false; return; }
+    },
+
+    // ── escenarios de la demo ──
+    scenario(kind) {
+      this.searchInput = ""; this.appliedSearch = ""; this.drill = null; this.unfiledShown = 20; this.mode = "after";
+      if (kind === "full") { this.folders = [...FOLDERS]; this.all = build(); this.expanded = ["f2"]; }
+      if (kind === "none") { this.all = build().map((d) => ({ ...d, folderId: null })); this.folders = []; this.expanded = []; }
+      if (kind === "one")  { this.all = build(); this.folders = [FOLDERS[0]];
+                             this.all.forEach((d) => { if (d.folderId !== "f1") d.folderId = null; }); this.expanded = ["f1"]; }
+      if (kind === "empty"){ this.folders = [...FOLDERS, { id: "fnew", name: "Recién creada" }]; this.all = build(); this.expanded = ["fnew"]; }
+      if (kind === "big")  { this.folders = [...FOLDERS]; this.all = build();
+                             this.all.slice(60, 120).forEach((d) => (d.folderId = "f1")); this.expanded = ["f1"]; }
+      this.persist();
+    },
+
+    // ── fila de tablero (HTML compartido por todos los modos) ──
+    rowHTML(d, flat = false) {
+      const active = this.activeId === d.id;
+      const icon = d.private
+        ? `<svg class="h-3.5 w-3.5 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+        : `<svg class="h-3.5 w-3.5 shrink-0 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>`;
+      const A = "Alpine.$data(this.closest('[x-data]'))";
+      return `<div draggable="true"
+           ondragstart="${A}.dragId='${d.id}'" ondragend="${A}.dragId=null;${A}.dragOver=null"
+           oncontextmenu="event.preventDefault(); ${A}.openMenu(event,'dashboard','${d.id}')"
+           class="group flex h-8 w-full items-center overflow-hidden rounded-md ${active ? "bg-accent" : ""}">
+        <button class="flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm ${active ? "font-medium" : ""} hover:bg-accent"
+                title="${d.name.replace(/"/g, "&quot;")}"
+                onclick="${A}.activeId='${d.id}'">
+          ${icon}<span class="block min-w-0 truncate">${d.name}</span>
+        </button>
+        <button class="mr-1 shrink-0 rounded-md p-1 text-muted-foreground/0 hover:bg-muted group-hover:text-foreground focus-visible:text-foreground"
+                aria-label="Opciones del tablero"
+                onclick="event.stopPropagation(); ${A}.openMenu(event,'dashboard','${d.id}')">
+          <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="5" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="12" cy="19" r=".6"/></svg>
+        </button>
+      </div>`;
+    },
+
+    // ── mocks de gráficos ──
+    lineChart() {
+      const w = 560, h = 220, pad = 34; let pts = "";
+      for (let i = 0; i <= 160; i++) pts += `${pad + (i / 160) * (w - pad - 8)},${h - 40 - Math.abs(Math.sin(i / 7)) * 10} `;
+      return `<svg viewBox="0 0 ${w} ${h}" class="w-full" style="height:200px">
+        ${["26K","19.5K","13K","6.5K","0"].map((t, i) => { const y = 18 + i * ((h - 58) / 4);
+          return `<line x1="${pad}" y1="${y}" x2="${w - 8}" y2="${y}" stroke="hsl(var(--border))"/><text x="${pad - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="hsl(var(--sidebar-foreground))">${t}</text>`; }).join("")}
+        <polyline points="${pts}" fill="none" stroke="hsl(var(--foreground))" stroke-width="1"/></svg>`;
+    },
+    barChart() {
+      const w = 560, h = 220, pad = 40;
+      const cats = ["ERP_SAP","Visa_Acquiring","Banco_Occidente","Libro_Mayor","PayU_Latam","Tesoreria_Interna"];
+      const vals = [105, 91, 65, 91, 101, 65], bw = (w - pad - 20) / cats.length;
+      return `<svg viewBox="0 0 ${w} ${h}" class="w-full" style="height:200px">
+        ${["120K","90K","60K","30K","0"].map((t, i) => { const y = 18 + i * ((h - 58) / 4);
+          return `<line x1="${pad}" y1="${y}" x2="${w - 8}" y2="${y}" stroke="hsl(var(--border))"/><text x="${pad - 6}" y="${y + 3}" text-anchor="end" font-size="9" fill="hsl(var(--sidebar-foreground))">${t}</text>`; }).join("")}
+        ${vals.map((v, i) => { const bh = (v / 120) * (h - 58);
+          return `<rect x="${pad + i * bw + bw * 0.18}" y="${h - 40 - bh}" width="${bw * 0.64}" height="${bh}" fill="var(--chart-bar)"/>`; }).join("")}
+        ${cats.map((c, i) => `<text x="${pad + i * bw + bw / 2}" y="${h - 26}" text-anchor="middle" font-size="7" fill="hsl(var(--sidebar-foreground))">${c}</text>`).join("")}
+      </svg>`;
+    },
+  };
+}
+
+let raf = null;
+const paint = () => { raf = raf || requestAnimationFrame(() => { raf = null; lucide.createIcons(); }); };
+document.addEventListener("alpine:initialized", () => {
+  paint();
+  new MutationObserver(paint).observe(document.body, { childList: true, subtree: true });
+});
+</script>
+</body>
+</html>
