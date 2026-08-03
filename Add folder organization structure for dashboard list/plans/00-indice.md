@@ -65,8 +65,9 @@ Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../h
 | **D5** | Orden A→Z | El toggle existente aplica en **cada nivel**. Sin control nuevo. |
 | **D6** | Eliminar carpeta | **Desagrupa siempre** (`ON DELETE SET NULL`). El diálogo dice el número de tableros que vuelven a la lista. |
 | **D7** | Mover | **Menú `⋮` primario + drag como atajo**, ambos en la v1. Paridad por teclado obligatoria. |
+| **D8** | Crear carpeta | **Wizard de 2 pasos** (elegir tableros → nombre) con resumen de lo que se guarda, y la carpeta se **revela** al crearse. Revierte «la carpeta nace vacía» tras probar el prototipo. |
 
-**Fuera de alcance de la v1:** anidación · etiquetas · permisos por carpeta · carpetas personales · multi-selección · orden manual de carpetas · colores de carpeta.
+**Fuera de alcance de la v1:** anidación · etiquetas · permisos por carpeta · carpetas personales · multi-selección **como modo del panel** (sí existe dentro del wizard de creación, D8) · orden manual de carpetas · colores de carpeta.
 
 ## Decisiones de interacción — ✅ cerradas el 2026-08-03
 

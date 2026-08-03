@@ -17,6 +17,7 @@
 | **D5** | Alcance del orden A→Z | Aplica en **cada nivel** | 🟢 Bajo |
 | **D6** | Eliminar carpeta | **Desagrupa siempre**; nunca elimina tableros | 🔴 Alto (es criterio del issue, no negociable) |
 | **D7** | Mover un tablero | **Menú `⋮` primario + drag como atajo**, ambos en la v1 | 🟡 Medio |
+| **D8** | Crear carpeta | **2 pasos: elegir tableros → ponerle nombre.** Al crear, la carpeta se revela con scroll + resalte | 🟡 Medio |
 
 ---
 
@@ -115,6 +116,38 @@
 
 ---
 
+---
+
+## D8 — Crear una carpeta es un flujo de **2 pasos**: elegir tableros → ponerle nombre
+
+**Fecha:** 2026-08-03 (posterior a las pruebas del prototipo)
+**Revierte:** la decisión previa de que "la carpeta nace vacía y mover es otra tarea".
+
+**Qué pasó:** al probar el prototipo apareció una sensación de flujo roto. En palabras de Andrés:
+
+> *"cuando creo una carpeta se cierra el modal y quedé buscando dónde se creó. Cuando creo una carpeta nueva primero quiero seleccionar los tableros que quiero dentro y luego con un botón siguiente agregar el nombre, para que cuando la cree me quede claro qué hice y qué estoy guardando."*
+
+**Dos problemas distintos, ambos reales:**
+
+1. **Orientación.** Al cerrar el diálogo, la carpeta nueva aparecía en su lugar alfabético entre 4 carpetas y 100 sueltos. El toast decía "Carpeta creada" pero no mostraba **dónde**. El usuario quedaba buscando su propio resultado.
+2. **Sentido de la acción.** Una carpeta vacía no es un resultado: es una promesa. La confirmación no comunicaba nada verificable, así que la acción se sentía sin consecuencia.
+
+**Decisión:**
+
+- **Paso 1 — Elige los tableros:** buscador + lista con checkboxes, **los tableros sin carpeta primero** (son los que urge ordenar), y los que ya están en otra carpeta muestran cuál. Botón "Siguiente".
+- **Paso 2 — Ponle nombre:** el campo de nombre **más un resumen de lo que se va a guardar** ("Se creará con 12 tableros" + los primeros 4 + "y 8 más") y un enlace para volver a cambiar la selección. El botón dice **"Crear con 12 tableros"**, no "Crear".
+- **Crear vacía sigue siendo posible:** con 0 seleccionados el paso 2 dice "Se creará vacía" y el botón dice "Crear vacía".
+- **Al crear, la carpeta se revela:** entra expandida, **se hace scroll hasta ella** y se resalta ~2s. El mismo tratamiento se aplica al mover un tablero y al renombrar.
+- El toast lleva **Deshacer**, que revierte la creación **y** devuelve cada tablero a donde estaba.
+
+**Por qué no rompe C7 ("un flujo por tarea"):** la tarea del usuario nunca fue "crear un contenedor vacío" — es **"agrupar estos tableros"**. Dos pasos de una misma tarea es un patrón de producto, no dos tareas. Y el producto ya lo usa: `CreateConnectionWizard` y `TemplateFormDialog/steps` en el OC, con el componente `stepper` de desyk. Mi decisión anterior aplicaba C7 al pie de la letra y terminaba contra su propio objetivo.
+
+**Consecuencia sobre el alcance:** la **selección múltiple entra a la v1, pero solo dentro del wizard de creación** — no como modo de selección del panel. Eso resuelve buena parte de PA-14 (los 100 sueltos) sin agregar una capa de modo a la navegación principal: ordenar 30 tableros de una vez es crear una carpeta, no 30 operaciones de mover.
+
+**Consecuencia para BE:** `POST /dashboards/folders` acepta opcionalmente `dashboard_ids: UUID[]` para crear y asignar en una sola transacción. Sin eso, el FE tendría que hacer 1 + N llamadas y una falla parcial dejaría la carpeta a medio llenar.
+
+---
+
 ## Alcance de la v1 — qué NO entra
 
 | Fuera de alcance | Razón | ¿Reversible? |
@@ -123,7 +156,7 @@
 | Etiquetas / pertenencia múltiple | D3 | Es otro feature |
 | Permisos propios por carpeta | D1.b — no se introduce permiso nuevo | Sí |
 | Carpetas personales ("Mis vistas") | D1 — capa futura | Sí |
-| Multi-selección (mover N tableros de una vez) | Criterio C7: una tarea a la vez | Sí, aditivo |
+| Multi-selección **como modo del panel** | Criterio C7. Nota: sí existe **dentro del wizard de creación** (D8) | Sí, aditivo |
 | Orden manual de carpetas (drag entre carpetas) | D5 — el A→Z alcanza | Sí |
 | Colores / iconos personalizados de carpeta | No resuelve encontrabilidad; suma decisiones | Sí |
 

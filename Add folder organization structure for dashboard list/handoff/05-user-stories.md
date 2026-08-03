@@ -104,17 +104,20 @@ para reconocer de un vistazo dónde mirar en vez de escanear una lista infinita 
 ### Historia
 
 Como usuario que ya no encuentra nada en una lista de 159 tableros,
-quiero crear una carpeta en dos clics y con un solo campo,
-para empezar a ordenar sin sentir que entro a una configuración larga.
+quiero **elegir los tableros que quiero juntar y después ponerle nombre al grupo**,
+para que al terminar me quede claro qué acabo de hacer y dónde quedó.
+
+> **Cambio tras probar el prototipo (D8).** La versión anterior de esta historia creaba la carpeta **vacía** en un solo campo, aplicando C7 al pie de la letra. En pruebas se sintió roto: el diálogo se cerraba, la carpeta caía en su lugar alfabético entre 4 carpetas y 100 sueltos, y el usuario quedaba **buscando su propio resultado**. Una carpeta vacía no es un resultado; es una promesa.
 
 ### Estados de interfaz
 
 - **Inicial:** disparador = botón icono `FolderPlus` con tooltip "Nueva carpeta", en el header de la sección "Tableros", a la izquierda del toggle A→Z (I1).
-- **Carga:** botón "Crear" en estado `Creando...` con `LoaderCircle animate-spin`; el campo queda deshabilitado.
-- **Activo:** `Dialog` con un solo campo, enfocado y seleccionado al abrir. `Enter` confirma.
-- **Error:** duplicado → mensaje inline bajo el campo (`text-xs text-destructive`), no toast solo. Fallo de red → `Alert variant="destructive"` inline.
-- **Éxito:** la carpeta aparece **vacía y expandida** en la lista + `toast.success("Carpeta creada")`.
-- **Vacío post-interacción:** la carpeta recién creada está vacía → HU-08.
+- **Paso 1 · Elige los tableros:** buscador + lista con checkboxes. Los tableros **sin carpeta van primero**; los que ya están en otra muestran cuál. Contador de seleccionados + atajo "Seleccionar los N visibles" + "Limpiar".
+- **Paso 2 · Ponle nombre:** campo de nombre **+ resumen de lo que se guarda** ("Se creará con 12 tableros", los primeros 4, "y 8 más") y enlace para volver a cambiar la selección. El botón dice **"Crear con 12 tableros"**.
+- **Carga:** botón en `Creando...` con spinner; los pasos quedan deshabilitados.
+- **Error:** duplicado → inline bajo el campo (vuelve al paso 2, nunca pierde la selección). Fallo de red → `Alert variant="destructive"` inline.
+- **Éxito:** la carpeta entra **expandida**, se hace **scroll hasta ella** y se **resalta ~2s** + toast "Carpeta «X» creada con 12 tableros" con **Deshacer**.
+- **Camino vacío:** con 0 seleccionados el resumen dice "Se creará vacía" y el botón "Crear vacía" → cae en HU-08.
 
 ### Interacción y movimiento
 
@@ -123,8 +126,13 @@ para empezar a ordenar sin sentir que entro a una configuración larga.
 
 ### Criterios de aceptación
 
-- [ ] Crear una carpeta toma **un clic + un nombre + Enter**.
-- [ ] La carpeta nace **vacía**: el diálogo no pide seleccionar tableros (C7).
+- [ ] El flujo es **elegir → nombrar**, en ese orden, con indicador de paso visible.
+- [ ] El paso 2 muestra **cuántos y cuáles** tableros se van a guardar antes de confirmar.
+- [ ] El botón de confirmación **nombra la consecuencia** ("Crear con 12 tableros"), no dice solo "Crear".
+- [ ] Volver del paso 2 al paso 1 **no pierde la selección**.
+- [ ] Se puede crear vacía, y el resumen lo dice explícitamente.
+- [ ] Al crear, la carpeta queda **visible en pantalla** (scroll) y **resaltada**: el usuario no tiene que buscarla.
+- [ ] El "Deshacer" revierte la carpeta **y** devuelve cada tablero a la carpeta en la que estaba.
 - [ ] Validación: `trim` · mínimo 1 · **máximo 100** · **sin restricción de caracteres** — acepta "Conciliación diaria" y "Cierre_contable".
 - [ ] El duplicado se detecta local (mientras escribe) **y** contra el servidor (409), y ambos se ven en el mismo lugar.
 - [ ] Se completa con teclado: el disparador es alcanzable por `Tab` y tiene nombre accesible.
@@ -382,7 +390,7 @@ para no ignorar el feature y seguir scrolleando como siempre.
 ### Preguntas abiertas
 
 - **PA-13:** ¿el empty state se descarta manualmente y se recuerda por usuario, o desaparece solo al crear la primera carpeta?
-- **PA-14 (la más importante):** con **111 tableros sueltos**, crear 4 carpetas no resuelve el problema. ¿El onboarding debería empujar a **mover en lote**? Eso reabriría la multi-selección, hoy fuera de alcance por C7. Alternativa: medir y decidir con datos.
+- ~~**PA-14:** con 111 sueltos, crear 4 carpetas no resuelve el problema. ¿Hace falta mover en lote?~~ **Resuelta en parte por D8:** el wizard de creación permite seleccionar N tableros de una vez, así que ordenar 30 es *crear una carpeta*, no 30 operaciones de mover. Queda abierto el caso "mover 12 tableros a una carpeta **que ya existe**": hoy es de a uno. Se decide con datos (`% de tableros dentro de una carpeta`).
 
 ### Evidencia
 
@@ -492,7 +500,7 @@ Protección de acciones destructivas (HU-06) · estados de error, vacío y carga
 | Historia | Flujo | Criterio del issue | Riesgo |
 |----------|-------|--------------------|--------|
 | HU-01 Reconocer agrupado | F7 | C4 | Medio — la jerarquía tiene que leerse sin instrucciones |
-| HU-02 Crear carpeta | F1 | C1 | Medio — descubribilidad del disparador (PA-4) |
+| HU-02 Crear carpeta (2 pasos) | F1 | C1, y alivia C2 | Medio — descubribilidad del disparador (PA-4) |
 | HU-03 Mover a carpeta | F2 | C2 | Medio — el drag suma complejidad (PA-6, PA-7) |
 | HU-04 Quitar de la carpeta | F3 | C3 | Bajo |
 | HU-05 Renombrar carpeta | F4 | C1 | Bajo |
