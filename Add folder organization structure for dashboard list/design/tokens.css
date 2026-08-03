@@ -1,0 +1,168 @@
+/* ============================================================================
+ * tokens.css — extraído de @simetrikinc/desyk-components@1.30.0-0
+ * Fuente: node_modules/@simetrikinc/desyk-components/dist/styles.css
+ *
+ * NO editar a mano para "ajustar" el prototipo. Si un color no está acá,
+ * no existe en el design system: marcarlo como propuesta en design.md.
+ *
+ * Convención desyk: el valor se declara en HSL sin la función, y se consume
+ * con hsl(var(--token)) — así se puede modular la opacidad:
+ *     background: hsl(var(--primary) / 0.1)
+ * ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+:root {
+  /* ── Superficie ───────────────────────────────────────────────────────── */
+  --background: 0 0% 100%;
+  --foreground: 240 6% 10%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 4%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 4%;
+
+  /* ── Marca / acción ───────────────────────────────────────────────────── */
+  --primary: 240 94% 60%;
+  --primary-foreground: 0 0% 98%;
+
+  --secondary: 240 5% 96%;
+  --secondary-foreground: 240 6% 10%;
+
+  /* ── Neutros de UI ────────────────────────────────────────────────────── */
+  /* --muted: fondo de hover en controles · --muted-foreground: texto e iconos secundarios */
+  --muted: 240 5% 96%;
+  --muted-foreground: 0 0% 55%;
+
+  /* --accent: fondo de fila/ítem ACTIVO (reservado, no usar para hover) */
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 6% 10%;
+
+  /* ── Estado ───────────────────────────────────────────────────────────── */
+  --success: 138 76% 36%;
+  --success-foreground: 138 76% 97%;
+
+  --warning: 41 96% 40%;
+  --warning-foreground: 55 92% 95%;
+
+  --info: 221 83% 53%;
+  --info-foreground: 0 0% 100%;
+
+  --destructive: 360 72% 51%;
+  --destructive-foreground: 0 86% 97%;
+
+  /* ── Scroll ───────────────────────────────────────────────────────────── */
+  --scroll: 216 8% 84%;
+  --scroll-foreground: 240 6% 10%;
+
+  /* ── Bordes y foco ────────────────────────────────────────────────────── */
+  --border: 0 0% 85%;
+  --input: 0 0% 85%;
+  --ring: 221 83% 63%;
+
+  /* ── Geometría ────────────────────────────────────────────────────────── */
+  /* Tailwind mapea: rounded-lg = var(--radius) · rounded-md = radius-2px · rounded-sm = radius-4px */
+  --radius: 0.5rem;
+
+  /* ── Sidebar (el panel de Tableros vive acá) ──────────────────────────── */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5% 26%;
+  --sidebar-primary: 240 6% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 6% 96%;
+  --sidebar-accent-foreground: 240 6% 10%;
+  --sidebar-border: 240 6% 90%;
+  --sidebar-ring: 240 5% 65%;
+
+  /* ── IA ───────────────────────────────────────────────────────────────── */
+  --ai-purple: 280 100% 61%;
+  --ai-blue: 222 97% 66%;
+  --ai-gray-primary: 228 33% 96%;
+  --ai-gray-secondary: 224 33% 91%;
+
+  --ai-gradient-primary: linear-gradient(90deg, hsl(var(--ai-purple)) 0%, hsl(var(--ai-blue)) 100%);
+  --ai-gradient-secondary: linear-gradient(90deg, #FFFFFF 11.06%, hsl(var(--ai-gray-primary)) 49.04%, #FFFFFF 88.46%);
+  --ai-gradient-primary-border: linear-gradient(90deg, hsl(var(--ai-purple) / 0.2) 0%, hsl(var(--ai-blue) / 0.2) 100%);
+
+  /* ── Charts ───────────────────────────────────────────────────────────── */
+  --chart-1: 222 83% 69%;
+  --chart-2: 264 92% 70%;
+  --chart-3: 161 70% 67%;
+  --chart-4: 127 52% 62%;
+  --chart-5: 201 82% 74%;
+  --chart-6: 34 90% 69%;
+  --chart-7: 21 81% 82%;
+  --chart-8: 354 71% 74%;
+}
+
+/* ============================================================================
+ * Tema oscuro. OJO: desyk NO redefine --success / --warning / --info /
+ * sus foregrounds en .dark — heredan los valores de :root (verificado en
+ * dist/styles.css). Si el prototipo agrega modo oscuro, revisar contraste
+ * de esos tres antes de darlos por buenos.
+ * ========================================================================= */
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  --scroll: 240 6% 10%;
+  --scroll-foreground: 216 8% 84%;
+
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 0 0% 100%;
+
+  --sidebar-background: 240 5.9% 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+/* ============================================================================
+ * Base — replica @layer base de desyk
+ * ========================================================================= */
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Scrollbar del panel — utilidad .scrollbar-medium de desyk */
+.scrollbar-medium::-webkit-scrollbar { width: 0.3rem; height: 0.3rem; }
+.scrollbar-medium::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--scroll));
+  border-radius: 0.25rem;
+}
+.scrollbar-medium::-webkit-scrollbar-track { background: transparent; }
