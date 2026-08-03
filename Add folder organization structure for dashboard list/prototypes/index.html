@@ -264,8 +264,11 @@
                       <template x-for="f in sortedFolders" :key="f.id">
                         <li>
                           <!-- Fila de carpeta · 32px · toda la fila es el toggle (🔴 C1) -->
-                          <div class="group flex h-8 w-full items-center overflow-hidden rounded-md transition-colors"
-                               :class="dragOver === f.id ? 'bg-info/5 ring-1 ring-info/50' : 'hover:bg-muted'"
+                          <div :id="'folder-' + f.id"
+                               class="group flex h-8 w-full items-center overflow-hidden rounded-md transition-colors"
+                               :class="dragOver === f.id ? 'bg-info/5 ring-1 ring-info/50'
+                                       : flash === f.id ? 'bg-info/10 ring-1 ring-info/60'
+                                       : 'hover:bg-muted'"
                                @dragover.prevent="dragOver = f.id" @dragleave="dragOver === f.id && (dragOver = null)"
                                @drop.prevent="onDrop(f.id)"
                                @contextmenu.prevent="openMenu($event, 'folder', f.id)">
@@ -338,8 +341,11 @@
                         <ul class="flex flex-col gap-0.5">
                           <template x-for="f in sortedFolders" :key="'b'+f.id">
                             <li>
-                              <div class="group flex h-8 w-full items-center overflow-hidden rounded-md transition-colors"
-                                   :class="dragOver === f.id ? 'bg-info/5 ring-1 ring-info/50' : 'hover:bg-muted'"
+                              <div :id="'folder-' + f.id"
+                                   class="group flex h-8 w-full items-center overflow-hidden rounded-md transition-colors"
+                                   :class="dragOver === f.id ? 'bg-info/5 ring-1 ring-info/50'
+                                           : flash === f.id ? 'bg-info/10 ring-1 ring-info/60'
+                                           : 'hover:bg-muted'"
                                    @dragover.prevent="dragOver = f.id" @dragleave="dragOver === f.id && (dragOver = null)"
                                    @drop.prevent="onDrop(f.id)" @contextmenu.prevent="openMenu($event, 'folder', f.id)">
                                 <button class="flex min-w-0 flex-1 items-center gap-1.5 px-2 py-1.5 text-left"
@@ -498,30 +504,158 @@
     </template>
   </div>
 
-  <!-- ══════════ DIÁLOGO · crear / renombrar ══════════ -->
+  <!-- ══════════ CREAR CARPETA · wizard de 2 pasos ══════════
+       Paso 1 elige los tableros · Paso 2 les pone nombre.
+       Así la confirmación es explícita ("se creará con 12 tableros") y la
+       selección múltiple vive DENTRO de la creación, no como modo del panel. -->
   <template x-if="dlg.open">
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4" @click.self="closeDlg()">
-      <div class="w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-lg" role="dialog" aria-modal="true" :aria-label="dlg.mode === 'create' ? 'Crear carpeta' : 'Renombrar carpeta'">
-        <h3 class="text-base font-semibold" x-text="dlg.mode === 'create' ? 'Crear carpeta' : 'Renombrar carpeta'"></h3>
-        <p class="mt-1 text-sm text-sidebar-foreground" x-text="dlg.mode === 'create' ? 'Las carpetas ordenan la lista de tableros de la cuenta.' : 'Cambia el nombre de la carpeta.'"></p>
-        <div class="mt-4 flex flex-col gap-1.5">
-          <label class="text-sm font-medium" for="fname">Nombre de la carpeta</label>
-          <input id="fname" x-ref="fname" x-model="dlg.name" @input="dlg.error = null" @keydown.enter="submitDlg()"
-                 aria-required="true" :aria-invalid="!!dlg.error" maxlength="120"
-                 placeholder="Nombre de la carpeta"
-                 class="h-10 w-full rounded-[0.625rem] border border-solid bg-transparent px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset"
-                 :class="dlg.error ? 'border-destructive focus-visible:ring-destructive/20' : 'border-input focus-visible:ring-info/50'">
-          <template x-if="dlg.error">
-            <p role="alert" class="text-xs text-destructive" x-text="dlg.error"></p>
+      <div class="flex max-h-[82vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-border bg-background shadow-lg"
+           role="dialog" aria-modal="true" :aria-label="dlg.mode === 'create' ? 'Nueva carpeta' : 'Renombrar carpeta'">
+
+        <!-- Header -->
+        <div class="shrink-0 border-b border-border px-6 pb-4 pt-6">
+          <h3 class="text-base font-semibold" x-text="dlg.mode === 'create' ? 'Nueva carpeta' : 'Renombrar carpeta'"></h3>
+
+          <template x-if="dlg.mode === 'create'">
+            <div class="mt-3 flex items-center gap-2">
+              <template x-for="s in [1, 2]" :key="s">
+                <div class="flex items-center gap-2" :class="s === 2 && 'flex-1'">
+                  <template x-if="s === 2"><div class="h-px flex-1" :class="dlg.step > 1 ? 'bg-info' : 'bg-border'"></div></template>
+                  <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                        :class="dlg.step > s ? 'bg-info text-info-foreground' : dlg.step === s ? 'bg-info text-info-foreground' : 'bg-muted text-sidebar-foreground'">
+                    <template x-if="dlg.step > s"><i data-lucide="check" class="h-3 w-3"></i></template>
+                    <template x-if="dlg.step <= s"><span x-text="s"></span></template>
+                  </span>
+                  <span class="text-xs" :class="dlg.step === s ? 'font-medium text-foreground' : 'text-sidebar-foreground'"
+                        x-text="s === 1 ? 'Elige los tableros' : 'Ponle nombre'"></span>
+                </div>
+              </template>
+            </div>
           </template>
-          <p class="text-[11px] text-sidebar-foreground">Acepta tildes, espacios y guion bajo. Máximo 100 caracteres.</p>
+          <template x-if="dlg.mode === 'rename'">
+            <p class="mt-1 text-sm text-sidebar-foreground">Cambia el nombre de la carpeta. Los tableros que contiene no se mueven.</p>
+          </template>
         </div>
-        <div class="mt-5 flex justify-end gap-2">
-          <button @click="closeDlg()" class="inline-flex h-10 items-center rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">Cancelar</button>
-          <button @click="submitDlg()" :disabled="!dlg.name.trim()"
-                  class="inline-flex h-10 items-center rounded-xl bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90 disabled:cursor-not-allowed disabled:opacity-50"
-                  x-text="dlg.mode === 'create' ? 'Crear' : 'Guardar'"></button>
-        </div>
+
+        <!-- ── PASO 1 · elegir tableros ── -->
+        <template x-if="dlg.mode === 'create' && dlg.step === 1">
+          <div class="flex min-h-0 flex-1 flex-col">
+            <div class="shrink-0 px-6 pt-4">
+              <p class="text-sm text-sidebar-foreground">Marca los tableros que quieres agrupar. Podrás mover más después.</p>
+              <div class="relative mt-3">
+                <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
+                <input x-model="dlg.q" placeholder="Buscar tablero" aria-label="Buscar tablero para agregar"
+                       class="h-9 w-full rounded-[0.625rem] border border-solid border-input bg-transparent pl-8 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-info/50">
+              </div>
+              <div class="mt-2 flex items-center justify-between text-xs">
+                <span class="text-sidebar-foreground">
+                  <strong class="text-foreground" x-text="dlg.selected.length"></strong> seleccionados
+                </span>
+                <div class="flex items-center gap-2">
+                  <button @click="selectAllVisible()" class="text-info hover:underline">Seleccionar los <span x-text="pickList.length"></span> visibles</button>
+                  <template x-if="dlg.selected.length">
+                    <button @click="dlg.selected = []" class="text-sidebar-foreground hover:underline">Limpiar</button>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <ul class="mt-2 min-h-0 flex-1 overflow-y-auto border-y border-border">
+              <template x-for="d in pickList" :key="'pk' + d.id">
+                <li>
+                  <label class="flex cursor-pointer items-center gap-2.5 px-6 py-2 text-sm hover:bg-accent">
+                    <input type="checkbox" :value="d.id" x-model="dlg.selected" class="h-4 w-4 shrink-0 rounded border-input accent-info">
+                    <i :data-lucide="d.private ? 'lock' : 'globe'" class="h-3.5 w-3.5 shrink-0" :class="d.private ? 'text-muted-foreground' : 'text-info'"></i>
+                    <span class="min-w-0 flex-1 truncate" :title="d.name" x-text="d.name"></span>
+                    <template x-if="d.folderId">
+                      <span class="flex shrink-0 items-center gap-1 text-xs text-sidebar-foreground">
+                        <i data-lucide="folder" class="h-3 w-3"></i><span x-text="folderName(d.folderId)"></span>
+                      </span>
+                    </template>
+                  </label>
+                </li>
+              </template>
+              <template x-if="pickList.length === 0">
+                <li class="px-6 py-6 text-center text-xs text-sidebar-foreground">Sin tableros que coincidan</li>
+              </template>
+            </ul>
+
+            <div class="flex shrink-0 items-center justify-between gap-2 px-6 py-4">
+              <p class="text-[11px] text-sidebar-foreground">
+                <template x-if="dlg.selected.some(id => dashById(id)?.folderId)">
+                  <span>Algunos ya están en otra carpeta: se moverán a esta.</span>
+                </template>
+              </p>
+              <div class="flex gap-2">
+                <button @click="closeDlg()" class="inline-flex h-10 items-center rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">Cancelar</button>
+                <button @click="dlg.step = 2; $nextTick(() => $refs.fname?.focus())"
+                        class="inline-flex h-10 items-center gap-1.5 rounded-xl bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90">
+                  Siguiente <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- ── PASO 2 · nombre · y también el modo renombrar ── -->
+        <template x-if="dlg.mode === 'rename' || dlg.step === 2">
+          <div class="flex min-h-0 flex-1 flex-col">
+            <div class="min-h-0 flex-1 overflow-y-auto px-6 pt-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-sm font-medium" for="fname">Nombre de la carpeta</label>
+                <input id="fname" x-ref="fname" x-model="dlg.name" @input="dlg.error = null" @keydown.enter="submitDlg()"
+                       aria-required="true" :aria-invalid="!!dlg.error" maxlength="120" placeholder="Nombre de la carpeta"
+                       class="h-10 w-full rounded-[0.625rem] border border-solid bg-transparent px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+                       :class="dlg.error ? 'border-destructive focus-visible:ring-destructive/20' : 'border-input focus-visible:ring-info/50'">
+                <template x-if="dlg.error"><p role="alert" class="text-xs text-destructive" x-text="dlg.error"></p></template>
+                <p class="text-[11px] text-sidebar-foreground">Acepta tildes, espacios y guion bajo. Máximo 100 caracteres.</p>
+              </div>
+
+              <!-- Resumen de lo que se está guardando -->
+              <template x-if="dlg.mode === 'create'">
+                <div class="mt-4 rounded-lg border border-border bg-muted/40 p-3">
+                  <p class="text-xs font-medium">
+                    <template x-if="dlg.selected.length">
+                      <span>Se creará con <strong x-text="dlg.selected.length"></strong> <span x-text="dlg.selected.length === 1 ? 'tablero' : 'tableros'"></span></span>
+                    </template>
+                    <template x-if="!dlg.selected.length"><span>Se creará vacía</span></template>
+                  </p>
+                  <ul class="mt-1.5 space-y-1">
+                    <template x-for="id in dlg.selected.slice(0, 4)" :key="'sm' + id">
+                      <li class="flex items-center gap-1.5 text-[11px] text-sidebar-foreground">
+                        <i data-lucide="corner-down-right" class="h-3 w-3 shrink-0"></i>
+                        <span class="truncate" x-text="dashById(id)?.name"></span>
+                      </li>
+                    </template>
+                    <template x-if="dlg.selected.length > 4">
+                      <li class="text-[11px] text-sidebar-foreground" x-text="`y ${dlg.selected.length - 4} más`"></li>
+                    </template>
+                    <template x-if="!dlg.selected.length">
+                      <li class="text-[11px] text-sidebar-foreground">Podrás mover tableros después desde su menú de opciones.</li>
+                    </template>
+                  </ul>
+                  <button @click="dlg.step = 1" class="mt-2 text-[11px] font-medium text-info hover:underline">Cambiar la selección</button>
+                </div>
+              </template>
+            </div>
+
+            <div class="flex shrink-0 justify-end gap-2 px-6 py-4">
+              <template x-if="dlg.mode === 'create'">
+                <button @click="dlg.step = 1" class="inline-flex h-10 items-center gap-1.5 rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">
+                  <i data-lucide="arrow-left" class="h-4 w-4"></i> Atrás
+                </button>
+              </template>
+              <template x-if="dlg.mode === 'rename'">
+                <button @click="closeDlg()" class="inline-flex h-10 items-center rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">Cancelar</button>
+              </template>
+              <button @click="submitDlg()" :disabled="!dlg.name.trim()"
+                      class="inline-flex h-10 items-center rounded-xl bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90 disabled:cursor-not-allowed disabled:opacity-50"
+                      x-text="dlg.mode === 'create' ? (dlg.selected.length ? `Crear con ${dlg.selected.length} ${dlg.selected.length === 1 ? 'tablero' : 'tableros'}` : 'Crear vacía') : 'Guardar'"></button>
+            </div>
+          </div>
+        </template>
+
       </div>
     </div>
   </template>
@@ -724,7 +858,8 @@ function proto() {
     sortAsc: true, searchInput: "", appliedSearch: "", unfiledShown: 20,
     drill: null, dragOver: null, dragId: null,
     menu: { open: false, x: 0, y: 0, type: "dashboard", id: null },
-    dlg: { open: false, mode: "create", name: "", id: null, error: null },
+    dlg: { open: false, mode: "create", step: 1, name: "", id: null, error: null, selected: [], q: "" },
+    flash: null,
     move: { open: false, id: null, q: "", confirm: null },
     del: { open: false, id: null },
     toast: { show: false, msg: "", undo: null, icon: "check" },
@@ -831,16 +966,36 @@ function proto() {
       this._toast = setTimeout(() => (this.toast.show = false), 60000);   // ~60s, estándar del OC
     },
 
-    // ── crear / renombrar ──
+    // ── crear (wizard de 2 pasos) / renombrar ──
+    // Lista del paso 1: primero los que no tienen carpeta (son los que urge ordenar)
+    get pickList() {
+      const q = this.dlg.q.trim().toLowerCase();
+      const base = this.all.filter((d) => !q || d.name.toLowerCase().includes(q));
+      return [...base].sort((a, b) =>
+        (a.folderId ? 1 : 0) - (b.folderId ? 1 : 0) || a.name.localeCompare(b.name, "es"));
+    },
+    selectAllVisible() {
+      const ids = this.pickList.map((d) => d.id);
+      this.dlg.selected = [...new Set([...this.dlg.selected, ...ids])];
+    },
     openCreate(e) {
       this.menu.open = false; this.lastTrigger = e?.currentTarget ?? null;
-      this.dlg = { open: true, mode: "create", name: "", id: null, error: null };
-      this.$nextTick(() => this.$refs.fname?.focus());
+      this.dlg = { open: true, mode: "create", step: 1, name: "", id: null, error: null, selected: [], q: "" };
     },
     openRename(id) {
       this.menu.open = false;
-      this.dlg = { open: true, mode: "rename", name: this.folderName(id), id, error: null };
+      this.dlg = { open: true, mode: "rename", step: 2, name: this.folderName(id), id, error: null, selected: [], q: "" };
       this.$nextTick(() => { this.$refs.fname?.focus(); this.$refs.fname?.select(); });
+    },
+    // Orientación: lleva la carpeta a la vista y la resalta ~2s.
+    // Sin esto, al crear una carpeta el usuario queda buscándola en la lista.
+    reveal(folderId) {
+      this.flash = folderId;
+      this.$nextTick(() => {
+        document.getElementById("folder-" + folderId)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
+      clearTimeout(this._flash);
+      this._flash = setTimeout(() => (this.flash = null), 2200);
     },
     validate(name, excludeId) {
       const t = name.trim();
@@ -852,18 +1007,35 @@ function proto() {
     },
     submitDlg() {
       const err = this.validate(this.dlg.name, this.dlg.id);
-      if (err) { this.dlg.error = err; return; }
+      if (err) { this.dlg.error = err; if (this.dlg.mode === "create") this.dlg.step = 2; return; }
       const name = this.dlg.name.trim();
+
       if (this.dlg.mode === "create") {
         const id = "f" + Date.now();
+        const picked = [...this.dlg.selected];
+        const prev = picked.map((did) => ({ did, folderId: this.dashById(did)?.folderId ?? null }));
         this.folders.push({ id, name });
+        picked.forEach((did) => { const d = this.dashById(did); if (d) d.folderId = id; });
         this.expanded = [...this.expanded, id];
         this.persist();
-        this.notify("Carpeta creada");
+        this.reveal(id);
+        this.notify(
+          picked.length
+            ? `Carpeta «${name}» creada con ${picked.length} ${picked.length === 1 ? "tablero" : "tableros"}`
+            : `Carpeta «${name}» creada · está vacía`,
+          () => {   // deshacer: devuelve cada tablero a donde estaba y borra la carpeta
+            prev.forEach(({ did, folderId }) => { const d = this.dashById(did); if (d) d.folderId = folderId; });
+            this.folders = this.folders.filter((f) => f.id !== id);
+            this.expanded = this.expanded.filter((x) => x !== id);
+            this.persist();
+          },
+        );
       } else {
         const f = this.folders.find((x) => x.id === this.dlg.id);
+        const before = f?.name;
         if (f) f.name = name;
-        this.notify("Carpeta renombrada");
+        this.reveal(this.dlg.id);
+        this.notify(`Carpeta renombrada a «${name}»`, () => { if (f) f.name = before; });
       }
       this.closeDlg();
     },
@@ -885,6 +1057,7 @@ function proto() {
       d.folderId = folderId;
       if (!this.isOpen(folderId)) this.toggle(folderId);
       this.move = { open: false, id: null, q: "", confirm: null };
+      this.reveal(folderId);
       this.notify(`Tablero movido a «${this.folderName(folderId)}»`, () => { d.folderId = prev; });
     },
     removeFromFolder(id) {

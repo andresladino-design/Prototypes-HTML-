@@ -8,7 +8,7 @@ Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo 
 
 | Board | Pantallas | Cubre |
 |-------|-----------|-------|
-| F1 — Crear una carpeta | 7 | C1 |
+| F1 — Crear una carpeta (2 pasos) | 8 | C1 |
 | F2 — Mover un tablero a una carpeta | 9 | C2 |
 | F3 — Quitar un tablero de la carpeta | 7 | C3 |
 | F4 — Renombrar una carpeta | 8 | C1 |
@@ -22,13 +22,16 @@ Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo 
 ## F1 — Crear una carpeta
 
 ```
-Inicio → Panel Tableros · aún sin carpetas ⟨empty⟩ → Crear carpeta ⟨dialog⟩
-       → ¿Nombre válido y único? ─Sí→ Carpeta creada (vacía) + toast → Fin
-                                 └No→ Error inline ⟨dialog⟩ ⤸ vuelve al diálogo
+Inicio → Panel Tableros · aún sin carpetas ⟨empty⟩
+       → Paso 1 · Elige los tableros ⟨dialog⟩ ──Siguiente──▶ Paso 2 · Ponle nombre ⟨dialog⟩
+       → ¿Nombre válido y único? ─Sí→ Carpeta creada con sus tableros · se revela → Fin
+                                 └No→ Error inline ⟨dialog⟩ ⤸ vuelve al paso 2
 ```
 
 - **Disparador (I1):** botón icono `FolderPlus` con tooltip en el **header de la sección "Tableros"**, a la izquierda del toggle A→Z. El slot ya existe en el código (`DashboardSection.headerAction`).
-- **La carpeta nace vacía.** Mover tableros es F2. Meter ambas cosas en un paso rompería C7.
+- **Dos pasos, una sola tarea (D8).** La tarea del usuario no es "crear un contenedor vacío" sino **"agrupar estos tableros"**. Paso 1 elige, paso 2 nombra y **muestra qué se está guardando**. Precedentes en el producto: `CreateConnectionWizard` y `TemplateFormDialog/steps`, con el `stepper` de desyk.
+- **Al crear, la carpeta se revela:** entra expandida, scroll hasta ella y resalte de ~2s. Sin esto el usuario queda buscando su propio resultado entre 4 carpetas y 100 sueltos — fue el hallazgo de las pruebas.
+- **Crear vacía sigue siendo posible** (0 seleccionados → "Crear vacía"), y el resumen lo dice.
 - **Validación:** `trim` · mín 1 · **máx 100** · **sin restricción de caracteres** — las reglas de nombre de *tablero*, no las de Almacenamiento (que rechaza tildes).
 - **Empty state del feature:** el panel sin carpetas es el primer contacto (HU-08). Lleva CTA de texto completo, no solo el icono — mitiga el riesgo de Fitts de un target de 28 px.
 - Crear queda **deshabilitado durante la búsqueda**, igual que en Almacenamiento.
@@ -137,7 +140,7 @@ Deja claro el alcance: **las carpetas son un nivel dentro del panel de Tableros*
 | Tema | Resolución |
 |------|-----------|
 | Disparador de crear | Header de la sección "Tableros" (icono + tooltip) + entrada secundaria en el selector de mover |
-| Carpeta nueva | Nace **vacía**; mover es otra tarea |
+| Carpeta nueva | **Wizard de 2 pasos**: elegir tableros → nombrar. Puede crearse vacía, pero no es el camino principal (D8) |
 | Exclusividad al mover | Si ya estaba en otra carpeta, se **confirma** el cambio |
 | Confirmación al quitar | **No** lleva diálogo; lleva toast con "Deshacer" |
 | Copy destructivo | Dice el **número** de tableros que vuelven a la lista y que **no se eliminarán** |
@@ -147,7 +150,7 @@ Deja claro el alcance: **las carpetas son un nivel dentro del panel de Tableros*
 
 ## Lo que estos flujos NO cubren (y por qué)
 
-- **Multi-selección** ("mover 12 tableros de una vez"): choca con C7. Es la **primera mejora a desbloquear** si la adopción se estanca — ver el hallazgo de I2 (con 111 sueltos, las carpetas solas no bajan la lista).
+- **Multi-selección como modo del panel** ("marcar 12 filas y moverlas"): choca con C7. **Pero sí existe dentro del wizard de creación** (D8), que es donde resuelve el problema de los 100 sueltos sin agregar un modo a la navegación.
 - **Reordenar carpetas a mano:** D5 resolvió el orden con el toggle A→Z existente.
 - **Subcarpetas** (D2), **etiquetas** (D3), **permisos por carpeta** (D1.b).
 

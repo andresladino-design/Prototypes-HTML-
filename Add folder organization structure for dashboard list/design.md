@@ -124,6 +124,8 @@ Cada uno con su doc en `fe-solutions-mf/node_modules/@simetrikinc/desyk-componen
 |-----------|----------|-----|
 | `collapsible` | La carpeta. `Collapsible` (`open` / `onOpenChange`) + `CollapsibleTrigger asChild` + `CollapsibleContent` | `collapsible.md` |
 | `command` | Buscador dentro del selector "Mover a carpeta" cuando hay > 7 carpetas: `CommandInput` · `CommandList` · `CommandEmpty` · `CommandItem onSelect` | `command.md` |
+| `stepper` | Wizard de creación en 2 pasos (D8): `Stepper currentStep` · `StepperItem` · `StepperIndicator state` · `StepperLabel` | `stepper.md` |
+| `checkbox` | Selección de tableros en el paso 1 del wizard | `checkbox.md` |
 | `badge` | Solo si el prototipo necesita el chip "en: carpeta" — **descartado en I3** a favor de la segunda línea | `badge.md` |
 
 ### Infra propia del panel (no traer librerías nuevas)
@@ -144,9 +146,11 @@ Cada uno con su doc en `fe-solutions-mf/node_modules/@simetrikinc/desyk-componen
 
 Los tres patrones ya existen en el panel; las carpetas los siguen sin inventar nada.
 
-### Crear
+### Crear (2 pasos · D8)
 
-Disparador (**I1**) → `Dialog` con **un solo campo** → validación de duplicado **inline** → `toast.success`.
+Disparador (**I1**) → **paso 1: elegir tableros** (buscador + checkboxes, sueltos primero) → **paso 2: nombre + resumen de lo que se guarda** → validación de duplicado **inline** → la carpeta se **revela** (scroll + resalte ~2s) → `toast` con Deshacer.
+
+Usa `stepper` de desyk. Precedentes en el producto: `CreateConnectionWizard` y `TemplateFormDialog/steps`.
 
 - Disparador: `Button` icono `FolderPlus` con `Tooltip`, en el `headerAction` de la sección "Tableros", a la izquierda del toggle A→Z.
 - **Deshabilitado mientras hay búsqueda activa** (como `FilesView` en Almacenamiento).
@@ -269,3 +273,5 @@ Reusar el vocabulario visual que ya existe en `DashboardSection`:
 - **2026-08-03 — Toda la fila de carpeta es el área de toggle** (288 × 32px), no el chevron de 12px. Razón: hallazgo 🔴 C1 de la revisión heurística — expandir es la acción más frecuente del feature y el umbral de Fitts para escritorio es 40×36px. El `⋮` se mantiene chico a propósito, por consistencia con las filas de tablero.
 - **2026-08-03 — La carpeta en resultados de búsqueda va en 12px (`text-xs`), no 11px.** Razón: hallazgo 🟡 I1 — 11px queda lejos del mínimo de legibilidad y esa línea **lleva información** que el usuario necesita. Sube a 12px y a contraste 10:1. Queda por validar en la demo si la fila de dos líneas molesta al escanear (PA-12).
 - **2026-08-03 — La animación de expandir respeta `prefers-reduced-motion`** y usa el acordeón de desyk (200ms), no los 120ms que pide el checklist del OC para toggles. Razón: consistencia con el resto del producto; desviación registrada.
+- **2026-08-03 — Crear carpeta pasa a ser un wizard de 2 pasos** (elegir tableros → nombre), y toda acción sobre una carpeta la **revela** con scroll + resalte de ~2s. Razón: al probar el prototipo, crear una carpeta cerraba el diálogo y dejaba al usuario buscando su propio resultado entre 4 carpetas y 100 sueltos; y una carpeta vacía no es un resultado verificable. Ver D8 en `handoff/01-decisiones.md`.
+- **2026-08-03 — El botón de confirmación nombra la consecuencia:** "Crear con 12 tableros" en vez de "Crear". Razón: el label es el último lugar donde el usuario puede verificar qué está guardando.
