@@ -105,7 +105,11 @@
         <aside class="relative flex w-72 min-w-72 shrink-0 flex-col overflow-hidden border-r border-border bg-background px-3 pt-3">
 
           <div class="flex items-center justify-between pb-2 pl-3 pt-1">
-            <h2 class="text-sm font-semibold">Tableros</h2>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-semibold">Tableros</h2>
+              <!-- Slot 1 del patrón: el contador vive junto al título, no en el header de sección -->
+              <span class="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-secondary-foreground" x-text="items.length"></span>
+            </div>
             <button class="rounded-xl p-1.5 hover:bg-accent" aria-label="Cerrar panel"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
           </div>
 
@@ -492,12 +496,15 @@
        Proceso de análisis con disclaimer de IA, barra de acciones, y ABAJO una
        tarjeta aparte con los tabs Impacto potencial / Evidencia / Línea de tiempo. -->
   <div class="flex min-h-0 flex-1 flex-col px-6 pb-6 pt-0" x-show="view === 'anomalias'">
-    <div class="flex min-h-0 flex-1 gap-4 overflow-hidden">
+    <div class="flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-border">
 
       <!-- ── Panel lateral ── -->
-      <aside class="flex w-[360px] min-w-[360px] shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-background pt-3">
+      <aside class="flex w-[425px] min-w-[425px] shrink-0 flex-col overflow-hidden border-r border-border bg-background pt-3">
         <div class="flex items-center justify-between pb-2 pl-4 pr-2 pt-1">
-          <h2 class="text-sm font-semibold">Anomalías</h2>
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm font-semibold">Anomalías</h2>
+            <span class="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-secondary-foreground">3054</span>
+          </div>
           <button class="rounded-xl p-1.5 hover:bg-accent" aria-label="Colapsar panel"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
         </div>
 
@@ -512,6 +519,13 @@
                 <template x-if="panelMode === m.k"><span class="truncate" x-text="m.l"></span></template>
               </button>
             </template>
+          </div>
+
+          <!-- Slot 4: buscador. Anomalías era el único panel sin uno. -->
+          <div class="relative mt-2" x-show="panelMode !== 'config'">
+            <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
+            <input x-model="incSearch" placeholder="Buscar por recurso" aria-label="Buscar incidencia por recurso"
+                   class="h-10 w-full rounded-[0.625rem] border border-solid border-input bg-transparent py-1 pl-8 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-info/50">
           </div>
 
           <div class="mt-2 flex items-center gap-2" x-show="panelMode !== 'config'">
@@ -601,9 +615,9 @@
             <template x-if="!filteredIncidents.length">
               <li class="flex flex-col items-center justify-center gap-1 py-16 text-center">
                 <i data-lucide="circle-check" class="h-10 w-10 text-success/70"></i>
-                <p class="text-sm font-semibold" x-text="`Sin incidencias en ${folderFilter.map(f => '«'+folderName(f)+'»').join(', ')}`"></p>
+                <p class="text-sm font-semibold" x-text="incSearch.trim() ? `Sin incidencias para «${incSearch.trim()}»` : `Sin incidencias en ${folderFilter.map(f => '«'+folderName(f)+'»').join(', ')}`"></p>
                 <p class="max-w-[240px] text-xs text-sidebar-foreground">No es un error. Las incidencias futuras de los recursos de esa carpeta aparecerán acá solas.</p>
-                <button @click="folderFilter = []" class="mt-2 inline-flex h-7 items-center rounded-xl border border-solid border-border px-2.5 text-xs font-medium hover:bg-accent">Quitar filtros</button>
+                <button @click="folderFilter = []; incSearch = ''" class="mt-2 inline-flex h-7 items-center rounded-xl border border-solid border-border px-2.5 text-xs font-medium hover:bg-accent">Quitar filtros</button>
               </li>
             </template>
           </ul>
@@ -625,15 +639,15 @@
             <button class="rounded-md p-1 text-muted-foreground hover:bg-accent" aria-label="Siguiente"><i data-lucide="chevron-right" class="h-4 w-4"></i></button>
           </div>
           <p class="mt-1 text-center text-[11px] text-muted-foreground">
-            <span x-text="folderFilter.length ? `1 - ${filteredIncidents.length} de ${filteredIncidents.length}` : '1 - 20 de 3054'"></span> incidencias
+            <span x-text="(folderFilter.length || incSearch.trim()) ? `1 - ${filteredIncidents.length} de ${filteredIncidents.length}` : '1 - 20 de 3054'"></span> incidencias
           </p>
         </div>
       </aside>
 
       <!-- ── Detalle ── -->
-      <div class="panel-scroll flex min-w-0 flex-1 flex-col gap-4 pr-0.5">
+      <div class="panel-scroll flex min-w-0 flex-1 flex-col gap-4 p-4">
         <template x-if="!selectedIncident">
-          <div class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-border px-6 text-center">
+          <div class="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
             <i data-lucide="radar" class="h-10 w-10 text-muted-foreground"></i>
             <p class="text-sm font-semibold">Sin incidencia seleccionada</p>
             <p class="max-w-sm text-xs text-sidebar-foreground">Selecciona una incidencia del panel para ver sus hallazgos, sus recomendaciones y su evidencia.</p>
@@ -778,7 +792,7 @@
         <div class="px-3 pb-2">
           <div class="relative">
             <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
-            <input placeholder="Buscar conciliación..." class="h-9 w-full rounded-[0.625rem] border border-solid border-input bg-transparent pl-8 pr-3 text-sm placeholder:text-muted-foreground">
+            <input placeholder="Buscar conciliación" class="h-10 w-full rounded-[0.625rem] border border-solid border-input bg-transparent pl-8 pr-3 text-sm placeholder:text-muted-foreground">
           </div>
         </div>
 
@@ -1530,6 +1544,7 @@ function proto() {
     recGroupBy: "dataset",       // dataset | carpeta — SD-7
     incPage: 1,
     filterPop: false,
+    incSearch: "",
 
     // ── F10 · membresía HEREDADA ──
     /** La carpeta de un incidente sale del recurso al que apunta. No se persiste. */
@@ -1537,8 +1552,10 @@ function proto() {
     incidentRef(inc) { return this.dashById(inc.ref)?.name ?? "recurso"; },
     incidentRefKind(inc) { return this.dashById(inc.ref)?.kind ?? "dashboard"; },
     get filteredIncidents() {
-      if (!this.folderFilter.length) return this.incidents;
-      return this.incidents.filter((i) => this.folderFilter.includes(this.incidentFolder(i)));
+      const q = this.incSearch.trim().toLowerCase();
+      return this.incidents.filter((i) =>
+        (!this.folderFilter.length || this.folderFilter.includes(this.incidentFolder(i))) &&
+        (!q || (this.incidentRef(i) || "").toLowerCase().includes(q) || i.cat.toLowerCase().includes(q)));
     },
     toggleFolderFilter(id) {
       this.folderFilter = this.folderFilter.includes(id)

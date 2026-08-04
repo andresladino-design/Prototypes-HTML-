@@ -60,6 +60,13 @@ Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/toke
 
 ## Changelog
 
+### 2026-08-04 — patrón unificado de panel (D11)
+- Los tres paneles divergían en **10 de 10 slots** (ancho 288 vs 425, buscador h-9 vs h-10 vs inexistente, el contador en tres lugares distintos). Documentado el patrón **«Panel de recursos del OC»** con 9 slots en orden fijo en `design.md`.
+- **El eje que ordena todo: artefacto vs. evento.** Es el mismo criterio que decide la membresía de carpeta (D10): un artefacto se declara, un evento hereda. Y también deriva la unidad de fila (32px vs card), el ancho, el fin de lista (scroll vs paginación) y si existe acción de crear. Una entidad nueva se clasifica una vez y lo demás sale solo.
+- **Unificado lo accidental:** contador como badge junto al título en los tres · **buscador nuevo en Anomalías** ("Buscar por recurso") · buscador a `h-10` en los tres · Anomalías pasa a una card con `border-r` como los otros dos.
+- **Documentado como regla lo semántico**, en vez de forzarlo: fila, ancho y paginación se derivan del eje.
+- Abiertas: **SD-8** ("Favoritos" en Tableros vs "Fijados" en Pendientes: mismo mecanismo, dos nombres) y si Pendientes debería tener acción primaria.
+
 ### 2026-08-04 — vistas replicadas de las capturas reales
 - **SD-7 (nueva):** el panel de Conciliaciones **ya está agrupado por dataset** (con badge `clickhouse` y conteos), y cada fila lleva badge **AVZ/STD**. Si la carpeta entrara como nivel extra habría **dos jerarquías compitiendo** en 288px. Implementado como **toggle «Agrupar por: Dataset | Carpeta»** — un solo nivel a la vez.
 - **Detalle de anomalía completo:** narrativa con chips inline, meta en columnas (Estado · Severidad · Tableros impactados · **Carpeta heredada**), los tres colapsables (Hallazgos · Recomendaciones · Proceso de análisis) con el disclaimer de IA, barra de acciones, y los tabs **abajo en una card aparte** (Impacto potencial · Evidencia · Línea de tiempo).
