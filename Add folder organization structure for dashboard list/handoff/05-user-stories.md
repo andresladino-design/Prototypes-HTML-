@@ -372,9 +372,10 @@ para no ignorar el feature y seguir scrolleando como siempre.
   > **Agrupa tus tableros**
   > Crea carpetas por contexto para encontrarlos más rápido.
   > `[＋ Nueva carpeta]` ← CTA de **texto completo**, no solo el icono.
-- **Carpeta recién creada y vacía:**
-  > **Sin tableros**
-  > Mueve tableros a esta carpeta desde su menú de opciones.
+- **Carpeta recién creada y vacía:** un **botón outline punteado** dentro de la carpeta, del alto de una fila (32px):
+  > `⊕ Agregar tableros` ← abre el selector múltiple de tableros para **esta** carpeta
+
+  Reemplaza el texto pasivo anterior ("Mueve tableros desde su menú de opciones"), que describía el mecanismo en vez de ofrecer la acción. El punteado comunica "acá falta algo" sin competir con las filas reales.
 - **Carga / error:** heredan los de la sección.
 - **Éxito:** el empty state desaparece cuando existe la primera carpeta con al menos un tablero.
 
@@ -383,14 +384,16 @@ para no ignorar el feature y seguir scrolleando como siempre.
 - [ ] El empty state es visible **sin scrollear** al abrir el panel.
 - [ ] No bloquea ni empuja la lista fuera de la vista: convive con los 159 tableros.
 - [ ] Explica el **beneficio** ("encontrarlos más rápido"), no el mecanismo.
-- [ ] La carpeta vacía dice **cómo** llenarla (apunta al menú del tablero).
+- [ ] La carpeta vacía **ofrece la acción** (botón punteado `⊕ Agregar tableros`), no solo describe cómo hacerlo.
+- [ ] Desde ese botón se pueden agregar **varios tableros de una vez** a la carpeta.
+- [ ] La misma acción está disponible en el menú `⋮` de la carpeta cuando ya tiene tableros.
 - [ ] Se puede descartar o desaparece solo tras crear la primera carpeta (no reaparece para siempre).
 - [ ] No usa la palabra "dashboard" ni jerga técnica.
 
 ### Preguntas abiertas
 
 - **PA-13:** ¿el empty state se descarta manualmente y se recuerda por usuario, o desaparece solo al crear la primera carpeta?
-- ~~**PA-14:** con 111 sueltos, crear 4 carpetas no resuelve el problema. ¿Hace falta mover en lote?~~ **Resuelta en parte por D8:** el wizard de creación permite seleccionar N tableros de una vez, así que ordenar 30 es *crear una carpeta*, no 30 operaciones de mover. Queda abierto el caso "mover 12 tableros a una carpeta **que ya existe**": hoy es de a uno. Se decide con datos (`% de tableros dentro de una carpeta`).
+- ~~**PA-14:** con 111 sueltos, crear 4 carpetas no resuelve el problema. ¿Hace falta mover en lote?~~ **Resuelta (D8 + D9).** El wizard de creación selecciona N tableros de una vez, y **"Agregar tableros"** hace lo mismo sobre una carpeta que ya existe — desde el botón punteado de la carpeta vacía y desde el menú `⋮` de cualquier carpeta. Ordenar 30 tableros es una operación, no 30. Sigue sin haber multi-selección **como modo del panel**, y no hace falta.
 
 ### Evidencia
 
