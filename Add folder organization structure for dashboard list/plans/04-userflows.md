@@ -40,7 +40,8 @@ Además, un **sitemap** corto que sitúe el panel dentro del OC: `Centro de oper
 
 ### F1 — Crear carpeta
 `start` → **Panel Tableros (sin carpetas)** → *decisión: ¿hay tableros?* → **Acción "Nueva carpeta"** → **Dialog nombre** → *decisión: ¿nombre válido y único?* (No → error inline, `dir:"back"`) → **Carpeta creada + toast** → `end`
-Puntos a resolver acá: **dónde vive el disparador** de "Nueva carpeta" (header de la sección Tableros vs. menú del botón "Nuevo tablero" vs. menú contextual del vacío) y **si la carpeta nueva nace vacía** o pidiendo tableros en el mismo paso. Por C7: nace vacía, mover es otra tarea.
+Puntos a resolver acá: **dónde vive el disparador** de "Nueva carpeta" (header de la sección Tableros vs. menú del botón "Nuevo tablero" vs. menú contextual del vacío) y **si la carpeta nueva nace vacía** o pidiendo tableros en el mismo paso.
+  > ✅ **Resuelto:** el disparador quedó en el header de la sección (I1). Y sobre lo segundo, la respuesta de este plan ("nace vacía, mover es otra tarea") **se revirtió** tras probar el prototipo — ver **D8**: crear es un wizard de 2 pasos, y hay un flow nuevo **F8** para llenar una carpeta existente.
 
 ### F2 — Agregar tablero a carpeta
 `start` → **Fila de tablero** → **Menú `⋮` → "Mover a carpeta"** → **Dialog selector de carpeta** (buscador si hay muchas; opción "Nueva carpeta" dentro del selector) → *decisión: ¿ya estaba en otra carpeta?* (Sí → confirmar el cambio, porque la carpeta es exclusiva según D3) → **Tablero movido + toast** → `end`

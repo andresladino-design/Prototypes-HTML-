@@ -66,10 +66,11 @@ La tabla puente `dashboard_folder_items` solo sería necesaria para carpetas per
 | Método | Ruta | Notas |
 |--------|------|-------|
 | `GET` | `/api/v1/dashboards/folders` | Lista con `dashboard_count` por carpeta. Sin paginar (o page_size alto: son pocas). |
-| `POST` | `/api/v1/dashboards/folders` | `{ name }`. **409** si el nombre ya existe en el scope. |
+| `POST` | `/api/v1/dashboards/folders` | `{ name, dashboard_ids?: UUID[] }`. Crea **y asigna** en una transacción (D8). **409** si el nombre ya existe en el scope. |
 | `PATCH` | `/api/v1/dashboards/folders/{id}` | `{ name }`. 409 duplicado · 404 · 403 cross-account. |
 | `DELETE` | `/api/v1/dashboards/folders/{id}` | **Nunca cascade a dashboards.** Desagrupa (SET NULL / borra filas puente). 204. Devolver o documentar cuántos se desagruparon. |
-| `PATCH` | `/api/v1/dashboards/{id}/folder` | `{ folder_id: UUID \| null }` — mover (`null` = quitar de la carpeta). Un solo endpoint para F2 y F3. |
+| `PATCH` | `/api/v1/dashboards/{id}/folder` | `{ folder_id: UUID \| null }` — mover uno (`null` = quitar de la carpeta). F2 y F3. |
+| `PATCH` | `/api/v1/dashboards/folder` | **Lote (D9):** `{ dashboard_ids: UUID[], folder_id }`. Devuelve el `folder_id` anterior de cada tablero para poder deshacer. F8. |
 | `PATCH` | `/api/v1/dashboards/folders/reorder` | Opcional; copiar el contrato **total** de `favorites/reorder` (payload completo, sin duplicados de `order`, 400 si no calza). |
 
 ### Cambios en endpoints existentes
@@ -99,7 +100,9 @@ La tabla puente `dashboard_folder_items` solo sería necesaria para carpetas per
 | Componente | Rol |
 |-----------|-----|
 | `FolderSection/` | Contenedor de una carpeta: header (icono + nombre + contador + `⋮`) + `Collapsible` con las filas. Reusa `DashboardSection` para los estados internos. |
-| `FolderNameDialog/` | Crear/renombrar. **Evaluar reusar el de `features/storage/components/folders/`** en vez de duplicarlo. |
+| `CreateFolderWizard/` | Crear en **2 pasos** (D8): elegir tableros → nombre + resumen. Usa `stepper` y `checkbox` de desyk. |
+| `DashboardPicker/` | Selector múltiple **compartido** (D9): lo usan el paso 1 del wizard y "Agregar tableros". Excluye los ya presentes en la carpeta destino. |
+| `FolderNameDialog/` | Solo renombrar. **No** reusar el de storage: su validación rechaza tildes y `_`. |
 | `DeleteFolderDialog/` | `AlertDialog` destructivo con el conteo de tableros a desagrupar. |
 | `MoveToFolderDialog/` | Selector de carpeta con buscador (`command`/`combobox`) + acceso a "Nueva carpeta". |
 | `services/dashboards/folders/` | `queriesFn` · `queryKeys` · `schemas` · `types`, siguiendo el patrón exacto de `services/dashboards/favorites/`. |
@@ -117,7 +120,9 @@ La tabla puente `dashboard_folder_items` solo sería necesaria para carpetas per
 1. **Estrategia de datos:** ¿una query de carpetas + una query por carpeta al expandir (lazy), o carpetas + lista filtrada? Recomendación: **lazy al expandir**, coherente con el scroll infinito ya existente y con carpetas colapsadas por defecto.
 2. **Query keys nuevas** y qué invalida qué al mover/crear/borrar (el panel ya tiene un mapa fino de invalidaciones para favoritos — seguirlo).
 3. **Optimistic updates:** mover un tablero debería sentirse instantáneo. Ya existe el molde en `utils/favoriteOptimisticUpdates.ts` (mutate → rollback → settled).
-4. **Persistencia del estado de expansión:** `localStorage` por cuenta+usuario (no requiere BE) vs. preferencia en BE. Recomendación: `localStorage` en la v1.
+4. **Persistencia del estado de expansión:** `localStorage` por cuenta+usuario (no requiere BE) vs. preferencia en BE. Recomendación: `localStorage` en la v1. **Precedente:** `SIDEBAR_COLLAPSED_KEY = "oc_sidebar_collapsed"` ya persiste el colapso del panel en el mismo archivo.
+4b. **Transaccionalidad de las operaciones en lote (D8/D9):** con 1 + N llamadas, una falla parcial deja la carpeta a medio llenar y el "Deshacer" deja de ser confiable. Es el punto de negociación más importante con BE.
+4c. **Revelar la carpeta después de actuar:** al crear, mover, agregar o renombrar, la carpeta se expande, se hace scroll hasta ella y se resalta ~2s. Fue el hallazgo de las pruebas; sin esto el usuario queda buscando su propio resultado.
 5. **Drag & drop (entra en la v1 como atajo, D7):** reusar `useDashboardCrossDrag` con un MIME nuevo (`DASHBOARD_TO_FOLDER_MIME`), **no** traer `@formkit/drag-and-drop`. A resolver explícitamente: (a) drop sobre carpeta **colapsada** sin expandirla, (b) autoscroll del panel al arrastrar hacia una carpeta fuera del viewport, (c) que una fila arrastrada no active a la vez el drop target de Favoritos y el de carpetas. Equivalente por menú y teclado **obligatorio**; si el alcance aprieta, se corta el drag, no el menú.
 6. **Telemetría:** eventos para las métricas de la Etapa 5 (`folder_created`, `dashboard_moved_to_folder`, `dashboard_removed_from_folder`, `folder_deleted`, `folder_expanded`, `search_used`), definidos acá para que se instrumenten con el feature.
 7. **Feature flag:** ¿se lanza detrás de flag? El panel es la navegación principal del OC; un flag reduce el riesgo.

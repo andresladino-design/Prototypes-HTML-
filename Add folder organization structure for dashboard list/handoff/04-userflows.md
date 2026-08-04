@@ -1,7 +1,8 @@
 # User flows — Carpetas en la lista de tableros (SWAT-577)
 
 **Fecha:** 2026-08-03
-**Boards en Moka:** `.ohana/flow.json` — 7 user flows + 1 sitemap
+**Boards en Moka:** `.ohana/flow.json` — 8 user flows + 1 sitemap · todos enlazados al prototipo
+**Actualizado:** 2026-08-04 con D8 (crear en 2 pasos) y D9 (agregar tableros)
 **Decisiones que los gobiernan:** [`01-decisiones.md`](01-decisiones.md) (D1–D7) · [`01-benchmark.md`](01-benchmark.md) (I1–I6)
 
 Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo hace dos cosas.
@@ -15,7 +16,10 @@ Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo 
 | F5 — Eliminar una carpeta (desagrupar) | 8 | C1, D6 |
 | F6 — Buscar un tablero con carpetas presentes | 7 | C5 |
 | F7 — Navegar y colapsar carpetas | 5 | C4 |
+| F8 — Agregar tableros a una carpeta existente | 7 | C2 |
 | Sitemap — Dónde viven las carpetas | 13 | contexto |
+
+> **F8 nació de las pruebas del prototipo**, no del análisis inicial. Ver D9 en [`01-decisiones.md`](01-decisiones.md).
 
 ---
 
@@ -117,6 +121,23 @@ Inicio → Panel · carpetas colapsadas por defecto → Carpeta expandida (estad
 - Los **tableros sueltos van después** de las carpetas y **sin indentar**: así la carpeta gana jerarquía sin degradar al suelto.
 - **Invariante:** la fila de carpeta mide 32 px igual que un tablero. Si el contador la empuja a 40 px, se pierde una fila visible por carpeta.
 
+## F8 — Agregar tableros a una carpeta existente
+
+```
+Inicio → Panel · carpeta vacía ⟨empty⟩ ──⊕ Agregar tableros (o menú ⋮)──▶ Selector múltiple ⟨dialog⟩
+       → ¿Seleccionó al menos un tablero? ─Sí→ N agregados · la carpeta se revela → Fin
+                                          └No→ Botón deshabilitado ⤸ vuelve al selector
+```
+
+- **El estado vacío ofrece la acción, no la describe.** Botón **outline punteado** de 32px con `⊕ Agregar tableros`, dentro de la carpeta. Reemplaza el texto pasivo *"mueve tableros desde su menú de opciones"*.
+- **Reusa el selector del paso 1 de F1** en modo "agregar a esta carpeta". Un solo componente, dos entradas.
+- **Excluye los tableros que ya están en la carpeta destino:** el objetivo es agregar, no revisar.
+- **La misma acción vive en el menú `⋮` de la carpeta.** Sin eso, al agregar el primer tablero desaparecería la única vía de agregar varios y el usuario volvería a mover de a uno.
+- Si alguno venía de otra carpeta, el toast lo dice (*"1 salió de otra carpeta"*) — D3 sigue siendo exclusiva.
+- **Deshacer devuelve cada tablero a su carpeta anterior**, no a "Sin carpeta".
+
+**Cierra PA-14:** ordenar 30 tableros es una operación, tanto al crear la carpeta (F1) como después (F8).
+
 ## Sitemap — Dónde viven las carpetas
 
 ```
@@ -143,6 +164,7 @@ Deja claro el alcance: **las carpetas son un nivel dentro del panel de Tableros*
 | Carpeta nueva | **Wizard de 2 pasos**: elegir tableros → nombrar. Puede crearse vacía, pero no es el camino principal (D8) |
 | Exclusividad al mover | Si ya estaba en otra carpeta, se **confirma** el cambio |
 | Confirmación al quitar | **No** lleva diálogo; lleva toast con "Deshacer" |
+| Llenar una carpeta existente | Botón punteado en la carpeta vacía + ítem en el menú `⋮`, con **selección múltiple** (D9) |
 | Copy destructivo | Dice el **número** de tableros que vuelven a la lista y que **no se eliminarán** |
 | Expansión por defecto | Colapsado + revelar la del tablero activo + persistir en `localStorage` |
 | Búsqueda | Cruza carpetas, carpeta como 2ª línea, carpetas coincidentes primero |
@@ -150,7 +172,7 @@ Deja claro el alcance: **las carpetas son un nivel dentro del panel de Tableros*
 
 ## Lo que estos flujos NO cubren (y por qué)
 
-- **Multi-selección como modo del panel** ("marcar 12 filas y moverlas"): choca con C7. **Pero sí existe dentro del wizard de creación** (D8), que es donde resuelve el problema de los 100 sueltos sin agregar un modo a la navegación.
+- **Multi-selección como modo del panel** ("marcar 12 filas del sidebar y moverlas"): choca con C7. **Pero la selección múltiple sí existe** dentro del wizard de creación (D8, F1) y del "Agregar tableros" (D9, F8) — que es donde resuelve el problema de los 100 sueltos sin agregar un modo a la navegación principal.
 - **Reordenar carpetas a mano:** D5 resolvió el orden con el toggle A→Z existente.
 - **Subcarpetas** (D2), **etiquetas** (D3), **permisos por carpeta** (D1.b).
 

@@ -230,18 +230,31 @@ Reusar el vocabulario visual que ya existe en `DashboardSection`:
 | Situación | Copy |
 |-----------|------|
 | Botón crear (tooltip / aria-label) | Nueva carpeta |
-| Título diálogo crear | Crear carpeta |
-| Título diálogo renombrar | Renombrar carpeta |
+| Título del wizard (D8) | Nueva carpeta |
+| Paso 1 · título / ayuda | Elige los tableros · *Marca los tableros que quieres agrupar. Podrás mover más después.* |
+| Paso 1 · atajos | Seleccionar los {{count}} visibles · Limpiar · **{{count}} seleccionados** |
+| Paso 1 · aviso | Algunos ya están en otra carpeta: se moverán a esta. |
+| Paso 2 · título | Ponle nombre |
 | Label / placeholder del campo | Nombre de la carpeta |
+| Ayuda del campo | Acepta tildes, espacios y guion bajo. Máximo 100 caracteres. |
+| Paso 2 · resumen | Se creará con **{{count}} tableros** · Se creará vacía |
+| Paso 2 · volver a elegir | Cambiar la selección |
+| **Botón de confirmación (D8)** | Crear con {{count}} tableros · **Crear vacía** si no hay selección — nunca solo "Crear" |
+| Navegación del wizard | Siguiente · Atrás · Cancelar |
 | Error de duplicado | Ya existe una carpeta con este nombre |
-| Menú de carpeta | Renombrar carpeta · Eliminar carpeta |
+| Título diálogo renombrar | Renombrar carpeta |
+| Descripción renombrar | Cambia el nombre de la carpeta. Los tableros que contiene no se mueven. |
+| **Menú de carpeta** | Agregar tableros · Renombrar carpeta · Eliminar carpeta |
 | Menú de tablero | Mover a carpeta · Quitar de la carpeta |
+| **Carpeta vacía (D9)** | Botón outline punteado: **⊕ Agregar tableros** — ofrece la acción, no describe el mecanismo |
+| Título "Agregar tableros" (D9) | Agregar tableros a «{{nombre}}» |
+| Ayuda de "Agregar tableros" | Marca los tableros que quieres mover a esta carpeta. |
+| Botón de "Agregar tableros" | Agregar {{count}} tableros |
 | Título eliminar | ¿Eliminar carpeta? |
 | **Descripción eliminar** | Se eliminará la carpeta «{{nombre}}». Los **{{count}} tableros** que contiene volverán a la lista de tableros; **no se eliminarán**. |
 | Descripción eliminar (vacía) | Se eliminará la carpeta «{{nombre}}». Está vacía. |
-| Toasts | Carpeta creada · Carpeta renombrada · Carpeta eliminada · Tablero movido a «{{nombre}}» · Tablero quitado de la carpeta |
-| Acción de deshacer | Deshacer |
-| Carpeta vacía | Sin tableros · Mueve tableros a esta carpeta desde su menú de opciones. |
+| Toasts | Carpeta «{{nombre}}» creada con {{count}} tableros · Carpeta «{{nombre}}» creada · está vacía · Carpeta renombrada a «{{nombre}}» · Carpeta «{{nombre}}» eliminada · {{count}} tableros en la lista · Tablero movido a «{{nombre}}» · Tablero quitado de la carpeta · {{count}} tableros agregados a «{{nombre}}» · {{count}} salió de otra carpeta |
+| Acción de deshacer | Deshacer *(disponible ~60s, estándar del OC)* |
 | Sin carpetas (primer uso) | Agrupa tus tableros · Crea carpetas por contexto para encontrarlos más rápido. |
 | Separador de sueltos | Sin carpeta |
 

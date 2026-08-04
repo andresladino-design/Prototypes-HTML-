@@ -72,6 +72,7 @@ No inventar: leer las clases que ya usa el panel de Tableros y documentarlas.
 Documentar el patrón **tal como ya existe en el OC**, con su copy:
 
 - **Crear:** botón en el contenedor (no en la fila) → diálogo con un solo campo → validación de duplicados inline → toast de éxito.
+  > ⚠️ **Superado por D8 (2026-08-04):** crear pasó a ser un **wizard de 2 pasos** (elegir tableros → nombre con resumen). El `design.md` ya refleja la versión vigente.
 - **Renombrar:** ítem de menú → mismo diálogo en modo `rename` con el valor precargado y seleccionado → 409 del BE se muestra como error de duplicado.
 - **Eliminar:** `AlertDialog` con el nombre en la descripción, botón `bg-destructive`, estado `Eliminando...`, y `Alert` de error inline si falla (no toast).
 - **Estados de la sección:** `loading` (skeletons) · `error` (icono + mensaje + Reintentar) · `empty` (empty state con CTA) · `ready`.
