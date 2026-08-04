@@ -202,10 +202,27 @@ Tokens reales (`dist/styles.css`, HSL en `:root`): `--primary: 240 94% 60%` · `
 
 ## 7. Archivos que tocará la implementación (mapa preliminar)
 
-**FE — nuevos:** `features/dashboards/components/FolderSection/` · `components/FolderRow/` · `components/FolderNameDialog/` (o reuso del de storage) · `components/MoveToFolderDialog/` · `services/dashboards/folders/{queriesFn,queryKeys,schemas,types}.ts` · keys en `locales/{es,en,pt}/dashboards.main.json`.
+**FE — nuevos:** `features/dashboards/components/FolderSection/` · `components/FolderRow/` · `components/CreateFolderWizard/` (2 pasos, usa `stepper` + `checkbox` de desyk — D8) · `components/DashboardPicker/` (selector múltiple **compartido** por el wizard y por "Agregar tableros" — D9) · `components/MoveToFolderDialog/` · `components/DeleteFolderDialog/` · `services/dashboards/folders/{queriesFn,queryKeys,schemas,types}.ts` · keys en `locales/{es,en,pt}/dashboards.main.json`.
+
+> **Nota (2026-08-04):** D8 y D9 salieron de probar el prototipo, después de esta exploración. Suman dos componentes (wizard + picker compartido) y **tres requisitos de transaccionalidad en BE** — ver abajo.
 
 **FE — modificados:** `DashboardList.tsx` (composición + diálogos) · `DashboardListItem.tsx` (ítems de menú + drag source) · `DashboardSection.tsx` (anidar carpetas) · `dashboards/schemas.ts` (campo `folder`) · `dashboards/types.ts` (params `folder_id`).
 
 **BE — nuevos:** `domain/models/dashboard_folder.py` · `domain/repositories/dashboard_folder_repository.py` · `services/dashboard_folder_service.py` · `api/views/folders.py` · `api/serializers_folders.py` · migración Alembic · registro en `container.py` y `main.py` · tests en `tests/apps/dashboards/`.
 
 **BE — modificados:** `api/views/dashboards.py` (filtro `folder_id` en la lista) · `api/serializers.py` (`folder` embebido en `DashboardSummaryOut`) · repo de dashboards (join).
+
+
+---
+
+## 8. Requisitos de API que aparecieron al prototipar (2026-08-04)
+
+Las pruebas del prototipo (D8, D9) agregan **transaccionalidad** al contrato. Sin esto el FE hace 1 + N llamadas y una falla parcial deja la operación a medias — y el "Deshacer" deja de ser confiable.
+
+| # | Necesidad | Propuesta |
+|---|-----------|-----------|
+| 1 | **Crear carpeta con tableros** en un solo paso (D8) | `POST /dashboards/folders` acepta `dashboard_ids: UUID[]` opcional; crea y asigna en una transacción |
+| 2 | **Agregar N tableros** a una carpeta existente (D9) | `PATCH /dashboards/folder` con `{ dashboard_ids: UUID[], folder_id }`, o `POST /dashboards/folders/{id}/dashboards` |
+| 3 | **Deshacer** una asignación en lote | La respuesta debe devolver el `folder_id` **anterior** de cada tablero, para que el FE pueda revertir sin recordar estado que puede haber cambiado |
+
+El endpoint de un solo tablero (`PATCH /dashboards/{id}/folder`) se mantiene para mover y quitar de a uno.

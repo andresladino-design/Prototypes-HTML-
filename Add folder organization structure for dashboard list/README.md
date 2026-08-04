@@ -5,7 +5,7 @@ Los usuarios acumulan tableros (159 en la cuenta de referencia) en una lista pla
 el buscador exige recordar el nombre. Este proyecto diseña el mecanismo de **reconocimiento**.
 
 🔗 [SWAT-577 en Linear](https://linear.app/simetrik/issue/SWAT-577/enhancement-dashboards-add-folderorganization-structure-for-dashboard)
-**Última actualización:** 2026-08-03 · **Estado:** 🟡 En diseño (etapa 6 de 8)
+**Última actualización:** 2026-08-04 · **Estado:** 🟡 En diseño (etapa 6 de 8, con feedback de pruebas incorporado)
 
 ## Cómo verlo
 
@@ -34,7 +34,7 @@ prototypes/ → los HTML
 | 1 | Benchmark de interacción (I1–I6) | `handoff/01-benchmark.md` | ✅ |
 | 2 | Sistema de diseño desde desyk | `design.md` + `design/` | ✅ |
 | 3 | Vista espejo del panel actual | `prototypes/00-baseline-tableros.html` | ✅ |
-| 4 | User flows | `.ohana/flow.json` (7 flows + sitemap) + `handoff/04-userflows.md` | ✅ |
+| 4 | User flows | `.ohana/flow.json` (8 flows + sitemap) + `handoff/04-userflows.md` | ✅ |
 | 5 | User stories UX | `handoff/05-user-stories.md` (8 historias + revisión heurística) | ✅ |
 | 6 | Prototipo con carpetas | `prototypes/index.html` (A/B + antes/después) | ✅ |
 | 7 | Handoff FE + BE | `handoff/07-*.md` | ⬜ |
@@ -43,7 +43,8 @@ prototypes/ → los HTML
 ## Decisiones tomadas
 
 Carpetas **por cuenta** · **un solo nivel** · pertenencia **exclusiva** · eliminar carpeta **desagrupa** (nunca borra tableros) ·
-mover por **menú `⋮` + drag** · carpetas **dentro** de la sección "Tableros" · el orden A→Z aplica en cada nivel.
+mover por **menú `⋮` + drag** · carpetas **dentro** de la sección "Tableros" · el orden A→Z aplica en cada nivel ·
+**crear es un wizard de 2 pasos** (elegir tableros → nombre) y **"Agregar tableros"** llena una carpeta existente con selección múltiple.
 
 Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 
@@ -52,6 +53,12 @@ Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/tokens.css`) · sin build.
 
 ## Changelog
+
+### 2026-08-04 — feedback de las pruebas del prototipo
+- **D8** · Crear carpeta pasa a wizard de **2 pasos** (elegir tableros → nombre con resumen de lo que se guarda). Revierte "la carpeta nace vacía": en pruebas, el diálogo se cerraba y el usuario quedaba buscando el resultado.
+- **Orientación** · al crear, mover, agregar o renombrar, la carpeta se **revela**: expandida, con scroll hasta ella y resalte de ~2s.
+- **D9** · La carpeta vacía muestra un **botón outline punteado** `⊕ Agregar tableros` que abre el selector múltiple; la misma acción está en el menú `⋮` de la carpeta. **Cierra PA-14.**
+- Nuevo flow **F8** en Moka + tres requisitos de transaccionalidad para BE (`dashboard_ids[]` al crear, mover en lote, y devolver el `folder_id` anterior para poder deshacer).
 
 ### 2026-08-03
 - Exploración de `fe-solutions-mf` (@ `8aebc1879`) y `op-center-backend` (@ `8cc5bc3b`): no existe concepto de carpeta; precedentes en Favoritos y en Almacenamiento.

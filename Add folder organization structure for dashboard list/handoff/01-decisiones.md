@@ -1,8 +1,12 @@
 # Decisiones de producto y diseño — Carpetas en la lista de tableros (SWAT-577)
 
-**Fecha:** 2026-08-03
+**Fechas:** D1–D7 el 2026-08-03 (antes de prototipar) · **D8 y D9 el 2026-08-04, tras probar el prototipo**
 **Decidido por:** Andrés Ladino (UX) con la exploración técnica de [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md)
 **Estado:** cerradas. Cambiar cualquiera de D1, D2 o D3 después de la Etapa 7 implica rehacer el modelo de BE.
+
+> D8 y D9 salieron de **usar** el prototipo, no de analizarlo. D8 además **revierte** una decisión previa mía
+> ("la carpeta nace vacía"). Quedan registradas acá con lo que reemplazan, para que el handoff no arrastre
+> la versión anterior.
 
 ---
 
