@@ -34,8 +34,22 @@ Esto funciona porque el modelo **ya guarda ese vínculo**:
 |---------|------------------------|---------------------------|
 | **Tableros** | Declarada — el usuario lo mueve | `dashboards.folder_id` (nuevo) |
 | **Datasets** | Declarada — el usuario lo mueve | `datasets.folder_id` (nuevo) |
+| **Conciliaciones** | **Declarada** — el panel de Pendientes las lista | tabla puente (viven en el datahub) — ver §5 |
 | **Anomalías** | **Heredada** del gráfico / recurso | `anomaly_signals.chart_id` → chart → dashboard · `anomaly_incident_entities.resource_id + resource_type` (`source='scope'` \| `'blast_radius'`) |
-| **Pendientes** | **Heredada** de la conciliación | `resource_id` + `resource_type` (`reconciliations` \| `advanced_reconciliation`) — ⚠️ ver §5 |
+| **Pendientes** | **Heredada** de su conciliación | el pendiente cuelga de la conciliación, que ya está en una carpeta |
+
+### 🔎 Corrección tras leer las vistas reales (2026-08-04)
+
+La versión anterior de este doc decía "2 declaradas + 2 heredadas". Al replicar las vistas de Anomalías y Pendientes en el prototipo apareció algo mejor:
+
+**El panel de Pendientes no lista pendientes: lista _conciliaciones_.** Su título es literalmente "Conciliaciones", con buscador ("Buscar conciliación"), filtro de espacio de trabajo y una sección de **fijadas** con `Pin`/`GripVertical` — es decir, **la misma anatomía que el panel de Tableros** (`PendingSidebar.tsx`, 480 líneas).
+
+Entonces el reparto correcto es **3 + 1**:
+
+- **Tres listas de recursos organizables** — tableros, datasets y **conciliaciones** → carpeta **declarada**, el mismo componente compartido en los tres paneles.
+- **Un stream** — anomalías → carpeta **heredada**, y en esa vista se comporta como filtro.
+
+Los pendientes individuales heredan de su conciliación, que ya está en una carpeta. Así que **Pendientes deja de ser el caso raro desde la UX**: es el mismo patrón. Lo único distinto sigue siendo **dónde se guarda** el vínculo (§5).
 
 **Consecuencia para el usuario:** organiza **una vez**, sobre tableros y datasets, y automáticamente obtiene "las anomalías de Adquirencia" y "los pendientes de Adquirencia" — **incluidas las que aún no existen**. Es más potente que archivar a mano, y es cero trabajo extra.
 
@@ -88,8 +102,18 @@ Membresía **heredada** — no se persiste: se **resuelve en la query** siguiend
 |-------|--------|-------|
 | **Panel de Tableros** | Carpetas en la sección "Tableros" (lo ya diseñado y prototipado) | Hecho |
 | **Panel de Datasets** | El **mismo** componente en el tab Datasets. Ya comparte `SidebarList`, búsqueda con debounce y scroll infinito; `DatasetList` (447 líneas) tiene la misma anatomía que `DashboardList` (520) | **Bajo** |
-| **Anomalías** | Filtro y agrupación **por carpeta** en la lista de incidentes. Se suma al `AnomaliesFilterPanel` y convive con `incident_saved_filters` (un filtro guardado puede incluir una carpeta) | Medio |
-| **Pendientes** | Filtro por carpeta, resolviendo la carpeta de la conciliación | **Alto** — ver §5 |
+| **Anomalías** | La carpeta entra como **categoría del popover "Filtrar"** (junto a Tablero, Fuente, Estado, Tipo, Fecha) y como **chip** en la barra de filtros activos. En la card aparece como metadato clickable. Convive con `incident_saved_filters`: un preset puede incluir carpeta | Medio |
+| **Pendientes** | **Carpetas sobre la lista de conciliaciones** del `PendingSidebar` — mismo componente que Tableros. Los pendientes heredan de su conciliación | Medio en UI · **Alto en BE** (§5) |
+
+### Anatomía real de las vistas (leída del código, para que el prototipo no invente)
+
+**Anomalías** (`AnomaliesPage.tsx`, 1168 líneas): mismo shell `px-6 pb-6` + `rounded-2xl border`. Es **master-detail**: panel lateral colapsable de ~320px con tres tabs (**Gestión** `Radar` · **Configuración** `SlidersVertical` · **Alertas** `History`, donde **solo el activo muestra su label**), fila de filtros (`Filtrar` · `Ordenar` · `Guardados`), barra de filtros activos con "Guardar filtro"/"Quitar filtros", y lista de `AnomalyCard`. A la derecha, `IncidentDetailPanel` con tabs Evidencia / Impacto potencial / Línea de tiempo.
+
+**`AnomalyCard`** (155 líneas): `Card` sin sombra, `rounded-2xl border-border` → `rounded-xl border-info/40` al seleccionar, `opacity-60` si el estado es terminal. Título derivado (SWAT-693): **`{categoría} - {tipo}: {recurso}`**. Debajo: badge de estado, `Separator`, fila "Tableros afectados" con badge outline, y meta con `Timer` + antigüedad y `Cpu`/`User` + origen.
+
+**Pendientes** (`PendingPage.tsx` + `PendingSidebar.tsx`): mismo shell. Panel "**Conciliaciones**" con filtro de espacio ("Todos los espacios"), buscador "Buscar conciliación", sección de **fijadas** ("Fija o arrastra conciliaciones aquí") y la lista. Empty state a la derecha: "Sin conciliación seleccionada · Selecciona una conciliación desde el panel lateral para gestionar sus pendientes."
+
+**Consecuencia de diseño:** las cuatro vistas comparten el mismo shell y **tres de los cuatro paneles laterales tienen la misma anatomía** (colapsable + buscador + fijados + lista). El componente de carpetas encaja en los tres sin adaptación.
 
 **El componente nace compartido:** `shared/components/FolderSection/` + `services/folders/`, no dentro de `features/dashboards/`. Es lo que hace que datasets salga casi gratis y que anomalías reuse el selector de carpeta.
 
@@ -116,6 +140,8 @@ Dos caminos:
 | **(b) Herencia indirecta** | Los pendientes heredan la carpeta de los tableros/datasets que consumen esa conciliación | Bajo costo, pero la relación es difusa: un dataset puede tocar varias conciliaciones y el resultado sería impredecible. |
 
 **Recomiendo (a)**, y que Pendientes sea el **último** entregable: es el único que necesita un modelo extra y coordinación con otro equipo.
+
+**Matiz tras la corrección de §2:** lo que entra a la carpeta es la **conciliación**, de forma declarada (el usuario la mueve desde el panel, igual que un tablero). La opción (b) —herencia indirecta— queda descartada: no hace falta inferir nada si el usuario puede declararlo sobre la lista que ya existe.
 
 ---
 
