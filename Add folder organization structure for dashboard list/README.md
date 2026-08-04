@@ -13,7 +13,7 @@ el buscador exige recordar el nombre. Este proyecto diseña el mecanismo de **re
 | Prototipo | Qué es | Local |
 |-----------|--------|-------|
 | `prototypes/00-baseline-tableros.html` | **Estado actual (antes).** Réplica del panel en producción, sin carpetas. Punto de comparación del handoff. | abrir el archivo en el navegador |
-| `prototypes/index.html` | **Prototipo con carpetas.** Switch A/B (acordeón vs drill-down), toggle antes/después, 6 escenarios y las 9 interacciones. | abrir el archivo en el navegador |
+| `prototypes/index.html` | **Prototipo transversal.** Tabs Tableros/Datasets con la misma carpeta, vista de Anomalías con filtro por carpeta heredada, switch A/B, toggle antes/después y 6 escenarios. | abrir el archivo en el navegador |
 
 ## Estructura
 
@@ -38,6 +38,7 @@ prototypes/ → los HTML
 | 4 | User flows | `.ohana/flow.json` (**10 flows + sitemap**, 91 pantallas) + `handoff/04-userflows.md` | ✅ |
 | 5 | User stories UX | `handoff/05-user-stories.md` (8 historias + revisión heurística) | ✅ |
 | 6 | Prototipo con carpetas | `prototypes/index.html` (A/B + antes/después) | ✅ |
+| 6.6 | Prototipo transversal | Datasets + Anomalías por carpeta en el mismo prototipo | ✅ |
 | 7 | Handoff FE + BE | `handoff/07-*.md` | ⬜ |
 | 8 | Tickets en Linear | sub-issues de SWAT-577 | ⬜ |
 
@@ -58,6 +59,13 @@ Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/tokens.css`) · sin build.
 
 ## Changelog
+
+### 2026-08-04 — prototipo transversal
+- **Tabs Tableros | Datasets funcionales** con la MISMA carpeta: «Adquirencia» muestra 24 tableros en un tab y 8 datasets en el otro. El contador es **por vista**, no global.
+- **Vista de Anomalías** con filtro por carpeta **heredada**: ningún incidente se archivó a mano; la carpeta se resuelve desde el recurso al que apunta, y cada fila la muestra como metadato clickable que lleva a la carpeta.
+- **Wizard con selector de entidad** en el paso 1 (F9): se puede armar una carpeta con tableros y datasets en una sola pasada. El resumen y los toasts desglosan por entidad.
+- **Copy destructivo por entidad:** «Los 24 tableros y 8 datasets que contiene volverán a sus listas» — «32 ítems» no diría qué se está tocando.
+- Icono por tipo en las filas (benchmark T2: Metabase mezcla tipos pero siempre con icono).
 
 ### 2026-08-04 — benchmark y flujos del alcance transversal
 - **Benchmark transversal** (`handoff/02-benchmark-transversal.md`): el modelo de D10 es el **patrón dominante**. Grafana mete dashboards y reglas de alerta en la misma carpeta y la navega **con tabs por tipo**; Metabase hace que los eventos de una timeline aparezcan solos en los gráficos de su colección (**herencia por co-locación**); Datadog usa tags en vez de carpetas para monitores (el contrafactual). **Nadie obliga a archivar eventos a mano.**
