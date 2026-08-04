@@ -51,6 +51,8 @@ el buscador exige **recordar** el nombre. Necesitamos un mecanismo de **reconoci
 | 5 | [User stories UX](05-user-stories.md) | `handoff/05-user-stories.md` — 8 historias + revisión heurística | ✅ Hecha |
 | 6 | [Prototipo HTML con carpetas](06-prototipo-carpetas.md) | `prototypes/index.html` (A/B + antes/después) | ✅ Hecha — falta revisión visual |
 | 6.5 | Alcance transversal (D10) | `handoff/06-organizacion-transversal.md` | ✅ Hecha |
+| 6.5b | Benchmark transversal (T1–T6) | `handoff/02-benchmark-transversal.md` — cierra SD-1, SD-2, SD-3, SD-5, SD-6 | ✅ Hecha |
+| 6.5c | Flujos transversales | F9, F10 + sitemap ampliado en `.ohana/flow.json` | ✅ Hecha |
 | 6.6 | Datasets en el prototipo | tab Datasets con el mismo componente | ⬜ |
 | 6.7 | Anomalías por carpeta | filtro/agrupación en la vista de incidentes | ⬜ |
 | 7 | [Handoff FE + BE](07-handoff-fe-be.md) | `handoff/07-handoff-fe.md`, `handoff/07-handoff-be.md` | ⬜ |

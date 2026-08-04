@@ -35,7 +35,7 @@ prototypes/ → los HTML
 | 1 | Benchmark de interacción (I1–I6) | `handoff/01-benchmark.md` | ✅ |
 | 2 | Sistema de diseño desde desyk | `design.md` + `design/` | ✅ |
 | 3 | Vista espejo del panel actual | `prototypes/00-baseline-tableros.html` | ✅ |
-| 4 | User flows | `.ohana/flow.json` (8 flows + sitemap) + `handoff/04-userflows.md` | ✅ |
+| 4 | User flows | `.ohana/flow.json` (**10 flows + sitemap**, 91 pantallas) + `handoff/04-userflows.md` | ✅ |
 | 5 | User stories UX | `handoff/05-user-stories.md` (8 historias + revisión heurística) | ✅ |
 | 6 | Prototipo con carpetas | `prototypes/index.html` (A/B + antes/después) | ✅ |
 | 7 | Handoff FE + BE | `handoff/07-*.md` | ⬜ |
@@ -58,6 +58,11 @@ Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/tokens.css`) · sin build.
 
 ## Changelog
+
+### 2026-08-04 — benchmark y flujos del alcance transversal
+- **Benchmark transversal** (`handoff/02-benchmark-transversal.md`): el modelo de D10 es el **patrón dominante**. Grafana mete dashboards y reglas de alerta en la misma carpeta y la navega **con tabs por tipo**; Metabase hace que los eventos de una timeline aparezcan solos en los gráficos de su colección (**herencia por co-locación**); Datadog usa tags en vez de carpetas para monitores (el contrafactual). **Nadie obliga a archivar eventos a mano.**
+- Cierra **SD-1** (no archivar incidentes a mano), **SD-2** (filtro antes que agrupación), **SD-3** (el filtro guardado sí puede incluir carpeta — `filters` es JSONB, sin migración), **SD-5** ("carpeta" se mantiene: es el término de Grafana para esta mezcla) y **SD-6**.
+- Flujos nuevos: **F9** (una carpeta con tableros y datasets, con el contador por vista y el copy destructivo por entidad) y **F10** (anomalías de una carpeta por herencia). F1–F8 quedan marcados como **agnósticos de la entidad**. Sitemap ampliado a las cuatro vistas.
 
 ### 2026-08-04 — alcance transversal
 - **D10** · El sistema pasa a ser **transversal a las 4 entidades** del OC con una carpeta compartida por cuenta. La tabla BE se vuelve genérica (`folders`) y el componente nace en `shared/`.

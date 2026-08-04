@@ -1,8 +1,12 @@
 # User flows — Carpetas en la lista de tableros (SWAT-577)
 
 **Fecha:** 2026-08-03
-**Boards en Moka:** `.ohana/flow.json` — 8 user flows + 1 sitemap · todos enlazados al prototipo
-**Actualizado:** 2026-08-04 con D8 (crear en 2 pasos) y D9 (agregar tableros)
+**Boards en Moka:** `.ohana/flow.json` — 10 user flows + 1 sitemap · todos enlazados al prototipo
+**Actualizado:** 2026-08-04 con D8 (crear en 2 pasos), D9 (agregar tableros) y **D10 (alcance transversal)**
+
+> **F1–F8 son agnósticos de la entidad.** Con D10 la carpeta es compartida, así que los ocho flujos aplican
+> igual a **Tableros y a Datasets** — cambia el copy ("Elige los tableros" / "Elige los datasets") y los
+> contadores, no la mecánica. **F9 y F10** cubren lo que el alcance transversal agrega y no existía antes.
 **Decisiones que los gobiernan:** [`01-decisiones.md`](01-decisiones.md) (D1–D7) · [`01-benchmark.md`](01-benchmark.md) (I1–I6)
 
 Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo hace dos cosas.
@@ -17,6 +21,8 @@ Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo 
 | F6 — Buscar un tablero con carpetas presentes | 7 | C5 |
 | F7 — Navegar y colapsar carpetas | 5 | C4 |
 | F8 — Agregar tableros a una carpeta existente | 7 | C2 |
+| **F9 — Una carpeta con tableros y datasets** | 8 | D10 |
+| **F10 — Ver las anomalías de una carpeta** (heredada) | 8 | D10 |
 | Sitemap — Dónde viven las carpetas | 13 | contexto |
 
 > **F8 nació de las pruebas del prototipo**, no del análisis inicial. Ver D9 en [`01-decisiones.md`](01-decisiones.md).
@@ -138,21 +144,54 @@ Inicio → Panel · carpeta vacía ⟨empty⟩ ──⊕ Agregar tableros (o men
 
 **Cierra PA-14:** ordenar 30 tableros es una operación, tanto al crear la carpeta (F1) como después (F8).
 
+## F9 — Una carpeta con tableros y datasets
+
+```
+Inicio → Panel · tab Tableros · «Adquirencia» (24) ──＋ Nueva carpeta──▶ Wizard paso 1 con selector de entidad
+       → Cambia al tab Datasets · misma «Adquirencia» (8)
+       → ¿Elimina la carpeta? ─Sí→ AlertDialog que cuenta POR ENTIDAD → ambas listas recuperan sus ítems → Fin
+                              └No→ Fin
+```
+
+Es el flujo que hace **tangible** la decisión D10.
+
+- **El contador es por vista**, no global: el tab Tableros dice 24, el tab Datasets dice 8. La carpeta es una sola.
+- **El paso 1 del wizard suma un control segmentado Tableros | Datasets**, arrancando en la entidad del tab actual. Así se puede armar una carpeta con las dos entidades en una sola pasada, en vez de crear y después volver.
+- **El copy destructivo cuenta por entidad:** *"Los **24 tableros y 8 datasets** que contiene volverán a sus listas; no se eliminarán."* Si dijera "32 ítems", el usuario no sabría qué está tocando.
+- Precedente: Grafana navega la carpeta **con tabs por tipo** (*Dashboards / Panels / Alert rules*) — ver [`02-benchmark-transversal.md`](02-benchmark-transversal.md).
+
+## F10 — Ver las anomalías de una carpeta (membresía heredada)
+
+```
+Inicio → Vista de Anomalías → Filtra por carpeta «Adquirencia»
+       → ¿Hay incidentes? ─Sí→ Incidentes de los recursos de la carpeta → Guarda el filtro como preset → Fin
+                           └No→ Sin incidentes en «Adquirencia» ⟨empty⟩ → Fin
+```
+
+- **El usuario nunca archivó un incidente.** La carpeta llega sola: la query resuelve `anomaly_signals.chart_id` → chart → `dashboards.folder_id`, y `anomaly_incident_entities.resource_id + resource_type` → `datasets.folder_id`.
+- **Incluye los incidentes futuros** de esos recursos. Eso es lo que hace que la herencia sea mejor que archivar a mano: se organiza una vez.
+- **"Carpeta" se suma como criterio al `AnomaliesFilterPanel`**, junto a estado, categoría, gráfico, recurso y fecha (SD-2: filtro primero, agrupación después).
+- **Un filtro guardado puede incluir la carpeta** (SD-3): `IncidentSavedFilter.filters` es un JSONB opaco, así que no requiere migración. Es el puente entre los dos sistemas de organización.
+- **El estado vacío es positivo:** "Sin incidentes en «Adquirencia»" no es un error, es una buena noticia.
+
 ## Sitemap — Dónde viven las carpetas
 
 ```
 Centro de operaciones
 ├── Tableros
-│   ├── Panel lateral de tableros
+│   ├── Panel lateral · tabs Tableros | Datasets
 │   │   ├── Configuraciones pendientes
 │   │   ├── Favoritos
 │   │   ├── Carpetas · NUEVO ──── Tableros de la carpeta
-│   │   └── Tableros sin carpeta
+│   │   ├── Tableros sin carpeta
+│   │   └── Datasets en carpetas          ← mismo componente, otra entidad
 │   └── Tablero abierto
-├── Anomalías · Pendientes · Almacenamiento · Asientos contables
+├── Anomalías ──── Anomalías por carpeta (heredada)
+├── Pendientes ──── Pendientes por carpeta (vía datahub · SD-4)
+└── Almacenamiento · Asientos contables
 ```
 
-Deja claro el alcance: **las carpetas son un nivel dentro del panel de Tableros** (D4). "Configuraciones pendientes" y "Favoritos" no cambian.
+Deja claro el alcance de D10: la carpeta es **una sola** y aparece en cuatro lugares. En Tableros y Datasets la membresía es **declarada**; en Anomalías y Pendientes es **heredada** del recurso. "Configuraciones pendientes" y "Favoritos" no cambian.
 
 ---
 
