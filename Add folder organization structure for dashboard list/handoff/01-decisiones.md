@@ -200,7 +200,8 @@
 2. **D3 se reinterpreta:** la exclusividad es **por entidad** (un tablero en una carpeta, un dataset en una carpeta). La carpeta **sí** mezcla entidades — eso es el objetivo.
 3. El copy destructivo debe contar por entidad: *"24 tableros y 8 datasets volverán a sus listas"*.
 4. El wizard de creación (D8) se parametriza por entidad: "Elige los tableros" / "Elige los datasets".
-5. **Pendientes necesita un modelo extra:** su recurso ancla (la conciliación) vive en el **datahub**, no en `op-center-backend`, así que no admite una columna `folder_id`. Requiere tabla puente `folder_external_items`. Es el último entregable y necesita coordinación con otro equipo.
+5. **Corrección del 2026-08-04:** el reparto no es "2 declaradas + 2 heredadas" sino **3 + 1**. El panel de Pendientes lista **conciliaciones** (título "Conciliaciones", buscador, sección de fijadas — misma anatomía que Tableros), así que la conciliación entra a la carpeta de forma **declarada** y el pendiente hereda de ella. Anomalías es el único stream.
+6. **Pendientes necesita un modelo extra:** su recurso ancla (la conciliación) vive en el **datahub**, no en `op-center-backend`, así que no admite una columna `folder_id`. Requiere tabla puente `folder_external_items`. Es el último entregable y necesita coordinación con otro equipo.
 
 **Orden de entrega:** Tableros → Datasets → Anomalías → Pendientes.
 

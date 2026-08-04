@@ -48,9 +48,9 @@ Carpetas **por cuenta** · **un solo nivel** · pertenencia **exclusiva** · eli
 mover por **menú `⋮` + drag** · carpetas **dentro** de la sección "Tableros" · el orden A→Z aplica en cada nivel ·
 **crear es un wizard de 2 pasos** (elegir tableros → nombre) y **"Agregar tableros"** llena una carpeta existente con selección múltiple.
 
-**Transversal (D10):** una tabla `folders` compartida. Membresía **declarada** en tableros y datasets (`folder_id`),
-**heredada** en anomalías y pendientes (del recurso al que apuntan, resuelta en query). Orden de entrega:
-Tableros → Datasets → Anomalías → Pendientes.
+**Transversal (D10):** una tabla `folders` compartida, con reparto **3 + 1**. Membresía **declarada** en las tres
+listas de recursos organizables — tableros, datasets y **conciliaciones** (el panel de Pendientes las lista) — y
+**heredada** en anomalías, el único stream. Orden de entrega: Tableros → Datasets → Anomalías → Pendientes.
 
 Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 
@@ -59,6 +59,12 @@ Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/tokens.css`) · sin build.
 
 ## Changelog
+
+### 2026-08-04 — vistas reales de Anomalías y Pendientes
+- **Corrección del modelo:** el reparto no es "2 declaradas + 2 heredadas" sino **3 + 1**. El panel de Pendientes no lista pendientes: lista **conciliaciones**, con buscador y sección de fijadas — la misma anatomía que Tableros. Así que la conciliación se organiza de forma **declarada** y el pendiente hereda de ella. **Anomalías es el único stream.**
+- **Vista de Anomalías reconstruida contra el código:** es **master-detail**, no una lista a ancho completo. Panel con los 3 tabs reales (Gestión / Configuración / Alertas, donde solo el activo muestra su label), fila `Filtrar · Ordenar · Guardados`, barra de filtros activos, y `AnomalyCard` con su anatomía real (título `{categoría} - {tipo}: {recurso}`, badge de estado, "Tableros afectados", antigüedad y origen). La carpeta entra como categoría del popover y como chip.
+- **Vista de Pendientes nueva:** panel "Conciliaciones" con filtro de espacio, buscador, fijadas y **carpetas declaradas** sobre las conciliaciones.
+- Los 6 estados reales de incidente con sus badges (En observación, Abierto, En investigación, Confirmado, Resuelto, Cerrado automático).
 
 ### 2026-08-04 — prototipo transversal
 - **Tabs Tableros | Datasets funcionales** con la MISMA carpeta: «Adquirencia» muestra 24 tableros en un tab y 8 datasets en el otro. El contador es **por vista**, no global.
