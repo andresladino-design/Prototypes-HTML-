@@ -217,6 +217,70 @@ Reusar el vocabulario visual que ya existe en `DashboardSection`:
 
 ---
 
+## Patrón: «Panel de recursos del OC»
+
+Los paneles de Tableros, Anomalías y Pendientes hacen lo mismo —listar recursos de la cuenta para
+navegarlos— pero hoy divergen en **10 de 10 slots**, incluida la altura del buscador. Las carpetas
+tienen que aterrizar en los tres, así que sin un patrón común el componente se implementa tres veces.
+
+### El eje que ordena todo: artefacto vs. evento
+
+Antes de los slots, la regla que explica las diferencias legítimas:
+
+| | **Artefacto** — tableros, datasets, conciliaciones | **Evento** — anomalías |
+|---|---|---|
+| Qué es | algo que el usuario **crea y conserva** | algo que **llega solo** y no deja de llegar |
+| Unidad de fila | **32px**, densa | **card** multilínea (~110px) |
+| Ancho del panel | **288px** (`w-72`) | **425px** (`w-[425px]`) — lo pide la card |
+| Fin de lista | **scroll infinito** (lo explorás) | **paginación numerada** (con 3054, necesitás saltar y saber dónde estás) |
+| Acción de crear | **sí** | no existe |
+| **Carpeta** | **declarada** | **heredada** |
+
+**Es un solo eje, no dos reglas.** El mismo criterio que decide la membresía de carpeta (D10) decide
+la anatomía del panel. Cuando aparezca una entidad nueva, se clasifica una vez y todo lo demás se
+deriva.
+
+### Los 9 slots, en orden fijo
+
+| # | Slot | Siempre | Especificación |
+|---|------|---------|----------------|
+| 1 | **Header** | ✅ | Título `text-sm font-semibold` + **contador como badge** `rounded-full bg-secondary text-[11px]` + botón colapsar `ghost icon-lg` con `ChevronLeft` |
+| 2 | **Modo** | — | Tabs segmentadas `h-10 rounded-xl bg-muted p-1`, triggers `h-8 rounded-lg`. Labels visibles si caben; con 3+ tabs en 425px, solo la activa muestra label y toma `flex-1` |
+| 3 | **Crear** | solo artefactos | `Button variant=outline` `h-10` a ancho completo, icono `Plus` + "Nuevo {singular}" |
+| 4 | **Buscar** | ✅ | `Input h-10 rounded-[0.625rem]`, icono `Search` a la izquierda, placeholder **"Buscar {qué}"** |
+| 5 | **Filtros** | — | Fila de pills `h-9` outline. La destructiva/limpiar va como link, no como pill |
+| 6 | **Fijados** | — | Sección con contador `n/máx` y drop target punteado |
+| 7 | **Organizar** | ✅ (lo nuevo) | Carpetas. Si la vista **ya tiene** otra agrupación, se ofrece como toggle "Agrupar por" (SD-7), nunca como nivel extra |
+| 8 | **Lista** | ✅ | Fila 32px o card, según el eje |
+| 9 | **Pie** | ✅ | Scroll infinito o paginación, según el eje |
+
+**El slot 7 es el que este feature agrega.** Si los slots 1–6 no están alineados, el 7 hereda tres
+comportamientos distintos.
+
+### Qué se corrige y qué no
+
+**Accidental → se unifica** (no cambia funcionalidad, solo consistencia):
+
+| Qué | Antes | Ahora |
+|---|---|---|
+| Contador | `(155)` en el header de sección · `1-20 de 3054` al pie · badge junto al título | **badge junto al título** en los tres (slot 1) |
+| Buscador en Anomalías | no existía | **"Buscar por recurso"** — con 3054 incidencias y 153 páginas, filtrar exigía armar un filtro |
+| Altura del buscador | `h-9` en Pendientes, `h-10` en Tableros | **`h-10`** en los tres |
+| Contenedor de Anomalías | dos cards con gap | **una card con `border-r`**, como los otros dos |
+
+**Semántico → se documenta la regla, no se unifica:** unidad de fila, ancho, fin de lista y acción de
+crear. Se derivan del eje artefacto/evento.
+
+### Inconsistencias que quedan abiertas
+
+- **SD-8 · "Favoritos" vs "Fijados".** Tableros dice "Favoritos (5/15)" y Pendientes "Fija o arrastra
+  conciliaciones aquí" — **mismo mecanismo (`Pin`), dos nombres**. Unificar es una decisión de producto
+  con impacto en copy establecido y en el tope de 15; no se toca sin acuerdo.
+- **Tabs de modo.** Tableros muestra label en las dos; Anomalías solo en la activa. La regla propuesta
+  ("labels si caben") lo explica, pero conviene verificar si las tres de Anomalías caben en 425px.
+- **Acción primaria en Pendientes.** No tiene "Nueva conciliación" aunque es un artefacto. Puede ser
+  correcto (se crean en otro flujo) o un hueco. A confirmar.
+
 ## Voz y tono
 
 - Español. Glosario Simetrik: **tablero** (nunca "dashboard" en UI), **carpeta** (alineado con Almacenamiento), **Conciliación**, **Fuente**.
@@ -289,3 +353,5 @@ Reusar el vocabulario visual que ya existe en `DashboardSection`:
 - **2026-08-03 — Crear carpeta pasa a ser un wizard de 2 pasos** (elegir tableros → nombre), y toda acción sobre una carpeta la **revela** con scroll + resalte de ~2s. Razón: al probar el prototipo, crear una carpeta cerraba el diálogo y dejaba al usuario buscando su propio resultado entre 4 carpetas y 100 sueltos; y una carpeta vacía no es un resultado verificable. Ver D8 en `handoff/01-decisiones.md`.
 - **2026-08-03 — El botón de confirmación nombra la consecuencia:** "Crear con 12 tableros" en vez de "Crear". Razón: el label es el último lugar donde el usuario puede verificar qué está guardando.
 - **2026-08-04 — Los estados vacíos ofrecen la acción, no la describen.** La carpeta vacía lleva un **botón outline punteado** de 32px (`border-dashed border-border`, hover `border-info/60 bg-info/5`) con `⊕ Agregar tableros`, en vez del texto "mueve tableros desde su menú de opciones". Razón: describir el mecanismo obliga al usuario a traducirlo en pasos; el punteado comunica "acá falta contenido" sin competir con las filas reales. Ver D9.
+- **2026-08-04 — Se documenta el patrón «Panel de recursos del OC»** con 9 slots en orden fijo, y el eje **artefacto vs. evento** como criterio que deriva la anatomía. Razón: los tres paneles divergían en 10 de 10 slots y las carpetas tienen que aterrizar en los tres; sin patrón común, el componente se implementa tres veces. Se unifica lo accidental (contador, buscador, alturas) y se documenta como regla lo semántico (fila, ancho, paginación).
+- **2026-08-04 — Anomalías gana buscador de texto** ("Buscar por recurso"). Razón: era el único panel sin slot 4, y con 3054 incidencias en 153 páginas encontrar las de un recurso exigía construir un filtro.
