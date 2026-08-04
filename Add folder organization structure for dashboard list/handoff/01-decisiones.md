@@ -18,6 +18,7 @@
 | **D6** | Eliminar carpeta | **Desagrupa siempre**; nunca elimina tableros | 🔴 Alto (es criterio del issue, no negociable) |
 | **D7** | Mover un tablero | **Menú `⋮` primario + drag como atajo**, ambos en la v1 | 🟡 Medio |
 | **D8** | Crear carpeta | **2 pasos: elegir tableros → ponerle nombre.** Al crear, la carpeta se revela con scroll + resalte | 🟡 Medio |
+| **D9** | Llenar una carpeta existente | **"Agregar tableros"** con selección múltiple: botón punteado en la carpeta vacía + ítem en el menú `⋮` | 🟢 Bajo |
 
 ---
 
@@ -145,6 +146,28 @@
 **Consecuencia sobre el alcance:** la **selección múltiple entra a la v1, pero solo dentro del wizard de creación** — no como modo de selección del panel. Eso resuelve buena parte de PA-14 (los 100 sueltos) sin agregar una capa de modo a la navegación principal: ordenar 30 tableros de una vez es crear una carpeta, no 30 operaciones de mover.
 
 **Consecuencia para BE:** `POST /dashboards/folders` acepta opcionalmente `dashboard_ids: UUID[]` para crear y asignar en una sola transacción. Sin eso, el FE tendría que hacer 1 + N llamadas y una falla parcial dejaría la carpeta a medio llenar.
+
+---
+
+---
+
+## D9 — "Agregar tableros": selección múltiple sobre una carpeta que ya existe
+
+**Fecha:** 2026-08-04 · **Origen:** pruebas del prototipo.
+
+**Pedido:** *"cuando la carpeta esté vacía, muéstrame un botón outline punteado para agregar tableros; al dar clic me aparece el modal para seleccionar los que quiero añadir."*
+
+**Decisión:**
+
+- La carpeta vacía muestra un **botón outline punteado** del alto de una fila (32px) con `⊕ Agregar tableros`, dentro de la carpeta. Reemplaza el texto pasivo anterior, que describía el mecanismo ("mueve tableros desde su menú") en vez de ofrecer la acción.
+- El botón abre **el mismo selector múltiple del paso 1 del wizard** (D8), en modo "agregar a esta carpeta": buscador, checkboxes, sueltos primero, y los que ya están en otra carpeta muestran cuál. El botón de confirmación dice **"Agregar 12 tableros"**.
+- Los tableros que **ya están en esa carpeta** se excluyen de la lista: el objetivo es agregar, no revisar.
+- Si alguno venía de otra carpeta, el toast lo dice (*"3 tableros agregados a «X» · 1 salió de otra carpeta"*) — D3 sigue siendo exclusiva.
+- **La misma acción vive en el menú `⋮` de la carpeta**, no solo en el estado vacío. Sin eso, al agregar el primer tablero desaparecería la única vía de agregar varios y el usuario volvería a mover de a uno. *(Esta parte no estaba en el pedido; se agregó para no dejar el hueco. Es trivial de quitar si se prefiere solo el estado vacío.)*
+
+**Consecuencia:** cierra **PA-14**. Ordenar 30 tableros es una operación tanto al crear la carpeta como después. La multi-selección **como modo del panel** sigue fuera de alcance y ya no hace falta.
+
+**Para BE:** el endpoint de mover necesita aceptar lote — `PATCH /dashboards/folder` con `{ dashboard_ids: UUID[], folder_id }` — o bien reusar `POST /dashboards/folders/{id}/dashboards`. Con N llamadas sueltas, una falla parcial deja la operación a medias y el "Deshacer" deja de ser confiable.
 
 ---
 
