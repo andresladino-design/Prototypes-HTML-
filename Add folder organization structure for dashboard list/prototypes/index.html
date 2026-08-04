@@ -88,8 +88,9 @@
       </div>
       <div class="inline-flex h-8 items-center justify-center rounded-full bg-muted p-1 text-muted-foreground">
         <template x-for="t in ocTabs" :key="t.key">
-          <button class="inline-flex h-6 items-center gap-1.5 rounded-full px-4 py-1 text-xs font-medium"
-                  :class="t.active ? 'bg-background text-foreground shadow' : ''">
+          <button @click="t.view && (view = t.view)"
+                  class="inline-flex h-6 items-center gap-1.5 rounded-full px-4 py-1 text-xs font-medium transition-all"
+                  :class="t.view === view ? 'bg-background text-foreground shadow' : ''">
             <i :data-lucide="t.icon" class="h-3.5 w-3.5"></i><span x-text="t.label"></span>
           </button>
         </template>
@@ -97,7 +98,7 @@
       <div></div>
     </header>
 
-    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6">
+    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6" x-show="view === 'tableros'">
       <div class="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
 
         <!-- ═══════════ PANEL DE TABLEROS ═══════════ -->
@@ -109,23 +110,27 @@
           </div>
 
           <div class="px-3">
-            <div class="inline-flex h-10 w-full items-center rounded-xl bg-muted p-1 text-muted-foreground">
-              <button class="inline-flex h-8 flex-1 items-center justify-center rounded-lg bg-background px-6 text-sm font-medium text-foreground shadow">Tableros</button>
-              <button class="inline-flex h-8 flex-1 items-center justify-center rounded-lg px-6 text-sm font-medium">Datasets</button>
+            <div class="inline-flex h-10 w-full items-center rounded-xl bg-muted p-1 text-muted-foreground" role="tablist">
+              <button role="tab" :aria-selected="entity === 'dashboard'" @click="switchEntity('dashboard')"
+                      class="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-all"
+                      :class="entity === 'dashboard' && 'bg-background text-foreground shadow'">Tableros</button>
+              <button role="tab" :aria-selected="entity === 'dataset'" @click="switchEntity('dataset')"
+                      class="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-medium transition-all"
+                      :class="entity === 'dataset' && 'bg-background text-foreground shadow'">Datasets</button>
             </div>
           </div>
 
           <div class="flex min-h-0 flex-1 flex-col">
             <div class="px-3 pb-3 pt-3">
               <button class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-solid border-border bg-background px-3 text-sm font-medium hover:bg-accent">
-                <i data-lucide="plus" class="h-4 w-4"></i> Nuevo tablero
+                <i data-lucide="plus" class="h-4 w-4"></i> <span x-text="E.nuevo"></span>
               </button>
             </div>
 
             <div class="px-3 pb-4">
               <div class="relative">
                 <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
-                <input x-model="searchInput" @input="onSearch()" placeholder="Buscar tablero" aria-label="Buscar tablero"
+                <input x-model="searchInput" @input="onSearch()" :placeholder="E.buscar" :aria-label="E.buscar"
                        class="h-10 w-full rounded-[0.625rem] border border-solid border-input bg-transparent py-1 pl-8 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-info/50">
               </div>
             </div>
@@ -133,7 +138,7 @@
             <div class="panel-scroll flex min-h-0 flex-1 flex-col">
 
               <!-- Configuraciones pendientes -->
-              <section class="flex flex-col" x-show="!searching">
+              <section class="flex flex-col" x-show="!searching && entity === 'dashboard'">
                 <div class="px-3"><span class="text-xs font-medium text-sidebar-foreground">Configuraciones pendientes (8)</span></div>
                 <div class="flex flex-col gap-0.5 px-3">
                   <template x-for="d in pendientes" :key="d.id">
@@ -146,7 +151,7 @@
               </section>
 
               <!-- Favoritos -->
-              <section class="mt-3 flex flex-col" x-show="!searching">
+              <section class="mt-3 flex flex-col" x-show="!searching && entity === 'dashboard'">
                 <div class="px-3 pb-1"><span class="text-xs font-medium text-sidebar-foreground">Favoritos (5/15)</span></div>
                 <div class="flex flex-col gap-0.5 px-3">
                   <template x-for="d in favoritos" :key="d.id">
@@ -195,8 +200,8 @@
                   <!-- ── HU-08 · empty state del feature ── -->
                   <template x-if="mode === 'after' && !searching && folders.length === 0">
                     <div class="mb-2 rounded-lg border border-dashed border-muted-foreground/25 px-3 py-3 text-center">
-                      <p class="text-xs font-semibold">Agrupa tus tableros</p>
-                      <p class="mt-0.5 text-xs text-sidebar-foreground">Crea carpetas por contexto para encontrarlos más rápido.</p>
+                      <p class="text-xs font-semibold" x-text="`Agrupa tus ${E.plural}`"></p>
+                      <p class="mt-0.5 text-xs text-sidebar-foreground">Crea carpetas por contexto para encontrarlos más rápido. La misma carpeta sirve para tableros y datasets.</p>
                       <button @click="openCreate($event)" class="mt-2 inline-flex h-7 items-center gap-1.5 rounded-xl border border-solid border-border bg-background px-2.5 text-xs font-medium hover:bg-accent">
                         <i data-lucide="folder-plus" class="h-3.5 w-3.5"></i> Nueva carpeta
                       </button>
@@ -274,7 +279,7 @@
                                @contextmenu.prevent="openMenu($event, 'folder', f.id)">
                             <button class="flex min-w-0 flex-1 items-center gap-1.5 px-2 py-1.5 text-left"
                                     :aria-expanded="isOpen(f.id)"
-                                    :aria-label="`${f.name}, ${count(f.id)} tableros`"
+                                    :aria-label="`${f.name}, ${count(f.id)} ${E.plural}`"
                                     @click="toggle(f.id)">
                               <i data-lucide="chevron-right" class="chev h-3 w-3 shrink-0 text-sidebar-foreground" :class="isOpen(f.id) && 'rotate-90'"></i>
                               <i :data-lucide="isOpen(f.id) ? 'folder-open' : 'folder'" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
@@ -298,7 +303,7 @@
                               <li class="py-0.5 pr-1">
                                 <button @click="openAdd(f.id, $event)"
                                         class="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-border px-2 text-xs font-medium text-sidebar-foreground transition-colors hover:border-info/60 hover:bg-info/5 hover:text-foreground">
-                                  <i data-lucide="plus" class="h-3.5 w-3.5"></i> Agregar tableros
+                                  <i data-lucide="plus" class="h-3.5 w-3.5"></i> <span x-text="`Agregar ${E.plural}`"></span>
                                 </button>
                               </li>
                             </template>
@@ -352,7 +357,7 @@
                                    @dragover.prevent="dragOver = f.id" @dragleave="dragOver === f.id && (dragOver = null)"
                                    @drop.prevent="onDrop(f.id)" @contextmenu.prevent="openMenu($event, 'folder', f.id)">
                                 <button class="flex min-w-0 flex-1 items-center gap-1.5 px-2 py-1.5 text-left"
-                                        :aria-label="`${f.name}, ${count(f.id)} tableros. Abrir carpeta`" @click="drill = f.id">
+                                        :aria-label="`${f.name}, ${count(f.id)} ${E.plural}. Abrir carpeta`" @click="drill = f.id">
                                   <i data-lucide="folder" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
                                   <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="f.name"></span>
                                 </button>
@@ -395,7 +400,7 @@
                               <p class="pb-2 text-center text-xs text-sidebar-foreground">Esta carpeta está vacía.</p>
                               <button @click="openAdd(drill, $event)"
                                       class="flex h-8 w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-border px-2 text-xs font-medium text-sidebar-foreground transition-colors hover:border-info/60 hover:bg-info/5 hover:text-foreground">
-                                <i data-lucide="plus" class="h-3.5 w-3.5"></i> Agregar tableros
+                                <i data-lucide="plus" class="h-3.5 w-3.5"></i> <span x-text="`Agregar ${E.plural}`"></span>
                               </button>
                             </li>
                           </template>
@@ -480,6 +485,131 @@
     </div>
   </div>
 
+  <!-- ══════════ VISTA DE ANOMALÍAS · F10 · membresía heredada ══════════ -->
+  <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden px-6 pb-6" x-show="view === 'anomalias'">
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border">
+
+      <div class="flex shrink-0 items-center justify-between gap-4 border-b border-border px-5 py-4">
+        <div>
+          <h1 class="text-[15px] font-semibold">Anomalías</h1>
+          <p class="text-xs text-sidebar-foreground">
+            <span x-text="filteredIncidents.length"></span> de <span x-text="incidents.length"></span> incidentes
+            <template x-if="folderFilter.length">
+              <span> · filtrando por <span class="font-medium text-foreground" x-text="folderFilter.map(f => folderName(f)).join(', ')"></span></span>
+            </template>
+          </p>
+        </div>
+        <button class="inline-flex h-8 items-center gap-1.5 rounded-xl px-2 text-sm font-medium hover:bg-accent">
+          <i data-lucide="bookmark" class="h-4 w-4"></i> Filtros guardados
+        </button>
+      </div>
+
+      <!-- Barra de filtros — «Carpeta» se suma a los que ya existen -->
+      <div class="flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-muted/30 px-5 py-3">
+        <span class="text-xs font-medium text-sidebar-foreground">Filtrar por</span>
+
+        <div class="relative">
+          <button @click="folderPop = !folderPop" @click.outside="folderPop = false"
+                  class="inline-flex h-8 items-center gap-1.5 rounded-xl border border-solid px-2.5 text-xs font-medium transition-colors"
+                  :class="folderFilter.length ? 'border-info bg-info/5 text-info' : 'border-border bg-background hover:bg-accent'">
+            <i data-lucide="folder" class="h-3.5 w-3.5"></i>
+            Carpeta
+            <template x-if="folderFilter.length">
+              <span class="rounded-full bg-info px-1.5 text-[10px] font-semibold text-info-foreground" x-text="folderFilter.length"></span>
+            </template>
+            <i data-lucide="chevron-down" class="h-3 w-3"></i>
+          </button>
+
+          <div x-show="folderPop" x-transition class="absolute left-0 top-full z-40 mt-1 w-64 rounded-xl border border-border bg-popover p-1 shadow-md">
+            <p class="px-2 py-1.5 text-[11px] text-sidebar-foreground">
+              La carpeta se hereda del recurso: nadie archiva incidentes a mano.
+            </p>
+            <div class="my-1 h-px bg-border"></div>
+            <template x-for="f in sortedFolders" :key="'ff' + f.id">
+              <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent">
+                <input type="checkbox" :checked="folderFilter.includes(f.id)" @change="toggleFolderFilter(f.id)"
+                       class="h-4 w-4 shrink-0 rounded border-input accent-info">
+                <i data-lucide="folder" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
+                <span class="min-w-0 flex-1 truncate" x-text="f.name"></span>
+                <span class="text-xs text-sidebar-foreground" x-text="incidentCount(f.id)"></span>
+              </label>
+            </template>
+            <template x-if="folderFilter.length">
+              <div>
+                <div class="my-1 h-px bg-border"></div>
+                <button @click="folderFilter = []" class="w-full rounded-lg px-2 py-1.5 text-left text-xs text-sidebar-foreground hover:bg-accent">Quitar el filtro</button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <template x-for="f in ['Estado', 'Categoría', 'Gráfico', 'Recurso', 'Fecha']" :key="f">
+          <button class="inline-flex h-8 items-center gap-1.5 rounded-xl border border-solid border-border bg-background px-2.5 text-xs font-medium text-sidebar-foreground hover:bg-accent">
+            <span x-text="f"></span><i data-lucide="chevron-down" class="h-3 w-3"></i>
+          </button>
+        </template>
+
+        <template x-if="folderFilter.length">
+          <button @click="notify('Filtro guardado para la cuenta', null, 'bookmark')"
+                  class="ml-auto inline-flex h-8 items-center gap-1.5 rounded-xl border border-solid border-border bg-background px-2.5 text-xs font-medium hover:bg-accent">
+            <i data-lucide="bookmark-plus" class="h-3.5 w-3.5"></i> Guardar este filtro
+          </button>
+        </template>
+      </div>
+
+      <!-- Lista de incidentes -->
+      <div class="panel-scroll min-h-0 flex-1 p-4">
+        <template x-if="filteredIncidents.length">
+          <ul class="flex flex-col gap-2">
+            <template x-for="i in filteredIncidents" :key="i.id">
+              <li class="rounded-xl border border-border p-3 transition-colors hover:border-info/40">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                            :class="i.sev === 'URGENT' ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'"
+                            x-text="i.sev === 'URGENT' ? 'Urgente' : 'Requiere atención'"></span>
+                      <span class="text-sm font-medium" x-text="i.cat"></span>
+                    </div>
+                    <p class="mt-1 flex items-center gap-1.5 text-xs text-sidebar-foreground">
+                      <i :data-lucide="incidentRefKind(i) === 'dataset' ? 'database' : 'layout-grid'" class="h-3 w-3 shrink-0"></i>
+                      <span class="truncate" x-text="incidentRef(i)"></span>
+                    </p>
+                  </div>
+                  <div class="flex shrink-0 flex-col items-end gap-1">
+                    <span class="text-[11px] text-sidebar-foreground" x-text="`hace ${i.hours} h`"></span>
+                    <!-- La carpeta HEREDADA, como metadato del incidente -->
+                    <template x-if="incidentFolder(i)">
+                      <button @click="view = 'tableros'; entity = incidentRefKind(i); revealFolder(incidentFolder(i))"
+                              class="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-sidebar-foreground hover:bg-accent hover:text-foreground">
+                        <i data-lucide="folder" class="h-3 w-3"></i>
+                        <span x-text="folderName(incidentFolder(i))"></span>
+                      </button>
+                    </template>
+                    <template x-if="!incidentFolder(i)">
+                      <span class="text-[11px] text-muted-foreground">Sin carpeta</span>
+                    </template>
+                  </div>
+                </div>
+              </li>
+            </template>
+          </ul>
+        </template>
+
+        <template x-if="!filteredIncidents.length">
+          <div class="flex h-full flex-col items-center justify-center gap-1 py-10 text-center">
+            <i data-lucide="circle-check" class="h-10 w-10 text-success/70"></i>
+            <p class="text-sm font-semibold" x-text="`Sin incidentes en ${folderFilter.map(f => '«' + folderName(f) + '»').join(', ')}`"></p>
+            <p class="max-w-sm text-xs text-sidebar-foreground">No es un error: no hay anomalías en los recursos de esa carpeta. Los incidentes futuros de esos recursos aparecerán acá solos.</p>
+            <button @click="folderFilter = []" class="mt-2 inline-flex h-7 items-center gap-1.5 rounded-xl border border-solid border-border px-2.5 text-xs font-medium hover:bg-accent">
+              Quitar el filtro
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════════ MENÚS ══════════ -->
   <div x-show="menu.open" @click.outside="menu.open = false" x-transition.opacity.duration.100ms
        class="fixed z-50 w-52 rounded-xl border border-border bg-popover p-1 shadow-md" :style="`left:${menu.x}px; top:${menu.y}px`">
@@ -498,12 +628,12 @@
           </button>
         </template>
         <div class="my-1 h-px bg-border"></div>
-        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar tablero</button>
+        <button class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> <span x-text="`Eliminar ${E.singular}`"></span></button>
       </div>
     </template>
     <template x-if="menu.type === 'folder'">
       <div>
-        <button @click="openAdd(menu.id, $event)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="plus" class="h-4 w-4"></i> Agregar tableros</button>
+        <button @click="openAdd(menu.id, $event)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="plus" class="h-4 w-4"></i> <span x-text="`Agregar ${E.plural}`"></span></button>
         <button @click="openRename(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="pencil-line" class="h-4 w-4"></i> Renombrar carpeta</button>
         <div class="my-1 h-px bg-border"></div>
         <button @click="openDelete(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar carpeta</button>
@@ -554,8 +684,22 @@
             <div class="shrink-0 px-6 pt-4">
               <p class="text-sm text-sidebar-foreground"
                  x-text="dlg.mode === 'add'
-                   ? 'Marca los tableros que quieres mover a esta carpeta.'
-                   : 'Marca los tableros que quieres agrupar. Podrás mover más después.'"></p>
+                   ? `Marca los ${ENTITIES[dlg.entity].plural} que quieres mover a esta carpeta.`
+                   : 'Marca el contenido que quieres agrupar. La misma carpeta sirve para tableros y datasets.'"></p>
+
+              <!-- F9: elegir de las DOS entidades en una sola pasada -->
+              <div class="mt-3 inline-flex h-8 items-center rounded-xl bg-muted p-1 text-muted-foreground" role="tablist">
+                <template x-for="k in ['dashboard', 'dataset']" :key="'we' + k">
+                  <button role="tab" :aria-selected="dlg.entity === k" @click="dlg.entity = k; dlg.q = ''"
+                          class="inline-flex h-6 items-center gap-1.5 rounded-lg px-3 text-xs font-medium transition-all"
+                          :class="dlg.entity === k && 'bg-background text-foreground shadow'">
+                    <i :data-lucide="ENTITIES[k].icon" class="h-3 w-3"></i>
+                    <span x-text="k === 'dashboard' ? 'Tableros' : 'Datasets'"></span>
+                    <span class="text-[10px] text-sidebar-foreground"
+                          x-text="dlg.selected.filter(id => dashById(id)?.kind === k).length || ''"></span>
+                  </button>
+                </template>
+              </div>
               <div class="relative mt-3">
                 <i data-lucide="search" class="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"></i>
                 <input x-model="dlg.q" placeholder="Buscar tablero" aria-label="Buscar tablero para agregar"
@@ -613,9 +757,7 @@
                 <template x-if="dlg.mode === 'add'">
                   <button @click="submitAdd()" :disabled="!dlg.selected.length"
                           class="inline-flex h-10 items-center rounded-xl bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90 disabled:cursor-not-allowed disabled:opacity-50"
-                          x-text="dlg.selected.length
-                            ? `Agregar ${dlg.selected.length} ${dlg.selected.length === 1 ? 'tablero' : 'tableros'}`
-                            : 'Agregar tableros'"></button>
+                          x-text="dlg.selected.length ? `Agregar ${selectedPhrase()}` : `Agregar ${ENTITIES[dlg.entity].plural}`"></button>
                 </template>
               </div>
             </div>
@@ -641,7 +783,7 @@
                 <div class="mt-4 rounded-lg border border-border bg-muted/40 p-3">
                   <p class="text-xs font-medium">
                     <template x-if="dlg.selected.length">
-                      <span>Se creará con <strong x-text="dlg.selected.length"></strong> <span x-text="dlg.selected.length === 1 ? 'tablero' : 'tableros'"></span></span>
+                      <span>Se creará con <strong x-text="selectedPhrase()"></strong></span>
                     </template>
                     <template x-if="!dlg.selected.length"><span>Se creará vacía</span></template>
                   </p>
@@ -675,7 +817,7 @@
               </template>
               <button @click="submitDlg()" :disabled="!dlg.name.trim()"
                       class="inline-flex h-10 items-center rounded-xl bg-info px-3 text-sm font-medium text-info-foreground hover:bg-info/90 disabled:cursor-not-allowed disabled:opacity-50"
-                      x-text="dlg.mode === 'create' ? (dlg.selected.length ? `Crear con ${dlg.selected.length} ${dlg.selected.length === 1 ? 'tablero' : 'tableros'}` : 'Crear vacía') : 'Guardar'"></button>
+                      x-text="dlg.mode === 'create' ? (dlg.selected.length ? `Crear con ${selectedPhrase()}` : 'Crear vacía') : 'Guardar'"></button>
             </div>
           </div>
         </template>
@@ -747,12 +889,12 @@
       <div class="w-full max-w-md rounded-xl border border-border bg-background p-6 shadow-lg" role="alertdialog" aria-modal="true" aria-labelledby="delt" aria-describedby="deld">
         <h3 id="delt" class="text-base font-semibold">¿Eliminar carpeta?</h3>
         <p id="deld" class="mt-2 text-sm text-sidebar-foreground">
-          <template x-if="count(del.id) > 0">
+          <template x-if="countByEntity(del.id).total > 0">
             <span>Se eliminará la carpeta «<span class="font-medium text-foreground" x-text="folderName(del.id)"></span>».
-              Los <strong class="text-foreground" x-text="`${count(del.id)} tableros`"></strong> que contiene volverán a la lista de tableros;
+              Los <strong class="text-foreground" x-text="deleteCountPhrase(del.id)"></strong> que contiene volverán a sus listas;
               <strong class="text-foreground">no se eliminarán</strong>.</span>
           </template>
-          <template x-if="count(del.id) === 0">
+          <template x-if="countByEntity(del.id).total === 0">
             <span>Se eliminará la carpeta «<span class="font-medium text-foreground" x-text="folderName(del.id)"></span>». Está vacía.</span>
           </template>
         </p>
@@ -809,6 +951,30 @@
       </div>
 
       <div class="mt-3 border-t border-border pt-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">Vista · D10 transversal</p>
+        <div class="mt-1 space-y-1">
+          <button @click="view = 'tableros'; switchEntity('dashboard')" class="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-accent"
+                  :class="view === 'tableros' && entity === 'dashboard' && 'bg-secondary ring-1 ring-border'">
+            <span>Panel · <strong>Tableros</strong></span><span class="text-sidebar-foreground" x-text="all.filter(d => d.kind === 'dashboard').length"></span>
+          </button>
+          <button @click="view = 'tableros'; switchEntity('dataset')" class="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-accent"
+                  :class="view === 'tableros' && entity === 'dataset' && 'bg-secondary ring-1 ring-border'">
+            <span>Panel · <strong>Datasets</strong></span><span class="text-sidebar-foreground" x-text="all.filter(d => d.kind === 'dataset').length"></span>
+          </button>
+          <button @click="view = 'anomalias'" class="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs hover:bg-accent"
+                  :class="view === 'anomalias' && 'bg-secondary ring-1 ring-border'">
+            <span><strong>Anomalías</strong> por carpeta</span><span class="text-sidebar-foreground" x-text="incidents.length"></span>
+          </button>
+        </div>
+        <p class="mt-1.5 text-[11px] leading-snug text-sidebar-foreground">
+          «Adquirencia» es <strong class="text-foreground">una sola carpeta</strong>:
+          <strong class="text-foreground" x-text="all.filter(d => d.folderId === 'f1' && d.kind === 'dashboard').length"></strong> tableros,
+          <strong class="text-foreground" x-text="all.filter(d => d.folderId === 'f1' && d.kind === 'dataset').length"></strong> datasets y
+          <strong class="text-foreground" x-text="incidentCount('f1')"></strong> anomalías heredadas.
+        </p>
+      </div>
+
+      <div class="mt-3 border-t border-border pt-2">
         <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">Escenarios</p>
         <div class="mt-1 space-y-1">
           <button @click="scenario('full')" class="w-full rounded-lg px-2 py-1.5 text-left text-xs hover:bg-accent">4 carpetas · 100 sueltos <span class="text-sidebar-foreground">(realista)</span></button>
@@ -826,16 +992,17 @@
           <li><strong class="text-foreground">A o B.</strong> Recomendamos <strong class="text-foreground">A</strong>: el gesto más frecuente es cambiar de tablero, y el drill-down le suma clics. B es más consistente con Almacenamiento.</li>
           <li><strong class="text-foreground">PA-4.</strong> ¿Se descubre el icono <i data-lucide="folder-plus" class="inline h-3 w-3"></i> del header como forma de crear carpeta?</li>
           <li><strong class="text-foreground">PA-12.</strong> En búsqueda la fila crece a dos líneas para mostrar la carpeta. ¿Molesta al escanear?</li>
-          <li><strong class="text-foreground">PA-14.</strong> Con 100 sueltos, ¿alcanza mover de a uno o hace falta selección múltiple?</li>
+          <li><strong class="text-foreground">D10.</strong> ¿Se entiende que «Adquirencia» es la misma carpeta en Tableros, Datasets y Anomalías?</li>
+          <li><strong class="text-foreground">SD-2.</strong> En Anomalías la carpeta es un <em>filtro</em>. ¿Alcanza, o hace falta agrupar la lista por carpeta?</li>
           <li><strong class="text-foreground">PA-2.</strong> ¿El separador «Sin carpeta» se lee bien o hace falta más peso?</li>
         </ul>
       </div>
 
       <div class="mt-3 border-t border-border pt-2 text-[11px] text-sidebar-foreground">
         <p><strong class="text-foreground" x-text="folders.length"></strong> carpetas ·
-           <strong class="text-foreground" x-text="all.filter(d => d.folderId).length"></strong> en carpeta ·
-           <strong class="text-foreground" x-text="unfiled.length"></strong> sueltos ·
-           <strong class="text-foreground" x-text="Math.round(all.filter(d => d.folderId).length / all.length * 100)"></strong>% organizado</p>
+           en esta vista: <strong class="text-foreground" x-text="items.filter(d => d.folderId).length"></strong> en carpeta,
+           <strong class="text-foreground" x-text="unfiled.length"></strong> sueltos
+           (<strong class="text-foreground" x-text="items.length ? Math.round(items.filter(d => d.folderId).length / items.length * 100) : 0"></strong>% organizado)</p>
         <p class="mt-1">Filas visibles ahora: <strong class="text-foreground" x-text="visibleRows"></strong> (métrica de la Ley de Miller)</p>
       </div>
     </div>
@@ -855,26 +1022,70 @@ function proto() {
   const sfx = ["conciliacion_visa","conciliacion_master","pagos_pse","recaudos","dispersiones",
                "chargebacks","comisiones","liquidacion","contracargos","ajustes"];
 
-  // 159 tableros: 59 en carpetas + 100 sueltos (el caso realista de la cuenta)
+  // D10: una sola colección con las DOS entidades. La carpeta es compartida;
+  // cada vista filtra por `kind`. Así el contador es por vista, no global.
+  // 159 tableros (59 en carpetas) + 60 datasets (23 en carpetas).
   const build = () => {
-    const out = []; let n = 0;
-    const push = (name, folderId, priv = false) => out.push({ id: "d" + (n++), name, folderId, private: priv });
-    for (let i = 0; i < 24; i++) push(`Adquirencia_2026_06_${String(4 + (i % 20)).padStart(2,"0")}_${sfx[i % sfx.length]}`, "f1", i % 9 === 0);
+    const out = []; const n = { dashboard: 0, dataset: 0 };
+    const push = (kind, name, folderId, priv = false) =>
+      out.push({ id: (kind === "dashboard" ? "d" : "ds") + n[kind]++, kind, name, folderId, private: priv });
+
+    // ── Tableros ──
+    for (let i = 0; i < 24; i++) push("dashboard", `Adquirencia_2026_06_${String(4 + (i % 20)).padStart(2,"0")}_${sfx[i % sfx.length]}`, "f1", i % 9 === 0);
     ["junio 2026","mayo 2026","abril 2026","marzo 2026","febrero 2026","enero 2026",
      "diciembre 2025","noviembre 2025","octubre 2025","septiembre 2025","agosto 2025","julio 2025"]
-      .forEach((m, i) => push(`Cierre ${m}`, "f2", i > 8));
+      .forEach((m, i) => push("dashboard", `Cierre ${m}`, "f2", i > 8));
     ["PSE","Visa","Mastercard","Transferencias","Efectivo","Débito automático","Wallets","Recaudo empresarial"]
-      .forEach((c) => push(`Conciliación diaria — ${c}`, "f3"));
-    for (let i = 1; i <= 15; i++) push(`Test anomalias y pendientes v${i}`, "f4", i <= 3);
-    push("Adquirencia", null);
+      .forEach((c) => push("dashboard", `Conciliación diaria — ${c}`, "f3"));
+    for (let i = 1; i <= 15; i++) push("dashboard", `Test anomalias y pendientes v${i}`, "f4", i <= 3);
+    push("dashboard", "Adquirencia", null);
     for (let i = 0; i < 99; i++)
-      push(`Adquirencia_2026_06_${String(4 + (i % 26)).padStart(2,"0")}_${sfx[i % sfx.length]}${i > 40 ? "_v2" : ""}`, null, i % 23 === 0);
+      push("dashboard", `Adquirencia_2026_06_${String(4 + (i % 26)).padStart(2,"0")}_${sfx[i % sfx.length]}${i > 40 ? "_v2" : ""}`, null, i % 23 === 0);
+
+    // ── Datasets · la MISMA carpeta «Adquirencia» los contiene ──
+    ["adq_visa_raw","adq_master_raw","adq_pse_raw","adq_liquidacion","adq_comisiones",
+     "adq_contracargos","adq_dispersiones","adq_recaudos"].forEach((d) => push("dataset", d, "f1"));
+    ["cierre_asientos","cierre_saldos","cierre_ajustes","cierre_partidas","cierre_balance"]
+      .forEach((d) => push("dataset", d, "f2"));
+    ["concil_diaria_pse","concil_diaria_visa","concil_diaria_master","concil_diaria_wallets"]
+      .forEach((d) => push("dataset", d, "f3"));
+    ["qa_fixture_anomalias","qa_fixture_pendientes","qa_seed_visa","qa_seed_master","qa_smoke","qa_regresion"]
+      .forEach((d) => push("dataset", d, "f4"));
+    for (let i = 0; i < 37; i++)
+      push("dataset", `staging_${sfx[i % sfx.length]}_${String(i + 1).padStart(2,"0")}`, null, i % 11 === 0);
     return out;
+  };
+
+  // F10 · incidentes. NO llevan folderId: apuntan a un recurso y HEREDAN su carpeta.
+  // Refleja el modelo real: anomaly_signals.chart_id → chart → dashboard.folder_id
+  // y anomaly_incident_entities.resource_id + resource_type → dataset.folder_id.
+  const INCIDENTS = [
+    { id: "i1", sev: "URGENT",             cat: "Volumen inusual",     ref: "d0",  hours: 2 },
+    { id: "i2", sev: "REQUIRES_ATTENTION", cat: "Archivos faltantes",  ref: "ds0", hours: 5 },
+    { id: "i3", sev: "URGENT",             cat: "Volumen inusual",     ref: "d3",  hours: 8 },
+    { id: "i4", sev: "REQUIRES_ATTENTION", cat: "Monto fuera de rango",ref: "d24", hours: 11 },
+    { id: "i5", sev: "REQUIRES_ATTENTION", cat: "Archivos faltantes",  ref: "ds9", hours: 14 },
+    { id: "i6", sev: "URGENT",             cat: "Duplicados",          ref: "d36", hours: 20 },
+    { id: "i7", sev: "REQUIRES_ATTENTION", cat: "Volumen inusual",     ref: "d51", hours: 26 },
+    { id: "i8", sev: "REQUIRES_ATTENTION", cat: "Monto fuera de rango",ref: "ds13",hours: 31 },
+    { id: "i9", sev: "URGENT",             cat: "Volumen inusual",     ref: "d60", hours: 38 },
+    { id: "i10",sev: "REQUIRES_ATTENTION", cat: "Archivos faltantes",  ref: "d95", hours: 44 },
+  ];
+
+  const ENTITY = {
+    dashboard: { tab: "tableros", plural: "tableros", singular: "tablero", nuevo: "Nuevo tablero",
+                 buscar: "Buscar tablero", icon: "layout-grid" },
+    dataset:   { tab: "datasets", plural: "datasets", singular: "dataset", nuevo: "Nuevo dataset",
+                 buscar: "Buscar dataset", icon: "database" },
   };
 
   return {
     // ── estado ──
     mode: "after", variant: "A", devOpen: true, tip: null,
+    entity: "dashboard",          // D10: qué entidad muestra el panel
+    view: "tableros",             // vista del OC: tableros | anomalias
+    folderFilter: [],             // F10: filtro por carpeta en Anomalías
+    folderPop: false,
     folders: [...FOLDERS],
     all: build(),
     expanded: (() => { try { return JSON.parse(localStorage.getItem(LS)) || []; } catch { return []; } })(),
@@ -882,7 +1093,7 @@ function proto() {
     sortAsc: true, searchInput: "", appliedSearch: "", unfiledShown: 20,
     drill: null, dragOver: null, dragId: null,
     menu: { open: false, x: 0, y: 0, type: "dashboard", id: null },
-    dlg: { open: false, mode: "create", step: 1, name: "", id: null, error: null, selected: [], q: "" },
+    dlg: { open: false, mode: "create", step: 1, name: "", id: null, error: null, selected: [], q: "", entity: "dashboard" },
     flash: null,
     move: { open: false, id: null, q: "", confirm: null },
     del: { open: false, id: null },
@@ -901,8 +1112,8 @@ function proto() {
       { label: "Herramientas", icon: "wand-sparkles", chevron: true },
     ],
     ocTabs: [
-      { key: "t", label: "Tableros", icon: "layout-grid", active: true },
-      { key: "a", label: "Anomalías", icon: "alert-circle" },
+      { key: "t", label: "Tableros", icon: "layout-grid", view: "tableros" },
+      { key: "a", label: "Anomalías", icon: "alert-circle", view: "anomalias" },
       { key: "p", label: "Pendientes", icon: "clock" },
       { key: "s", label: "Almacenamiento", icon: "hard-drive" },
       { key: "e", label: "Asientos contables", icon: "book-open-text" },
@@ -923,23 +1134,48 @@ function proto() {
       this.persist();
     },
 
+    ENTITIES: ENTITY,
+    incidents: INCIDENTS,
+
+    // ── F10 · membresía HEREDADA ──
+    /** La carpeta de un incidente sale del recurso al que apunta. No se persiste. */
+    incidentFolder(inc) { return this.dashById(inc.ref)?.folderId ?? null; },
+    incidentRef(inc) { return this.dashById(inc.ref)?.name ?? "recurso"; },
+    incidentRefKind(inc) { return this.dashById(inc.ref)?.kind ?? "dashboard"; },
+    get filteredIncidents() {
+      if (!this.folderFilter.length) return this.incidents;
+      return this.incidents.filter((i) => this.folderFilter.includes(this.incidentFolder(i)));
+    },
+    toggleFolderFilter(id) {
+      this.folderFilter = this.folderFilter.includes(id)
+        ? this.folderFilter.filter((x) => x !== id)
+        : [...this.folderFilter, id];
+    },
+    /** Cuántos incidentes hereda cada carpeta — el contador del filtro. */
+    incidentCount(folderId) {
+      return this.incidents.filter((i) => this.incidentFolder(i) === folderId).length;
+    },
+
     // ── derivados ──
     get searching() { return this.appliedSearch.trim().length > 0; },
+    get E() { return ENTITY[this.entity]; },                        // copy de la entidad activa
+    /** Los ítems de la entidad activa. Todo lo demás deriva de acá. */
+    get items() { return this.all.filter((d) => d.kind === this.entity); },
     get sortedFolders() {
       return [...this.folders].sort((a, b) => (this.sortAsc ? 1 : -1) * a.name.localeCompare(b.name, "es"));
     },
-    get unfiled() { return this.sortDash(this.all.filter((d) => !d.folderId)); },
-    get allSorted() { return this.sortDash(this.all); },
+    get unfiled() { return this.sortDash(this.items.filter((d) => !d.folderId)); },
+    get allSorted() { return this.sortDash(this.items); },
     get sectionLabel() {
       if (this.searching) return "Resultados";
-      if (this.mode === "before") return `Tableros (${this.all.length})`;
-      return `Tableros (${this.all.length})`;
+      const label = this.entity === "dashboard" ? "Tableros" : "Datasets";
+      return `${label} (${this.items.length})`;
     },
     get results() {
       const q = this.appliedSearch.trim().toLowerCase();
       return {
         folders: this.folders.filter((f) => f.name.toLowerCase().includes(q)),
-        dashboards: this.sortDash(this.all.filter((d) => d.name.toLowerCase().includes(q))).slice(0, 40),
+        dashboards: this.sortDash(this.items.filter((d) => d.name.toLowerCase().includes(q))).slice(0, 40),
       };
     },
     get moveOptions() {
@@ -963,8 +1199,28 @@ function proto() {
     sortDash(list) { return [...list].sort((a, b) => (this.sortAsc ? 1 : -1) * a.name.localeCompare(b.name, "es")); },
     dashById(id) { return this.all.find((d) => d.id === id); },
     folderName(id) { return this.folders.find((f) => f.id === id)?.name ?? ""; },
-    inFolder(id) { return this.sortDash(this.all.filter((d) => d.folderId === id)); },
-    count(id) { return this.all.filter((d) => d.folderId === id).length; },
+    /** Contenido de la carpeta EN LA VISTA ACTUAL (D10: el contador es por vista). */
+    inFolder(id) { return this.sortDash(this.items.filter((d) => d.folderId === id)); },
+    count(id) { return this.items.filter((d) => d.folderId === id).length; },
+    /** Desglose por entidad — lo necesita el diálogo destructivo: "24 tableros y 8 datasets". */
+    countByEntity(id) {
+      const inF = this.all.filter((d) => d.folderId === id);
+      return { dashboard: inF.filter((d) => d.kind === "dashboard").length,
+               dataset: inF.filter((d) => d.kind === "dataset").length, total: inF.length };
+    },
+    /** Frase del diálogo destructivo, contando por entidad. */
+    deleteCountPhrase(id) {
+      const c = this.countByEntity(id);
+      const parts = [];
+      if (c.dashboard) parts.push(`${c.dashboard} ${c.dashboard === 1 ? "tablero" : "tableros"}`);
+      if (c.dataset) parts.push(`${c.dataset} ${c.dataset === 1 ? "dataset" : "datasets"}`);
+      return parts.join(" y ");
+    },
+    switchEntity(kind) {
+      this.entity = kind;
+      this.searchInput = ""; this.appliedSearch = "";
+      this.drill = null; this.unfiledShown = 20;
+    },
     isOpen(id) { return this.expanded.includes(id); },
     persist() { try { localStorage.setItem(LS, JSON.stringify(this.expanded)); } catch {} },
     toggle(id) {
@@ -996,10 +1252,21 @@ function proto() {
     get pickList() {
       const q = this.dlg.q.trim().toLowerCase();
       const base = this.all.filter((d) =>
+        d.kind === this.dlg.entity &&
         (!q || d.name.toLowerCase().includes(q)) &&
         !(this.dlg.mode === "add" && d.folderId === this.dlg.id));
       return [...base].sort((a, b) =>
         (a.folderId ? 1 : 0) - (b.folderId ? 1 : 0) || a.name.localeCompare(b.name, "es"));
+    },
+    /** Desglose de lo seleccionado en el wizard, para el resumen del paso 2. */
+    selectedPhrase() {
+      const sel = this.dlg.selected.map((id) => this.dashById(id)).filter(Boolean);
+      const d = sel.filter((x) => x.kind === "dashboard").length;
+      const s = sel.filter((x) => x.kind === "dataset").length;
+      const parts = [];
+      if (d) parts.push(`${d} ${d === 1 ? "tablero" : "tableros"}`);
+      if (s) parts.push(`${s} ${s === 1 ? "dataset" : "datasets"}`);
+      return parts.join(" y ");
     },
     selectAllVisible() {
       const ids = this.pickList.map((d) => d.id);
@@ -1007,17 +1274,17 @@ function proto() {
     },
     openCreate(e) {
       this.menu.open = false; this.lastTrigger = e?.currentTarget ?? null;
-      this.dlg = { open: true, mode: "create", step: 1, name: "", id: null, error: null, selected: [], q: "" };
+      this.dlg = { open: true, mode: "create", step: 1, name: "", id: null, error: null, selected: [], q: "", entity: this.entity };
     },
     openRename(id) {
       this.menu.open = false;
-      this.dlg = { open: true, mode: "rename", step: 2, name: this.folderName(id), id, error: null, selected: [], q: "" };
+      this.dlg = { open: true, mode: "rename", step: 2, name: this.folderName(id), id, error: null, selected: [], q: "", entity: this.entity };
       this.$nextTick(() => { this.$refs.fname?.focus(); this.$refs.fname?.select(); });
     },
     // Agregar tableros a una carpeta que YA existe (desde el botón punteado de la carpeta vacía)
     openAdd(id, e) {
       this.menu.open = false; this.lastTrigger = e?.currentTarget ?? null;
-      this.dlg = { open: true, mode: "add", step: 1, name: "", id, error: null, selected: [], q: "" };
+      this.dlg = { open: true, mode: "add", step: 1, name: "", id, error: null, selected: [], q: "", entity: this.entity };
     },
     submitAdd() {
       const id = this.dlg.id;
@@ -1029,8 +1296,9 @@ function proto() {
       this.closeDlg();
       this.reveal(id);
       const moved = prev.filter((p) => p.folderId).length;
+      const phrase = this.selectedPhrase();
       this.notify(
-        `${picked.length} ${picked.length === 1 ? "tablero agregado" : "tableros agregados"} a «${this.folderName(id)}»`
+        `${phrase} ${picked.length === 1 ? "agregado" : "agregados"} a «${this.folderName(id)}»`
           + (moved ? ` · ${moved} ${moved === 1 ? "salió" : "salieron"} de otra carpeta` : ""),
         () => { prev.forEach(({ did, folderId }) => { const d = this.dashById(did); if (d) d.folderId = folderId; }); },
       );
@@ -1067,9 +1335,10 @@ function proto() {
         this.expanded = [...this.expanded, id];
         this.persist();
         this.reveal(id);
+        const phrase = this.selectedPhrase();
         this.notify(
           picked.length
-            ? `Carpeta «${name}» creada con ${picked.length} ${picked.length === 1 ? "tablero" : "tableros"}`
+            ? `Carpeta «${name}» creada con ${phrase}`
             : `Carpeta «${name}» creada · está vacía`,
           () => {   // deshacer: devuelve cada tablero a donde estaba y borra la carpeta
             prev.forEach(({ did, folderId }) => { const d = this.dashById(did); if (d) d.folderId = folderId; });
@@ -1126,13 +1395,14 @@ function proto() {
       const id = this.del.id;
       const affected = this.all.filter((d) => d.folderId === id);
       const name = this.folderName(id);
+      const phrase = this.deleteCountPhrase(id) || "0 ítems";
       affected.forEach((d) => (d.folderId = null));           // ON DELETE SET NULL
       this.folders = this.folders.filter((f) => f.id !== id);
       this.expanded = this.expanded.filter((x) => x !== id);
       this.persist();
       if (this.drill === id) this.drill = null;
       this.del.open = false;
-      this.notify(`Carpeta «${name}» eliminada · ${affected.length} tableros en la lista`, () => {
+      this.notify(`Carpeta «${name}» eliminada · ${phrase} en sus listas`, () => {
         this.folders.push({ id, name });
         affected.forEach((d) => (d.folderId = id));
       });
@@ -1169,9 +1439,11 @@ function proto() {
     // ── fila de tablero (HTML compartido por todos los modos) ──
     rowHTML(d, flat = false) {
       const active = this.activeId === d.id;
-      const icon = d.private
-        ? `<svg class="h-3.5 w-3.5 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
-        : `<svg class="h-3.5 w-3.5 shrink-0 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>`;
+      const LOCK = `<svg class="h-3.5 w-3.5 shrink-0 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+      const GLOBE = `<svg class="h-3.5 w-3.5 shrink-0 text-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>`;
+      const DB = `<svg class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>`;
+      // Metabase: si una lista mezcla tipos, el icono por tipo es obligatorio (benchmark T2)
+      const icon = d.kind === "dataset" ? DB : d.private ? LOCK : GLOBE;
       const A = "Alpine.$data(this.closest('[x-data]'))";
       return `<div draggable="true"
            ondragstart="${A}.dragId='${d.id}'" ondragend="${A}.dragId=null;${A}.dragOver=null"
