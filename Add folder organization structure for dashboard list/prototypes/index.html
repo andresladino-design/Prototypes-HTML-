@@ -483,8 +483,6 @@
 
       </div>
     </div>
-  </div>
-
   <!-- ══════════ VISTA DE ANOMALÍAS ══════════
        Replicada de la captura: panel ~408px con «Gestión» expandido y los otros
        dos tabs solo en icono · Filtrar / Ordenar / Guardados · cards con badge,
@@ -493,7 +491,7 @@
        Severidad / Tableros impactados, colapsables Hallazgos · Recomendaciones ·
        Proceso de análisis con disclaimer de IA, barra de acciones, y ABAJO una
        tarjeta aparte con los tabs Impacto potencial / Evidencia / Línea de tiempo. -->
-  <div class="flex h-full min-h-0 flex-col px-6 pb-6 pt-0" x-show="view === 'anomalias'">
+  <div class="flex min-h-0 flex-1 flex-col px-6 pb-6 pt-0" x-show="view === 'anomalias'">
     <div class="flex min-h-0 flex-1 gap-4 overflow-hidden">
 
       <!-- ── Panel lateral ── -->
@@ -633,7 +631,7 @@
       </aside>
 
       <!-- ── Detalle ── -->
-      <div class="panel-scroll flex min-w-0 flex-1 flex-col gap-4">
+      <div class="panel-scroll flex min-w-0 flex-1 flex-col gap-4 pr-0.5">
         <template x-if="!selectedIncident">
           <div class="flex h-full flex-col items-center justify-center gap-3 rounded-2xl border border-border px-6 text-center">
             <i data-lucide="radar" class="h-10 w-10 text-muted-foreground"></i>
@@ -765,7 +763,7 @@
        con Lado A / Lado B.
        ⚠️ SD-7: el panel ya agrupa por dataset, así que las carpetas se
        ofrecen como un modo de agrupación alternativo, no como reemplazo. -->
-  <div class="flex h-full min-h-0 flex-col px-6 pb-6 pt-0" x-show="view === 'pendientes'">
+  <div class="flex min-h-0 flex-1 flex-col px-6 pb-6 pt-0" x-show="view === 'pendientes'">
     <div class="flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-border">
 
       <aside class="relative flex w-72 min-w-72 shrink-0 flex-col overflow-hidden border-r border-border bg-background pt-3">
@@ -948,6 +946,8 @@
         </template>
       </div>
     </div>
+  </div>
+
   </div>
 
   <!-- ══════════ MENÚS ══════════ -->
