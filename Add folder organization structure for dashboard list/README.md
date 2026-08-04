@@ -60,6 +60,12 @@ Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/toke
 
 ## Changelog
 
+### 2026-08-04 — vistas replicadas de las capturas reales
+- **SD-7 (nueva):** el panel de Conciliaciones **ya está agrupado por dataset** (con badge `clickhouse` y conteos), y cada fila lleva badge **AVZ/STD**. Si la carpeta entrara como nivel extra habría **dos jerarquías compitiendo** en 288px. Implementado como **toggle «Agrupar por: Dataset | Carpeta»** — un solo nivel a la vez.
+- **Detalle de anomalía completo:** narrativa con chips inline, meta en columnas (Estado · Severidad · Tableros impactados · **Carpeta heredada**), los tres colapsables (Hallazgos · Recomendaciones · Proceso de análisis) con el disclaimer de IA, barra de acciones, y los tabs **abajo en una card aparte** (Impacto potencial · Evidencia · Línea de tiempo).
+- **Paginación al pie** del panel de anomalías: `1 - 20 de 3054 incidencias`. Con 3054, filtrar por carpeta no es cosmético: es 153 páginas contra 1.
+- Panel de Pendientes con contador, fijadas (grip + workspace + AVZ/STD) y tarjetas de resumen Lado A / Lado B con sus tiles.
+
 ### 2026-08-04 — vistas reales de Anomalías y Pendientes
 - **Corrección del modelo:** el reparto no es "2 declaradas + 2 heredadas" sino **3 + 1**. El panel de Pendientes no lista pendientes: lista **conciliaciones**, con buscador y sección de fijadas — la misma anatomía que Tableros. Así que la conciliación se organiza de forma **declarada** y el pendiente hereda de ella. **Anomalías es el único stream.**
 - **Vista de Anomalías reconstruida contra el código:** es **master-detail**, no una lista a ancho completo. Panel con los 3 tabs reales (Gestión / Configuración / Alertas, donde solo el activo muestra su label), fila `Filtrar · Ordenar · Guardados`, barra de filtros activos, y `AnomalyCard` con su anatomía real (título `{categoría} - {tipo}: {recurso}`, badge de estado, "Tableros afectados", antigüedad y origen). La carpeta entra como categoría del popover y como chip.

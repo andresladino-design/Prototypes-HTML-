@@ -23,6 +23,7 @@
 | **D7** | Mover un tablero | **Menú `⋮` primario + drag como atajo**, ambos en la v1 | 🟡 Medio |
 | **D8** | Crear carpeta | **2 pasos: elegir tableros → ponerle nombre.** Al crear, la carpeta se revela con scroll + resalte | 🟡 Medio |
 | **D9** | Llenar una carpeta existente | **"Agregar tableros"** con selección múltiple: botón punteado en la carpeta vacía + ítem en el menú `⋮` | 🟢 Bajo |
+| **SD-7** | Conciliaciones ya agrupadas | El panel de Pendientes **ya agrupa por dataset** → la carpeta se ofrece como **modo de agrupación alternativo** (toggle), no como nivel extra | 🟡 Abierta |
 | **D10** | Alcance | **Transversal a las 4 entidades** con una carpeta compartida. Membresía **declarada** en tableros/datasets, **heredada** en anomalías/pendientes | 🔴 Alto — tabla genérica `folders` |
 
 ---
