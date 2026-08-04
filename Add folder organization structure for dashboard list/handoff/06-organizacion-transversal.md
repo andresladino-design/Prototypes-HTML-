@@ -184,3 +184,54 @@ Los cuatro comparten **una** tabla, **un** componente y **un** lenguaje. Lo que 
 | **SD-4** | Pendientes: ¿tabla puente (a) o herencia indirecta (b)? Requiere hablar con el equipo del datahub |
 | **SD-5** | ¿"Carpeta" sigue siendo el nombre correcto ahora que es transversal, o conviene "Colección"/"Grupo"? Para tableros y datasets "carpeta" funciona; para un stream de anomalías es menos natural |
 | **SD-6** | ¿El nombre de carpeta es único por cuenta a secas, o único por cuenta considerando que agrupa varias entidades? (Recomiendo: único por cuenta, es una sola lista de nombres) |
+
+
+---
+
+## 5b. ⚠️ SD-7 — El panel de Conciliaciones **ya está agrupado**, por dataset
+
+Al replicar la vista contra la captura real apareció algo que ni el código ni el análisis habían mostrado:
+
+**La lista de conciliaciones no es plana: está agrupada por dataset.**
+
+```
+Conciliaciones  31                        ← contador en el header
+🔍 Buscar conciliación...
+⠿ ⇄ adv_recon_acc_sub_vs_...      AVZ 📌   ← fijadas, con workspace y tipo
+⠿ ⇄ acc_recon_subledger_v...      STD 📌
+     Fija o arrastra conciliaciones aquí
+⌄ DATASET 2  [clickhouse]  (9)            ← grupo por dataset, con badge del motor
+   ⇄ adv_financial_recon_x        AVZ
+   ⇄ Conci Avanzada 2             AVZ
+⌄ DATASET 1  [clickhouse]  (17)
+   ⇄ adv_recon_banking_vs_sys     AVZ
+```
+
+Cada fila lleva además un badge de tipo: **AVZ** (avanzada) o **STD** (estándar).
+
+**El problema:** si las carpetas se agregan como un nivel más, el panel tendría **dos jerarquías compitiendo** — carpeta y dataset — en 288px. Eso contradice D2 (un solo nivel) y la Ley de Miller.
+
+**Tres caminos:**
+
+| | Cómo | Costo |
+|---|------|-------|
+| **(a) Toggle "Agrupar por: Dataset \| Carpeta"** | Un solo nivel a la vez; el usuario elige el criterio. Es lo implementado en el prototipo. | Bajo. No rompe nada de lo que ya existe y hace la comparación evidente en la demo. **Recomendado.** |
+| **(b) Carpeta reemplaza al dataset** | Las carpetas pasan a ser la única agrupación | Alto: el dataset es información técnica que el usuario usa hoy para ubicarse |
+| **(c) Carpeta → dataset → conciliación** | Dos niveles anidados | Contradice D2 y no cabe en el panel |
+
+**Nota de fondo:** este es el primer lugar donde una vista **ya tenía** su propia agrupación. Tableros y Datasets eran listas planas, así que la carpeta entraba sin competencia. Conviene revisar si Almacenamiento u otra vista tienen el mismo caso antes de generalizar.
+
+---
+
+## 5c. Anatomía real de la vista de Anomalías (corregida con la captura)
+
+El detalle del incidente es **mucho más rico** de lo que el código sugería, y los tabs **no están arriba**:
+
+1. **Card principal:** título `{categoría} - {tipo}: {recurso}` · subtítulo con `[SEVERIDAD]` y el resumen · narrativa con **chips inline** (nombre de archivo en `code`, recurso con icono) · meta en columnas etiquetadas (**Estado** · **Severidad** · **Tableros impactados**) con badges.
+2. **Bloque de análisis** sobre fondo `muted`: tres colapsables — **Hallazgos** (abierto, con "Última actualización") · **Recomendaciones** · **Proceso de análisis** — y el **disclaimer de IA**: *"Las sugerencias a continuación fueron generadas por IA. Revísalas y aplica criterio profesional antes de actuar."*
+3. **Barra de acciones** alineada a la derecha: `Contactar a soporte` · `···` · `🔔 Recuérdame en ▾` · `✕` · `✓` (la última en `bg-foreground`).
+4. **Card aparte, ABAJO:** tabs `Impacto potencial (1)` · `Evidencia (1)` · `Línea de tiempo`, con la evidencia como fila (icono, "Conteo diario de archivos", chips `Datos faltantes` `2026-07-29` `88.9%` `Nivel de desviación: 2.06`, badge `Activa`).
+
+**Dónde queda la carpeta en este contexto:** como un cuarto campo del meta (**Carpeta · heredada**), junto a Estado, Severidad y Tableros impactados. Es el lugar honesto: es contexto del incidente, no una acción. También aparece en la card del listado y como chip de filtro.
+
+**Además:** el panel de Anomalías tiene **paginación al pie** (`< 1 2 … 153 >` + *"1 - 20 de 3054 incidencias"*), que no estaba en el prototipo. Con 3054 incidencias, filtrar por carpeta no es cosmético — es la diferencia entre 153 páginas y 1.
