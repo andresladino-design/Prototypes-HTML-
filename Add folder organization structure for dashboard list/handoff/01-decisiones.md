@@ -23,6 +23,7 @@
 | **D7** | Mover un tablero | **Menú `⋮` primario + drag como atajo**, ambos en la v1 | 🟡 Medio |
 | **D8** | Crear carpeta | **2 pasos: elegir tableros → ponerle nombre.** Al crear, la carpeta se revela con scroll + resalte | 🟡 Medio |
 | **D9** | Llenar una carpeta existente | **"Agregar tableros"** con selección múltiple: botón punteado en la carpeta vacía + ítem en el menú `⋮` | 🟢 Bajo |
+| **D10** | Alcance | **Transversal a las 4 entidades** con una carpeta compartida. Membresía **declarada** en tableros/datasets, **heredada** en anomalías/pendientes | 🔴 Alto — tabla genérica `folders` |
 
 ---
 
@@ -172,6 +173,38 @@
 **Consecuencia:** cierra **PA-14**. Ordenar 30 tableros es una operación tanto al crear la carpeta como después. La multi-selección **como modo del panel** sigue fuera de alcance y ya no hace falta.
 
 **Para BE:** el endpoint de mover necesita aceptar lote — `PATCH /dashboards/folder` con `{ dashboard_ids: UUID[], folder_id }` — o bien reusar `POST /dashboards/folders/{id}/dashboards`. Con N llamadas sueltas, una falla parcial deja la operación a medias y el "Deshacer" deja de ser confiable.
+
+---
+
+---
+
+## D10 — El sistema es transversal: una carpeta, cuatro entidades
+
+**Fecha:** 2026-08-04 · **Origen:** feedback al prototipo.
+**Detalle completo:** [`06-organizacion-transversal.md`](06-organizacion-transversal.md)
+
+**Qué pasó:** el feedback señaló que el contexto de SWAT-577 era más chico que el problema — *"lo que toca lograr es una organización para las diferentes entidades, principalmente tableros y datasets… deberíamos ver si lo hacemos de forma transversal, como ya lo hiciste para anomalías"*.
+
+**Decisión:** una sola tabla `folders` por cuenta, **sin `entity_type`**. "Adquirencia" es UNA carpeta y cada vista muestra lo suyo: el tab Tableros sus 24 tableros, el tab Datasets sus 8 datasets, la vista de Anomalías sus incidentes.
+
+**La membresía tiene dos formas, y esa es la clave del diseño:**
+
+- **Declarada** (Tableros, Datasets): el usuario mueve el ítem. Columna `folder_id` en cada tabla.
+- **Heredada** (Anomalías, Pendientes): el evento hereda la carpeta del recurso al que apunta. **No se persiste** — se resuelve en la query, si no quedaría desincronizada cuando el tablero cambie de carpeta.
+
+**Por qué heredada y no declarada para los streams:** nadie puede archivar a mano un incidente que todavía no ocurrió, y si lo archivara, el siguiente incidente del mismo gráfico volvería a quedar sin clasificar. El vínculo ya existe en el modelo (`anomaly_signals.chart_id`, `anomaly_incident_entities.resource_id + resource_type`), así que el usuario organiza **una vez** sobre tableros y datasets y obtiene gratis "las anomalías de Adquirencia" — **incluidas las que aún no existen**.
+
+**Consecuencias:**
+
+1. La tabla se llama `folders`, no `dashboard_folders`. El componente nace en `shared/`, no en `features/dashboards/`.
+2. **D3 se reinterpreta:** la exclusividad es **por entidad** (un tablero en una carpeta, un dataset en una carpeta). La carpeta **sí** mezcla entidades — eso es el objetivo.
+3. El copy destructivo debe contar por entidad: *"24 tableros y 8 datasets volverán a sus listas"*.
+4. El wizard de creación (D8) se parametriza por entidad: "Elige los tableros" / "Elige los datasets".
+5. **Pendientes necesita un modelo extra:** su recurso ancla (la conciliación) vive en el **datahub**, no en `op-center-backend`, así que no admite una columna `folder_id`. Requiere tabla puente `folder_external_items`. Es el último entregable y necesita coordinación con otro equipo.
+
+**Orden de entrega:** Tableros → Datasets → Anomalías → Pendientes.
+
+**Nota de proceso:** recomendé dejar anomalías y pendientes con **filtros guardados** en vez de carpetas, porque son streams. La decisión fue incluirlos con carpetas, y el diseño de herencia es la forma de cumplirlo sin pedirle al usuario que clasifique eventos a mano. Queda **SD-1** abierta: si además se quiere archivar un incidente puntual manualmente.
 
 ---
 

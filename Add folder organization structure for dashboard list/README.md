@@ -1,11 +1,12 @@
-# Carpetas en la lista de tableros — SWAT-577
+# Organización por carpetas en el Centro de operaciones — SWAT-577
 
-Organización por carpetas para el panel de Tableros del Centro de operaciones.
+Sistema de organización **transversal** a las entidades del OC: Tableros, Datasets, Anomalías y Pendientes,
+con una carpeta compartida por cuenta. Arranca por el panel de Tableros.
 Los usuarios acumulan tableros (159 en la cuenta de referencia) en una lista plana e infinita;
 el buscador exige recordar el nombre. Este proyecto diseña el mecanismo de **reconocimiento**.
 
 🔗 [SWAT-577 en Linear](https://linear.app/simetrik/issue/SWAT-577/enhancement-dashboards-add-folderorganization-structure-for-dashboard)
-**Última actualización:** 2026-08-04 · **Estado:** 🟡 En diseño (etapa 6 de 8, con feedback de pruebas incorporado)
+**Última actualización:** 2026-08-04 · **Estado:** 🟡 En diseño · alcance ampliado a 4 entidades (D10)
 
 ## Cómo verlo
 
@@ -46,6 +47,10 @@ Carpetas **por cuenta** · **un solo nivel** · pertenencia **exclusiva** · eli
 mover por **menú `⋮` + drag** · carpetas **dentro** de la sección "Tableros" · el orden A→Z aplica en cada nivel ·
 **crear es un wizard de 2 pasos** (elegir tableros → nombre) y **"Agregar tableros"** llena una carpeta existente con selección múltiple.
 
+**Transversal (D10):** una tabla `folders` compartida. Membresía **declarada** en tableros y datasets (`folder_id`),
+**heredada** en anomalías y pendientes (del recurso al que apuntan, resuelta en query). Orden de entrega:
+Tableros → Datasets → Anomalías → Pendientes.
+
 Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 
 ## Stack
@@ -53,6 +58,12 @@ Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
 Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/tokens.css`) · sin build.
 
 ## Changelog
+
+### 2026-08-04 — alcance transversal
+- **D10** · El sistema pasa a ser **transversal a las 4 entidades** del OC con una carpeta compartida por cuenta. La tabla BE se vuelve genérica (`folders`) y el componente nace en `shared/`.
+- **Membresía declarada vs heredada:** tableros y datasets se mueven a mano; anomalías y pendientes **heredan** la carpeta del recurso al que apuntan, así que se organiza una vez y las anomalías futuras quedan clasificadas solas.
+- **Pendientes es el caso difícil:** su conciliación ancla vive en el **datahub**, no en `op-center-backend` → necesita tabla puente. Va último.
+- Precedente encontrado: `IncidentSavedFilter` es *"named, account-shared"* — confirma D1.
 
 ### 2026-08-04 — feedback de las pruebas del prototipo
 - **D8** · Crear carpeta pasa a wizard de **2 pasos** (elegir tableros → nombre con resumen de lo que se guarda). Revierte "la carpeta nace vacía": en pruebas, el diálogo se cerraba y el usuario quedaba buscando el resultado.

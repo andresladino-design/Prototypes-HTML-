@@ -8,8 +8,14 @@
 
 ## El problema, en una línea
 
-Los usuarios del OC acumulan tableros (155 en la cuenta de la captura) en una lista plana e infinita;
+Los usuarios del OC acumulan **tableros y datasets** en listas planas e infinitas;
 el buscador exige **recordar** el nombre. Necesitamos un mecanismo de **reconocimiento**: agrupar por carpetas.
+
+> **⚠️ El alcance creció (2026-08-04).** El feedback al prototipo pidió un **sistema transversal** a las cuatro
+> entidades del OC (Tableros, Datasets, Anomalías, Pendientes) con una carpeta compartida, no carpetas solo de
+> tableros. Ver **D10** y [`handoff/06-organizacion-transversal.md`](../handoff/06-organizacion-transversal.md).
+> Lo diseñado hasta ahora **sobrevive**: cambia la tabla BE a `folders` (genérica), el componente pasa a
+> `shared/`, y se suman entregables por entidad.
 
 ## Objetivos
 
@@ -44,6 +50,9 @@ el buscador exige **recordar** el nombre. Necesitamos un mecanismo de **reconoci
 | 4 | [User flows en Moka](04-userflows.md) | 7 flows + sitemap en `.ohana/flow.json` + `handoff/04-userflows.md` | ✅ Hecha |
 | 5 | [User stories UX](05-user-stories.md) | `handoff/05-user-stories.md` — 8 historias + revisión heurística | ✅ Hecha |
 | 6 | [Prototipo HTML con carpetas](06-prototipo-carpetas.md) | `prototypes/index.html` (A/B + antes/después) | ✅ Hecha — falta revisión visual |
+| 6.5 | Alcance transversal (D10) | `handoff/06-organizacion-transversal.md` | ✅ Hecha |
+| 6.6 | Datasets en el prototipo | tab Datasets con el mismo componente | ⬜ |
+| 6.7 | Anomalías por carpeta | filtro/agrupación en la vista de incidentes | ⬜ |
 | 7 | [Handoff FE + BE](07-handoff-fe-be.md) | `handoff/07-handoff-fe.md`, `handoff/07-handoff-be.md` | ⬜ |
 | 8 | [Tickets en Linear](08-linear.md) | sub-issues por sistema colgando de SWAT-577 | ⬜ |
 
@@ -65,6 +74,7 @@ Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../h
 | **D5** | Orden A→Z | El toggle existente aplica en **cada nivel**. Sin control nuevo. |
 | **D6** | Eliminar carpeta | **Desagrupa siempre** (`ON DELETE SET NULL`). El diálogo dice el número de tableros que vuelven a la lista. |
 | **D7** | Mover | **Menú `⋮` primario + drag como atajo**, ambos en la v1. Paridad por teclado obligatoria. |
+| **D10** | Alcance | **Transversal a las 4 entidades**: una tabla `folders` compartida. Membresía **declarada** en tableros/datasets, **heredada** en anomalías/pendientes. Orden: Tableros → Datasets → Anomalías → Pendientes. |
 | **D9** | Llenar carpeta existente | **"Agregar tableros"** con selección múltiple: botón punteado en la carpeta vacía + ítem en el menú `⋮` de la carpeta. Cierra PA-14. |
 | **D8** | Crear carpeta | **Wizard de 2 pasos** (elegir tableros → nombre) con resumen de lo que se guarda, y la carpeta se **revela** al crearse. Revierte «la carpeta nace vacía» tras probar el prototipo. |
 
