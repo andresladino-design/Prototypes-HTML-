@@ -13,7 +13,7 @@
 | **I1** | Disparador de "Nueva carpeta" | **Botón icono `FolderPlus` + tooltip en el header de la sección "Tableros"**, junto al toggle A→Z. Deshabilitado durante la búsqueda. Entrada secundaria dentro del selector de "Mover a carpeta". |
 | **I2** | Default de expansión | **Colapsadas**, con 3 excepciones: se revela la carpeta del tablero activo · el estado se persiste en `localStorage` · si hay una sola carpeta, arranca expandida. |
 | **I3** | Carpeta en resultados de búsqueda | **Segunda línea dentro de la fila** (icono de carpeta + nombre, `text-[11px] text-muted-foreground`), clickable para revelar la carpeta. Las carpetas que coinciden con el término se listan primero. |
-| **I4** | Jerarquía visual | Mismo `text-sm` que un tablero (la densidad no se toca) + **`font-medium`** + icono de carpeta + chevron + contador a la derecha + hijos indentados con guía de 1px. **Sin** fuente más grande, **sin** mayúsculas, **sin** color de acento. |
+| **I4** 🔄 | Jerarquía visual | Mismo `text-sm` que un tablero (la densidad no se toca) + **`font-medium`** + icono de carpeta **con estado (sin chevron, D13)** + contador del **subárbol** a la derecha + hijos indentados **12px** con guía de 1px. **Sin** fuente más grande, **sin** mayúsculas, **sin** color de acento. |
 | **I5** | Cuántas carpetas | **Sin tope duro.** Objetivo de diseño 7 ± 2 · aviso suave al pasar de 15 · máximo técnico defensivo 50 por cuenta. |
 | **I6** | ¿Reusar el `FolderNameDialog` de Almacenamiento? | **No reusar el componente ni su validación** — su regex rechaza acentos y `_`. Componente propio en `features/dashboards` que reusa las reglas de nombre de **tablero**. Sí se reusa el **léxico**. |
 
@@ -165,22 +165,39 @@ El header de sección ya ocupa el registro "12px + medium + muted + mayúscula v
 
 ### Decisión — la fila de carpeta
 
+> **🔄 Revisada el 2026-08-14** por D2 (3 niveles), D13 (el icono absorbe el chevron) y la
+> corrección del ancho útil real del panel. La versión original está debajo, en «Lo que cambió».
+
 ```
-Tableros (155)                    [📁+] [↕A→Z]     ← 12px medium muted (header de sección)
-▾ 📁 Adquirencia              24                   ← 14px MEDIUM (carpeta)
-  │  🌐 ADQ-DASH                                   ← 14px normal, indentado 16px + guía 1px
-  │  🌐 Adquirencia_2026_06_04…
-▸ 📁 Cierre contable          12
+Tableros (155)                    [🗀+] [↕A→Z]     ← 12px medium muted (header de sección)
+▾ 🗀 Adquirencia              24                   ← 14px MEDIUM · SIN chevron (D13)
+  │ ▸ 🗀 Visa                    8                 ← indentado 12px + guía 1px
+  │ 🌐 ADQ-DASH                                    ← 14px normal
+▸ 🗀 Cierre contable          12
   🌐 Adquirencia                                   ← suelto: 14px normal, sin indentar
 ```
 
 Palancas, en orden de peso:
 
 1. **`font-medium`** en el nombre de la carpeta vs. `font-normal` en el tablero. Es la palanca principal y no cuesta densidad.
-2. **Icono `Folder` / `FolderOpen`** (`h-3.5 w-3.5`, `text-muted-foreground`) + **chevron** `ChevronRight` / `ChevronDown` (`h-3 w-3`) a la izquierda del icono, según `collapsible.md`.
-3. **Contador** a la derecha, `text-[11px] text-muted-foreground` — mismo registro que el `5/15` de Favoritos. Sin paréntesis (los paréntesis son del header de sección).
-4. **Indentación de los hijos** ~16px + **guía vertical de 1px** (`border-l border-sidebar-border`), que es lo que hace legible el pertenecer.
+2. **Icono `Folder` / `FolderOpen`** (`h-3.5 w-3.5`, `text-muted-foreground`) que **lleva el estado**. **Sin chevron** (D13): son 16px por fila y un elemento menos que procesar. `aria-expanded` se conserva en el botón.
+3. **Contador** a la derecha, `text-xs text-muted-foreground` — mismo registro que el `5/15` de Favoritos. Muestra el **total del subárbol**, no los directos. Sin paréntesis (los paréntesis son del header de sección).
+4. **Indentación de los hijos de 12px** + **guía vertical de 1px** (`border-l border-sidebar-border`), que es lo que hace legible el pertenecer. **12, no 16:** con 3 niveles de anidamiento, 16px por nivel dejaría el nombre en ~140px.
 5. **Fondo:** ninguno en reposo. `bg-accent` está reservado para la fila activa y `hover:bg-muted` para el hover — no se toca.
+
+### Lo que cambió respecto a la versión original
+
+| | Antes (2026-08-03) | Ahora | Por qué |
+|---|---|---|---|
+| Chevron | `ChevronRight` / `ChevronDown` a la izquierda del icono | **no existe** | D13 — el icono lleva el estado; 16px recuperados |
+| Indentación | ~16px | **12px** | D2 — con 3 niveles, 16px no cabe |
+| Contador | tableros de la carpeta | **total del subárbol** | D2 — colapsada, «24» debe significar «hay 24 acá dentro» |
+| Tamaño del contador | `text-[11px]` | `text-xs` (12px) | alineado con el resto de los contadores del panel |
+
+**Corrección de un dato del benchmark original:** decía «el panel mide ~280px». El ancho real
+disponible para una fila es **240px** — `w-72` (288px) menos `px-3` **dos veces**: en el
+`<aside>` del layout (`OcContentLayout.tsx:171`) y otra vez en el cuerpo de la sección
+(`DashboardSection`). Los cálculos de jerarquía y truncado se hacen sobre 240, no 280.
 
 **Prohibido:** fuente más grande (rompe la densidad y compite con el header de sección) · mayúsculas (registro ya usado) · color de acento (los acentos ya están tomados: `text-info` en `Globe`, `warning` en el badge de pendiente, `destructive` en eliminar) · negrita 600+ (se lee como header).
 
@@ -264,9 +281,17 @@ Razones:
 El issue la cita (*"similar to a file explorer / desktop folder structure"*). Conclusión: **aplica el vocabulario, no la interacción.**
 
 - ✅ Se toma: la palabra "carpeta", el icono, la idea de pertenencia exclusiva, el drag como atajo.
-- ❌ No se toma: navegación por niveles con breadcrumb (el panel tiene 280 px y el gesto más frecuente es *cambiar de tablero*, que el drill-down encarece), doble click para abrir, panel de detalle, ni jerarquía profunda.
+- ❌ No se toma: navegación por niveles con breadcrumb (el panel tiene **240 px útiles** y el gesto más frecuente es *cambiar de tablero*, que el drill-down encarece), doble click para abrir, panel de detalle, ni jerarquía profunda. **Confirmado con el A/B y cerrado en D16.**
 
-Esto es lo que la Etapa 6 pone a prueba con el A/B: la **variante B** es precisamente la lectura literal de la metáfora, y la **variante A** es esta conclusión. Si el feedback contradice el análisis, la demo lo va a mostrar.
+Esto es lo que la Etapa 6 puso a prueba con el A/B: la **variante B** era la lectura literal de la metáfora, y la **variante A** esta conclusión.
+
+> **✅ Cerrado el 2026-08-14 — ganó A (árbol in-place).** El A/B confirmó el análisis: el gesto más
+> frecuente es cambiar de tablero y el drill-down le suma clics justo a eso. La variante B se
+> eliminó del prototipo. Queda registrado en **D16**, con el trade-off que se acepta: el in-place
+> paga 12px de indentación por nivel, algo que B no pagaba.
+>
+> Corrección de un dato de arriba: el panel no mide 280px sino **240px útiles** (`px-3` se aplica
+> dos veces). Eso refuerza la conclusión, no la debilita.
 
 ---
 

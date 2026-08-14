@@ -1,19 +1,30 @@
 # Organización por carpetas en el Centro de operaciones — SWAT-577
 
-Sistema de organización **transversal** a las entidades del OC: Tableros, Datasets, Anomalías y Pendientes,
-con una carpeta compartida por cuenta. Arranca por el panel de Tableros.
+Carpetas **anidables hasta 3 niveles** en el panel de **Tableros** del OC, por cuenta.
 Los usuarios acumulan tableros (159 en la cuenta de referencia) en una lista plana e infinita;
 el buscador exige recordar el nombre. Este proyecto diseña el mecanismo de **reconocimiento**.
 
 🔗 [SWAT-577 en Linear](https://linear.app/simetrik/issue/SWAT-577/enhancement-dashboards-add-folderorganization-structure-for-dashboard)
-**Última actualización:** 2026-08-04 · **Estado:** 🟡 En diseño · alcance ampliado a 4 entidades (D10)
+**Última actualización:** 2026-08-14 · **Estado:** 🟢 Handoff escrito · falta revisión visual y capturas
+
+> **Dos cambios de alcance del 2026-08-14.** El sistema **transversal a 4 entidades** que se había
+> ampliado el 2026-08-04 se **descartó**: las carpetas son solo de Tableros (D10). Y se abrió el
+> **anidamiento a 3 niveles**, revirtiendo «un solo nivel» (D2). El changelog de abajo conserva
+> lo que se exploró.
 
 ## Cómo verlo
 
 | Prototipo | Qué es | Local |
 |-----------|--------|-------|
 | `prototypes/00-baseline-tableros.html` | **Estado actual (antes).** Réplica del panel en producción, sin carpetas. Punto de comparación del handoff. | abrir el archivo en el navegador |
-| `prototypes/index.html` | **Prototipo transversal.** Tabs Tableros/Datasets con la misma carpeta, vista de Anomalías con filtro por carpeta heredada, switch A/B, toggle antes/después y 6 escenarios. | abrir el archivo en el navegador |
+| `prototypes/index.html` | **Prototipo de carpetas.** Árbol in-place de 3 niveles, mover carpeta, secciones colapsables, toggle antes/después y 7 escenarios. | abrir el archivo en el navegador |
+
+> ⚠️ **El prototipo construye el árbol en cliente.** Producción pagina de 20 en 20 con orden y
+> búsqueda server-side, así que **no es implementable tal cual** — el contrato correcto está en
+> [`handoff/07-handoff-be.md`](handoff/07-handoff-be.md) (D15). Todo lo demás sí se replica.
+>
+> ⚠️ **Parte de la mejora visual no es de este issue.** El truncado al medio y los botones de fila
+> en hover son un entregable aparte: [`../ancho-util-lista-tableros/`](../ancho-util-lista-tableros/).
 
 ## Estructura
 
@@ -31,28 +42,51 @@ prototypes/ → los HTML
 | # | Etapa | Entregable | Estado |
 |---|-------|-----------|--------|
 | 0 | Exploración FE / BE | `handoff/00-exploracion-fe-be.md` | ✅ |
-| 0.5 | Decisiones de modelo (D1–D7) | `handoff/01-decisiones.md` | ✅ |
+| 0.5 | Decisiones de modelo | `handoff/01-decisiones.md` (D1–D15) | ✅ |
 | 1 | Benchmark de interacción (I1–I6) | `handoff/01-benchmark.md` | ✅ |
 | 2 | Sistema de diseño desde desyk | `design.md` + `design/` | ✅ |
 | 3 | Vista espejo del panel actual | `prototypes/00-baseline-tableros.html` | ✅ |
-| 4 | User flows | `.ohana/flow.json` (**10 flows + sitemap**, 91 pantallas) + `handoff/04-userflows.md` | ✅ |
-| 5 | User stories UX | `handoff/05-user-stories.md` (8 historias + revisión heurística) | ✅ |
+| 4 | User flows | `.ohana/flow.json` (**12 flows + sitemap**) + `handoff/04-userflows.md` | ✅ |
+| 5 | User stories UX | `handoff/05-user-stories.md` (11 historias + revisión heurística) | ✅ |
 | 6 | Prototipo con carpetas | `prototypes/index.html` (A/B + antes/después) | ✅ |
-| 6.6 | Prototipo transversal | Datasets + Anomalías por carpeta en el mismo prototipo | ✅ |
-| 7 | Handoff FE + BE | `handoff/07-*.md` | ⬜ |
+| 6.6 | Anidamiento de 3 niveles | árbol, mover carpeta, ciclos, tope | ✅ |
+| 6.7 | Secciones colapsables | las 4 del panel, persistidas | ✅ |
+| ~~6.5~~ | ~~Alcance transversal (D10)~~ | ⛔ descartado — se conserva como registro | — |
+| 7 | Handoff FE + BE | `handoff/07-handoff-fe.md` · `07-handoff-be.md` · `07-antes-despues.md` | ✅ falta capturas |
 | 8 | Tickets en Linear | sub-issues de SWAT-577 | ⬜ |
 
 ## Decisiones tomadas
 
-Carpetas **por cuenta** · **un solo nivel** · pertenencia **exclusiva** · eliminar carpeta **desagrupa** (nunca borra tableros) ·
+Carpetas **por cuenta** · **hasta 3 niveles** de anidamiento · pertenencia **exclusiva** ·
+eliminar carpeta **disuelve un nivel** (el contenido sube a la madre, nunca se borra) ·
 mover por **menú `⋮` + drag** · carpetas **dentro** de la sección "Tableros" · el orden A→Z aplica en cada nivel ·
-**crear es un wizard de 2 pasos** (elegir tableros → nombre) y **"Agregar tableros"** llena una carpeta existente con selección múltiple.
+**crear es un wizard de 2 pasos** (elegir tableros → nombre) y **"Agregar tableros"** llena una carpeta existente con selección múltiple ·
+las **4 secciones del panel colapsan** · el **icono de carpeta lleva el estado** (sin chevron) · **árbol in-place**, sin drill-down ·
+el **agrupamiento se resuelve server-side**.
 
-**Transversal (D10):** una tabla `folders` compartida, con reparto **3 + 1**. Membresía **declarada** en las tres
-listas de recursos organizables — tableros, datasets y **conciliaciones** (el panel de Pendientes las lista) — y
-**heredada** en anomalías, el único stream. Orden de entrega: Tableros → Datasets → Anomalías → Pendientes.
+**Solo Tableros (D10 revisada):** Datasets conserva su lista plana y sirve como control de que el
+feature no lo afectó. Anomalías y Pendientes quedan fuera.
+
+**Tres mitigaciones que no son cosméticas** — el panel tiene 240px útiles y los nombres reales ya
+se truncan, así que el anidamiento solo funciona con indentación de **12px** por nivel, **truncado
+al medio** y **tope de 3**. Peor caso: 158px para una carpeta de nivel 3. Ver D2.
 
 Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
+
+
+---
+
+### 2026-08-14 — recorte de alcance, anidamiento y handoff
+
+- **D10 revertida:** las carpetas son **solo de Tableros**. Se quitaron del prototipo las vistas de Anomalías y Pendientes (~640 líneas), y Datasets volvió a lista plana. Los flujos F9/F10 del alcance transversal se borraron del board.
+- **D2 revertida:** **anidamiento hasta 3 niveles**. Entran mover una carpeta, guarda de ciclos, unicidad entre hermanas y el tope validado en UI y BE.
+- **D6 revisada:** eliminar una carpeta **disuelve un nivel** — el contenido sube a la madre, no a la raíz. Y dejó de ser una FK: es lógica de servicio, así que el test de que no borra tableros pasa a ser obligatorio.
+- **D12/D13 nuevas:** las 4 secciones del panel colapsan; el icono de carpeta absorbe el chevron.
+- **D15 nueva, y es la que más peso tiene:** revisar el BE mostró que la lista es paginada de 20 con `search`/`sort` server-side y tope de 100. **El árbol no se puede resolver en cliente.** El riesgo ya estaba escrito en la exploración §5.1 y se había perdido de vista.
+- **D14 extraída:** el truncado al medio y los botones en hover se van a [`../ancho-util-lista-tableros/`](../ancho-util-lista-tableros/) — arreglan un problema que ya existe hoy y no dependen de carpetas.
+- **D16 · el A/B se cerró: gana el árbol in-place.** Se descartó el drill-down por niveles y se quitó del prototipo (~100 líneas). El gesto más frecuente es cambiar de tablero y navegar le suma clics justo a eso. El trade-off aceptado: el in-place paga 12px de indentación por nivel, algo que el drill-down no pagaba.
+- **Etapa 7 escrita** (no existía): handoff de FE, de BE y el antes/después contra producción.
+- **Rendimiento del prototipo:** el árbol pasó de 60 recorridos de la colección por render a 3 (~13.000 accesos a 657); con el árbol abierto los clics se bloqueaban.
 
 ## Stack
 
@@ -74,12 +108,14 @@ Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/toke
 - Panel de Pendientes con contador, fijadas (grip + workspace + AVZ/STD) y tarjetas de resumen Lado A / Lado B con sus tiles.
 
 ### 2026-08-04 — vistas reales de Anomalías y Pendientes
+> ⛔ *Revertido el 2026-08-14 (D10). Se conserva como registro de lo que se exploró.*
 - **Corrección del modelo:** el reparto no es "2 declaradas + 2 heredadas" sino **3 + 1**. El panel de Pendientes no lista pendientes: lista **conciliaciones**, con buscador y sección de fijadas — la misma anatomía que Tableros. Así que la conciliación se organiza de forma **declarada** y el pendiente hereda de ella. **Anomalías es el único stream.**
 - **Vista de Anomalías reconstruida contra el código:** es **master-detail**, no una lista a ancho completo. Panel con los 3 tabs reales (Gestión / Configuración / Alertas, donde solo el activo muestra su label), fila `Filtrar · Ordenar · Guardados`, barra de filtros activos, y `AnomalyCard` con su anatomía real (título `{categoría} - {tipo}: {recurso}`, badge de estado, "Tableros afectados", antigüedad y origen). La carpeta entra como categoría del popover y como chip.
 - **Vista de Pendientes nueva:** panel "Conciliaciones" con filtro de espacio, buscador, fijadas y **carpetas declaradas** sobre las conciliaciones.
 - Los 6 estados reales de incidente con sus badges (En observación, Abierto, En investigación, Confirmado, Resuelto, Cerrado automático).
 
 ### 2026-08-04 — prototipo transversal
+> ⛔ *Revertido el 2026-08-14 (D10). Se conserva como registro de lo que se exploró.*
 - **Tabs Tableros | Datasets funcionales** con la MISMA carpeta: «Adquirencia» muestra 24 tableros en un tab y 8 datasets en el otro. El contador es **por vista**, no global.
 - **Vista de Anomalías** con filtro por carpeta **heredada**: ningún incidente se archivó a mano; la carpeta se resuelve desde el recurso al que apunta, y cada fila la muestra como metadato clickable que lleva a la carpeta.
 - **Wizard con selector de entidad** en el paso 1 (F9): se puede armar una carpeta con tableros y datasets en una sola pasada. El resumen y los toasts desglosan por entidad.
@@ -87,11 +123,13 @@ Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/toke
 - Icono por tipo en las filas (benchmark T2: Metabase mezcla tipos pero siempre con icono).
 
 ### 2026-08-04 — benchmark y flujos del alcance transversal
+> ⛔ *Revertido el 2026-08-14 (D10). Se conserva como registro de lo que se exploró.*
 - **Benchmark transversal** (`handoff/02-benchmark-transversal.md`): el modelo de D10 es el **patrón dominante**. Grafana mete dashboards y reglas de alerta en la misma carpeta y la navega **con tabs por tipo**; Metabase hace que los eventos de una timeline aparezcan solos en los gráficos de su colección (**herencia por co-locación**); Datadog usa tags en vez de carpetas para monitores (el contrafactual). **Nadie obliga a archivar eventos a mano.**
 - Cierra **SD-1** (no archivar incidentes a mano), **SD-2** (filtro antes que agrupación), **SD-3** (el filtro guardado sí puede incluir carpeta — `filters` es JSONB, sin migración), **SD-5** ("carpeta" se mantiene: es el término de Grafana para esta mezcla) y **SD-6**.
 - Flujos nuevos: **F9** (una carpeta con tableros y datasets, con el contador por vista y el copy destructivo por entidad) y **F10** (anomalías de una carpeta por herencia). F1–F8 quedan marcados como **agnósticos de la entidad**. Sitemap ampliado a las cuatro vistas.
 
 ### 2026-08-04 — alcance transversal
+> ⛔ *Revertido el 2026-08-14 (D10). Se conserva como registro de lo que se exploró.*
 - **D10** · El sistema pasa a ser **transversal a las 4 entidades** del OC con una carpeta compartida por cuenta. La tabla BE se vuelve genérica (`folders`) y el componente nace en `shared/`.
 - **Membresía declarada vs heredada:** tableros y datasets se mueven a mano; anomalías y pendientes **heredan** la carpeta del recurso al que apuntan, así que se organiza una vez y las anomalías futuras quedan clasificadas solas.
 - **Pendientes es el caso difícil:** su conciliación ancla vive en el **datahub**, no en `op-center-backend` → necesita tabla puente. Va último.

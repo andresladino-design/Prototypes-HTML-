@@ -1,13 +1,16 @@
 # User flows — Carpetas en la lista de tableros (SWAT-577)
 
-**Fecha:** 2026-08-03
-**Boards en Moka:** `.ohana/flow.json` — 10 user flows + 1 sitemap · todos enlazados al prototipo
-**Actualizado:** 2026-08-04 con D8 (crear en 2 pasos), D9 (agregar tableros) y **D10 (alcance transversal)**
+**Fecha:** 2026-08-03 · **reescrito el 2026-08-14**
+**Boards en Moka:** `.ohana/flow.json` — 12 user flows + 1 sitemap · todos enlazados al prototipo
+**Decisiones que los gobiernan:** [`01-decisiones.md`](01-decisiones.md) · [`01-benchmark.md`](01-benchmark.md) (I1–I6)
 
-> **F1–F8 son agnósticos de la entidad.** Con D10 la carpeta es compartida, así que los ocho flujos aplican
-> igual a **Tableros y a Datasets** — cambia el copy ("Elige los tableros" / "Elige los datasets") y los
-> contadores, no la mecánica. **F9 y F10** cubren lo que el alcance transversal agrega y no existía antes.
-**Decisiones que los gobiernan:** [`01-decisiones.md`](01-decisiones.md) (D1–D7) · [`01-benchmark.md`](01-benchmark.md) (I1–I6)
+> **🔄 Reescrito el 2026-08-14.** Dos reversiones cambiaron el set de flujos:
+>
+> - **D10 → solo Tableros.** Se **borraron del board** los dos flujos del alcance transversal:
+>   *F9 — Una carpeta con tableros y datasets* y *F10 — Ver las anomalías de una carpeta*.
+>   Ya no describen el producto. Sus números se reutilizaron.
+> - **D2 → 3 niveles de anidamiento.** Entraron cuatro flujos nuevos y se corrigieron cuatro
+>   existentes que afirmaban cosas ya falsas.
 
 Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo hace dos cosas.
 
@@ -17,15 +20,72 @@ Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo 
 | F2 — Mover un tablero a una carpeta | 9 | C2 |
 | F3 — Quitar un tablero de la carpeta | 7 | C3 |
 | F4 — Renombrar una carpeta | 8 | C1 |
-| F5 — Eliminar una carpeta (desagrupar) | 8 | C1, D6 |
-| F6 — Buscar un tablero con carpetas presentes | 7 | C5 |
-| F7 — Navegar y colapsar carpetas | 5 | C4 |
+| F5 — Eliminar una carpeta (**disolver un nivel**) | 8 | C1, D6 |
+| F6 — Buscar un tablero · **resultados con ruta** | 7 | C5 |
+| F7 — Navegar y colapsar **el árbol** | 5 | C4 |
 | F8 — Agregar tableros a una carpeta existente | 7 | C2 |
-| **F9 — Una carpeta con tableros y datasets** | 8 | D10 |
-| **F10 — Ver las anomalías de una carpeta** (heredada) | 8 | D10 |
-| Sitemap — Dónde viven las carpetas | 13 | contexto |
+| **F9 — Crear una subcarpeta** ✨ | 9 | D2 |
+| **F10 — Mover una carpeta a otra** ✨ | 8 | D2 |
+| **F11 — Eliminar una carpeta con subcarpetas** ✨ | 7 | D2, D6 |
+| **F12 — Colapsar las secciones del panel** ✨ | 6 | D12 |
+| Sitemap — Dónde viven las carpetas (solo Tableros) | 14 | contexto |
 
 > **F8 nació de las pruebas del prototipo**, no del análisis inicial. Ver D9 en [`01-decisiones.md`](01-decisiones.md).
+
+---
+
+## Los cuatro flujos nuevos
+
+### F9 — Crear una subcarpeta
+
+`Panel` → `⋮ de la carpeta` → `Nueva subcarpeta` → **paso 1** elegir tableros → **paso 2**
+nombre con `Dentro de: Adquirencia / Visa` → decisión **¿nombre único entre hermanas?**
+
+- La decisión **no** es «¿nombre único?» sino **«¿único entre hermanas?»** — `Adquirencia / 2026`
+  y `Cierre contable / 2026` conviven (D2, consecuencia 4).
+- Al crearse se abre **toda la cadena de ancestros**, no solo la carpeta nueva.
+- En el nivel 3 el ítem del menú está **deshabilitado con etiqueta `máx 3`**, no oculto.
+
+### F10 — Mover una carpeta a otra
+
+`Panel` → `⋮` → `Mover carpeta a…` → diálogo con **árbol de destinos y ruta** → decisión
+**¿el destino cuelga de la propia carpeta?**
+
+- La rama negativa es **«no ofrecido»**, no «error»: el subárbol propio simplemente **no aparece**
+  en la lista. Prevenir por ausencia en vez de dejar elegir y después fallar.
+- Lo mismo con el tope: un destino donde el subárbol no cabría tampoco se lista.
+- El diálogo incluye destino **`Primer nivel`** — sin él no habría forma de sacar una carpeta de su madre.
+
+### F11 — Eliminar una carpeta con subcarpetas
+
+`Panel` → `⋮` → `Eliminar carpeta` → alert dialog → decisión **¿confirma?**
+
+- El punto del flujo es el copy: **«Sus 8 tableros y 1 subcarpeta suben a "Adquirencia"»**.
+  No a la raíz (D6 revisada).
+- El «Deshacer» restaura **tres** cosas: la carpeta, el `parent_id` de sus hijas y el
+  `folder_id` de sus tableros.
+
+### F12 — Colapsar las secciones del panel
+
+`59 filas` → colapsar Pendientes y Favoritos → `46` → colapsar Sin carpeta → `26` →
+recargar → **el estado persiste**.
+
+- Los números son los del prototipo, no estimaciones.
+- Cierra el hallazgo #3 del benchmark: colapsar carpetas no alcanzaba, colapsar **secciones** sí mueve la aguja.
+
+---
+
+## Los cuatro flujos corregidos
+
+| Flujo | Qué afirmaba y era falso | Ahora |
+|---|---|---|
+| **F1** | «Ya existe una carpeta con este nombre» (global) | El error es **entre hermanas** |
+| **F5** | «los 24 tableros vuelven a la lista» | **Disuelve un nivel**: suben a la madre |
+| **F6** | «se revela su carpeta» | Se revela su **ruta completa** |
+| **F7** | Acordeón de un nivel | **Árbol**; expandir abre toda la cadena de ancestros |
+
+Y en el **Sitemap** se borraron `Datasets en carpetas`, `Anomalías por carpeta (heredada)` y
+`Pendientes por carpeta (vía datahub)`; entró `Subcarpetas · hasta 3 niveles`.
 
 ---
 
@@ -57,7 +117,7 @@ Inicio → Panel con carpetas → Menú del tablero ⟨modal⟩ → Mover a carp
 
 - **Pregunta formulada para que el "Sí" sea el backbone.** Si el tablero ya estaba en otra carpeta, se **confirma el cambio** — D3 hace la pertenencia exclusiva, así que mover significa *sacar de donde estaba*.
 - **Copy:** "Mover a carpeta", nunca "Agregar a" (sugeriría acumulación).
-- **Selector:** lista simple (D2 descartó la anidación → sin árbol ni breadcrumb) + buscador solo si hay más de 7 carpetas + entrada "＋ Nueva carpeta" (I1 secundario).
+- **Selector:** **árbol de destinos con ruta** (D2 abrió la anidación) + buscador si hay más de 5 carpetas + destino «Primer nivel» + entrada "＋ Nueva carpeta" (I1 secundario).
 - **El drag es un atajo, nunca requisito** (D7). Debe funcionar con la carpeta **colapsada** y con autoscroll del panel.
 - El menú pasa de 5 a 6 ítems → verificar Hick en el prototipo.
 
@@ -84,45 +144,50 @@ Inicio → Panel · con carpetas → Menú de la carpeta ⟨modal⟩ → Renombr
 - Mismo diálogo que F1 en modo `rename`, con el valor precargado y seleccionado.
 - El **409 del servidor** se muestra **inline en el diálogo**, además del toast — el patrón que ya usa el rename de tableros.
 
-## F5 — Eliminar una carpeta (desagrupar)
+## F5 — Eliminar una carpeta (disolver un nivel)
 
 ```
-Inicio → Panel · carpeta con 24 tableros → Menú de la carpeta ⟨modal⟩
+Inicio → Panel · carpeta con contenido → Menú de la carpeta ⟨modal⟩
        → ¿Eliminar carpeta? ⟨AlertDialog⟩
-       → ¿Confirma? ─Sí→ Carpeta eliminada · los 24 tableros vuelven a la lista + toast → Fin
-                     └No→ Sin cambios → Fin
+       → ¿Confirma? ─Sí→ Carpeta disuelta · el contenido sube UN nivel + toast → Fin
+                     └No→ Sin cambios · la carpeta y su subárbol siguen igual → Fin
 ```
 
 **Este es el punto más delicado del feature.** En Almacenamiento, "Eliminar carpeta" **sí borra el contenido** y el diálogo lo advierte contando descendientes. Acá hace lo contrario, así que el copy tiene que **romper activamente** esa expectativa:
 
 > **¿Eliminar carpeta?**
-> Se eliminará la carpeta «Adquirencia». Los **24 tableros** que contiene volverán a la lista de tableros; **no se eliminarán**.
+> Se eliminará la carpeta «Visa». Sus **8 tableros y 1 subcarpeta** suben a «Adquirencia»; **no se eliminan**.
 
 - `AlertDialog`, no `Dialog`: no se descarta clickeando fuera.
 - Si falla, `Alert variant="destructive"` **dentro** del diálogo (no toast).
-- En BE lo garantiza `ON DELETE SET NULL` — el desagrupado lo hace el motor de base de datos, no la lógica de aplicación.
+- **El contenido sube a la madre, no a la raíz** (D6 revisada). Si la carpeta era de primer nivel, sí queda suelto — mismo comportamiento de antes, ahora como caso particular.
+- ⚠️ **En BE ya no lo garantiza `ON DELETE SET NULL`.** Reparentar es lógica de servicio en una transacción, así que el test de que no borra tableros pasa a ser obligatorio. Ver [`07-handoff-be.md`](07-handoff-be.md) §3.
+- Con subcarpetas, el caso completo está en **F11**.
 
-## F6 — Buscar un tablero con carpetas presentes
+## F6 — Buscar un tablero · resultados con ruta
 
 ```
-Inicio → Panel · con carpetas → Resultados aplanados (cruzan todas las carpetas)
-       → ¿Hay resultados? ─Sí→ Abre el resultado · se revela su carpeta → Fin
+Inicio → Panel · con el árbol → Resultados aplanados (cruzan todo el árbol)
+       → ¿Hay resultados? ─Sí→ Abre el resultado · se revela su RUTA (Adquirencia / Visa) → Fin
                            └No→ Sin resultados para «xyz» ⟨empty⟩ → Fin
 ```
 
-- **La búsqueda cruza todas las carpetas (C5).** Divergencia deliberada con Almacenamiento, que acota la búsqueda a la carpeta actual y lo indica con un badge "en: X".
-- Cada resultado lleva su carpeta como **segunda línea** de la fila (I3), clickable para revelar la carpeta. Los tableros sin carpeta no muestran segunda línea.
-- Las **carpetas que coinciden** con el término se listan primero.
+- **La búsqueda cruza todo el árbol (C5).** Divergencia deliberada con Almacenamiento, que acota la búsqueda a la carpeta actual y lo indica con un badge "en: X".
+- Cada resultado lleva la **ruta completa** como segunda línea (I3), clickable para revelar la carpeta. Los tableros sin carpeta no muestran segunda línea.
+- **Con anidamiento la ruta es obligatoria, no un adorno:** puede haber tres carpetas «2026» y el nombre solo no desambigua. Requiere `folder.path` en la respuesta del BE.
+- Las **carpetas que coinciden** se listan primero — y **la ruta también es buscable**: escribir «visa» encuentra la subcarpeta aunque el usuario recuerde la madre.
 - Sigue siendo server-side con **debounce de 300 ms**, como hoy.
 
-## F7 — Navegar y colapsar carpetas
+## F7 — Navegar y colapsar el árbol
 
 ```
-Inicio → Panel · carpetas colapsadas por defecto → Carpeta expandida (estado persistido)
-       → Tablero abierto · fila activa → Fin
+Inicio → Panel · árbol con carpetas colapsadas → Subcarpeta expandida · se abre toda
+       la cadena de ancestros (estado persistido) → Tablero abierto · fila activa → Fin
 ```
 
-- **Colapsadas por defecto**, salvo la carpeta del **tablero activo**, que se revela expandida (I2).
+- **Colapsadas por defecto**, salvo la cadena del **tablero activo**, que se revela completa (I2).
+- **Con anidamiento hay que abrir todos los ancestros, no solo la hoja:** expandir «Visa» sin expandir «Adquirencia» no revela nada.
+- Sin chevron: el icono de carpeta lleva el estado (D13).
 - El estado de expansión se **persiste en `localStorage`** por (cuenta, usuario). Colapsar todo en cada recarga se lee como un bug.
 - Los **tableros sueltos van después** de las carpetas y **sin indentar**: así la carpeta gana jerarquía sin degradar al suelto.
 - **Invariante:** la fila de carpeta mide 32 px igual que un tablero. Si el contador la empuja a 40 px, se pierde una fila visible por carpeta.
@@ -144,54 +209,38 @@ Inicio → Panel · carpeta vacía ⟨empty⟩ ──⊕ Agregar tableros (o men
 
 **Cierra PA-14:** ordenar 30 tableros es una operación, tanto al crear la carpeta (F1) como después (F8).
 
-## F9 — Una carpeta con tableros y datasets
+## ⛔ F9 y F10 del alcance transversal — borrados del board
 
-```
-Inicio → Panel · tab Tableros · «Adquirencia» (24) ──＋ Nueva carpeta──▶ Wizard paso 1 con selector de entidad
-       → Cambia al tab Datasets · misma «Adquirencia» (8)
-       → ¿Elimina la carpeta? ─Sí→ AlertDialog que cuenta POR ENTIDAD → ambas listas recuperan sus ítems → Fin
-                              └No→ Fin
-```
+*Estaban acá: «Una carpeta con tableros y datasets» y «Ver las anomalías de una carpeta
+(membresía heredada)». **D10 se revirtió el 2026-08-14** y ambos se borraron de
+`.ohana/flow.json`, porque ya no describen el producto.*
 
-Es el flujo que hace **tangible** la decisión D10.
+*El diseño que documentaban —sobre todo la **membresía heredada**: que un incidente herede
+la carpeta del recurso que monitorea, resuelto en query y no persistido— se conserva en
+[`06-organizacion-transversal.md`](06-organizacion-transversal.md), marcado como descartado.*
 
-- **El contador es por vista**, no global: el tab Tableros dice 24, el tab Datasets dice 8. La carpeta es una sola.
-- **El paso 1 del wizard suma un control segmentado Tableros | Datasets**, arrancando en la entidad del tab actual. Así se puede armar una carpeta con las dos entidades en una sola pasada, en vez de crear y después volver.
-- **El copy destructivo cuenta por entidad:** *"Los **24 tableros y 8 datasets** que contiene volverán a sus listas; no se eliminarán."* Si dijera "32 ítems", el usuario no sabría qué está tocando.
-- Precedente: Grafana navega la carpeta **con tabs por tipo** (*Dashboards / Panels / Alert rules*) — ver [`02-benchmark-transversal.md`](02-benchmark-transversal.md).
-
-## F10 — Ver las anomalías de una carpeta (membresía heredada)
-
-```
-Inicio → Vista de Anomalías → Filtra por carpeta «Adquirencia»
-       → ¿Hay incidentes? ─Sí→ Incidentes de los recursos de la carpeta → Guarda el filtro como preset → Fin
-                           └No→ Sin incidentes en «Adquirencia» ⟨empty⟩ → Fin
-```
-
-- **El usuario nunca archivó un incidente.** La carpeta llega sola: la query resuelve `anomaly_signals.chart_id` → chart → `dashboards.folder_id`, y `anomaly_incident_entities.resource_id + resource_type` → `datasets.folder_id`.
-- **Incluye los incidentes futuros** de esos recursos. Eso es lo que hace que la herencia sea mejor que archivar a mano: se organiza una vez.
-- **"Carpeta" se suma como criterio al `AnomaliesFilterPanel`**, junto a estado, categoría, gráfico, recurso y fecha (SD-2: filtro primero, agrupación después).
-- **Un filtro guardado puede incluir la carpeta** (SD-3): `IncidentSavedFilter.filters` es un JSONB opaco, así que no requiere migración. Es el puente entre los dos sistemas de organización.
-- **El estado vacío es positivo:** "Sin incidentes en «Adquirencia»" no es un error, es una buena noticia.
+*Los números F9 y F10 ahora son los flujos de anidamiento (ver arriba).*
 
 ## Sitemap — Dónde viven las carpetas
 
 ```
 Centro de operaciones
 ├── Tableros
-│   ├── Panel lateral · tabs Tableros | Datasets
+│   ├── Panel lateral · tabs Tableros | Datasets  (Datasets SIN carpetas)
 │   │   ├── Configuraciones pendientes
 │   │   ├── Favoritos
-│   │   ├── Carpetas · NUEVO ──── Tableros de la carpeta
-│   │   ├── Tableros sin carpeta
-│   │   └── Datasets en carpetas          ← mismo componente, otra entidad
+│   │   ├── Carpetas · NUEVO · solo en Tableros
+│   │   │   ├── Tableros de la carpeta
+│   │   │   └── Subcarpetas · hasta 3 niveles
+│   │   └── Tableros sin carpeta
 │   └── Tablero abierto
-├── Anomalías ──── Anomalías por carpeta (heredada)
-├── Pendientes ──── Pendientes por carpeta (vía datahub · SD-4)
-└── Almacenamiento · Asientos contables
+├── Anomalías · Pendientes · Almacenamiento · Asientos contables
+    └── (tabs del OC · fuera del alcance del feature)
 ```
 
-Deja claro el alcance de D10: la carpeta es **una sola** y aparece en cuatro lugares. En Tableros y Datasets la membresía es **declarada**; en Anomalías y Pendientes es **heredada** del recurso. "Configuraciones pendientes" y "Favoritos" no cambian.
+Deja claro el alcance de **D10 revisada**: la carpeta vive en **un solo lugar**, el panel de
+Tableros. El tab de Datasets sigue existiendo —está en producción— pero **sin carpetas**, y
+sirve como control de que el feature no lo afectó. Anomalías y Pendientes quedan fuera.
 
 ---
 
@@ -204,16 +253,21 @@ Deja claro el alcance de D10: la carpeta es **una sola** y aparece en cuatro lug
 | Exclusividad al mover | Si ya estaba en otra carpeta, se **confirma** el cambio |
 | Confirmación al quitar | **No** lleva diálogo; lleva toast con "Deshacer" |
 | Llenar una carpeta existente | Botón punteado en la carpeta vacía + ítem en el menú `⋮`, con **selección múltiple** (D9) |
-| Copy destructivo | Dice el **número** de tableros que vuelven a la lista y que **no se eliminarán** |
-| Expansión por defecto | Colapsado + revelar la del tablero activo + persistir en `localStorage` |
-| Búsqueda | Cruza carpetas, carpeta como 2ª línea, carpetas coincidentes primero |
+| Copy destructivo | Dice el **número** y **a dónde sube** el contenido; y que **no se elimina** |
+| Expansión por defecto | Colapsado + revelar **toda la cadena** del tablero activo + persistir en `localStorage` |
+| Búsqueda | Cruza el árbol, **ruta completa** como 2ª línea, carpetas coincidentes primero |
 | Drag & drop | Atajo con paridad obligatoria por menú y teclado |
+| Crear subcarpeta | Menú `⋮` de la carpeta; **deshabilitado con `máx 3`** en el nivel tope (D2) |
+| Mover una carpeta | Diálogo con árbol de destinos y ruta; los inválidos por ciclo o tope **no se ofrecen** |
+| Colapsar secciones | Las 4 del panel, persistiendo **lo colapsado** (D12) |
+| Chevron de carpeta | No existe: el icono lleva el estado (D13) |
 
 ## Lo que estos flujos NO cubren (y por qué)
 
 - **Multi-selección como modo del panel** ("marcar 12 filas del sidebar y moverlas"): choca con C7. **Pero la selección múltiple sí existe** dentro del wizard de creación (D8, F1) y del "Agregar tableros" (D9, F8) — que es donde resuelve el problema de los 100 sueltos sin agregar un modo a la navegación principal.
 - **Reordenar carpetas a mano:** D5 resolvió el orden con el toggle A→Z existente.
-- **Subcarpetas** (D2), **etiquetas** (D3), **permisos por carpeta** (D1.b).
+- **Más de 3 niveles** de anidamiento (D2 revisada), **etiquetas** (D3), **permisos por carpeta** (D1.b), **carpetas en Datasets/Anomalías/Pendientes** (D10 revisada).
+- **El ancho útil de la fila** (truncado al medio, botones en hover) — es un issue aparte: [`ancho-util-lista-tableros/`](../../ancho-util-lista-tableros/). El prototipo lo tiene activo, así que no todo lo que se ve ahí lo entregan estos flujos.
 
 ## Nota de proceso
 
