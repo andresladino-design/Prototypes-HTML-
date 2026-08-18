@@ -17,10 +17,10 @@ no obliga a medir dos veces.
 
 | # | Hallazgo | Estado |
 |---|---|---|
-| ② | Resize del panel | ✅ **Resuelto en el proto** · valores derivados · **mecanismo decidido** (arrastrar el borde, zona nueva en azul). Falta confirmar los tres valores. |
+| ② | Resize del panel | ✅ **Cerrado.** Mecanismo decidido (arrastrar el borde, franja del delta sombreada) y **los tres valores confirmados por Andrés el 2026-08-18: 288 · 384 · 480.** Queda re-sincronizar los docs. |
 | ③ | Quitar el contador | ✅ **Cerrado sin quitarlo.** El motivo era (c) ancho, y ② devuelve 96px donde el contador devolvía 20. |
-| ① | Límites de tableros por carpeta | ⬜ Independiente, sin bloqueos. |
-| ④ | Permisos al eliminar carpeta | ⬜ Independiente · necesita BE. |
+| ~~①~~ | ~~Límites de tableros por carpeta~~ | ⛔ **Fuera del plan por ahora** (Andrés, 2026-08-18). El hueco de I5 sigue abierto, pero no se resuelve en esta etapa. |
+| ④ | Permisos al eliminar carpeta | ✅ **D20 · flujo y prototipo listos.** Política: solo quien la creó, con `oc:manage_access` como escape. Falta confirmar con BE. |
 | ~~⑤~~ | ~~Acordeón exclusivo~~ | ⛔ **Fuera del plan** (Andrés, 2026-08-18). D12 se queda como está: secciones independientes. |
 
 ---
@@ -166,8 +166,9 @@ Con el nav en 256px (lo que replica el prototipo), el colapso se dispara alreded
 
 ### Lo que queda abierto
 
-- [x] ~~Que Andrés elija mecanismo.~~ **A · arrastrar el borde**, con la zona nueva en azul.
-- [ ] **Confirmar los tres valores** (288 · 384 · 480). Es lo único que queda de ②.
+- [x] ~~Que Andrés elija mecanismo.~~ **A · arrastrar el borde**, sombreando la franja del delta.
+- [x] ~~Confirmar los tres valores.~~ **288 · 384 · 480 confirmados** el 2026-08-18.
+- [ ] **Re-sincronizar los docs** — ya está desbloqueado. Ver la lista al final de esta sección.
 - [ ] **¿Es de SWAT-577 o es el segundo spin-off?** Argumento para separarlo: beneficia al
       panel **exista o no** el feature de carpetas, igual que D14 — y es la **tercera palanca
       de ancho** del mismo problema que `ancho-util-lista-tableros/`. Recomendación: que las
@@ -176,10 +177,10 @@ Con el nav en 256px (lo que replica el prototipo), el colapso se dispara alreded
       2 columnas del tablero baja a ~543px por gráfico, y los mocks se dibujan a 560px. Es
       el costo real de `lg`, y es el argumento más fuerte para que el default siga en `sm`.
 
-### Cuando se confirmen los valores, re-sincronizar
+### Re-sincronizar — ✅ desbloqueado (valores confirmados el 2026-08-18)
 
-**Todavía no se tocó nada de esto, a propósito:** escribirlo antes de que los valores estén
-confirmados haría que el handoff afirme algo indeciso — el mismo problema del que salimos.
+Se hace en la **fase de cierre** de esta etapa, junto con los flujos, según el orden que pidió
+Andrés: primero terminar el feedback (④), después flujos y handoff.
 
 `handoff/01-decisiones.md` (D2 · D13 · D16) · `handoff/01-benchmark.md` (I4) · `design.md` ·
 `handoff/07-handoff-fe.md` §4 · la tabla de `ancho-util-lista-tableros/`.
@@ -235,34 +236,59 @@ tope técnico 50) pero nunca cuántos *tableros* caben dentro de una. Es la preg
 
 ---
 
-## ④ Permisos: ¿solo elimino las carpetas que yo creé?
+## ④ Permisos: ¿solo elimino las carpetas que yo creé? — ✅ D20
 
 > *«Al eliminar el tablero debería validar quien es el creador · ¿solo elimino las carpetas
 > que yo creo?»* — `cmt_mst66vz6`
 
-**Reabre D1.b**, que había quedado explícitamente aplazada:
+**Decisión de Andrés (2026-08-18): opción (b), solo quien la creó** — con el escape por admin
+diseñado. Va contra mi recomendación, que era (c); el escape cierra la objeción que yo tenía.
 
-> *«no se introduce un permiso nuevo. Crear / renombrar / eliminar carpeta usa el mismo umbral
-> que crear un tablero. (A confirmar con BE en la Etapa 7; si el equipo prefiere atarlo a
-> `oc:manage_access`, es un cambio de una línea en la vista, no del modelo.)»*
+**Qué se restringe, y qué no.** La línea es: **restringir lo que altera la carpeta de otro, no
+lo que la usa.**
 
-**Nunca se confirmó.** El dato ya existe: el modelo guarda `created_by` (§1.1 del handoff BE).
-Falta la política.
+| Restringido al autor | Libre |
+|---|---|
+| Renombrar · Mover a… · Eliminar | Agregar tableros · Nueva subcarpeta · mover un tablero |
 
-- [ ] Elegir entre tres:
-      **(a)** cualquiera con acceso a Tableros — lo que dice D1 hoy;
-      **(b)** solo quien la creó;
-      **(c)** el permiso `oc:manage_access`, que ya existe y ya gobierna «Gestionar acceso».
-- [ ] **Tensión a resolver antes de elegir (b):** D1 argumentó que ninguna acción de carpetas
-      es destructiva y todo tiene «Deshacer», y por eso no hacía falta permiso. **Pero D6
-      cambió**: eliminar ya no lo garantiza el motor de base de datos, es lógica de servicio.
-      La premisa que sostenía la apertura se debilitó.
-- [ ] **Contra-argumento a (b):** si solo el creador puede eliminar, una carpeta de alguien
-      que se fue del equipo queda huérfana para siempre. Necesitaría un escape por admin.
-- [ ] **Recomendación tentativa: (c).** Reusa un permiso que ya existe, no inventa modelo, y
-      evita el huérfano. **Confirmar con BE.**
-- [ ] Distinguir en el ticket: el comentario dice «eliminar el tablero» pero pregunta por
-      carpetas. Los tableros ya tienen su propia regla (`hasAccess`) y no se toca.
+Sin esa segunda columna, «solo el autor» se vuelve un candado que impide colaborar en la
+ubicación compartida que definió D1.
+
+**El escape es lo que hace viable a (b).** `oc:manage_access` puede gestionar cualquier
+carpeta — reusa un permiso que ya existe, y resuelve que la carpeta de alguien que se fue del
+equipo no quede inmanejable para siempre. El proto lo modela con una huérfana real (`2025`,
+creada por alguien `inactive`) y un toggle para simular el permiso.
+
+**El copy cambia con el motivo**, porque las salidas son distintas:
+
+- Sigue en la cuenta → *«Solo María, que creó esta carpeta, puede renombrarla…»*
+- Se fue → *«Lucía ya no está en la cuenta. Solo alguien que gestione accesos puede…»*
+
+Mandar a pedirle a Lucía cuando Lucía no está es un callejón sin salida. Un mensaje de permisos
+tiene que **nombrar la salida**, no solo la puerta cerrada.
+
+**La autoría no va en la fila.** Gastaría el ancho que D17 acaba de recuperar. Vive en el
+`title`, en el `aria-label` y en el pie del menú — los tres cuestan 0px. Y los ítems se
+**deshabilitan, no se ocultan**: mismo criterio que el tope de 3 niveles.
+
+### Dos trampas que aparecieron al implementarlo
+
+1. **Una carpeta recién creada tiene que ser gestionable por quien la creó.** Si `createdBy` no
+   se asigna al crear, la creás y no la podés ni renombrar. Había **cuatro** rutas de creación
+   en el proto; ahora las cuatro asignan autor.
+2. **«Deshacer» un borrado restaura al autor original**, no a quien deshace — si no, eliminar +
+   deshacer sería una forma de apropiarse de la carpeta de otro.
+
+### Lo que queda
+
+- [ ] **Confirmar con BE.** D20 respeta la letra de D1.b (no hay permiso nuevo) pero **agrega
+      una comprobación de autoría que hoy no existe**. Lo que habilitó el cambio es que **D6
+      debilitó la premisa**: eliminar ya no lo garantiza el motor de base de datos.
+- [ ] **BE tiene que devolver `created_by` en el listado** — el dato existe pero **no viaja**.
+- [ ] **Validar en el endpoint, no solo en la vista.** Un permiso que solo vive en el FE no es
+      un permiso.
+- [ ] Aclarar en el ticket que el comentario dice «eliminar el tablero» pero pregunta por
+      carpetas. Los tableros ya tienen su regla (`hasAccess`) y no se tocan.
 
 ---
 
@@ -302,7 +328,10 @@ escrito por qué no se hizo, no solo que no se hizo.
   se re-sincronizaron**, y eso es deliberado (los valores no están confirmados). El riesgo
   ahora es *olvidarse* de hacerlo cuando se confirmen. La lista está en §②.
 - 🔴 **Que el umbral de colapso quede sin verificar.** Si en 1440px el panel arranca
-  colapsado, discutir 384 vs 480 es discutir el ancho de algo que no se muestra.
+  colapsado, los tres anchos son el ancho de algo que no se muestra.
+- 🔴 **Que D20 se implemente solo en el FE.** Un permiso que vive en la vista no es un permiso.
+  Y BE hoy **no devuelve `created_by`** en el listado, así que sin eso el FE no puede ni
+  pintar los estados deshabilitados.
 - **Decidir ④ sin BE.** Es política de permisos; elegirla en UX y descubrir en implementación
   que el permiso no existe con ese alcance cuesta un rediseño.
 - **Que ② y ① se metan en SWAT-577.** Ninguno depende de carpetas. Igual que D14, probablemente

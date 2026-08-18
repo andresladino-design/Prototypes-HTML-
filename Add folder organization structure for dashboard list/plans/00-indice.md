@@ -64,7 +64,7 @@ el buscador exige **recordar** el nombre. Necesitamos un mecanismo de **reconoci
 | 6.8 | Flujos reescritos al alcance real | F9–F12 nuevos + F1/F5/F6/F7 + sitemap corregidos | ✅ Hecha |
 | 7 | [Handoff FE + BE](07-handoff-fe-be.md) | `handoff/07-handoff-fe.md` · `handoff/07-handoff-be.md` · `handoff/07-antes-despues.md` | ✅ Hecha — falta la revisión visual y las capturas |
 | 8 | [Tickets en Linear](08-linear.md) | sub-issues colgando de SWAT-577 | ⬜ |
-| **9** | [**Feedback del prototipo**](09-feedback-prototipo.md) | 5 hallazgos de la revisión en Ohana → D17–D19 | 🔄 **En curso** — ② y ③ cerrados, ⑤ descartado; quedan ① y ④ |
+| **9** | [**Feedback del prototipo**](09-feedback-prototipo.md) | 5 hallazgos de la revisión en Ohana → D17–D20 | 🔄 **Feedback cerrado** — ②③④ resueltos, ①⑤ fuera. Falta re-sincronizar flujos y handoff |
 
 **Dependencias reales:** 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8.
 La única que se puede adelantar en paralelo es la 3 (vista espejo), porque replica lo que **ya existe**.
@@ -114,6 +114,7 @@ Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../h
 | **D17** 🟡 | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos por usuario. Cada valor está derivado de una pregunta, no elegido. **Mecanismo decidido:** arrastrar el borde, dibujando en azul la zona que va a ocupar — el rótulo `S/M/L` se descartó porque no dice hasta dónde llega el panel. Faltan de confirmar los tres valores. |
 | **D18** ✨ | Contador de subcarpeta | **Se queda.** Quitarlo devolvía 20px; D17 devuelve 96 sin perder información. |
 | ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** el 2026-08-18. D12 sigue igual: secciones independientes. |
+| **D20** 🟡 | Permisos de carpeta | **Solo quien la creó** puede renombrar, mover o eliminar; `oc:manage_access` es el escape para las huérfanas. Agregar tableros y crear subcarpetas quedan libres — la carpeta es una ubicación compartida. **Revierte D1.b · a confirmar con BE.** |
 
 ### Por qué D2 conserva su razón original
 

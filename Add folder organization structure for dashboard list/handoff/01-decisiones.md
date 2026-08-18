@@ -2,10 +2,11 @@
 
 **Fechas:** D1–D7 el 2026-08-03 (antes de prototipar) · **D8 y D9 el 2026-08-04, tras probar el prototipo**
 · **D2, D6 y D10 revisadas el 2026-08-14** · **D12–D15 abiertas el 2026-08-14**
-· **D17–D19 el 2026-08-18, desde el feedback del prototipo en Ohana (Etapa 9)**
+· **D17–D20 el 2026-08-18, desde el feedback del prototipo en Ohana (Etapa 9)**
 **Decidido por:** Andrés Ladino (UX) con la exploración técnica de [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md)
-**Estado:** cerradas, **menos D17**, que es una propuesta con prototipo y espera que se elija
-el mecanismo. Cambiar D1 o D3 después de la Etapa 7 implica rehacer el modelo de BE.
+**Estado:** cerradas, **menos D20**, que espera confirmación de BE. D17 quedó cerrada el
+2026-08-18 (mecanismo y valores confirmados). Cambiar D1 o D3 después de la Etapa 7 implica
+rehacer el modelo de BE.
 
 > D8 y D9 salieron de **usar** el prototipo, no de analizarlo. D8 además **revierte** una decisión previa mía
 > ("la carpeta nace vacía"). Quedan registradas acá con lo que reemplazan, para que el handoff no arrastre
@@ -41,9 +42,10 @@ el mecanismo. Cambiar D1 o D3 después de la Etapa 7 implica rehacer el modelo d
 | **D14** ↗️ | Ancho útil de la fila | **Extraída a un issue aparte** — no depende de carpetas | 🟢 Bajo |
 | **D15** ✨ | Agrupamiento server-side | El árbol **no** se resuelve en cliente: la lista es paginada de 20 con `search`/`sort` en BE | 🔴 Alto — condiciona todo el contrato de API |
 | **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles | 🟡 Medio |
-| **D17** 🟡 | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480.** Preferencia persistida. **Propuesta — falta elegir mecanismo** | 🟢 Bajo |
+| **D17** ✅ | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos. Arrastrar el borde, sombreando la franja del delta | 🟢 Bajo |
 | **D18** ✨ | Contador de subcarpeta | **Se queda.** El motivo para quitarlo era ancho, y D17 devuelve 96px donde el contador devolvía 20 | 🟢 Bajo |
 | ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** — sacada del plan el 2026-08-18. D12 sigue: secciones independientes | — |
+| **D20** 🟡 | Permisos de carpeta | **Solo quien la creó** puede renombrar, mover o eliminar. `oc:manage_access` es el **escape**. **Revierte D1.b** · a confirmar con BE | 🟡 Medio — agrega comprobación de autoría |
 
 ---
 
@@ -479,9 +481,9 @@ cualquiera de las dos.
 ## D17 🟡 — Tres anchos fijos de panel: `sm` 288 · `md` 384 · `lg` 480
 
 **Fecha:** 2026-08-18 · **Origen:** `cmt_mst640rv` de la revisión en Ohana ·
-**Estado: PROPUESTA.** **Mecanismo decidido** el 2026-08-18: arrastrar el borde, con la zona
-nueva dibujada en azul. **Faltan de confirmar los tres valores** (288 · 384 · 480).
-**No re-sincronizar D2/D13/D16 hasta que eso se cierre.**
+**Estado: ✅ CERRADA el 2026-08-18.** Mecanismo decidido (arrastrar el borde, sombreando la
+franja del delta) y **los tres valores confirmados: 288 · 384 · 480.**
+Queda **re-sincronizar D2/D13/D16, I4, `design.md` y `07-handoff-fe` §4**.
 
 **Estado en producción, verificado:** el panel **no** es redimensionable. `w-72 min-w-72` fijo
 (`OcContentLayout.tsx:171`), sin handle ni preferencia de ancho.
@@ -648,6 +650,100 @@ Queda el registro porque el comentario sigue `open` en Ohana, y conviene que est
 qué no se hizo. Los riesgos que se habían identificado —y que ya no hay que resolver— eran que
 «Tableros» es la sección principal y un acordeón exclusivo la cerraría para mostrar 5 atajos,
 y que entre carpetas chocaría con **I2** (estado persistido) y con «revelar después de actuar».
+
+---
+
+## D20 🟡 — Solo quien creó la carpeta puede renombrarla, moverla o eliminarla
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst66vz6` («¿solo elimino las carpetas que yo creo?») ·
+**Revierte D1.b** · **Estado: a confirmar con BE.**
+
+**Decisión:** la autoría gobierna las tres acciones que cambian **la carpeta misma**.
+`oc:manage_access` funciona como **escape**.
+
+| Acción | ¿Restringida? | Por qué |
+|---|---|---|
+| Renombrar carpeta | ✅ solo el autor | Cambia cómo la ven todos |
+| Mover carpeta a… | ✅ solo el autor | Idem, y reordena el árbol de otros |
+| Eliminar carpeta | ✅ solo el autor | Disuelve un nivel (D6) |
+| **Agregar tableros** | ❌ libre | Una carpeta es una **ubicación compartida** (D1): llenarla es colaborativo |
+| **Nueva subcarpeta** | ❌ libre | La subcarpeta que yo creo **es mía**, así que la puedo gestionar |
+| Mover / quitar un tablero | ❌ libre | Lo gobierna la regla del tablero (`hasAccess`), no la carpeta |
+
+La línea que separa las dos mitades: **restringir lo que altera la carpeta de otro, no lo que
+la usa.** Sin eso, «solo el autor» se vuelve un candado que impide colaborar en la ubicación
+compartida que D1 definió.
+
+### El escape, que es la parte que hace viable a (b)
+
+**`oc:manage_access` puede gestionar cualquier carpeta.** No es una política paralela: es la
+salida al problema que hacía inaceptable a (b) a secas.
+
+> Si solo el creador puede eliminar, la carpeta de alguien que **se fue del equipo** queda
+> inmanejable **para siempre**.
+
+Reusa un permiso que **ya existe** y ya gobierna «Gestionar acceso», así que no hay modelo
+nuevo ni un estado «carpeta abandonada» que mantener. El prototipo lo modela con una carpeta
+huérfana real (`2025`, creada por alguien marcado `inactive`) y un toggle para simular el
+permiso.
+
+### El copy cambia con el motivo
+
+No alcanza un mensaje único, porque las dos situaciones ofrecen salidas distintas:
+
+| Caso | Mensaje |
+|---|---|
+| La creó alguien que **sigue** en la cuenta | *«Solo María, que creó esta carpeta, puede renombrarla, moverla o eliminarla.»* |
+| La creó alguien que **se fue** | *«Lucía ya no está en la cuenta. Solo alguien que gestione accesos puede renombrarla, moverla o eliminarla.»* |
+
+Mandar a «pedirle a Lucía» cuando Lucía no está sería un callejón sin salida. **Un mensaje
+de permisos tiene que nombrar la salida, no solo la puerta cerrada.**
+
+### Dónde vive la autoría — y dónde NO
+
+**No va en la fila.** Un «creada por María» visible gastaría exactamente el ancho que **D17**
+acaba de recuperar; poner las dos decisiones juntas en el mismo sprint y que una se coma a la
+otra sería incoherente. Vive en tres lugares que cuestan **0px**:
+
+1. El **`title`** de la fila (`Adquirencia / Visa · creada por María`).
+2. El **`aria-label`** del `treeitem`, para que con teclado tampoco haya que abrir el menú.
+3. El **pie del menú `⋮`**, una sola vez y no como tooltip por ítem: tres tooltips que dicen
+   lo mismo es ruido, y un tooltip no se lee con teclado. Va con `role="note"` junto a los
+   `aria-disabled`.
+
+**Los ítems se deshabilitan, no se ocultan** — mismo criterio que el tope de 3 niveles:
+esconder una acción que existe en otras carpetas deja al usuario buscándola.
+
+### Dos trampas que el prototipo cierra
+
+1. **Una carpeta recién creada tiene que ser gestionable por quien la creó.** Si `createdBy` no
+   se asigna al crear, la creás y no la podés ni renombrar. Hay **cuatro** rutas de creación en
+   el proto y las cuatro lo asignan.
+2. **«Deshacer» un borrado restaura al autor original, no a quien deshace.** Si no, eliminar +
+   deshacer sería una forma de **apropiarse de la carpeta de otro** — un escalamiento de
+   privilegios por la puerta de atrás.
+
+### La tensión con D1.b, explícita
+
+D1.b decía *«no se introduce un permiso nuevo»*, y argumentaba que ninguna acción de carpetas
+es destructiva porque todo tiene «Deshacer». **D20 respeta la letra y rompe el espíritu:** no
+introduce un permiso nuevo (reusa `oc:manage_access`), pero **sí agrega una comprobación de
+autoría que hoy no existe**.
+
+Lo que habilitó el cambio: **D6 debilitó la premisa.** Eliminar ya no lo garantiza el motor de
+base de datos (`ON DELETE SET NULL`), es lógica de servicio que reparenta antes de borrar. La
+reversibilidad dejó de ser gratis.
+
+**Consecuencias:**
+
+1. **BE:** el dato ya existe (`created_by`, §1.1 del handoff BE). Falta **devolverlo en el
+   listado** —hoy no viaja— y **validar en el endpoint**, no solo en la vista: un permiso que
+   solo vive en el FE no es un permiso.
+2. **FE:** el menú de carpeta y las cuatro rutas de creación.
+3. **A confirmar con BE:** que `oc:manage_access` sea el override correcto, y si la validación
+   de autoría vive en el servicio o en la política de acceso existente.
+4. **Drag & drop:** D7 hace del drag un alias de «Mover a». Las carpetas no son arrastrables en
+   el proto, así que no hay inconsistencia hoy — **pero si se agrega, tiene que respetar D20.**
 
 ---
 

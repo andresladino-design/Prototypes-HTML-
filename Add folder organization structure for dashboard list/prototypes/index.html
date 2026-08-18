@@ -459,7 +459,10 @@
                                       :aria-label="row.aria"
                                       @click="toggle(row.f.id)">
                                 <i :data-lucide="row.open ? 'folder-open' : 'folder'" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
-                                <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="row.f.name" :title="row.path"></span>
+                                <!-- ④ la autoría va en el `title`, NO en la fila: un
+                                     «creada por María» visible gastaría el ancho que
+                                     D17 acaba de recuperar. Cuesta 0px y está a mano. -->
+                                <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="row.f.name" :title="rowTitle(row)"></span>
                               </button>
                               <!-- Contador = TOTAL del subárbol. El title desambigua cuando hay hijas.
                                    ③ (cmt_mst64r43) pedía quitarlo, y el motivo es que roba ancho.
@@ -692,10 +695,33 @@
           <span class="min-w-0 flex-1 text-left">Nueva subcarpeta</span>
           <template x-if="!canNest(menu.id)"><span class="shrink-0 text-[10px]" x-text="`máx ${MAX_DEPTH}`"></span></template>
         </button>
-        <button @click="openRename(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="pencil-line" class="h-4 w-4"></i> Renombrar carpeta</button>
-        <button @click="openMove(menu.id, 'folder')" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="folder-input" class="h-4 w-4"></i> Mover carpeta a…</button>
+        <!-- ④ D20 · las tres acciones que cambian LA CARPETA se restringen a quien la
+             creó. Se deshabilitan en vez de ocultarse: mismo criterio que el tope de
+             3 niveles — esconder una acción que existe en otras carpetas deja al
+             usuario buscándola. -->
+        <button @click="openRename(menu.id)" :disabled="!canManageFolder(menu.id)"
+                :aria-disabled="!canManageFolder(menu.id)"
+                :class="canManageFolder(menu.id) ? 'hover:bg-accent' : 'cursor-not-allowed opacity-50'"
+                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm"><i data-lucide="pencil-line" class="h-4 w-4"></i> Renombrar carpeta</button>
+        <button @click="openMove(menu.id, 'folder')" :disabled="!canManageFolder(menu.id)"
+                :aria-disabled="!canManageFolder(menu.id)"
+                :class="canManageFolder(menu.id) ? 'hover:bg-accent' : 'cursor-not-allowed opacity-50'"
+                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm"><i data-lucide="folder-input" class="h-4 w-4"></i> Mover carpeta a…</button>
         <div class="my-1 h-px bg-border"></div>
-        <button @click="openDelete(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar carpeta</button>
+        <button @click="openDelete(menu.id)" :disabled="!canManageFolder(menu.id)"
+                :aria-disabled="!canManageFolder(menu.id)"
+                :class="canManageFolder(menu.id) ? 'text-destructive hover:bg-accent' : 'cursor-not-allowed text-destructive opacity-50'"
+                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar carpeta</button>
+
+        <!-- El motivo va UNA vez al pie, no como tooltip por ítem: tres tooltips que
+             dicen lo mismo es ruido, y un tooltip no se lee con teclado.
+             `role="note"` lo hace anunciable junto con los `aria-disabled`. -->
+        <template x-if="!canManageFolder(menu.id)">
+          <div class="mt-1 flex items-start gap-1.5 border-t border-border px-2 pb-0.5 pt-2 text-[11px] leading-snug text-sidebar-foreground" role="note">
+            <i data-lucide="lock" class="mt-px h-3 w-3 shrink-0"></i>
+            <span x-text="blockReason(menu.id)"></span>
+          </div>
+        </template>
       </div>
     </template>
   </div>
@@ -1142,6 +1168,61 @@
         </p>
       </div>
 
+      <!-- ══ ④ PERMISOS DE CARPETA · cmt_mst66vz6 ══ -->
+      <div class="mt-3 rounded-lg border border-border p-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">④ ¿Quién puede eliminar una carpeta?</p>
+        <p class="mt-1 text-[11px] leading-snug text-sidebar-foreground">
+          <strong class="text-foreground">D20: solo quien la creó</strong> puede renombrarla, moverla o
+          eliminarla. «Agregar tableros» y «Nueva subcarpeta» quedan libres: una carpeta es una
+          <strong class="text-foreground">ubicación compartida</strong>, y organizar dentro de ella es
+          colaborativo.
+        </p>
+
+        <!-- El escape -->
+        <div class="mt-2 rounded-lg p-2" :class="canManageAll ? 'bg-info/10 ring-1 ring-inset ring-info/40' : 'bg-muted/50'">
+          <button @click="canManageAll = !canManageAll; menu.open = false" class="flex w-full items-center gap-2 text-left">
+            <span class="flex h-4 w-7 shrink-0 items-center rounded-full p-0.5 transition-colors" :class="canManageAll ? 'bg-info' : 'bg-muted'">
+              <span class="h-3 w-3 rounded-full bg-background transition-transform" :class="canManageAll && 'translate-x-3'"></span>
+            </span>
+            <span class="flex-1 text-[11px] font-semibold">Tengo <code>oc:manage_access</code></span>
+          </button>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            <strong class="text-foreground">Este es el escape, y no es una política paralela.</strong>
+            Sin él, la carpeta de alguien que se fue del equipo queda inmanejable
+            <strong class="text-foreground">para siempre</strong>. Reusa el permiso que ya gobierna
+            «Gestionar acceso»: no inventa modelo ni un estado «carpeta abandonada».
+          </p>
+        </div>
+
+        <!-- Los tres casos, para no tener que buscarlos -->
+        <div class="mt-2 space-y-1">
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">Probá los tres casos</p>
+          <template x-for="c in [
+            { id: 'f1',  label: 'Adquirencia',   nota: 'la creaste vos → todo habilitado' },
+            { id: 'f1a', label: 'Visa',          nota: 'la creó María → 3 acciones bloqueadas' },
+            { id: 'f2b', label: '2025',          nota: 'huérfana: Lucía se fue → hace falta el escape' }
+          ]" :key="c.id">
+            <button @click="revealAncestors(c.id); $nextTick(() => { const el = document.getElementById('folder-' + c.id); el && el.scrollIntoView({block:'center'}); flash = c.id; setTimeout(() => flash = null, 1200); })"
+                    class="w-full rounded-lg px-2 py-1.5 text-left text-[11px] hover:bg-accent">
+              <span class="font-medium" x-text="c.label"></span>
+              <span class="text-sidebar-foreground"> — <span x-text="c.nota"></span></span>
+            </button>
+          </template>
+          <p class="text-[10px] leading-snug text-muted-foreground">Después abrí el menú <strong>⋮</strong> de la carpeta.</p>
+        </div>
+
+        <p class="mt-2 border-t border-border pt-2 text-[10px] leading-snug text-sidebar-foreground">
+          <strong class="text-foreground">La autoría no se muestra en la fila</strong> — iría contra D17,
+          que acaba de pelear por cada píxel. Vive en el <code>title</code> (pasá el mouse), en el
+          <code>aria-label</code> y en el pie del menú, que cuestan 0px.
+        </p>
+        <p class="mt-1.5 text-[10px] leading-snug text-warning">
+          <strong class="text-foreground">⚠️ A confirmar con BE:</strong> D20 revierte D1.b, que decía
+          «no se introduce un permiso nuevo». No lo introduce —reusa <code>oc:manage_access</code>— pero
+          sí agrega una <strong class="text-foreground">comprobación de autoría</strong> que hoy no existe.
+        </p>
+      </div>
+
       <!-- D11 · hace visible el patrón de 9 slots -->
       <div class="mt-3 rounded-lg border p-2" :class="patternMode ? 'border-info bg-info/5' : 'border-border'">
         <button @click="patternMode = !patternMode" class="flex w-full items-center gap-2 text-left">
@@ -1210,6 +1291,9 @@
               hasta dónde va a llegar el panel. <strong class="text-foreground">Lo que queda por
               validar son los tres valores</strong> (288 · 384 · 480): la tabla de presupuesto de
               arriba se recalcula al cambiarlos.</li>
+          <li><strong class="text-foreground">D20 · permisos.</strong> ¿El copy del pie del menú alcanza,
+              o hace falta que la fila avise <em>antes</em> de abrir el ⋮? Y con la huérfana:
+              ¿«solo alguien que gestione accesos» le dice al usuario a quién pedirle?</li>
           <li class="border-t border-border pt-1.5"><strong class="text-foreground">D14 · otro issue.</strong> Los botones de fila aparecen en hover y empujan el texto (+20px en tableros, +40px en Favoritos), y el nombre se trunca al medio para conservar la cola (<code>Adquirencia_2026…_visa</code>). ¿El reacomodo en hover molesta al recorrer la lista? ¿El «…» del medio estorba al escanear?</li>
         </ul>
       </div>
@@ -1269,16 +1353,28 @@ function proto() {
   // D2 revisada: las carpetas anidan. `parentId: null` = raíz.
   // Tope de 3 niveles de carpeta. El tope acota el `path` materializado del BE;
   // la indentación de 12px por nivel y el truncado al medio hacen el resto.
+  // ══════════════ ④ AUTORÍA · D20 ══════════════
+  // El modelo ya guarda `created_by` (§1.1 del handoff BE); lo que faltaba era la
+  // política. `inactive` modela a quien se fue del equipo: es el caso que obliga a
+  // tener un escape, porque si no su carpeta queda inmanejable para siempre.
+  const USERS = {
+    u_me:     { name: "Vos",    inactive: false },
+    u_maria:  { name: "María",  inactive: false },
+    u_camilo: { name: "Camilo", inactive: false },
+    u_lucia:  { name: "Lucía",  inactive: true  },   // se fue del equipo
+  };
+  const ME = "u_me";
+
   const FOLDERS = [
-    { id: "f1",    name: "Adquirencia",         parentId: null },
-    { id: "f1a",   name: "Visa",                parentId: "f1" },
-    { id: "f1a1",  name: "Contracargos",        parentId: "f1a" },
-    { id: "f1b",   name: "Mastercard",          parentId: "f1" },
-    { id: "f2",    name: "Cierre contable",     parentId: null },
-    { id: "f2a",   name: "2026",                parentId: "f2" },
-    { id: "f2b",   name: "2025",                parentId: "f2" },
-    { id: "f3",    name: "Conciliación diaria", parentId: null },
-    { id: "f4",    name: "Pruebas y QA",        parentId: null },
+    { id: "f1",    name: "Adquirencia",         parentId: null,  createdBy: "u_me" },
+    { id: "f1a",   name: "Visa",                parentId: "f1",  createdBy: "u_maria" },
+    { id: "f1a1",  name: "Contracargos",        parentId: "f1a", createdBy: "u_me" },
+    { id: "f1b",   name: "Mastercard",          parentId: "f1",  createdBy: "u_camilo" },
+    { id: "f2",    name: "Cierre contable",     parentId: null,  createdBy: "u_me" },
+    { id: "f2a",   name: "2026",                parentId: "f2",  createdBy: "u_me" },
+    { id: "f2b",   name: "2025",                parentId: "f2",  createdBy: "u_lucia" },  // huérfana
+    { id: "f3",    name: "Conciliación diaria", parentId: null,  createdBy: "u_maria" },
+    { id: "f4",    name: "Pruebas y QA",        parentId: null,  createdBy: "u_me" },
   ];
   const sfx = ["conciliacion_visa","conciliacion_master","pagos_pse","recaudos","dispersiones",
                "chargebacks","comisiones","liquidacion","contracargos","ajustes"];
@@ -1360,6 +1456,12 @@ function proto() {
     userPrefCollapsed: false,
     widthAutoCollapsed: false,
     counterOff: false,           // ③ · comparar cuánto cuesta de verdad el contador
+
+    // ── ④ permisos de carpeta (D20) ──
+    USERS, ME,
+    /** Simula tener `oc:manage_access`. Es EL ESCAPE: sin esto, la carpeta de
+     *  alguien que se fue del equipo queda inmanejable para siempre. */
+    canManageAll: false,
     activeId: "d24",                 // un tablero dentro de «Cierre contable»
     sortAsc: true, searchInput: "", appliedSearch: "", unfiledShown: 20,
     dragOver: null, dragId: null,
@@ -1445,6 +1547,50 @@ function proto() {
     get longestName() { return LONGEST; },
     /** ¿En qué nivel deja de entrar el peor caso real? Métrica de una línea. */
     get worstFits() { return this.budget.every((r) => r.fits); },
+
+    // ══════════════ ④ PERMISOS DE CARPETA · D20 ══════════════
+    // Política: SOLO QUIEN LA CREÓ puede renombrar, mover o eliminar una carpeta.
+    // `oc:manage_access` funciona como escape, no como política paralela: reusa un
+    // permiso que ya existe y ya gobierna «Gestionar acceso», y resuelve el huérfano
+    // sin inventar modelo ni un estado «carpeta abandonada».
+    //
+    // Lo que NO se restringe, y es deliberado: «Agregar tableros» y «Nueva
+    // subcarpeta». Una carpeta es una UBICACIÓN COMPARTIDA (D1) — organizar dentro
+    // de ella es colaborativo, y la subcarpeta que yo creo es mía, así que la puedo
+    // gestionar. Mover un tablero sigue gobernado por su propia regla (`hasAccess`).
+
+    /** `title` de la fila de carpeta: ruta + quién la creó. Cuesta 0px de ancho. */
+    rowTitle(row) {
+      const o = this.folderOwner(row.f.id);
+      if (!o) return row.path;
+      if (this.isMine(row.f.id)) return `${row.path} · la creaste vos`;
+      return `${row.path} · creada por ${o.name}${o.inactive ? " (ya no está en la cuenta)" : ""}`;
+    },
+    folderOwner(id) { return USERS[this.folders.find((f) => f.id === id)?.createdBy] ?? null; },
+    isMine(id) { return this.folders.find((f) => f.id === id)?.createdBy === ME; },
+    /** Huérfana: la creó alguien que ya no está en la cuenta. */
+    isOrphan(id) { return !!this.folderOwner(id)?.inactive; },
+    canManageFolder(id) { return this.isMine(id) || this.canManageAll; },
+
+    /** Por qué está bloqueado, en el lenguaje del caso. El copy cambia con el
+     *  motivo: «pedile a María» es accionable; con una huérfana no hay a quién
+     *  pedirle, así que hay que nombrar la salida real. */
+    blockReason(id) {
+      if (this.canManageFolder(id)) return null;
+      const o = this.folderOwner(id);
+      if (!o) return "No se pudo determinar quién creó esta carpeta.";
+      return o.inactive
+        ? `${o.name} ya no está en la cuenta. Solo alguien que gestione accesos puede renombrarla, moverla o eliminarla.`
+        : `Solo ${o.name}, que creó esta carpeta, puede renombrarla, moverla o eliminarla.`;
+    },
+    /** Guarda en el método, no solo en el botón: el menú contextual y el teclado
+     *  pueden llegar acá sin pasar por el `:disabled`. */
+    guardFolder(id) {
+      if (this.canManageFolder(id)) return true;
+      this.menu.open = false;
+      this.notify(this.blockReason(id), null, "lock");
+      return false;
+    },
 
     setSize(k) {
       if (!ORDER.includes(k)) return;
@@ -1680,7 +1826,8 @@ function proto() {
           rows.push({
             key: "f" + f.id, type: "folder", f, depth, path, open, count: total,
             title: direct === total ? `${total} tableros` : `${direct} directos · ${total} en total`,
-            aria: `${path.replace(/ \/ /g, ", dentro de ")}, ${total} tableros`,
+            aria: `${path.replace(/ \/ /g, ", dentro de ")}, ${total} tableros`
+                  + (this.isMine(f.id) ? "" : `, creada por ${this.folderOwner(f.id)?.name ?? "otra persona"}`),
           });
           if (!open) continue;
           walk(f.id, depth + 1, path);                              // subcarpetas primero
@@ -1799,7 +1946,7 @@ function proto() {
       this.dlg = { open: true, mode: "create", step: 1, name: "", id: null, parentId,
                    error: null, selected: [], q: "", entity: "dashboard" };
     },
-    openRename(id) {
+    openRename(id) { if (!this.guardFolder(id)) return;
       this.menu.open = false;
       this.dlg = { open: true, mode: "rename", step: 2, name: this.folderName(id), id, parentId: null,
                    error: null, selected: [], q: "", entity: "dashboard" };
@@ -1860,7 +2007,7 @@ function proto() {
         const parentId = this.dlg.parentId ?? null;
         const picked = [...this.dlg.selected];
         const prev = picked.map((did) => ({ did, folderId: this.dashById(did)?.folderId ?? null }));
-        this.folders.push({ id, name, parentId });
+        this.folders.push({ id, name, parentId, createdBy: ME });   // ④ el autor sos vos
         picked.forEach((did) => { const d = this.dashById(did); if (d) d.folderId = id; });
         this.expanded = [...this.expanded, id];
         this.revealAncestors(id);
@@ -1896,6 +2043,7 @@ function proto() {
     // `type` distingue mover un TABLERO de mover una CARPETA (operación nueva
     // que abre el anidamiento). El destino `null` significa «a la raíz».
     openMove(id, type = "dashboard") {
+      if (type === "folder" && !this.guardFolder(id)) return;
       this.menu.open = false;
       this.move = { open: true, id, type, q: "", confirm: null };
     },
@@ -1961,7 +2109,7 @@ function proto() {
     // Con anidamiento, «desagrupar» ya no es mandar todo a la raíz: eso teletransportaría
     // los tableros de una hija profunda al primer nivel. El contenido SUBE UN NIVEL,
     // a la madre de la carpeta eliminada. Sigue siendo no destructivo y reversible.
-    openDelete(id) { this.menu.open = false; this.del = { open: true, id }; this.$nextTick(() => this.$refs.delcancel?.focus()); },
+    openDelete(id) { if (!this.guardFolder(id)) return; this.menu.open = false; this.del = { open: true, id }; this.$nextTick(() => this.$refs.delcancel?.focus()); },
     doDelete() {
       const id = this.del.id;
       const f = this.folderById(id); if (!f) return;
@@ -1969,6 +2117,7 @@ function proto() {
       const up = f.parentId ?? null;
       const phrase = this.deleteCountPhrase(id) || "0 tableros";
       const dashes = this.all.filter((d) => d.folderId === id);
+      const owner = this.folders.find((x) => x.id === id)?.createdBy;   // ④ para restaurarlo igual
       const kids = this.folders.filter((x) => x.parentId === id);
       dashes.forEach((d) => (d.folderId = up));
       kids.forEach((k) => (k.parentId = up));
@@ -1979,7 +2128,9 @@ function proto() {
       this.notify(
         `Carpeta «${name}» eliminada · ${phrase} ${up ? `en «${this.folderName(up)}»` : "en la lista"}`,
         () => {
-          this.folders.push({ id, name, parentId: up });
+          // Se restaura al autor original: si «Deshacer» te dejara como autor,
+          // eliminar + deshacer sería una forma de apropiarse de la carpeta de otro.
+          this.folders.push({ id, name, parentId: up, createdBy: owner });
           dashes.forEach((d) => (d.folderId = id));
           kids.forEach((k) => (k.parentId = id));
         });
@@ -2009,7 +2160,7 @@ function proto() {
       if (kind === "none") { this.all = build().map((d) => ({ ...d, folderId: null })); this.folders = []; this.expanded = []; }
       if (kind === "one")  { this.all = build(); this.folders = [{ ...FOLDERS[0] }];
                              this.all.forEach((d) => { if (d.folderId !== "f1") d.folderId = null; }); this.expanded = ["f1"]; }
-      if (kind === "empty"){ this.folders = [...fresh(), { id: "fnew", name: "Recién creada", parentId: "f1" }];
+      if (kind === "empty"){ this.folders = [...fresh(), { id: "fnew", name: "Recién creada", parentId: "f1", createdBy: ME }];
                              this.all = build(); this.expanded = ["f1", "fnew"]; }
       if (kind === "big")  { this.folders = fresh(); this.all = build();
                              this.all.slice(60, 120).forEach((d) => (d.folderId = "f1")); this.expanded = ["f1"]; }
@@ -2021,7 +2172,7 @@ function proto() {
         // f2 «Cierre contable» solo llega a 2 niveles: se le agrega el tercero.
         [["f2a", "Q1"], ["f2b", "Q4"]].forEach(([parent, name], i) => {
           const id = "max" + i;
-          this.folders.push({ id, name, parentId: parent });
+          this.folders.push({ id, name, parentId: parent, createdBy: ME });
           pool.slice(i * 3, i * 3 + 3).forEach((d) => (d.folderId = id));
         });
         this.expanded = ["f1", "f1a", "f1a1", "f2", "f2a", "f2b", "max0", "max1"];
