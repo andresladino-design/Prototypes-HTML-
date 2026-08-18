@@ -108,8 +108,16 @@ pregunta que tiene el usuario mientras arrastra. Mi primera versión de A tenía
 mudado de lugar — un badge que escribía «MD · 384px» durante el arrastre. **Escribir el tamaño
 es admitir que no se ve.**
 
-Ahora al arrastrar se dibuja **en azul la zona que el panel va a ocupar**, sobre el área de
-contenido, con las tres paradas marcadas en líneas tenues. Resuelve dos cosas de una:
+Ahora al arrastrar se sombrea **solo la franja que el panel gana o devuelve**, con una línea
+azul que marca dónde queda el borde y las tres paradas en líneas tenues.
+
+**Se sombrea el delta, no el panel entero** — segunda corrección de Andrés, y va en la misma
+dirección que la primera. Pintar los 288px completos tapa la lista que estás leyendo, y resalta
+lo que no importa: la pregunta no es «cuánto va a medir» sino **«cuánto gano»**. Funciona en los
+dos sentidos: creciendo, azul sobre lo que se suma; encogiendo, gris sobre lo que se devuelve al
+contenido. Si el destino es el tamaño de partida, la franja mide 0 y no se dibuja nada.
+
+Resuelve dos cosas más de una:
 
 1. **El snap deja de sentirse como un bug.** El panel no sigue al cursor —salta entre tres
    valores— y eso se leía como que la interfaz no responde. Ahora lo que se mueve es la zona,

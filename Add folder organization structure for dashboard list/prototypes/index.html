@@ -136,9 +136,16 @@
               <span class="absolute inset-y-0 w-px bg-info/25"
                     :style="`left:${SIZES[k]}px`"></span>
             </template>
-            <!-- La zona a la que va a caer -->
-            <div class="absolute inset-y-0 left-0 border-r-2 border-info bg-info/10 transition-[width] duration-100"
-                 :style="`width:${snapPx}px`"></div>
+            <!-- Solo el DELTA, no todo el panel: sombrear los 288px enteros tapa la
+                 lista que estás leyendo, y lo que importa no es el ancho final sino
+                 cuánto ganás o cuánto devolvés. Con ancho 0 (volviste al tamaño de
+                 partida) no se dibuja nada, que es la lectura correcta. -->
+            <div class="absolute inset-y-0 transition-all duration-100"
+                 :class="deltaGrows ? 'bg-info/15' : 'bg-muted-foreground/10'"
+                 :style="`left:${deltaLeft}px;width:${deltaWidth}px`"></div>
+            <!-- El borde destino: es el ancla del gesto, y va en los dos sentidos -->
+            <div class="absolute inset-y-0 w-0.5 bg-info transition-all duration-100"
+                 :style="`left:${snapPx - 2}px`"></div>
           </div>
         </template>
 
@@ -1053,9 +1060,10 @@
           </div>
           <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
             <template x-if="resizeMech === 'handle'"><span><strong class="text-success">✓ Elegido.</strong>
-              Arrastrá el <strong class="text-foreground">borde derecho</strong> del panel: se dibuja en
-              <strong class="text-info">azul la zona que va a ocupar</strong>, y como salta entre las tres
-              paradas (las líneas tenues), las medidas fijas se ven sin que haya que nombrarlas.
+              Arrastrá el <strong class="text-foreground">borde derecho</strong> del panel: se sombrea
+              <strong class="text-info">solo la franja que gana o devuelve</strong> —no todo el panel, que
+              taparía la lista— y una línea azul marca dónde va a quedar el borde. Como salta entre las
+              tres paradas (líneas tenues), las medidas fijas se ven sin nombrarlas.
               No cuesta nada del header. Con teclado:
               <kbd class="rounded bg-muted px-1">←</kbd> <kbd class="rounded bg-muted px-1">→</kbd> sobre el separador.</span></template>
             <template x-if="resizeMech === 'control'"><span><strong class="text-foreground">Descartado.</strong>
@@ -1407,8 +1415,12 @@ function proto() {
     // ══════════════ ② RESIZE DEL PANEL ══════════════
 
     get panelPx() { return SIZES[this.panelSize]; },
-    /** Ancho al que va a caer el arrastre en curso — lo que dibuja la zona azul. */
+    /** Ancho al que va a caer el arrastre en curso. */
     get snapPx() { return SIZES[this.snapTarget]; },
+    // ── La franja del preview: solo la diferencia entre el ancho actual y el destino ──
+    get deltaGrows() { return this.snapPx > this.panelPx; },
+    get deltaLeft() { return Math.min(this.panelPx, this.snapPx); },
+    get deltaWidth() { return Math.abs(this.snapPx - this.panelPx); },
     /** Ancho útil de una fila: el `px-3` se aplica DOS veces (aside + cuerpo). */
     get rowPx() { return this.panelPx - 48; },
 

@@ -535,9 +535,18 @@ usuario **hasta dónde va a llegar el panel**, que es la única pregunta que tie
 arrastra. La primera versión de A tenía el mismo defecto en otro lugar: un badge que escribía
 «MD · 384px» durante el arrastre. Escribir el tamaño es admitir que no se ve.
 
-**El feedback correcto es espacial, no textual.** Al arrastrar se dibuja **en azul la zona que
-el panel va a ocupar**, sobre el área de contenido, y las tres paradas quedan marcadas con
-líneas tenues. Dos cosas se resuelven solas con eso:
+**El feedback correcto es espacial, no textual.** Al arrastrar se sombrea **solo la franja que
+el panel gana o devuelve**, y una línea azul de 2px marca dónde va a quedar el borde. Las tres
+paradas quedan marcadas con líneas tenues.
+
+**Se sombrea el delta, no el panel entero** — segunda corrección de Andrés. Pintar los 288px
+completos tapa la lista que el usuario está leyendo, y de paso resalta lo que no importa: la
+pregunta no es «cuánto va a medir» sino **«cuánto gano»**. La franja arranca en el borde actual
+y termina en el destino, así que funciona en los dos sentidos: creciendo se pinta en azul lo
+que se suma; encogiendo, en gris lo que se devuelve al contenido. Con el destino igual al
+tamaño de partida la franja mide 0 y no se dibuja nada, que es la lectura correcta.
+
+Dos cosas más se resuelven solas con esto:
 
 1. **El snap deja de sentirse como un bug.** El panel no sigue al cursor —salta entre tres
    valores— y antes eso se leía como que la interfaz no responde. Ahora lo que se mueve es la
