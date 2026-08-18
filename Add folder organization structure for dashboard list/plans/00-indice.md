@@ -111,7 +111,7 @@ Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../h
 | **D14** ↗️ | Ancho útil de la fila | **Extraída a un issue aparte** — no depende de carpetas. Ver [`ancho-util-lista-tableros/`](../../ancho-util-lista-tableros/). |
 | **D15** ✨ | Agrupamiento server-side | **El árbol no se puede resolver en cliente.** La lista es paginada (`DASHBOARDS_PAGE_SIZE = 20`, scroll infinito) con `search` y `sort` server-side y tope duro de 100/página. Contrato requerido en la Etapa 7. |
 | **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles: el gesto más frecuente es cambiar de tablero y navegar le suma clics justo a eso. Cierra I4. |
-| **D17** 🟡 | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos por usuario. Cada valor está derivado de una pregunta, no elegido. **Propuesta:** falta elegir entre handle de arrastre (A) y control S/M/L (B). |
+| **D17** 🟡 | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos por usuario. Cada valor está derivado de una pregunta, no elegido. **Mecanismo decidido:** arrastrar el borde, dibujando en azul la zona que va a ocupar — el rótulo `S/M/L` se descartó porque no dice hasta dónde llega el panel. Faltan de confirmar los tres valores. |
 | **D18** ✨ | Contador de subcarpeta | **Se queda.** Quitarlo devolvía 20px; D17 devuelve 96 sin perder información. |
 | ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** el 2026-08-18. D12 sigue igual: secciones independientes. |
 

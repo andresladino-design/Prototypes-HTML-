@@ -17,7 +17,7 @@ no obliga a medir dos veces.
 
 | # | Hallazgo | Estado |
 |---|---|---|
-| ② | Resize del panel | ✅ **Resuelto en el proto** · valores derivados + los dos mecanismos en A/B. Falta que Andrés elija mecanismo y confirme los valores. |
+| ② | Resize del panel | ✅ **Resuelto en el proto** · valores derivados · **mecanismo decidido** (arrastrar el borde, zona nueva en azul). Falta confirmar los tres valores. |
 | ③ | Quitar el contador | ✅ **Cerrado sin quitarlo.** El motivo era (c) ancho, y ② devuelve 96px donde el contador devolvía 20. |
 | ① | Límites de tableros por carpeta | ⬜ Independiente, sin bloqueos. |
 | ④ | Permisos al eliminar carpeta | ⬜ Independiente · necesita BE. |
@@ -91,16 +91,36 @@ cumple.
 > sufijo `_v2` y `_master`, que son más largos. El presupuesto estaba calibrado contra un
 > peor caso optimista.
 
-**Los dos mecanismos, en A/B.** El comentario pide dos cosas a la vez («explorar un resize»
-y «medidas fijas»), así que están los dos y se eligen en el panel de demo:
+**Mecanismo: ✅ A · arrastrar el borde** (decidido el 2026-08-18). Se prototiparon los dos
+porque el comentario pide dos cosas a la vez («explorar un resize» y «medidas fijas»):
 
-- **A · handle de arrastre con snap.** El gesto es continuo, el resultado siempre cae en
-  sm/md/lg. Un badge muestra a qué medida va a caer, porque si el ancho siguiera libre al
-  cursor y después saltara, el snap se leería como un bug. `role="separator"` + flechas
-  (patrón WAI-ARIA *window splitter*), así que hay paridad por teclado sin control extra
-  — mismo criterio que D7 con el drag. **Cuesta 0px del header.**
-- **B · control discreto S/M/L** en el header del panel. Se descubre solo, pero se come
-  ~72px del **slot 1**, que ya tiene el título y el contador de tableros.
+- **A ✅ · handle de arrastre con snap.** Cuesta 0px del header. `role="separator"` + flechas
+  (patrón WAI-ARIA *window splitter*), paridad por teclado sin control extra — mismo criterio
+  que D7 con el drag.
+- **B ⛔ · control discreto S/M/L** en el header. Se descubre solo, pero se come ~72px del
+  **slot 1** y obliga a interpretar `S/M/L`.
+
+### El feedback del arrastre es espacial, no textual
+
+**Esto lo corrigió Andrés**, y de paso mató el rótulo en los dos mecanismos. `S/M/L` es
+vocabulario de diseñador: no dice **hasta dónde va a llegar el panel**, que es la única
+pregunta que tiene el usuario mientras arrastra. Mi primera versión de A tenía el mismo defecto
+mudado de lugar — un badge que escribía «MD · 384px» durante el arrastre. **Escribir el tamaño
+es admitir que no se ve.**
+
+Ahora al arrastrar se dibuja **en azul la zona que el panel va a ocupar**, sobre el área de
+contenido, con las tres paradas marcadas en líneas tenues. Resuelve dos cosas de una:
+
+1. **El snap deja de sentirse como un bug.** El panel no sigue al cursor —salta entre tres
+   valores— y eso se leía como que la interfaz no responde. Ahora lo que se mueve es la zona,
+   y el salto se lee como intención.
+2. **Las medidas fijas se enseñan sin nombrarlas.** Ver tres paradas comunica «hay tres
+   anchos» mejor que tres letras.
+
+El rótulo se fue de todo lo que ve el usuario: badge, tooltip del riel colapsado y `aria-label`
+del separador (ahí el número lo dan `aria-valuenow`/`min`/`max`, que es lo que corresponde).
+Detalle de oficio que faltaba: durante el arrastre se suprime la selección de texto, porque si
+no el gesto va seleccionando los nombres de la lista al pasar.
 
 **Persistencia.** Clave propia `swat577_panel_width` (`oc_sidebar_width` en producción).
 **No se unifican** las tres claves: producción ya persiste el colapso en
@@ -138,7 +158,8 @@ Con el nav en 256px (lo que replica el prototipo), el colapso se dispara alreded
 
 ### Lo que queda abierto
 
-- [ ] **Que Andrés elija mecanismo** (A o B) y confirme los tres valores.
+- [x] ~~Que Andrés elija mecanismo.~~ **A · arrastrar el borde**, con la zona nueva en azul.
+- [ ] **Confirmar los tres valores** (288 · 384 · 480). Es lo único que queda de ②.
 - [ ] **¿Es de SWAT-577 o es el segundo spin-off?** Argumento para separarlo: beneficia al
       panel **exista o no** el feature de carpetas, igual que D14 — y es la **tercera palanca
       de ancho** del mismo problema que `ancho-util-lista-tableros/`. Recomendación: que las

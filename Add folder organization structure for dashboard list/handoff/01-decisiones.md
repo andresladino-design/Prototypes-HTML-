@@ -479,8 +479,9 @@ cualquiera de las dos.
 ## D17 🟡 — Tres anchos fijos de panel: `sm` 288 · `md` 384 · `lg` 480
 
 **Fecha:** 2026-08-18 · **Origen:** `cmt_mst640rv` de la revisión en Ohana ·
-**Estado: PROPUESTA.** Los valores están derivados y los dos mecanismos están prototipados;
-falta que se elija uno. **No re-sincronizar D2/D13/D16 hasta que esto se cierre.**
+**Estado: PROPUESTA.** **Mecanismo decidido** el 2026-08-18: arrastrar el borde, con la zona
+nueva dibujada en azul. **Faltan de confirmar los tres valores** (288 · 384 · 480).
+**No re-sincronizar D2/D13/D16 hasta que eso se cierre.**
 
 **Estado en producción, verificado:** el panel **no** es redimensionable. `w-72 min-w-72` fijo
 (`OcContentLayout.tsx:171`), sin handle ni preferencia de ancho.
@@ -519,19 +520,42 @@ Presupuesto para el nombre, por tamaño y nivel:
 criterio, y 440 se queda **3px corto** para el peor caso al nivel 3 — habría prometido algo que
 no cumple.
 
-### Mecanismo — A/B abierto
+### Mecanismo — ✅ A · arrastrar el borde (decidido el 2026-08-18)
 
-El comentario pide dos cosas a la vez («explorar un **resize**» y «medidas **fijas**»), así que
+El comentario pedía dos cosas a la vez («explorar un **resize**» y «medidas **fijas**»), así que
 se prototiparon las dos:
 
 | | Cómo | A favor | En contra |
 |---|---|---|---|
-| **A** | Handle de arrastre en el borde, con **snap** a los tres valores | Cuesta **0px** del header. Es un resize de verdad. | Hay que descubrir el borde. |
-| **B** | Control discreto **S/M/L** en el header del panel | Se descubre solo. Lectura literal del comentario. | Se come ~72px del **slot 1**, que ya tiene título y contador. |
+| **A** ✅ | Handle de arrastre en el borde, con **snap** a los tres valores | Cuesta **0px** del header. Es un resize de verdad. | Hay que descubrir el borde. |
+| **B** ⛔ | Control discreto **S/M/L** en el header del panel | Se descubre solo. Lectura literal del comentario. | Se come ~72px del **slot 1**, y **obliga a interpretar `S/M/L`**. |
 
-En A, un badge muestra a qué medida va a caer durante el arrastre: sin eso el snap se lee como
-un bug. Paridad por teclado con `role="separator"` + flechas (patrón WAI-ARIA *window
-splitter*), mismo criterio que **D7** con el drag.
+**Por qué se cayó B, y de paso el rótulo:** `S/M/L` es vocabulario de diseñador. No le dice al
+usuario **hasta dónde va a llegar el panel**, que es la única pregunta que tiene mientras
+arrastra. La primera versión de A tenía el mismo defecto en otro lugar: un badge que escribía
+«MD · 384px» durante el arrastre. Escribir el tamaño es admitir que no se ve.
+
+**El feedback correcto es espacial, no textual.** Al arrastrar se dibuja **en azul la zona que
+el panel va a ocupar**, sobre el área de contenido, y las tres paradas quedan marcadas con
+líneas tenues. Dos cosas se resuelven solas con eso:
+
+1. **El snap deja de sentirse como un bug.** El panel no sigue al cursor —salta entre tres
+   valores— y antes eso se leía como que la interfaz no responde. Ahora lo que se mueve es la
+   zona, y el salto se lee como intención.
+2. **Las medidas fijas se enseñan sin nombrarlas.** Ver tres paradas posibles comunica «hay
+   tres anchos» mejor que tres letras.
+
+El rótulo se eliminó de todas partes de cara al usuario: badge de arrastre, tooltip del riel
+colapsado y `aria-label` del separador (ahí el número lo dan `aria-valuenow`/`min`/`max`, que
+es lo que corresponde al patrón).
+
+Paridad por teclado con `role="separator"` + flechas (patrón WAI-ARIA *window splitter*),
+mismo criterio que **D7** con el drag. Durante el arrastre se suprime la selección de texto:
+sin eso el gesto va seleccionando los nombres de la lista al pasar.
+
+> **Crédito donde va:** esto lo corrigió Andrés al revisar el prototipo. La versión que yo
+> había hecho pasaba el problema del control B (nombrar el tamaño) al mecanismo A en vez de
+> resolverlo.
 
 ### Persistencia
 

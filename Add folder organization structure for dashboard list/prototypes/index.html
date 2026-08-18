@@ -120,7 +120,28 @@
     <!-- Este div es el equivalente de OC_CONTENT_LAYOUT_ID: es el elemento cuyo
          ancho vigila producción para colapsar el panel. -->
     <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6" x-show="view === 'tableros'" x-ref="ocLayout">
-      <div class="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
+      <div class="relative flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
+
+        <!-- ② PREVIEW DE ARRASTRE · la zona que el panel va a ocupar
+             Vive acá y no dentro del `<aside>` porque tiene que poder dibujarse MÁS
+             ANCHO que el panel actual, y el aside tiene `overflow-hidden`.
+             Reemplaza al badge «MD · 384px»: nombrar el tamaño con letras es una
+             convención de diseñador, no información para quien lo usa. La zona azul
+             SE VE, y como salta entre las tres posiciones, enseña que las medidas son
+             fijas sin tener que decirlo. -->
+        <template x-if="resizing">
+          <div class="pointer-events-none absolute inset-y-0 left-0 z-30">
+            <!-- Las tres paradas posibles, tenues: hacen visible que hay tres, no infinitas -->
+            <template x-for="k in ['sm','md','lg']" :key="'tick'+k">
+              <span class="absolute inset-y-0 w-px bg-info/25"
+                    :style="`left:${SIZES[k]}px`"></span>
+            </template>
+            <!-- La zona a la que va a caer -->
+            <div class="absolute inset-y-0 left-0 border-r-2 border-info bg-info/10 transition-[width] duration-100"
+                 :style="`width:${snapPx}px`"></div>
+          </div>
+        </template>
+
 
         <!-- ═══════════ PANEL DE TABLEROS ═══════════ -->
         <!-- ② ANCHO DEL PANEL · anchos fijos sm/md/lg (cmt_mst640rv)
@@ -138,7 +159,7 @@
           <template x-if="panelCollapsed">
             <div class="flex flex-col items-center">
               <button @click="setCollapsedByUser(false)" aria-label="Expandir panel"
-                      class="rounded-xl p-2 hover:bg-accent" :title="`Expandir a ${panelSize.toUpperCase()} (${panelPx}px)`">
+                      class="rounded-xl p-2 hover:bg-accent" title="Expandir panel">
                 <i data-lucide="chevron-right" class="h-4 w-4"></i>
               </button>
               <div class="mt-2 flex flex-col items-center gap-1.5">
@@ -540,14 +561,16 @@
           </div>
           </template>
 
-          <!-- ② MECANISMO A · handle de arrastre con snap a los tres valores.
+          <!-- ② MECANISMO A · handle de arrastre con snap a los tres valores. ELEGIDO.
                El comentario pide «resize» y «medidas fijas» a la vez: el gesto es
                continuo, el resultado siempre cae en sm/md/lg. Patrón WAI-ARIA
                «window splitter»: `role="separator"` + flechas, así que hay paridad
-               por teclado sin control extra (mismo criterio que D7 con el drag). -->
+               por teclado sin control extra (mismo criterio que D7 con el drag).
+               El feedback del arrastre es la ZONA AZUL que se dibuja arriba, no un
+               rótulo: ver hasta dónde llega el panel es la referencia que sirve. -->
           <template x-if="!panelCollapsed && resizeMech === 'handle'">
             <div role="separator" aria-orientation="vertical" tabindex="0"
-                 :aria-label="`Ancho del panel: ${panelSize.toUpperCase()}, ${panelPx} píxeles`"
+                 aria-label="Ancho del panel"
                  :aria-valuenow="panelPx" :aria-valuemin="SIZES.sm" :aria-valuemax="SIZES.lg"
                  @pointerdown="startResize($event)"
                  @keydown.arrow-right.prevent="stepSize(1)" @keydown.arrow-left.prevent="stepSize(-1)"
@@ -559,12 +582,6 @@
             </div>
           </template>
 
-          <!-- Al arrastrar: se muestra a qué medida va a caer, porque el snap
-               hace que el panel no siga al cursor y sin esto se siente roto. -->
-          <template x-if="resizing">
-            <div class="pointer-events-none absolute bottom-3 right-3 z-30 rounded-lg bg-foreground px-2 py-1 text-[11px] font-semibold text-background shadow-lg"
-                 x-text="`${snapTarget.toUpperCase()} · ${SIZES[snapTarget]}px`"></div>
-          </template>
         </aside>
 
         <!-- ═════ CONTENIDO ═════ -->
@@ -1035,8 +1052,17 @@
             <button @click="resizeMech = 'control'" class="h-6 flex-1 rounded-lg text-xs font-medium" :class="resizeMech === 'control' && 'bg-background shadow'">B · control S/M/L</button>
           </div>
           <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
-            <template x-if="resizeMech === 'handle'"><span>Arrastrá el <strong class="text-foreground">borde derecho</strong> del panel: el gesto es continuo, el resultado cae en sm/md/lg. No cuesta nada del header, pero hay que descubrir el borde. Con teclado: <kbd class="rounded bg-muted px-1">←</kbd> <kbd class="rounded bg-muted px-1">→</kbd> sobre el separador.</span></template>
-            <template x-if="resizeMech === 'control'"><span>Tres botones en el header del panel. Se descubre solo, pero se come ~72px del <strong class="text-foreground">slot 1</strong>, que ya tiene el título y el contador.</span></template>
+            <template x-if="resizeMech === 'handle'"><span><strong class="text-success">✓ Elegido.</strong>
+              Arrastrá el <strong class="text-foreground">borde derecho</strong> del panel: se dibuja en
+              <strong class="text-info">azul la zona que va a ocupar</strong>, y como salta entre las tres
+              paradas (las líneas tenues), las medidas fijas se ven sin que haya que nombrarlas.
+              No cuesta nada del header. Con teclado:
+              <kbd class="rounded bg-muted px-1">←</kbd> <kbd class="rounded bg-muted px-1">→</kbd> sobre el separador.</span></template>
+            <template x-if="resizeMech === 'control'"><span><strong class="text-foreground">Descartado.</strong>
+              Tres botones en el header. Se descubre solo, pero se come ~72px del
+              <strong class="text-foreground">slot 1</strong> —que ya tiene título y contador— y obliga al
+              usuario a interpretar <strong class="text-foreground">S/M/L</strong>, que es vocabulario de
+              diseñador: no dice hasta dónde va a llegar el panel. Se conserva solo para comparar.</span></template>
           </p>
         </div>
 
@@ -1170,10 +1196,12 @@
           <li><strong class="text-foreground">D6.</strong> Al eliminar una carpeta el contenido <strong class="text-foreground">sube un nivel</strong>, no a la raíz. ¿El copy lo deja claro? <span class="text-muted-foreground">(probar con «Visa», que está anidada)</span></li>
           <li><strong class="text-foreground">D12.</strong> Las 4 secciones del panel colapsan. ¿Se usa, o el chevron del encabezado pasa desapercibido?</li>
           <li><strong class="text-foreground">D13.</strong> El icono de carpeta reemplaza al chevron: <em>folder</em> cerrada, <em>folder-open</em> abierta. ¿Se lee el estado sin el chevron, o hace falta recuperarlo?</li>
-          <li><strong class="text-foreground">D17 · ancho del panel.</strong> ¿Los tres valores son los
-              correctos, y el mecanismo es el <strong class="text-foreground">A (arrastrar el borde)</strong>
-              o el <strong class="text-foreground">B (control S/M/L en el header)</strong>? La tabla de
-              presupuesto de arriba se recalcula al cambiar de tamaño.</li>
+          <li><strong class="text-foreground">D17 · ancho del panel.</strong> Mecanismo
+              <strong class="text-foreground">decidido: arrastrar el borde</strong>, con la zona nueva
+              dibujada en azul — el rótulo <code>S/M/L</code> se cayó porque no le dice al usuario
+              hasta dónde va a llegar el panel. <strong class="text-foreground">Lo que queda por
+              validar son los tres valores</strong> (288 · 384 · 480): la tabla de presupuesto de
+              arriba se recalcula al cambiarlos.</li>
           <li class="border-t border-border pt-1.5"><strong class="text-foreground">D14 · otro issue.</strong> Los botones de fila aparecen en hover y empujan el texto (+20px en tableros, +40px en Favoritos), y el nombre se trunca al medio para conservar la cola (<code>Adquirencia_2026…_visa</code>). ¿El reacomodo en hover molesta al recorrer la lista? ¿El «…» del medio estorba al escanear?</li>
         </ul>
       </div>
@@ -1379,6 +1407,8 @@ function proto() {
     // ══════════════ ② RESIZE DEL PANEL ══════════════
 
     get panelPx() { return SIZES[this.panelSize]; },
+    /** Ancho al que va a caer el arrastre en curso — lo que dibuja la zona azul. */
+    get snapPx() { return SIZES[this.snapTarget]; },
     /** Ancho útil de una fila: el `px-3` se aplica DOS veces (aside + cuerpo). */
     get rowPx() { return this.panelPx - 48; },
 
@@ -1423,6 +1453,9 @@ function proto() {
       const startX = ev.clientX, startPx = this.panelPx;
       this.resizing = true;
       this.snapTarget = this.panelSize;
+      // Sin esto el arrastre va seleccionando los nombres de la lista al pasar.
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "col-resize";
       const nearest = (px) => ORDER.reduce((a, b) =>
         Math.abs(SIZES[b] - px) < Math.abs(SIZES[a] - px) ? b : a);
       const move = (e) => {
@@ -1432,6 +1465,8 @@ function proto() {
       const up = () => {
         this.setSize(this.snapTarget);
         this.resizing = false;
+        document.body.style.userSelect = "";
+        document.body.style.cursor = "";
         window.removeEventListener("pointermove", move);
         window.removeEventListener("pointerup", up);
       };
