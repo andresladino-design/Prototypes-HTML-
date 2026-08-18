@@ -112,7 +112,7 @@ Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../h
 | **D15** ✨ | Agrupamiento server-side | **El árbol no se puede resolver en cliente.** La lista es paginada (`DASHBOARDS_PAGE_SIZE = 20`, scroll infinito) con `search` y `sort` server-side y tope duro de 100/página. Contrato requerido en la Etapa 7. |
 | **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles: el gesto más frecuente es cambiar de tablero y navegar le suma clics justo a eso. Cierra I4. |
 | **D17** 🟡 | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos por usuario. Cada valor está derivado de una pregunta, no elegido. **Mecanismo decidido:** arrastrar el borde, dibujando en azul la zona que va a ocupar — el rótulo `S/M/L` se descartó porque no dice hasta dónde llega el panel. Faltan de confirmar los tres valores. |
-| **D18** ✨ | Contador de subcarpeta | **Se queda.** Quitarlo devolvía 20px; D17 devuelve 96 sin perder información. |
+| **D18** ✨ | Contador de subcarpeta | **Sale de la fila.** El total del subárbol se muda al `title` y al `aria-label` (0px). +20px por fila de carpeta, y una carpeta pasa a medir lo mismo que un tablero a la misma indentación. |
 | ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** el 2026-08-18. D12 sigue igual: secciones independientes. |
 | **D20** 🟡 | Permisos de carpeta | **Solo quien la creó** puede renombrar, mover o eliminar; `oc:manage_access` es el escape para las huérfanas. Agregar tableros y crear subcarpetas quedan libres — la carpeta es una ubicación compartida. **Revierte D1.b · a confirmar con BE.** |
 

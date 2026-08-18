@@ -464,12 +464,11 @@
                                      D17 acaba de recuperar. Cuesta 0px y está a mano. -->
                                 <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="row.f.name" :title="rowTitle(row)"></span>
                               </button>
-                              <!-- Contador = TOTAL del subárbol. El title desambigua cuando hay hijas.
-                                   ③ (cmt_mst64r43) pedía quitarlo, y el motivo es que roba ancho.
-                                   `counterOff` está solo para MEDIR esos ~20px contra lo que
-                                   devuelve ②: es un instrumento de la demo, no una alternativa. -->
-                              <span x-show="!counterOff" class="flex shrink-0 items-center pl-1 text-xs text-sidebar-foreground"
-                                    x-text="row.count" :title="row.title"></span>
+                              <!-- ③ SIN CONTADOR (D18, cmt_mst64r43): «quitar este contador».
+                                   El total del subárbol no desaparece del producto, se muda al
+                                   `title` y al `aria-label`, que cuestan 0px. Lo que se acepta a
+                                   cambio: una carpeta CERRADA ya no dice cuánto tiene adentro
+                                   sin pasarle el mouse. Ver D18. -->
                               <div class="flex w-0 shrink-0 items-center justify-end self-center overflow-hidden opacity-0 transition-[width,opacity] duration-150 group-hover:w-6 group-hover:opacity-100 group-focus-within:w-6 group-focus-within:opacity-100">
                                 <button @click="openMenu($event, 'folder', row.f.id)" :aria-label="`Opciones de la carpeta ${row.f.name}`"
                                         class="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground mr-1">
@@ -1127,19 +1126,19 @@
           </p>
         </div>
 
-        <!-- ③ · el contador, medido en vez de discutido -->
+        <!-- ③ · decidido: el contador salió -->
         <div class="mt-2 border-t border-info/25 pt-2">
-          <button @click="counterOff = !counterOff" class="flex w-full items-center gap-2 text-left">
-            <span class="flex h-4 w-7 shrink-0 items-center rounded-full p-0.5 transition-colors" :class="counterOff ? 'bg-info' : 'bg-muted'">
-              <span class="h-3 w-3 rounded-full bg-background transition-transform" :class="counterOff && 'translate-x-3'"></span>
-            </span>
-            <span class="flex-1 text-[11px] font-semibold">③ Sin contador de subárbol</span>
-          </button>
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">③ Sin contador de subárbol</p>
           <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
-            Quitarlo devuelve <strong class="text-foreground">~20px</strong> al nombre de la carpeta.
-            Compará ese número con lo que devuelve subir de <code>sm</code> a <code>md</code>:
-            <strong class="text-foreground">+96px</strong>. Por eso ③ se resuelve acá y no quitando
-            información — la lección de Grafana sobre el contador sigue en pie (D2).
+            <strong class="text-foreground">La fila de carpeta ya no lleva contador</strong> (D18). El total
+            del subárbol no desapareció del producto: se mudó al <code>title</code> y al
+            <code>aria-label</code>, que cuestan 0px. Sumado a ②, la carpeta de nivel 3 pasó de
+            <strong class="text-foreground">158px</strong> a <strong class="text-success" x-text="`${budget.find(r => r.what === 'Carpeta' && r.lvl === 3).px}px`"></strong>.
+          </p>
+          <p class="mt-1 text-[10px] leading-snug text-warning">
+            <strong class="text-foreground">Lo que se acepta a cambio:</strong> una carpeta
+            <strong class="text-foreground">cerrada</strong> ya no dice cuánto tiene adentro sin pasarle
+            el mouse. Es la señal que se pierde — vale confirmar que no molesta al escanear.
           </p>
         </div>
 
@@ -1455,7 +1454,6 @@ function proto() {
     // desaparece (`restoreIfNoAutoCollapse` en OcContentLayout.tsx:86).
     userPrefCollapsed: false,
     widthAutoCollapsed: false,
-    counterOff: false,           // ③ · comparar cuánto cuesta de verdad el contador
 
     // ── ④ permisos de carpeta (D20) ──
     USERS, ME,
@@ -1531,7 +1529,8 @@ function proto() {
      *  de tamaño, así que nadie tiene que confiar en un número copiado a mano. */
     get budget() {
       const chars = (px) => Math.floor(px / CHAR_PX);
-      const counter = this.counterOff ? 0 : 20;      // ③ · pl-1 + dos dígitos
+      // D18: la fila de carpeta ya no tiene contador, así que no se descuenta nada.
+      // La tabla de D2 (182/170/158) se calculó CON contador — de ahí los +20px.
       const FIXED = 38;                               // px-2 16 + icono 14 + gap-2 8
       const rows = [];
       rows.push({ what: "Tablero suelto", lvl: "—", px: this.rowPx - FIXED });
@@ -1539,7 +1538,7 @@ function proto() {
         // Una carpeta de nivel N está indentada N-1 veces; un tablero DENTRO de
         // ella, N veces. De ahí que el tablero salga 12px más angosto que su madre
         // y no más ancho, que es el error fácil al hacer esta cuenta a mano.
-        rows.push({ what: "Carpeta", lvl: n, px: this.rowPx - 12 * (n - 1) - FIXED - counter });
+        rows.push({ what: "Carpeta", lvl: n, px: this.rowPx - 12 * (n - 1) - FIXED });
         rows.push({ what: "Tablero dentro", lvl: n, px: this.rowPx - 12 * n - FIXED });
       }
       return rows.map((r) => ({ ...r, chars: chars(r.px), fits: chars(r.px) >= LONGEST }));
@@ -1560,11 +1559,15 @@ function proto() {
     // gestionar. Mover un tablero sigue gobernado por su propia regla (`hasAccess`).
 
     /** `title` de la fila de carpeta: ruta + quién la creó. Cuesta 0px de ancho. */
+    /** `title` de la fila de carpeta. Acumula TODO lo que se sacó de la fila por
+     *  ancho: el conteo del subárbol (D18) y la autoría (D20). Cuesta 0px. */
     rowTitle(row) {
+      const parts = [row.path, row.title];
       const o = this.folderOwner(row.f.id);
-      if (!o) return row.path;
-      if (this.isMine(row.f.id)) return `${row.path} · la creaste vos`;
-      return `${row.path} · creada por ${o.name}${o.inactive ? " (ya no está en la cuenta)" : ""}`;
+      if (o) parts.push(this.isMine(row.f.id)
+        ? "la creaste vos"
+        : `creada por ${o.name}${o.inactive ? " (ya no está en la cuenta)" : ""}`);
+      return parts.join(" · ");
     },
     folderOwner(id) { return USERS[this.folders.find((f) => f.id === id)?.createdBy] ?? null; },
     isMine(id) { return this.folders.find((f) => f.id === id)?.createdBy === ME; },
@@ -1826,6 +1829,8 @@ function proto() {
           rows.push({
             key: "f" + f.id, type: "folder", f, depth, path, open, count: total,
             title: direct === total ? `${total} tableros` : `${direct} directos · ${total} en total`,
+            // El total sigue acá: al no estar en la fila (D18), el `aria-label` pasa a
+            // ser la única forma de saberlo con teclado.
             aria: `${path.replace(/ \/ /g, ", dentro de ")}, ${total} tableros`
                   + (this.isMine(f.id) ? "" : `, creada por ${this.folderOwner(f.id)?.name ?? "otra persona"}`),
           });

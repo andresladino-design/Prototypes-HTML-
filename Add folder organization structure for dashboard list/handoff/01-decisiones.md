@@ -43,7 +43,7 @@ rehacer el modelo de BE.
 | **D15** ✨ | Agrupamiento server-side | El árbol **no** se resuelve en cliente: la lista es paginada de 20 con `search`/`sort` en BE | 🔴 Alto — condiciona todo el contrato de API |
 | **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles | 🟡 Medio |
 | **D17** ✅ | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos. Arrastrar el borde, sombreando la franja del delta | 🟢 Bajo |
-| **D18** ✨ | Contador de subcarpeta | **Se queda.** El motivo para quitarlo era ancho, y D17 devuelve 96px donde el contador devolvía 20 | 🟢 Bajo |
+| **D18** ✨ | Contador de subcarpeta | **Sale de la fila.** El total se muda al `title` y al `aria-label` (0px). +20px por fila de carpeta | 🟢 Bajo |
 | ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** — sacada del plan el 2026-08-18. D12 sigue: secciones independientes | — |
 | **D20** 🟡 | Permisos de carpeta | **Solo quien la creó** puede renombrar, mover o eliminar. `oc:manage_access` es el **escape**. **Revierte D1.b** · a confirmar con BE | 🟡 Medio — agrega comprobación de autoría |
 
@@ -499,7 +499,7 @@ reproduce exacto sus números — que es la prueba de que es la misma cuenta.
 | | px | Clase | Qué pregunta responde |
 |---|---|---|---|
 | `sm` | **288** | `w-72` | Lo de hoy. Es el **default**: elegirlo no cambia nada de producción. |
-| `md` | **384** | `w-96` | **El anidamiento deja de costar ancho.** Un tablero en el nivel 3 pasa a 262px, 60px *más* que un tablero suelto hoy (202px). |
+| `md` | **384** | `w-96` | **El anidamiento deja de costar ancho.** Un tablero en el nivel 3 pasa a 262px, 60px *más* que un tablero suelto a `sm` (202px). |
 | `lg` | **480** | `w-[30rem]` | **El peor caso real entra entero** hasta el nivel 3: 45 caracteres ≈ 329px. |
 
 Presupuesto para el nombre, por tamaño y nivel:
@@ -507,10 +507,14 @@ Presupuesto para el nombre, por tamaño y nivel:
 | | `sm` 288 | `md` 384 | `lg` 480 |
 |---|---|---|---|
 | Tablero suelto | 202px · 27c | 298px · 40c | 394px · 54c ✓ |
-| Carpeta nivel 1 / 2 / 3 | 182 / 170 / **158** | 278 / 266 / **254** | 374 / 362 / **350** ✓ |
+| Carpeta nivel 1 / 2 / 3 | 202 / 190 / **178** | 298 / 286 / **274** | 394 / 382 / **370** ✓ |
 | Tablero dentro, nivel 1 / 2 / 3 | 190 / 178 / **166** | 286 / 274 / **262** | 382 / 370 / **358** ✓ |
 
 ✓ = entra el nombre más largo sin truncar. **Solo `lg` lo logra en todos los niveles.**
+
+> Las filas de carpeta ya **no descuentan contador** (D18), así que una carpeta y un tablero a
+> la misma indentación miden lo mismo. La tabla de D2 (182/170/158) se calculó **con** contador
+> — de ahí los +20px.
 
 > **⚠️ Corrección a D2.** El peor caso son **45 caracteres**, no 40:
 > `Adquirencia_2026_06_04_conciliacion_master_v2`. D2 se calibró contra
@@ -611,31 +615,59 @@ resolverlo **antes** de discutir 384 vs 480.
 
 ---
 
-## D18 ✨ — El contador de la carpeta se queda
+## D18 ✨ — El contador del subárbol sale de la fila de carpeta
 
 **Fecha:** 2026-08-18 · **Origen:** `cmt_mst64r43` («QUitar este contador») · **Cierra ③.**
 
-**Motivo del comentario, confirmado con Andrés: robaba ancho al nombre.** Con el motivo
-explícito, la decisión se toma con una resta:
+**Decisión: el contador se quita de la fila.** El total del subárbol **no desaparece del
+producto** — se muda al `title` y al `aria-label`, que cuestan 0px de ancho.
 
-| | Devuelve al nombre |
-|---|---|
-| Quitar el contador | **+20px** — y se pierde el total del subárbol |
-| Subir de `sm` a `md` (D17) | **+96px** — y no se pierde nada |
+> **Corrección de rumbo.** La primera versión de D18 decidió lo contrario: que el contador se
+> quedaba, porque el motivo del comentario era *ancho* y ② devolvía 96px donde el contador
+> devolvía 20. **Ese razonamiento contestaba una pregunta que nadie hizo.** El comentario era
+> una instrucción («quitar este contador»); el motivo explicaba *por qué*, no *si*. Convertir un
+> «por qué» en un «si o no» y resolverlo con una resta fue un error de lectura, no una decisión
+> de diseño. Queda registrado porque el razonamiento de la resta sigue siendo válido para lo que
+> sí decidía: que **quitarlo no era la forma de recuperar ancho**. Pero se quita igual, porque el
+> ancho no era la única razón para quitarlo.
 
-**Decisión: el contador se queda.** D17 devuelve casi cinco veces más ancho sin sacrificar
-información. Se conserva la definición de **D2** —el número es siempre el **total del
-subárbol**, con desglose en el `title`— y con ella la lección de Grafana
-([#124158](https://github.com/grafana/grafana/issues/124158)): un contador que significa una
-cosa u otra según el contexto se rompe.
+### Qué gana la fila
 
-**Nota sobre el prototipo:** hay un toggle *«Sin contador de subárbol»* en el panel de demo.
-**No es una alternativa de diseño, es el instrumento con el que se midió** — sirve para ver los
-20px al lado de los 96.
+| | Con contador (D2) | Sin contador | |
+|---|---|---|---|
+| Carpeta nivel 1 | 182px | **202px** | +20 |
+| Carpeta nivel 2 | 170px | **190px** | +20 |
+| Carpeta nivel 3 | **158px** | **178px** | +20 |
 
-**Si el ruido visual vuelve a aparecer como queja** (que era la lectura *(a)* del hallazgo, y
-no fue el motivo), la salida no es quitarlo sino **mostrarlo solo en carpetas colapsadas**:
-con la carpeta abierta el número es redundante porque los hijos ya están a la vista.
+Y aparece una propiedad que antes no estaba: **una carpeta y un tablero a la misma indentación
+miden exactamente lo mismo.** La fila deja de tener dos presupuestos distintos según el tipo,
+lo que hace la tabla de D17 más simple de razonar.
+
+Sumado a ② en `lg`, la carpeta de nivel 3 pasa de **158px a 370px**.
+
+### Lo que se pierde, y hay que decirlo
+
+**Una carpeta cerrada ya no dice cuánto tiene adentro.** Era la única señal de volumen sin
+expandir, y es justo el caso donde más servía: decidir si vale la pena abrirla.
+
+Mitigación: el total sigue en el `title` (hover) y en el `aria-label` (teclado y lector de
+pantalla). No es equivalente — un dato que exige un gesto no es un dato que se escanea.
+
+**A validar en la próxima revisión:** si al recorrer el panel se extraña saber el volumen de una
+carpeta cerrada. Si se extraña, la salida **no** es volver al contador en todas las filas, sino
+mostrarlo **solo en carpetas colapsadas** — con la carpeta abierta el número es redundante
+porque los hijos ya están a la vista.
+
+### Lo que NO cambia de D2
+
+La **definición** del contador sigue intacta para donde sí se muestre (`title`, `aria-label`):
+**total del subárbol**, con desglose «directos · en total» cuando hay hijas. La lección de
+Grafana ([#124158](https://github.com/grafana/grafana/issues/124158)) sigue en pie: un número
+que significa una cosa u otra según el contexto se rompe. Acá se define una sola vez.
+
+**Los contadores de sección no se tocan:** «Tableros» (slot 1), «Configuraciones pendientes
+(8)», «Favoritos (5/15)» y «Sin carpeta» existen en producción y no son de lo que hablaba el
+comentario, que estaba anclado en el `span` de una fila de carpeta.
 
 ---
 

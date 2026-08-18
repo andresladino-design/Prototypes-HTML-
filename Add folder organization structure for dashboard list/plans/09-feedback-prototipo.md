@@ -18,7 +18,7 @@ no obliga a medir dos veces.
 | # | Hallazgo | Estado |
 |---|---|---|
 | ② | Resize del panel | ✅ **Cerrado.** Mecanismo decidido (arrastrar el borde, franja del delta sombreada) y **los tres valores confirmados por Andrés el 2026-08-18: 288 · 384 · 480.** Queda re-sincronizar los docs. |
-| ③ | Quitar el contador | ✅ **Cerrado sin quitarlo.** El motivo era (c) ancho, y ② devuelve 96px donde el contador devolvía 20. |
+| ③ | Quitar el contador | ✅ **Quitado** (D18). El total se muda al `title` y al `aria-label`. Corregido el 2026-08-18: la primera lectura fue mía y estaba mal. |
 | ~~①~~ | ~~Límites de tableros por carpeta~~ | ⛔ **Fuera del plan por ahora** (Andrés, 2026-08-18). El hueco de I5 sigue abierto, pero no se resuelve en esta etapa. |
 | ④ | Permisos al eliminar carpeta | ✅ **D20 · flujo y prototipo listos.** Política: solo quien la creó, con `oc:manage_access` como escape. Falta confirmar con BE. |
 | ~~⑤~~ | ~~Acordeón exclusivo~~ | ⛔ **Fuera del plan** (Andrés, 2026-08-18). D12 se queda como está: secciones independientes. |
@@ -32,7 +32,8 @@ las tres mitigaciones de D2 (indentación de 12px, truncado al medio, tope de 3 
 Haberlo resuelto primero es lo que dejó ③ decidido con un número en vez de una opinión.
 
 ```
-② resize del panel  ──┬──▶ ③ quitar contador   ✅ cerrado: el motivo era ancho
+② resize del panel  ──┬──▶ ③ quitar contador   ✅ quitado (el motivo era ancho,
+                      │                          pero el pedido era quitarlo)
                       └──▶ recalcular D2 · D13 · D16 · design.md · 07-handoff-fe
                              ⏸ pendiente de que se confirmen los valores
 
@@ -190,49 +191,46 @@ y son 45.
 
 ---
 
-## ③ Quitar el contador de las subcarpetas — ✅ cerrado sin quitarlo
+## ③ Quitar el contador de las subcarpetas — ✅ quitado (D18)
 
 > *«QUitar este contador»* — `cmt_mst64r43`, anclado en `span.flex` de un `li` con una guía
 > de indentación antes → es el contador de una carpeta de **profundidad 1**
 
-**Motivo confirmado por Andrés (2026-08-18): (c) roba ancho al nombre.**
+**El contador sale de la fila.** El total del subárbol se muda al `title` y al `aria-label`,
+que cuestan 0px.
 
-Y con el motivo en la mano, la respuesta se decide con una resta en vez de con una opinión:
+> **⚠️ Corrección de rumbo (2026-08-18).** La primera versión de esta sección decidió lo
+> contrario —que el contador se quedaba— con este argumento: el motivo era ancho, y ② devuelve
+> 96px donde el contador devolvía 20.
+>
+> **Contestaba una pregunta que nadie hizo.** El comentario era una instrucción; el motivo
+> explicaba *por qué*, no *si*. Andrés lo marcó al revisar el proto: «el panel sigue mostrando
+> el contador, algo que en el feedback se comentó que ya no iba».
+>
+> La resta sigue siendo válida para lo que sí decidía —que **quitarlo no era la forma de
+> recuperar ancho**, y por eso ② igual valía la pena— pero se quita, porque el ancho no era la
+> única razón.
 
-| | Devuelve al nombre |
-|---|---|
-| Quitar el contador | **+20px** — y se pierde el total del subárbol |
-| Subir de `sm` a `md` | **+96px** — y no se pierde nada |
+**Lo que gana la fila:** +20px en cada carpeta, y una propiedad nueva — **una carpeta y un
+tablero a la misma indentación ahora miden lo mismo.** La fila deja de tener dos presupuestos
+según el tipo.
 
-**El contador se queda.** ② devuelve casi cinco veces más ancho sin sacrificar información,
-así que pagar con el contador es un mal negocio. D2 sigue en pie, y con él la lección de
-Grafana ([#124158](https://github.com/grafana/grafana/issues/124158)): el número significa
-siempre lo mismo — total del subárbol, desglose en el `title`.
+| | Con contador (D2) | Sin contador |
+|---|---|---|
+| Carpeta nivel 1 / 2 / 3 | 182 / 170 / **158** | 202 / 190 / **178** |
 
-**En el prototipo** quedó un toggle *«Sin contador de subárbol»* en el panel de demo. **No es
-una alternativa de diseño: es el instrumento con el que se midió.** Sirve para ver los 20px
-al lado de los 96 y comprobar que la resta es real.
+**Lo que se pierde, y hay que decirlo:** una carpeta **cerrada** ya no dice cuánto tiene
+adentro. Era la única señal de volumen sin expandir, y es el caso donde más servía —decidir si
+vale abrirla. Queda en el `title` y el `aria-label`, pero un dato que exige un gesto no es un
+dato que se escanea.
 
----
+- [ ] **A validar en la próxima revisión:** si se extraña el volumen de una carpeta cerrada. Si
+      se extraña, la salida **no** es volver al contador en todas las filas, sino mostrarlo
+      **solo en las colapsadas**.
 
-## ① Límites de tableros dentro de una carpeta
-
-> *«definir limites de tableros dentro de carpetas»* — `cmt_mst60djq`
-
-**Hueco real.** **I5** definió cuántas *carpetas* caben (objetivo 7±2 · aviso suave >15 ·
-tope técnico 50) pero nunca cuántos *tableros* caben dentro de una. Es la pregunta espejo.
-
-- [ ] ¿Tope **duro** (como los 15 de Favoritos) o **aviso suave** (como las carpetas)?
-      Favoritos tiene tope duro porque es un atajo; una carpeta es una ubicación, y una
-      ubicación que rechaza contenido es rara. **Recomendación: aviso suave.**
-- [ ] Definir el número. Referencia útil: hoy «Adquirencia» tiene 24 y ya se siente larga —
-      que es justamente lo que motivó D2 (subcarpetas).
-- [ ] **La salida natural del límite es crear una subcarpeta**, no rechazar. Copy sugerido:
-      *«Esta carpeta tiene 40 tableros. Considerá agruparlos en subcarpetas.»* con acción
-      directa a «Nueva subcarpeta».
-- [ ] ¿Se valida en BE o solo se avisa en UI? Si es aviso, **no** hace falta BE.
-- [ ] Métrica que lo respalda: la telemetría ya manda `depth`; agregar el **tamaño de carpeta**
-      para saber si el límite propuesto tiene base en el uso real.
+**Los contadores de sección no se tocan** — «Tableros», «Configuraciones pendientes (8)»,
+«Favoritos (5/15)» y «Sin carpeta» existen en producción y no eran de lo que hablaba el
+comentario.
 
 ---
 
