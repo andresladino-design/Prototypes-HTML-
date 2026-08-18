@@ -1,3 +1,15 @@
+> # ⛔ DOCUMENTO DESCARTADO
+>
+> **D10 se revirtió el 2026-08-14: las carpetas son solo de Tableros.** Este documento
+> diseñaba el sistema transversal a las 4 entidades del OC y **ya no describe el alcance
+> del feature**.
+>
+> Se conserva como registro porque el diseño de **membresía heredada** (que las anomalías
+> hereden la carpeta del recurso que monitorean, resuelta en query y no persistida) es una
+> idea que puede volver a servir si el alcance se reabre.
+>
+> **No usar como fuente para implementar.** Ver [`01-decisiones.md`](01-decisiones.md) § D10.
+
 # Organización transversal — carpetas para las cuatro entidades del OC
 
 **Fecha:** 2026-08-04

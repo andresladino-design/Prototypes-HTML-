@@ -1,3 +1,14 @@
+> # ⛔ DOCUMENTO DESCARTADO
+>
+> **D10 se revirtió el 2026-08-14: las carpetas son solo de Tableros.** Este benchmark
+> (T1–T6) comparaba los cuatro paneles del OC para diseñar el sistema transversal.
+>
+> Se conserva como registro. **Lo único que sobrevive y sigue siendo útil es el patrón de
+> panel (D11, los 9 slots)**: describe la anatomía real del panel de Tableros y dónde entra
+> el slot 7, que es lo que agrega este feature.
+>
+> **No usar como fuente para implementar.** Ver [`01-decisiones.md`](01-decisiones.md) § D10.
+
 # Benchmark — organización transversal a varias entidades
 
 **Fecha:** 2026-08-04

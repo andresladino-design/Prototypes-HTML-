@@ -93,7 +93,7 @@ La **guía vertical de 1px** en 1.22:1 es aceptable porque es decorativa: la per
 | Glifos de icon-button | `!h-3 !w-3` con `p-1` | pin, `⋮`, chevron |
 | Radio de fila | `rounded-md` | `DashboardListItem` |
 
-> **Invariante del feature:** la fila de carpeta debe medir **32px igual que un tablero**. Si el contador o el chevron la empujan a 36–40px, se pierde una fila visible por carpeta y el feature se paga en el recurso que vino a ahorrar. Verificar en la Etapa 6.
+> **Invariante del feature:** la fila de carpeta debe medir **32px igual que un tablero**. Si el contador la empuja a 36–40px, se pierde una fila visible por carpeta y el feature se paga en el recurso que vino a ahorrar. (El chevron ya no está — D13.) Verificar en la revisión visual.
 
 ---
 
@@ -188,22 +188,45 @@ Usa `stepper` de desyk. Precedentes en el producto: `CreateConnectionWizard` y `
 
 Resuelto en **I4**. La carpeta es un nivel **intermedio**: por debajo del header de sección, por encima de la fila de tablero.
 
+> **🔄 Revisado el 2026-08-14** por D2 (3 niveles), D13 (el icono absorbe el chevron) y la
+> corrección del ancho útil real del panel.
+
+**El ancho disponible para una fila es 240px, no 288.** `w-72` (288px) menos `px-3` **dos veces**:
+en el `<aside>` del layout (`OcContentLayout.tsx:171`) y otra vez en el cuerpo de la sección
+(`DashboardSection`). Todos los cálculos de jerarquía y truncado se hacen sobre **240**.
+
 ```
-Tableros (155)                    [📁+] [↕A→Z]   ← 12px medium muted
-▾ 📁 Adquirencia               24                ← 14px MEDIUM · chevron+icono · contador 11px
-  │  🌐 ADQ-DASH                                 ← 14px normal · indent 16px · guía 1px
-  │  🌐 Adquirencia_2026_06_04…
-▸ 📁 Cierre contable           12
-  🌐 Adquirencia                                 ← suelto: 14px normal, sin indentar
+Tableros (155)                    [🗀+] [↕A→Z]   ← 12px medium muted
+▾ 🗀 Adquirencia               24                ← 14px MEDIUM · SIN chevron · contador 12px
+  │ ▸ 🗀 Visa                     8               ← subcarpeta · indent 12px · guía 1px
+  │ 🌐 ADQ-DASH                                   ← 14px normal
+▸ 🗀 Cierre contable           12
+  🌐 Adquirencia                                  ← suelto: 14px normal, sin indentar
 ```
 
 Palancas, en orden de peso:
 
 1. **`font-medium`** en la carpeta vs. `font-normal` en el tablero. Palanca principal, no cuesta densidad.
-2. **Icono** `Folder` / `FolderOpen` (`h-3.5 w-3.5 text-muted-foreground`) + **chevron** `ChevronRight` / `ChevronDown` (`h-3 w-3`) a su izquierda.
-3. **Contador** a la derecha, `text-[11px] text-muted-foreground`, **sin paréntesis** (los paréntesis son del header de sección: "Tableros (155)").
-4. **Indentación** de los hijos ~16px + **guía vertical de 1px** `border-l border-sidebar-border`.
+2. **Icono** `Folder` / `FolderOpen` (`h-3.5 w-3.5 text-muted-foreground`) que **lleva el estado**. **Sin chevron** (D13): son 16px por fila y un elemento menos que procesar al escanear. `aria-expanded` se conserva en el botón — lo que se fue es solo el glifo.
+3. **Contador** a la derecha, `text-xs text-muted-foreground`, **sin paréntesis** (los paréntesis son del header de sección: "Tableros (155)"). Muestra el **total del subárbol**, no los directos; el desglose va en el `title`.
+4. **Indentación** de los hijos de **12px** + **guía vertical de 1px** `border-l border-sidebar-border`, una guía por ancestro.
 5. **Fondo:** ninguno en reposo. `hover:bg-muted` para hover, `bg-accent` reservado para la fila activa.
+
+**Por qué 12px y no 16.** Con 3 niveles de anidamiento (D2), 16px por nivel dejaría el nombre de
+un tablero de nivel 3 en ~140px, y los nombres reales tienen 40 caracteres. A 12px el peor caso
+es **166px** para el tablero y **158px** para la carpeta. Es el número que sostiene la decisión:
+
+| | nivel 1 | nivel 2 | nivel 3 |
+|---|---|---|---|
+| Nombre de carpeta | 182px | 170px | **158px** |
+| Nombre de tablero dentro | 190px | 178px | **166px** |
+
+**Dónde SÍ se conserva el chevron:** solo en los encabezados de sección colapsables (D12), que
+no tienen icono que pueda cargar el estado. Eso deja una distinción limpia:
+**chevron = sección del sistema · icono con estado = carpeta del usuario**.
+
+El árbol es **in-place** y no navega por niveles (D16), así que no hay ningún lugar donde el
+chevron signifique «entrar».
 
 **Prohibido:** fuente mayor a 14px · mayúsculas · color de acento en la carpeta (los acentos están tomados: `text-info` en `Globe`, `warning` en pendiente, `destructive` en eliminar) · peso 600+.
 

@@ -13,7 +13,8 @@ Repositorio de prototipos HTML del equipo de UX. Cada carpeta es un prototipo in
 | [Monitor Anomaly Recon](./monitor-anomaly-recon/) | Monitor de anomalías de conciliación para Operation Center | 2026-05-25 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/monitor-anomaly-recon/) |
 | [Config System KPI](./config-system-kpi/) | Configuración de KPIs del sistema en Operation Center | 2026-05-25 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/config-system-kpi/) |
 | [Notificaciones Resumen](./notificaciones-resumen/) | Configuración de notificaciones, ventana de monitoreo y métricas de gráficos (K Cast) | 2026-06-23 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/notificaciones-resumen/) |
-| [Carpetas en la lista de tableros](./Add%20folder%20organization%20structure%20for%20dashboard%20list/) | Organización por carpetas del panel de Tableros del OC (SWAT-577) — incluye el estado actual como comparación | 2026-08-03 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/Add%20folder%20organization%20structure%20for%20dashboard%20list/prototypes/index.html) |
+| [Carpetas en la lista de tableros](./Add%20folder%20organization%20structure%20for%20dashboard%20list/) | Organización por carpetas del panel de Tableros del OC (SWAT-577) — incluye el estado actual como comparación | 2026-08-13 | [Ver](https://andresladino-design.github.io/Prototypes-HTML-/Add%20folder%20organization%20structure%20for%20dashboard%20list/prototypes/index.html) |
+| [Ancho útil en las filas de Tableros](./ancho-util-lista-tableros/) | Mejora independiente del panel del OC: botones en hover y truncado al medio — solo handoff, sin prototipo propio | 2026-08-13 | — |
 
 ---
 

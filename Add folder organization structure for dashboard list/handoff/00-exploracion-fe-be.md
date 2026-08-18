@@ -8,6 +8,19 @@
 > Objetivo de este doc: dejar por escrito **qué existe hoy** en FE y BE antes de diseñar,
 > para que el prototipo y el handoff se apoyen en el código real y no en supuestos.
 
+> **📌 Nota del 2026-08-14 — este doc sigue vigente, con dos aclaraciones.**
+>
+> 1. **§5.1 se convirtió en la decisión D15.** El riesgo que este doc anticipó —«el agrupamiento
+>    no puede ser client-side» — se perdió de vista al diseñar el anidamiento y reapareció al
+>    revisar el BE. Ahora está cerrado con contrato en [`07-handoff-be.md`](07-handoff-be.md).
+>    Los números concretos: `DASHBOARDS_PAGE_SIZE = 20` (`DashboardList.tsx:117`) y
+>    `page_size` con tope duro `le=100` (`utils/common/dependencies/pagination.py:8`).
+> 2. **Las preguntas abiertas de §6 ya se decidieron.** En particular D2 («¿un solo nivel o
+>    subcarpetas?») → **3 niveles**, y §5.5 (scope) → **por cuenta**. Ver
+>    [`01-decisiones.md`](01-decisiones.md).
+>
+> Reverificado el 2026-08-14: sigue siendo campo verde (`grep -ril folder apps/ migrations/` → 0).
+
 ---
 
 ## 1. Resumen ejecutivo

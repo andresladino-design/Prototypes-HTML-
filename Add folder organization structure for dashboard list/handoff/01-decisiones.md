@@ -1,12 +1,19 @@
 # Decisiones de producto y diseño — Carpetas en la lista de tableros (SWAT-577)
 
 **Fechas:** D1–D7 el 2026-08-03 (antes de prototipar) · **D8 y D9 el 2026-08-04, tras probar el prototipo**
+· **D2, D6 y D10 revisadas el 2026-08-14** · **D12–D15 abiertas el 2026-08-14**
 **Decidido por:** Andrés Ladino (UX) con la exploración técnica de [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md)
-**Estado:** cerradas. Cambiar cualquiera de D1, D2 o D3 después de la Etapa 7 implica rehacer el modelo de BE.
+**Estado:** cerradas. Cambiar D1 o D3 después de la Etapa 7 implica rehacer el modelo de BE.
 
 > D8 y D9 salieron de **usar** el prototipo, no de analizarlo. D8 además **revierte** una decisión previa mía
 > ("la carpeta nace vacía"). Quedan registradas acá con lo que reemplazan, para que el handoff no arrastre
 > la versión anterior.
+>
+> **🔄 Tres revisiones del 2026-08-14.** El equipo pidió subcarpetas (**D2**) y recortar el alcance a
+> tableros (**D10**); revisar el BE reveló además que **D6** no podía apoyarse en una FK. Las tres
+> se reescriben abajo **conservando la decisión anterior y su razón**, porque en los tres casos la razón
+> original sigue siendo la restricción que condiciona el diseño actual. No se reescribe la historia:
+> se registra el cambio.
 
 ---
 
@@ -15,18 +22,23 @@
 | # | Decisión | Resultado | Costo de revertir |
 |---|----------|-----------|-------------------|
 | **D1** | Scope de las carpetas | **Por cuenta** (compartidas) | 🔴 Alto — modelo BE + migración |
-| **D2** | Profundidad | **Un solo nivel** | 🟡 Medio — anidar es aditivo |
+| **D2** 🔄 | Profundidad | **3 niveles de carpeta** *(antes: un solo nivel)* | 🔴 Alto — `parent_id` + `path` en BE |
 | **D3** | Pertenencia | **Exclusiva** (un tablero, una carpeta) | 🔴 Alto — modelo BE + modelo mental |
 | **D4** | Convivencia con Favoritos / Pendientes | Carpetas **dentro** de "Tableros"; las otras dos secciones intactas | 🟢 Bajo |
 | **D5** | Alcance del orden A→Z | Aplica en **cada nivel** | 🟢 Bajo |
-| **D6** | Eliminar carpeta | **Desagrupa siempre**; nunca elimina tableros | 🔴 Alto (es criterio del issue, no negociable) |
+| **D6** 🔄 | Eliminar carpeta | **Disuelve un nivel**: el contenido sube a la madre *(antes: a la raíz vía `ON DELETE SET NULL`)* | 🔴 Alto (que no elimine tableros es criterio del issue) |
 | **D7** | Mover un tablero | **Menú `⋮` primario + drag como atajo**, ambos en la v1 | 🟡 Medio |
 | **D8** | Crear carpeta | **2 pasos: elegir tableros → ponerle nombre.** Al crear, la carpeta se revela con scroll + resalte | 🟡 Medio |
 | **D9** | Llenar una carpeta existente | **"Agregar tableros"** con selección múltiple: botón punteado en la carpeta vacía + ítem en el menú `⋮` | 🟢 Bajo |
 | **D11** | Patrón de panel | **«Panel de recursos del OC»**: 9 slots en orden fijo. Eje **artefacto vs. evento** deriva fila, ancho, paginación y tipo de membresía | 🟢 Bajo |
-| **SD-8** | «Favoritos» vs «Fijados» | Mismo mecanismo con dos nombres en Tableros y Pendientes. Decisión de producto | 🟡 Abierta |
-| **SD-7** | Conciliaciones ya agrupadas | El panel de Pendientes **ya agrupa por dataset** → la carpeta se ofrece como **modo de agrupación alternativo** (toggle), no como nivel extra | 🟡 Abierta |
-| **D10** | Alcance | **Transversal a las 4 entidades** con una carpeta compartida. Membresía **declarada** en tableros/datasets, **heredada** en anomalías/pendientes | 🔴 Alto — tabla genérica `folders` |
+| ~~**SD-8**~~ | ~~«Favoritos» vs «Fijados»~~ | ⛔ Fuera de alcance con D10 revisada (era sobre el panel de Pendientes) | — |
+| ~~**SD-7**~~ | ~~Conciliaciones ya agrupadas~~ | ⛔ Fuera de alcance con D10 revisada | — |
+| **D10** 🔄 | Alcance | **Solo Tableros** *(antes: transversal a las 4 entidades)* | 🟢 Bajo — se recorta, no se migra |
+| **D12** ✨ | Secciones colapsables | Las 4 secciones del panel colapsan; se persiste lo **colapsado** | 🟢 Bajo |
+| **D13** ✨ | Chevron de carpeta | El **icono** lleva el estado (`folder` ↔ `folder-open`); sin chevron | 🟢 Bajo |
+| **D14** ↗️ | Ancho útil de la fila | **Extraída a un issue aparte** — no depende de carpetas | 🟢 Bajo |
+| **D15** ✨ | Agrupamiento server-side | El árbol **no** se resuelve en cliente: la lista es paginada de 20 con `search`/`sort` en BE | 🔴 Alto — condiciona todo el contrato de API |
+| **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles | 🟡 Medio |
 
 ---
 
@@ -48,13 +60,64 @@
 
 ---
 
-## D2 — Un solo nivel de carpetas
+## D2 🔄 — Anidamiento hasta **3 niveles** de carpeta
 
-**Decisión:** carpetas planas. Sin subcarpetas en el MVP.
+**Revisada el 2026-08-14.** Antes: *«carpetas planas, sin subcarpetas en el MVP»*.
 
-**Razón:** el panel mide ~280 px; al tercer nivel de indentación el nombre del tablero deja de ser legible — y los nombres reales son largos (`Adquirencia_2026_06_04_...`, ya truncados hoy). Ley de Miller: el objetivo es chunks reconocibles, no una jerarquía profunda. Grafana operó con carpetas planas durante años antes de anidar. Y anidar más adelante es **aditivo**; quitar la anidación sería una migración.
+**Decisión:** 3 niveles de carpeta (`Adquirencia › Visa › Contracargos`). Los tableros
+cuelgan de cualquiera de ellos y **no cuentan como nivel**.
 
-**Consecuencias:** sin breadcrumb en el sidebar · query de un nivel · el `MoveToFolderDialog` es una lista simple, no un árbol · si una cuenta creara 30 carpetas volvería a tener una lista larga → se define un máximo razonable de carpetas en la Etapa 5.
+**Por qué cambió:** el equipo pidió subcarpetas. El doc original ya había dejado la puerta
+abierta — *«anidar más adelante es aditivo; quitar la anidación sería una migración»* — así
+que no hay contradicción de modelo, es la escalación prevista.
+
+### La razón original de D2 no desapareció
+
+Es lo más importante de esta revisión. D2 argumentaba carpetas planas porque **el panel
+tiene 240px útiles** (`w-72` con `px-3` dos veces: en el `<aside>` y en el cuerpo de la
+sección) **y los nombres reales ya se truncan hoy**:
+
+```
+Adquirencia_2026_06_04_conciliacion_visa     ← 40 caracteres
+Adquirencia_2026_06_04_conciliacion_master
+```
+
+Esa restricción es exactamente la que obliga a las **tres mitigaciones** del diseño actual.
+Si alguien las revierte por parecer arbitrarias, el anidamiento se vuelve inusable:
+
+| Mitigación | Qué pasa sin ella |
+|---|---|
+| Indentación de **12px** por nivel (no los 19px del acordeón original) | en el nivel 3 el nombre baja a ~120px |
+| **Truncado al medio** fijando el último segmento | se pierde la cola, que es lo que desambigua `_visa` de `_master` |
+| **Tope de 3 niveles** | la profundidad se vuelve ilimitada y el `path` del BE, de largo impredecible |
+
+Presupuesto resultante — peor caso permitido:
+
+| | nivel 1 | nivel 2 | nivel 3 |
+|---|---|---|---|
+| Nombre de carpeta | 182px | 170px | **158px** |
+| Nombre de tablero dentro | 190px | 178px | **166px** |
+
+**Por qué 3 y no «sin tope»:** se evaluó profundidad libre y se descartó al revisar el BE.
+Con tope, el `path` materializado tiene largo acotado, el `CHECK` de profundidad es trivial
+y las consultas de subárbol son predecibles. Sin tope, todo eso queda abierto. El tope
+**abarata el backend**, no solo ordena la UI.
+
+**Consecuencias:**
+
+1. **BE:** `parent_id` (self-FK) + `path` materializado. Ver [`07-handoff-be.md`](07-handoff-be.md).
+2. **Ciclos:** una carpeta no puede colgar de su propio subárbol → guarda por prefijo de `path`.
+3. **`MoveToFolderDialog` deja de ser una lista simple y pasa a ser un árbol con ruta** — con anidamiento puede haber tres carpetas llamadas «2026», y el nombre solo no alcanza.
+4. **Unicidad de nombre pasa a ser entre hermanas**, no global: `Adquirencia / 2026` y `Cierre contable / 2026` conviven (ver I6 y el gotcha de Postgres en el handoff de BE).
+5. **Nueva operación: mover una carpeta.** No existía. Endpoint propio + su flujo (F10).
+6. **Revelar una carpeta implica abrir toda la cadena de ancestros**, no solo la hoja.
+7. **Sin breadcrumb en el sidebar** — el árbol in-place no navega, expande (D16).
+
+**Grafana como precedente sigue aplicando, en el otro sentido:** anidó y arrastró
+incompatibilidades con features que asumían un nivel ([#124158](https://github.com/grafana/grafana/issues/124158)).
+La lección que queda es el **contador**: si un número puede significar «directos» o
+«subárbol» según el contexto, se rompe. Acá se define una sola vez — siempre subárbol,
+con desglose en el `title`.
 
 ---
 
@@ -94,17 +157,40 @@
 
 ---
 
-## D6 — Eliminar una carpeta desagrupa; nunca elimina tableros
+## D6 🔄 — Eliminar una carpeta **disuelve un nivel**; nunca elimina tableros
 
-**Decisión:** criterio explícito del issue. Al eliminar una carpeta, sus tableros vuelven a la lista de sueltos.
+**Revisada el 2026-08-14.** Antes: *«sus tableros vuelven a la lista de sueltos»* vía `ON DELETE SET NULL`.
 
-**Consecuencias:**
+**Decisión:** al eliminar una carpeta, su contenido —tableros **y subcarpetas**— sube a la
+**carpeta madre**. Si la carpeta era de primer nivel, sube a la lista de sueltos (que es el
+mismo comportamiento de antes, ahora como caso particular).
 
-1. **BE:** `ON DELETE SET NULL` — el desagrupado lo garantiza el motor de base de datos, no la lógica de aplicación.
-2. **Copy del diálogo (el punto más delicado del feature):** tiene que decir el número.
+**Por qué cambió:** con anidamiento, mandar todo a la raíz **teletransporta** los tableros de
+una subcarpeta profunda al primer nivel. El usuario que elimina «Visa» espera que sus tableros
+queden en «Adquirencia», no sueltos entre 111 más. Subir un nivel es lo que la metáfora de
+carpeta promete.
+
+**Consecuencia técnica — la que más importa:** `ON DELETE SET NULL` **ya no implementa el
+feature**. Reparentar es lógica de servicio, en una transacción:
+
+```
+1. UPDATE dashboards        SET folder_id = <madre>              WHERE folder_id = <id>
+2. UPDATE dashboard_folders SET parent_id = <madre>, path = …    WHERE parent_id = <id>
+3. DELETE FROM dashboard_folders                                 WHERE id = <id>
+```
+
+La FK se conserva como **red de seguridad** (si algo borra la fila por fuera del servicio, los
+tableros no se van con ella), no como el mecanismo. Perdimos la garantía «lo hace el motor de
+base de datos», así que **el test de que eliminar no borra tableros pasa a ser obligatorio**
+en la suite de BE, no opcional.
+
+**Consecuencias de producto:**
+
+1. **Copy del diálogo (el punto más delicado del feature):** tiene que decir el número **y a dónde va**.
    > **¿Eliminar carpeta?**
-   > Se eliminará la carpeta «Adquirencia». Los **24 tableros** que contiene volverán a la lista de tableros; no se eliminarán.
-3. "Quitar de la carpeta" (F3) tampoco elimina nada y no lleva diálogo de confirmación — es reversible y de bajo riesgo, con toast + "Deshacer".
+   > Se eliminará la carpeta «Visa». Sus **8 tableros y 1 subcarpeta** suben a «Adquirencia»; **no se eliminan**.
+2. "Quitar de la carpeta" (F3) tampoco elimina nada y no lleva diálogo de confirmación — es reversible y de bajo riesgo, con toast + "Deshacer".
+3. El "Deshacer" tiene que restaurar **tres cosas**: la carpeta, el `parent_id` de sus hijas y el `folder_id` de sus tableros.
 4. El lenguaje nunca mezcla los dos verbos: **"Eliminar carpeta"** ≠ **"Eliminar tablero"**. Si el usuario confunde ambos, no usa carpetas.
 
 ---
@@ -181,10 +267,39 @@
 
 ---
 
-## D10 — El sistema es transversal: una carpeta, cuatro entidades
+## D10 🔄 — **Solo Tableros** (revierte el alcance transversal)
+
+**Revisada el 2026-08-14.** Antes: *«una carpeta, cuatro entidades»* (ver el registro completo más abajo).
+
+**Decisión:** las carpetas son **solo del panel de Tableros**.
+
+- **Datasets** conserva su lista plana. El tab existe en producción y **no se toca**: sin carpetas, sin «Nueva carpeta», sin «Mover a carpeta» en el menú. Sirve además como control: verifica que el feature no lo afectó.
+- **Anomalías** y **Pendientes** quedan fuera por completo. Sus tabs siguen siendo chrome del OC, sin vista implementada en el prototipo.
+
+**Consecuencias:**
+
+1. La tabla vuelve a llamarse **`dashboard_folders`**, no `folders`. El componente se queda en **`features/dashboards/`**, no pasa a `shared/`.
+2. **No hace falta** la tabla puente `folder_external_items` ni la coordinación con el equipo del datahub — era el entregable más caro y desaparece.
+3. La membresía **heredada** (el diseño para anomalías) deja de aplicar. Era la parte más interesante del alcance transversal y queda como registro, no como entregable.
+4. El copy destructivo cuenta **solo tableros y subcarpetas** (ver D6), no entidades mixtas.
+5. El wizard (D8) deja de parametrizarse por entidad: siempre dice «Elige los tableros».
+6. **SD-1, SD-2, SD-7 y SD-8 quedan fuera de alcance** — todas eran del alcance transversal.
+7. Los flujos **F9 (tableros + datasets)** y **F10 (anomalías por carpeta)** se **borraron del board** de Moka. Sus números se reutilizaron para los flujos de anidamiento.
+8. `06-organizacion-transversal.md` y `02-benchmark-transversal.md` se **conservan como registro** de la exploración, marcados como descartados.
+
+**Qué sobrevive del alcance transversal:** el **patrón de panel** (D11, los 9 slots) se derivó
+comparando los cuatro paneles del OC. Ese análisis sigue siendo válido y útil aunque el feature
+ya no los toque: describe la anatomía real del panel de Tableros y dónde entra lo nuevo (slot 7).
+
+---
+
+### 📁 Registro de la decisión anterior (2026-08-04 → 2026-08-14)
+
+*Se conserva porque documenta un diseño que costó y del que puede volver a servir la
+idea de membresía heredada si el alcance se reabre.*
 
 **Fecha:** 2026-08-04 · **Origen:** feedback al prototipo.
-**Detalle completo:** [`06-organizacion-transversal.md`](06-organizacion-transversal.md)
+**Detalle completo:** [`06-organizacion-transversal.md`](06-organizacion-transversal.md) *(descartado)*
 
 **Qué pasó:** el feedback señaló que el contexto de SWAT-577 era más chico que el problema — *"lo que toca lograr es una organización para las diferentes entidades, principalmente tableros y datasets… deberíamos ver si lo hacemos de forma transversal, como ya lo hiciste para anomalías"*.
 
@@ -212,11 +327,156 @@
 
 ---
 
+## D12 ✨ — Las cuatro secciones del panel colapsan
+
+**Fecha:** 2026-08-14
+
+**Decisión:** `Configuraciones pendientes`, `Favoritos`, `Tableros` y `Sin carpeta` llevan
+chevron y colapsan. El estado persiste en `localStorage`, en una **clave distinta** a la de
+las carpetas expandidas.
+
+**Razón:** el hallazgo #3 del benchmark decía que colapsar carpetas no alcanza — con 4 carpetas
+y 111 sueltos quedan ~115 filas. Colapsar **secciones** ataca eso directamente: cerrar Pendientes
+y Favoritos devuelve 13 filas, y cerrar «Sin carpeta» otras 20. De 59 filas visibles a 26.
+
+**Detalle que importa:** se persiste **lo colapsado**, no lo abierto. Así el default de toda
+sección es «abierta», y una sección nueva no aparece cerrada solo por no estar en la lista
+guardada. Con la lógica invertida, agregar una quinta sección la mostraría colapsada a todos
+los usuarios existentes.
+
+**Jerarquía:** el chevron de sección queda en `text-muted-foreground` y el label mantiene su
+registro (`text-xs font-medium`), así que sigue leyéndose por encima de la fila de carpeta
+(`text-sm font-medium foreground`). Y aparece una distinción útil: **chevron = sección del
+sistema · icono con estado = carpeta del usuario** (ver D13).
+
+**Consecuencia:** durante la búsqueda «Tableros» pasa a ser «Resultados» y el toggle se
+deshabilita — ahí no es una sección sino el resultado de una consulta.
+
+---
+
+## D13 ✨ — El icono de carpeta absorbe el chevron
+
+**Fecha:** 2026-08-14
+
+**Decisión:** la fila de carpeta **no lleva chevron**. El propio icono indica el estado:
+`folder` cerrada ↔ `folder-open` abierta.
+
+**Razón:** son 16px por fila y un elemento menos que procesar al escanear, en un panel donde
+el ancho es el recurso escaso (ver D2). Es el patrón del sidebar de Finder.
+
+**Lo que se conserva:** `aria-expanded` sigue en el botón, así que la semántica para lectores
+de pantalla no cambia — lo que se fue es solo el glifo.
+
+**Dónde NO se aplica, deliberadamente:**
+
+| Lugar | Por qué conserva chevron |
+|---|---|
+| Encabezados de sección (D12) | no tienen icono que pueda cargar el estado |
+
+**Riesgo abierto:** `folder` y `folder-open` se distinguen menos que un chevron a 14px. Queda
+como pregunta **D13** del panel de demo: *¿se lee el estado sin el chevron?* Si la respuesta es
+que no, la alternativa a evaluar es el patrón de Notion — icono en reposo, chevron en hover, en
+el mismo slot y a costo cero de ancho.
+
+---
+
+## D14 ↗️ — El ancho útil de la fila se va a un issue aparte
+
+**Fecha:** 2026-08-14
+
+**Decisión:** el **truncado al medio** y los **botones de fila en hover** se extraen de SWAT-577
+y se documentan como mejora independiente:
+[`ancho-util-lista-tableros/`](../../ancho-util-lista-tableros/).
+
+**Razón:** ninguno de los dos depende de carpetas. Los dos arreglan un problema que **ya existe
+hoy en producción**: el `⋮` reserva 20px invisibles en cada fila, y el truncado al final corta
+justo por donde los nombres se distinguen. Meterlos en SWAT-577 los ataría a un feature más
+grande y más lento.
+
+**Consecuencia de proceso, y hay que decirla en el ticket:** el prototipo los tiene **activos**,
+así que parte de la mejora visual que se ve ahí **no la entrega SWAT-577**. Sin esa nota, la demo
+promete más que el ticket.
+
+**Recomendación de secuencia:** abrir el issue de D14 **antes**. Es solo FE, un componente, y
+deja la fila con más ancho disponible justo cuando el anidamiento va a empezar a consumirlo.
+
+---
+
+## D15 ✨ — El agrupamiento se resuelve **server-side**
+
+**Fecha:** 2026-08-14 · **Origen:** revisión de `op-center-backend` @ `8cc5bc3b` y `fe-solutions-mf` @ `8aebc1879`
+
+**Decisión:** el árbol **no** se construye en el cliente. El BE expone las carpetas completas
+con sus contadores, y los tableros paginados por carpeta.
+
+**Por qué:** verificado en código, no supuesto.
+
+| Hallazgo | Fuente |
+|---|---|
+| `DASHBOARDS_PAGE_SIZE = 20` + `useInfiniteQuery` + `IntersectionObserver` | `DashboardList.tsx:117` |
+| `page_size` con tope duro `le=100` | `utils/common/dependencies/pagination.py:8` |
+| `search`, `sort_by`, `sort_order` server-side | `api/views/dashboards.py:68-106` |
+
+Con 155 tableros y tope de 100 por página, **no existe un «traer todo»**. Cualquier diseño que
+asuma la lista completa en memoria —contador de subárbol, orden global, árbol completo— no es
+implementable.
+
+> ⚠️ **El prototipo hace exactamente eso.** Construye `treeRows` recorriendo los 159 tableros en
+> memoria y calcula los contadores en cliente. Es válido como exploración de interacción y **no
+> es implementable tal cual**. Es el riesgo #1 del handoff: se ve implementable y no lo es.
+
+**Contrato:** carpetas completas sin paginar (son pocas, I5) + tableros paginados por carpeta,
+pedidos **al expandir**. Detalle en [`07-handoff-be.md`](07-handoff-be.md).
+
+**Nota:** este riesgo **ya estaba escrito** en [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md) §5.1
+desde el 2026-08-03. Se perdió de vista al diseñar el anidamiento. Queda como D15 para que no
+vuelva a pasar.
+
+---
+
+## D16 ✨ — Árbol in-place; se descarta el drill-down
+
+**Fecha:** 2026-08-14 · **Cierra I4** y el A/B de la Etapa 6.
+
+**Decisión:** el panel expande el árbol **en el mismo lugar**. Se descarta la navegación por
+niveles con breadcrumb, que se había prototipado como variante B.
+
+**Razón:** el gesto más frecuente del panel es **cambiar de tablero**, y el drill-down le suma
+clics justo a eso — para saltar de un tablero de «Adquirencia / Visa» a otro de «Cierre contable»
+hay que subir dos niveles y bajar dos. El árbol in-place lo hace en un clic. Es el mismo
+argumento que ya había dado el benchmark (I4); el A/B se armó para ponerlo a prueba y la
+conclusión se sostuvo.
+
+**El trade-off que se acepta a cambio:** el drill-down tenía una ventaja real que el in-place no
+puede igualar — **el nombre nunca pierde ancho**, porque siempre ves el nivel actual sin indentar.
+El in-place paga **12px por nivel**. Se acepta porque las tres mitigaciones de D2 lo dejan en un
+peor caso de 158px, y porque el costo de navegación se paga en **cada** cambio de tablero mientras
+el costo de ancho se paga solo en el nivel más profundo.
+
+**Consecuencias:**
+
+1. **Sin breadcrumb** en el sidebar. El único breadcrumb del feature es la **ruta** en los
+   resultados de búsqueda (I3) y en el chip del header del tablero abierto.
+2. **El chevron solo existe en los encabezados de sección** (D12). En la fila de carpeta el icono
+   lleva el estado (D13). Ya no hay un lugar donde el chevron signifique «entrar».
+3. Se elimina del prototipo el switch A/B y ~100 líneas de la variante B.
+4. **Divergencia deliberada con Almacenamiento**, que sí navega por niveles. Es la misma
+   divergencia que I3 ya había asumido para la búsqueda: el panel de Tableros es una lista de
+   trabajo, no un explorador de archivos.
+
+**Puerta abierta:** si la telemetría mostrara que muchas cuentas llegan al tope de 3 niveles y el
+ancho se vuelve un problema real, el drill-down vuelve a estar sobre la mesa — pero como
+alternativa, no como complemento. Tener las dos formas de navegar el mismo árbol sería peor que
+cualquiera de las dos.
+
+---
+
 ## Alcance de la v1 — qué NO entra
 
 | Fuera de alcance | Razón | ¿Reversible? |
 |------------------|-------|--------------|
-| Subcarpetas anidadas | D2 | Sí, aditivo |
+| **Más de 3 niveles** de anidamiento | D2 revisada — el tope abarata el `path` del BE | Sí, aditivo |
+| Carpetas en **Datasets, Anomalías y Pendientes** | D10 revisada | Sí, aditivo |
 | Etiquetas / pertenencia múltiple | D3 | Es otro feature |
 | Permisos propios por carpeta | D1.b — no se introduce permiso nuevo | Sí |
 | Carpetas personales ("Mis vistas") | D1 — capa futura | Sí |

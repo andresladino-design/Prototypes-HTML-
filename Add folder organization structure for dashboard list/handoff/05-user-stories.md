@@ -1,11 +1,22 @@
 # User stories UX — Carpetas en la lista de tableros (SWAT-577)
 
-**Fecha:** 2026-08-03 · **Audiencia:** diseño · FE · BE · QA
-**Base:** [`01-decisiones.md`](01-decisiones.md) (D1–D7) · [`01-benchmark.md`](01-benchmark.md) (I1–I6) · [`04-userflows.md`](04-userflows.md) (F1–F7) · [`../design.md`](../design.md)
+**Fecha:** 2026-08-03 · **actualizado el 2026-08-14** · **Audiencia:** diseño · FE · BE · QA
+**Base:** [`01-decisiones.md`](01-decisiones.md) · [`01-benchmark.md`](01-benchmark.md) (I1–I6) · [`04-userflows.md`](04-userflows.md) · [`../design.md`](../design.md)
+
+> **🔄 Actualizado el 2026-08-14.** HU-01 a HU-08 se escribieron con **D2 = un solo nivel** y
+> **D10 = alcance transversal**. Ambas se revirtieron. Los cambios:
+>
+> - **HU-06 reescrita** — eliminar una carpeta ya no manda todo a la raíz, **sube un nivel**.
+>   Y la garantía de BE dejó de ser una FK, lo que cambia su criterio de aceptación.
+> - **HU-07 ajustada** — el resultado de búsqueda muestra la **ruta completa**, no el nombre de la carpeta.
+> - **HU-09, HU-10 y HU-11 nuevas** — subcarpeta, mover carpeta y colapsar secciones.
+> - **Nada de datasets, anomalías ni pendientes**: nunca llegaron a tener historia propia, así que no hay que quitar ninguna.
+>
+> Las demás (HU-01 a HU-05, HU-08) siguen válidas: describen tareas que el anidamiento no cambia.
 
 ---
 
-## Contexto de diseño (aplica a las 8 historias)
+## Contexto de diseño (aplica a las 11 historias)
 
 **Usuario:** analista de conciliación, lead de FinOps o admin de cuenta del Centro de operaciones. Nivel técnico medio-alto (vienen de Excel y de herramientas de BI), conocen el dominio contable.
 
@@ -61,7 +72,7 @@ para reconocer de un vistazo dónde mirar en vez de escanear una lista infinita 
 
 - **Inicial:** carpetas **colapsadas**, ordenadas A→Z, seguidas del bloque "Sin carpeta". La carpeta que contiene el **tablero activo** aparece expandida (si no, el usuario no ve dónde está parado). Con una sola carpeta, arranca expandida.
 - **Carga:** los skeletons actuales (`SidebarListSkeletonRow`, 5 filas). Las carpetas no tienen skeleton propio: aparecen con la lista.
-- **Activo:** al expandir, los hijos entran indentados 16px con guía vertical de 1px; el chevron rota.
+- **Activo:** al expandir, los hijos entran indentados **12px** con guía vertical de 1px, una por ancestro; el **icono cambia** a `folder-open` (D13 — no hay chevron que rotar).
 - **Error:** el error de la sección "Tableros" ya existe (icono + mensaje + Reintentar) y cubre también las carpetas.
 - **Éxito:** no aplica — navegar no genera confirmación.
 - **Vacío post-interacción:** carpeta expandida **sin** tableros → ver HU-08.
@@ -285,19 +296,36 @@ para no quedarme con la duda de si acabo de borrar 24 tableros de mi equipo.
 - **Carga:** botón `Eliminando...` con spinner.
 - **Activo:** `AlertDialog` — **no** se descarta clickeando fuera.
 - **Error:** `Alert variant="destructive"` **dentro** del diálogo (no toast), el diálogo permanece abierto.
-- **Éxito:** los 24 tableros aparecen en "Sin carpeta" + `toast("Carpeta eliminada")`.
-- **Caso vacío:** si la carpeta no tiene tableros, el copy cambia a "Está vacía".
+- **Éxito:** el contenido aparece en la **carpeta madre** + `toast` con "Deshacer".
+- **Caso vacío:** si la carpeta no tiene contenido, el copy cambia a "Está vacía".
 
 ### Copy (verbatim, es el corazón de la historia)
 
+Carpeta anidada — el caso nuevo:
+
 > **¿Eliminar carpeta?**
-> Se eliminará la carpeta «Adquirencia». Los **24 tableros** que contiene volverán a la lista de tableros; **no se eliminarán**.
+> Se eliminará la carpeta «Visa». Sus **8 tableros y 1 subcarpeta** suben a «Adquirencia»; **no se eliminan**.
+
+Carpeta de primer nivel — el caso de antes, ahora como particular:
+
+> **¿Eliminar carpeta?**
+> Se eliminará la carpeta «Adquirencia». Sus **24 tableros** vuelven a la lista; **no se eliminan**.
 
 ### Criterios de aceptación
 
-- [ ] La descripción incluye el **número real** de tableros afectados.
-- [ ] La descripción afirma explícitamente que **no se eliminarán** (no basta con omitir la advertencia).
-- [ ] Eliminar la carpeta **jamás** elimina un tablero — verificable en BE con `ON DELETE SET NULL`.
+- [ ] La descripción incluye el **número real** de tableros **y de subcarpetas** afectadas.
+- [ ] La descripción dice **a dónde va** el contenido: a la carpeta madre, o a la lista si era de primer nivel.
+- [ ] La descripción afirma explícitamente que **no se eliminan** (no basta con omitir la advertencia).
+- [ ] El contenido sube **un solo nivel**, no a la raíz. Eliminar «Visa» deja sus tableros en «Adquirencia», no sueltos entre 111.
+- [ ] Eliminar la carpeta **jamás** elimina un tablero.
+- [ ] "Deshacer" restaura **tres cosas**: la carpeta, el `parent_id` de sus hijas y el `folder_id` de sus tableros.
+
+> ⚠️ **Cambió la naturaleza de la garantía, y esto es de QA.** Antes se verificaba con
+> `ON DELETE SET NULL` — lo hacía el motor de base de datos, así que era imposible que un bug
+> borrara tableros. Ahora reparentar es **lógica de servicio en una transacción** (D6 revisada),
+> así que la garantía es **testeable, no estructural**. El test de que `count(*) FROM dashboards`
+> no cambia al eliminar carpetas de cada nivel pasa a ser **obligatorio**. Ver
+> [`07-handoff-be.md`](07-handoff-be.md) §3.
 - [ ] Tras eliminar, los tableros aparecen en "Sin carpeta" y siguen abribles.
 - [ ] Si falla, el error se ve **dentro** del diálogo y nada se elimina.
 - [ ] El botón destructivo no es el foco por defecto al abrir el diálogo.
@@ -329,7 +357,7 @@ para encontrarlo sin adivinar y aprender dónde vive para la próxima.
 
 - **Inicial:** el buscador actual, sin cambios de aspecto.
 - **Carga:** el debounce de 300ms ya existente; skeletons si la respuesta tarda.
-- **Activo:** lista **aplanada**; las carpetas que coinciden van primero; cada tablero en carpeta muestra su carpeta como **segunda línea** (11px, muted, clickable).
+- **Activo:** lista **aplanada**; las carpetas que coinciden van primero; cada tablero en carpeta muestra su **ruta completa** como **segunda línea** (12px, muted, clickable, truncada por la izquierda si no cabe).
 - **Error:** el error de carga existente.
 - **Vacío:** "No se encontraron tableros para «xyz»" (copy actual, sin cambios).
 - **Al limpiar:** el panel **recupera el estado de expansión anterior**, no colapsa todo.
@@ -337,12 +365,14 @@ para encontrarlo sin adivinar y aprender dónde vive para la próxima.
 ### Criterios de aceptación
 
 - [ ] La búsqueda devuelve tableros de cualquier carpeta y también los sueltos.
-- [ ] Cada resultado que está en una carpeta la muestra; los sueltos **no** muestran segunda línea (evita ruido en 111 filas).
-- [ ] Clic en la carpeta del resultado **revela esa carpeta expandida** y limpia la búsqueda.
+- [ ] Cada resultado que está en una carpeta muestra su **ruta completa** (`Adquirencia / Visa`); los sueltos **no** muestran segunda línea (evita ruido en 111 filas).
+- [ ] **La ruta, no solo el nombre de la hoja.** Con anidamiento puede haber tres carpetas «2026» en madres distintas; el nombre solo no desambigua. Requiere `folder.path` del BE.
+- [ ] Buscar «visa» encuentra la subcarpeta **aunque el usuario recuerde la madre**: la ruta también es buscable.
+- [ ] Clic en la ruta del resultado **abre toda la cadena de ancestros** y limpia la búsqueda. Expandir solo la hoja no revela nada.
 - [ ] Al limpiar la búsqueda, la expansión previa se restaura.
 - [ ] Sigue funcionando el scroll infinito sobre resultados filtrados.
 - [ ] La búsqueda **no** se acota a una carpeta (divergencia deliberada con Almacenamiento).
-- [ ] El texto de 11px de la segunda línea cumple contraste AA.
+- [ ] El texto de la segunda línea cumple contraste AA (`text-sidebar-foreground`, no `muted-foreground`).
 
 ### Preguntas abiertas
 
@@ -399,6 +429,118 @@ para no ignorar el feature y seguir scrolleando como siempre.
 
 - Hallazgo de I2: colapsar carpetas con 111 sueltos deja ~115 filas → **el feature depende de que los sueltos bajen**, no de que existan carpetas.
 - Por eso la métrica principal no es "carpetas creadas" sino **% de tableros dentro de una carpeta**.
+
+---
+
+## HU-09 · Agrupar dentro de una carpeta que ya se volvió grande ✨
+
+**Usuario:** quien ya adoptó carpetas y una creció demasiado · **Flujo:** F9 · **Criterios:** C1, D2
+**Nueva el 2026-08-14** (D2: anidamiento de 3 niveles).
+
+### Historia
+
+Como usuario cuya carpeta «Adquirencia» ya tiene 24 tableros,
+quiero crear subcarpetas dentro de ella (`Visa`, `Mastercard`) sin sacar los tableros de su contexto,
+para volver a tener chunks reconocibles en vez de una lista larga dentro de una carpeta.
+
+### Estados de interfaz
+
+- **Inicial:** ítem `Nueva subcarpeta` en el menú `⋮` de la carpeta. En el **nivel 3** aparece **deshabilitado con la etiqueta `máx 3`** y tooltip.
+- **Activo:** el mismo wizard de 2 pasos de HU-02, con una línea de contexto: `Dentro de: Adquirencia / Visa`.
+- **Éxito:** se abre **toda la cadena de ancestros**, scroll hasta la subcarpeta nueva y resalte ~2s.
+- **Error de nombre:** inline en el paso 2.
+
+### Criterios de aceptación
+
+- [ ] El diálogo dice **dónde** se va a crear (`Dentro de: <ruta>`). Sin eso el usuario no sabe si quedó en la raíz.
+- [ ] El nombre es único **entre hermanas**, no global: `Adquirencia / 2026` y `Cierre contable / 2026` conviven.
+- [ ] El error lo dice así: `«Adquirencia» ya tiene una carpeta con este nombre`.
+- [ ] En el nivel 3 la acción está **deshabilitada y visible**, con la razón. **No oculta** — si desaparece, el usuario la busca porque la vio en otras carpetas.
+- [ ] El tope de 3 se valida también en BE (`CHECK` sobre `path`), no solo en la UI.
+- [ ] El contador de la madre pasa a mostrar el **total del subárbol**, incluyendo lo que quedó en la hija.
+
+### Riesgo
+
+**Medio.** El wizard ya existe (HU-02); lo nuevo es el contexto de madre y la unicidad entre
+hermanas. El riesgo real es que el usuario no entienda **dónde** quedó lo que creó.
+
+---
+
+## HU-10 · Reorganizar el árbol moviendo una carpeta entera ✨
+
+**Usuario:** quien se equivocó en la estructura · **Flujo:** F10 · **Criterios:** C1, D2
+**Nueva el 2026-08-14** (D2).
+
+### Historia
+
+Como usuario que creó `Visa` en el primer nivel y después se dio cuenta de que va dentro de `Adquirencia`,
+quiero mover la carpeta completa con todo lo que tiene dentro,
+para arreglar la estructura sin mover tablero por tablero.
+
+### Estados de interfaz
+
+- **Inicial:** ítem `Mover carpeta a…` en el menú `⋮` de la carpeta.
+- **Activo:** diálogo con **árbol de destinos**, cada uno indentado por nivel y con su ruta. Incluye `Primer nivel (sin carpeta madre)`.
+- **Destinos inválidos:** **no se listan.** El subárbol propio (ciclo) y los destinos donde no cabría (tope) desaparecen de la lista.
+- **Éxito:** la carpeta aparece en su nuevo lugar, cadena abierta y resaltada + `toast` con "Deshacer".
+- **Por drag:** si se arrastra a un destino inválido, toast de aviso — ahí no se puede prevenir por ausencia.
+
+### Criterios de aceptación
+
+- [ ] El diálogo muestra **rutas**, no solo nombres.
+- [ ] Existe el destino **`Primer nivel`**. Sin él no habría forma de sacar una carpeta de su madre.
+- [ ] Una carpeta **no puede** colgar de su propio subárbol. Los destinos inválidos **no se ofrecen**; el BE los rechaza igual con `409`.
+- [ ] Se valida la **altura del subárbol**, no solo el nivel del destino: `Adquirencia` (que arrastra `Visa › Contracargos`) **no cabe** dentro de `Conciliación diaria`, aunque esa esté en el nivel 1. `422`.
+- [ ] Mover arrastra **todo el subárbol**, no solo la carpeta.
+- [ ] "Deshacer" la devuelve a su madre anterior.
+- [ ] Los contadores de la madre vieja y la nueva se actualizan.
+
+### Riesgo
+
+**Alto en BE, bajo en UX.** La interacción es un diálogo conocido. El riesgo está en el modelo:
+ciclos y profundidad son las dos formas de corromper el árbol, y ambas se validan **dentro de la
+transacción** — si se validan antes, hay carrera.
+
+---
+
+## HU-11 · Colapsar lo que no estoy usando del panel ✨
+
+**Usuario:** cualquiera con un panel lleno · **Flujo:** F12 · **Criterios:** C4, D12
+**Nueva el 2026-08-14** (D12).
+
+### Historia
+
+Como usuario que no usa «Configuraciones pendientes» todos los días,
+quiero colapsar esa sección y quedarme solo con lo que miro,
+para que el panel no me obligue a scrollear por encima de cosas que no necesito.
+
+### Estados de interfaz
+
+- **Inicial:** las 4 secciones abiertas, con chevron en el encabezado.
+- **Colapsada:** el encabezado se queda visible **con su contador**, así que la sección sigue informando sin ocupar filas.
+- **Persistido:** al recargar, el estado se mantiene.
+- **En búsqueda:** «Tableros» pasa a ser «Resultados» y el toggle se **deshabilita** — ahí no es una sección, es el resultado de una consulta.
+
+### Criterios de aceptación
+
+- [ ] Las 4 secciones colapsan: `Configuraciones pendientes`, `Favoritos`, `Tableros`, `Sin carpeta`.
+- [ ] El estado persiste en `localStorage`, en una clave **distinta** a la de carpetas expandidas.
+- [ ] Se guarda **lo colapsado**, no lo abierto. Así el default de toda sección es abierta y una sección nueva no aparece cerrada para los usuarios existentes.
+- [ ] El encabezado colapsado conserva su contador.
+- [ ] Durante la búsqueda el toggle de «Tableros» está deshabilitado.
+- [ ] El chevron de sección se distingue del de carpeta: sección lleva chevron, carpeta lleva **icono con estado** (D13).
+- [ ] `prefers-reduced-motion` anula la animación de acordeón.
+
+### Por qué esta historia existe
+
+Cierra el **hallazgo #3 del benchmark**: colapsar carpetas no alcanzaba — con 4 carpetas y 111
+sueltos quedaban ~115 filas. Colapsar **secciones** sí mueve la aguja: **de 59 filas visibles a
+26** en el prototipo. Es la palanca más directa sobre la Ley de Miller de todo el feature, y es
+independiente de las carpetas — se puede entregar suelta.
+
+### Riesgo
+
+**Bajo.** No toca BE ni el modelo.
 
 ---
 
@@ -494,7 +636,7 @@ El checklist del OC pide micro-animaciones de toggle de **120ms**; el acordeón 
 
 ### Items que pasan sin observaciones
 
-Protección de acciones destructivas (HU-06) · estados de error, vacío y carga en todas las historias · mensajes de error en lenguaje natural · confirmación de éxito · validación inline · feedback bajo 400ms (optimistic updates) · ubicación actual indicada · independencia del color · consistencia terminológica ("Eliminar carpeta" ≠ "Quitar de la carpeta" son acciones distintas, no sinónimos mezclados) · sin breadcrumbs porque D2 dejó un solo nivel · acciones reversibles separadas visualmente de las irreversibles.
+Protección de acciones destructivas (HU-06) · estados de error, vacío y carga en todas las historias · mensajes de error en lenguaje natural · confirmación de éxito · validación inline · feedback bajo 400ms (optimistic updates) · ubicación actual indicada · independencia del color · consistencia terminológica ("Eliminar carpeta" ≠ "Quitar de la carpeta" son acciones distintas, no sinónimos mezclados) · sin breadcrumbs porque el árbol es in-place y no navega (D16) · acciones reversibles separadas visualmente de las irreversibles.
 
 ---
 
@@ -510,5 +652,8 @@ Protección de acciones destructivas (HU-06) · estados de error, vacío y carga
 | HU-06 Eliminar sin perder tableros | F5 | C1, D6 | **Alto** — el copy es la única barrera contra el malentendido |
 | HU-07 Buscar cross-carpeta | F6 | C5 | Medio — filas de dos líneas (PA-12) |
 | HU-08 Entender la primera vez | F1 | C8 | **Alto** — decide la adopción (PA-14) |
+| **HU-09** Crear subcarpeta ✨ | F9 | C1, D2 | Medio — ¿entiende dónde quedó? |
+| **HU-10** Mover una carpeta ✨ | F10 | C1, D2 | Alto en BE (ciclos, profundidad) · bajo en UX |
+| **HU-11** Colapsar secciones ✨ | F12 | C4, D12 | Bajo — y entregable suelto |
 
 Los 8 criterios del issue quedan cubiertos: **C1** → HU-02/05/06 · **C2** → HU-03 · **C3** → HU-04 · **C4** → HU-01 · **C5** → HU-07 · **C6** → todas (vía `design.md`) · **C7** → todas (un diálogo por tarea) · **C8** → HU-08 + la ayuda de usuario del handoff.
