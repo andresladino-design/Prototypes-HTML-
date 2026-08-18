@@ -64,6 +64,7 @@ el buscador exige **recordar** el nombre. Necesitamos un mecanismo de **reconoci
 | 6.8 | Flujos reescritos al alcance real | F9–F12 nuevos + F1/F5/F6/F7 + sitemap corregidos | ✅ Hecha |
 | 7 | [Handoff FE + BE](07-handoff-fe-be.md) | `handoff/07-handoff-fe.md` · `handoff/07-handoff-be.md` · `handoff/07-antes-despues.md` | ✅ Hecha — falta la revisión visual y las capturas |
 | 8 | [Tickets en Linear](08-linear.md) | sub-issues colgando de SWAT-577 | ⬜ |
+| **9** | [**Feedback del prototipo**](09-feedback-prototipo.md) | 5 hallazgos de la revisión en Ohana → D17–D19 | 🔄 **En curso** — ② y ③ cerrados, ⑤ descartado; quedan ① y ④ |
 
 **Dependencias reales:** 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8.
 La única que se puede adelantar en paralelo es la 3 (vista espejo), porque replica lo que **ya existe**.
@@ -74,6 +75,17 @@ La única que se puede adelantar en paralelo es la 3 (vista espejo), porque repl
 >
 > Antes de la Etapa 8 hay que revisar `handoff/05-user-stories.md`: se escribió con
 > D2 = un nivel y D10 = transversal.
+>
+> **Y antes de la 8 va la [Etapa 9](09-feedback-prototipo.md):** la revisión del prototipo
+> dejó 5 hallazgos, uno de los cuales —**el resize del panel**— reabre el presupuesto de
+> ancho del que dependen D2, D13, D14 y D16. Cerrar tickets antes de resolver eso sería
+> estimar sobre números que van a cambiar.
+>
+> **Al 2026-08-18:** ② quedó resuelto en el prototipo como **D17** (propuesta: falta elegir
+> mecanismo), ③ se cerró como **D18** sin quitar el contador, y ⑤ se descartó. **D2 arrastra
+> un error que hay que corregir igual:** su peor caso son 45 caracteres, no 40. Y salió un
+> hallazgo que pesa más que ②: el **umbral de colapso mide el contenedor, no la ventana**, así
+> que en un portátil de 1440px el panel arranca colapsado y el árbol no se ve.
 
 ---
 
@@ -99,6 +111,9 @@ Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../h
 | **D14** ↗️ | Ancho útil de la fila | **Extraída a un issue aparte** — no depende de carpetas. Ver [`ancho-util-lista-tableros/`](../../ancho-util-lista-tableros/). |
 | **D15** ✨ | Agrupamiento server-side | **El árbol no se puede resolver en cliente.** La lista es paginada (`DASHBOARDS_PAGE_SIZE = 20`, scroll infinito) con `search` y `sort` server-side y tope duro de 100/página. Contrato requerido en la Etapa 7. |
 | **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles: el gesto más frecuente es cambiar de tablero y navegar le suma clics justo a eso. Cierra I4. |
+| **D17** 🟡 | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos por usuario. Cada valor está derivado de una pregunta, no elegido. **Propuesta:** falta elegir entre handle de arrastre (A) y control S/M/L (B). |
+| **D18** ✨ | Contador de subcarpeta | **Se queda.** Quitarlo devolvía 20px; D17 devuelve 96 sin perder información. |
+| ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** el 2026-08-18. D12 sigue igual: secciones independientes. |
 
 ### Por qué D2 conserva su razón original
 

@@ -2,8 +2,10 @@
 
 **Fechas:** D1–D7 el 2026-08-03 (antes de prototipar) · **D8 y D9 el 2026-08-04, tras probar el prototipo**
 · **D2, D6 y D10 revisadas el 2026-08-14** · **D12–D15 abiertas el 2026-08-14**
+· **D17–D19 el 2026-08-18, desde el feedback del prototipo en Ohana (Etapa 9)**
 **Decidido por:** Andrés Ladino (UX) con la exploración técnica de [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md)
-**Estado:** cerradas. Cambiar D1 o D3 después de la Etapa 7 implica rehacer el modelo de BE.
+**Estado:** cerradas, **menos D17**, que es una propuesta con prototipo y espera que se elija
+el mecanismo. Cambiar D1 o D3 después de la Etapa 7 implica rehacer el modelo de BE.
 
 > D8 y D9 salieron de **usar** el prototipo, no de analizarlo. D8 además **revierte** una decisión previa mía
 > ("la carpeta nace vacía"). Quedan registradas acá con lo que reemplazan, para que el handoff no arrastre
@@ -39,6 +41,9 @@
 | **D14** ↗️ | Ancho útil de la fila | **Extraída a un issue aparte** — no depende de carpetas | 🟢 Bajo |
 | **D15** ✨ | Agrupamiento server-side | El árbol **no** se resuelve en cliente: la lista es paginada de 20 con `search`/`sort` en BE | 🔴 Alto — condiciona todo el contrato de API |
 | **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles | 🟡 Medio |
+| **D17** 🟡 | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480.** Preferencia persistida. **Propuesta — falta elegir mecanismo** | 🟢 Bajo |
+| **D18** ✨ | Contador de subcarpeta | **Se queda.** El motivo para quitarlo era ancho, y D17 devuelve 96px donde el contador devolvía 20 | 🟢 Bajo |
+| ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** — sacada del plan el 2026-08-18. D12 sigue: secciones independientes | — |
 
 ---
 
@@ -468,6 +473,148 @@ el costo de ancho se paga solo en el nivel más profundo.
 ancho se vuelve un problema real, el drill-down vuelve a estar sobre la mesa — pero como
 alternativa, no como complemento. Tener las dos formas de navegar el mismo árbol sería peor que
 cualquiera de las dos.
+
+---
+
+## D17 🟡 — Tres anchos fijos de panel: `sm` 288 · `md` 384 · `lg` 480
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst640rv` de la revisión en Ohana ·
+**Estado: PROPUESTA.** Los valores están derivados y los dos mecanismos están prototipados;
+falta que se elija uno. **No re-sincronizar D2/D13/D16 hasta que esto se cierre.**
+
+**Estado en producción, verificado:** el panel **no** es redimensionable. `w-72 min-w-72` fijo
+(`OcContentLayout.tsx:171`), sin handle ni preferencia de ancho.
+
+**Decisión propuesta:** el ancho pasa a ser una **preferencia del usuario** con tres valores
+fijos, persistida en `localStorage`.
+
+### Por qué esos tres números
+
+No se eligieron: cada uno responde a una pregunta. Es la cuenta de D2 parametrizada, y a 288px
+reproduce exacto sus números — que es la prueba de que es la misma cuenta.
+
+| | px | Clase | Qué pregunta responde |
+|---|---|---|---|
+| `sm` | **288** | `w-72` | Lo de hoy. Es el **default**: elegirlo no cambia nada de producción. |
+| `md` | **384** | `w-96` | **El anidamiento deja de costar ancho.** Un tablero en el nivel 3 pasa a 262px, 60px *más* que un tablero suelto hoy (202px). |
+| `lg` | **480** | `w-[30rem]` | **El peor caso real entra entero** hasta el nivel 3: 45 caracteres ≈ 329px. |
+
+Presupuesto para el nombre, por tamaño y nivel:
+
+| | `sm` 288 | `md` 384 | `lg` 480 |
+|---|---|---|---|
+| Tablero suelto | 202px · 27c | 298px · 40c | 394px · 54c ✓ |
+| Carpeta nivel 1 / 2 / 3 | 182 / 170 / **158** | 278 / 266 / **254** | 374 / 362 / **350** ✓ |
+| Tablero dentro, nivel 1 / 2 / 3 | 190 / 178 / **166** | 286 / 274 / **262** | 382 / 370 / **358** ✓ |
+
+✓ = entra el nombre más largo sin truncar. **Solo `lg` lo logra en todos los niveles.**
+
+> **⚠️ Corrección a D2.** El peor caso son **45 caracteres**, no 40:
+> `Adquirencia_2026_06_04_conciliacion_master_v2`. D2 se calibró contra
+> `Adquirencia_2026_06_04_conciliacion_visa` (40), que es un peor caso optimista — el propio
+> generador de nombres del producto pone sufijos `_v2` y `_master`. **Esto hay que corregir en
+> D2 pase lo que pase con D17.**
+
+**Se descartó la propuesta de arranque del plan (288/360/440):** 360 y 440 no salían de ningún
+criterio, y 440 se queda **3px corto** para el peor caso al nivel 3 — habría prometido algo que
+no cumple.
+
+### Mecanismo — A/B abierto
+
+El comentario pide dos cosas a la vez («explorar un **resize**» y «medidas **fijas**»), así que
+se prototiparon las dos:
+
+| | Cómo | A favor | En contra |
+|---|---|---|---|
+| **A** | Handle de arrastre en el borde, con **snap** a los tres valores | Cuesta **0px** del header. Es un resize de verdad. | Hay que descubrir el borde. |
+| **B** | Control discreto **S/M/L** en el header del panel | Se descubre solo. Lectura literal del comentario. | Se come ~72px del **slot 1**, que ya tiene título y contador. |
+
+En A, un badge muestra a qué medida va a caer durante el arrastre: sin eso el snap se lee como
+un bug. Paridad por teclado con `role="separator"` + flechas (patrón WAI-ARIA *window
+splitter*), mismo criterio que **D7** con el drag.
+
+### Persistencia
+
+Clave propia — `oc_sidebar_width` en producción. **No se unifican** las tres claves de
+preferencia: producción ya persiste el colapso en `oc_sidebar_collapsed` con su propia clave
+(`OcContentLayout.tsx:19`), así que el ancho va en paralelo. Unificarlas sería migrar algo que
+ya funciona a cambio de nada.
+
+### Interacción con el colapso automático: ya estaba resuelta
+
+No hubo que inventar nada. `restoreIfNoAutoCollapse()` (`OcContentLayout.tsx:86`) ya separa la
+**preferencia del usuario** de los **motivos de colapso automático** (viewport angosto, panel
+lateral abierto, modo edición de datasets) y restaura cuando el motivo desaparece. El ancho se
+cuelga del mismo mecanismo:
+
+**Gana el colapso, y al reexpandir se recupera el tamaño elegido.**
+
+### 🔴 Hallazgo colateral, y pesa más que D17
+
+**El umbral de colapso mide el contenedor, no la ventana.** `COLLAPSE_WIDTH_THRESHOLD = 1200`
+(`:56`) se compara contra `entry.contentRect.width` del contenedor del OC (`:127`), y
+`contentRect` **excluye el padding** — o sea que del ancho de ventana ya se descontaron el nav
+de plataforma y el `px-6`.
+
+Con el nav en 256px, el colapso se dispara alrededor de los **1504px de ventana**: **en un
+portátil de 1440px el panel arranca colapsado y el árbol de carpetas no se ve.**
+
+**Pendiente de verificar:** el nav de plataforma no vive en `fe-solutions-mf`, así que los
+256px son el supuesto del prototipo. El número exacto cambia; la dirección no. Si se confirma,
+esto le pega a la premisa de **D2** y **D16**, que asumen el panel expandido — y hay que
+resolverlo **antes** de discutir 384 vs 480.
+
+**Consecuencias si se aprueba:**
+
+1. **FE:** `OcContentLayout` pasa de clase fija a ancho por preferencia. Es el único archivo.
+2. **Nada de BE.** No toca modelo, API ni permisos.
+3. **Costo a validar:** a `lg` en 1920px el grid de 2 columnas del tablero baja a ~543px por
+   gráfico. Es el argumento más fuerte para que el default siga en `sm`.
+4. **Probablemente no es de SWAT-577.** Beneficia al panel exista o no el feature de carpetas,
+   igual que **D14** — y es la **tercera palanca de ancho** del mismo problema. Recomendación:
+   que las tres viajen juntas en `ancho-util-lista-tableros/`.
+
+---
+
+## D18 ✨ — El contador de la carpeta se queda
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst64r43` («QUitar este contador») · **Cierra ③.**
+
+**Motivo del comentario, confirmado con Andrés: robaba ancho al nombre.** Con el motivo
+explícito, la decisión se toma con una resta:
+
+| | Devuelve al nombre |
+|---|---|
+| Quitar el contador | **+20px** — y se pierde el total del subárbol |
+| Subir de `sm` a `md` (D17) | **+96px** — y no se pierde nada |
+
+**Decisión: el contador se queda.** D17 devuelve casi cinco veces más ancho sin sacrificar
+información. Se conserva la definición de **D2** —el número es siempre el **total del
+subárbol**, con desglose en el `title`— y con ella la lección de Grafana
+([#124158](https://github.com/grafana/grafana/issues/124158)): un contador que significa una
+cosa u otra según el contexto se rompe.
+
+**Nota sobre el prototipo:** hay un toggle *«Sin contador de subárbol»* en el panel de demo.
+**No es una alternativa de diseño, es el instrumento con el que se midió** — sirve para ver los
+20px al lado de los 96.
+
+**Si el ruido visual vuelve a aparecer como queja** (que era la lectura *(a)* del hallazgo, y
+no fue el motivo), la salida no es quitarlo sino **mostrarlo solo en carpetas colapsadas**:
+con la carpeta abierta el número es redundante porque los hijos ya están a la vista.
+
+---
+
+## ~~D19~~ ⛔ — Acordeón exclusivo entre secciones: descartada
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst69j96` · **Sacada del plan por Andrés.**
+
+No se diseña. **D12 se mantiene:** las cuatro secciones del panel colapsan de forma
+**independiente**, y las carpetas del árbol también.
+
+Queda el registro porque el comentario sigue `open` en Ohana, y conviene que esté escrito por
+qué no se hizo. Los riesgos que se habían identificado —y que ya no hay que resolver— eran que
+«Tableros» es la sección principal y un acordeón exclusivo la cerraría para mostrar 5 atajos,
+y que entre carpetas chocaría con **I2** (estado persistido) y con «revelar después de actuar».
 
 ---
 

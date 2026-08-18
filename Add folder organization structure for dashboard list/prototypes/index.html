@@ -117,11 +117,45 @@
       <div></div>
     </header>
 
-    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6" x-show="view === 'tableros'">
+    <!-- Este div es el equivalente de OC_CONTENT_LAYOUT_ID: es el elemento cuyo
+         ancho vigila producción para colapsar el panel. -->
+    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6" x-show="view === 'tableros'" x-ref="ocLayout">
       <div class="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
 
         <!-- ═══════════ PANEL DE TABLEROS ═══════════ -->
-        <aside class="relative flex w-72 min-w-72 shrink-0 flex-col overflow-hidden border-r border-border bg-background px-3 pt-3">
+        <!-- ② ANCHO DEL PANEL · anchos fijos sm/md/lg (cmt_mst640rv)
+             Producción tiene `w-72 min-w-72` fijo (OcContentLayout.tsx:171). Acá el ancho
+             es una preferencia persistida, y el colapso automático de producción se modela
+             tal cual: gana el colapso, y al reexpandir se recupera el tamaño elegido.
+             `transition-all duration-200 ease-in-out` es la misma que ya usa el colapso,
+             así que el gesto se siente igual que lo que ya existe. -->
+        <aside class="relative flex shrink-0 flex-col overflow-hidden border-r border-border bg-background transition-all duration-200 ease-in-out"
+               :class="panelCollapsed ? 'w-14 min-w-14 px-2 pb-2 pt-4' : 'px-3 pt-3'"
+               :style="panelCollapsed ? '' : `width:${panelPx}px;min-width:${panelPx}px`">
+
+          <!-- Riel colapsado · réplica mínima de producción, para poder demostrar
+               que el tamaño elegido sobrevive al colapso automático. -->
+          <template x-if="panelCollapsed">
+            <div class="flex flex-col items-center">
+              <button @click="setCollapsedByUser(false)" aria-label="Expandir panel"
+                      class="rounded-xl p-2 hover:bg-accent" :title="`Expandir a ${panelSize.toUpperCase()} (${panelPx}px)`">
+                <i data-lucide="chevron-right" class="h-4 w-4"></i>
+              </button>
+              <div class="mt-2 flex flex-col items-center gap-1.5">
+                <button @click="switchEntity('dashboard'); setCollapsedByUser(false)" aria-label="Tableros"
+                        class="rounded-xl p-2" :class="entity === 'dashboard' ? 'bg-accent' : 'hover:bg-accent'">
+                  <i data-lucide="layout-grid" class="h-4 w-4"></i>
+                </button>
+                <button @click="switchEntity('dataset'); setCollapsedByUser(false)" aria-label="Datasets"
+                        class="rounded-xl p-2" :class="entity === 'dataset' ? 'bg-accent' : 'hover:bg-accent'">
+                  <i data-lucide="database" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <template x-if="!panelCollapsed">
+          <div class="flex min-h-0 flex-1 flex-col">
 
           <div class="flex items-center justify-between pb-2 pl-3 pt-1" data-slot="1" data-slot-label="Header">
             <div class="flex items-center gap-2">
@@ -129,7 +163,24 @@
               <!-- Slot 1 del patrón: el contador vive junto al título, no en el header de sección -->
               <span class="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-secondary-foreground" x-text="items.length"></span>
             </div>
-            <button class="rounded-xl p-1.5 hover:bg-accent" aria-label="Cerrar panel"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+            <div class="flex items-center gap-1">
+              <!-- ② MECANISMO B · control discreto de 3 opciones.
+                   Lectura literal del comentario («medidas fijas sm-md-lg»). Cuesta
+                   ~72px del header y compite con el contador del slot 1; a cambio el
+                   ancho se vuelve descubrible sin tener que encontrar el borde. -->
+              <template x-if="resizeMech === 'control'">
+                <div class="inline-flex h-6 items-center rounded-lg bg-muted p-0.5" role="group" aria-label="Ancho del panel">
+                  <template x-for="k in ['sm','md','lg']" :key="k">
+                    <button @click="setSize(k)" :aria-pressed="panelSize === k"
+                            :title="`${k.toUpperCase()} · ${SIZES[k]}px`"
+                            class="h-5 w-6 rounded-md text-[10px] font-semibold uppercase transition-colors"
+                            :class="panelSize === k ? 'bg-background text-foreground shadow' : 'text-muted-foreground hover:text-foreground'"
+                            x-text="k"></button>
+                  </template>
+                </div>
+              </template>
+              <button @click="setCollapsedByUser(true)" class="rounded-xl p-1.5 hover:bg-accent" aria-label="Cerrar panel"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+            </div>
           </div>
 
           <div class="px-3">
@@ -382,8 +433,11 @@
                                 <i :data-lucide="row.open ? 'folder-open' : 'folder'" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
                                 <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="row.f.name" :title="row.path"></span>
                               </button>
-                              <!-- Contador = TOTAL del subárbol. El title desambigua cuando hay hijas. -->
-                              <span class="flex shrink-0 items-center pl-1 text-xs text-sidebar-foreground"
+                              <!-- Contador = TOTAL del subárbol. El title desambigua cuando hay hijas.
+                                   ③ (cmt_mst64r43) pedía quitarlo, y el motivo es que roba ancho.
+                                   `counterOff` está solo para MEDIR esos ~20px contra lo que
+                                   devuelve ②: es un instrumento de la demo, no una alternativa. -->
+                              <span x-show="!counterOff" class="flex shrink-0 items-center pl-1 text-xs text-sidebar-foreground"
                                     x-text="row.count" :title="row.title"></span>
                               <div class="flex w-0 shrink-0 items-center justify-end self-center overflow-hidden opacity-0 transition-[width,opacity] duration-150 group-hover:w-6 group-hover:opacity-100 group-focus-within:w-6 group-focus-within:opacity-100">
                                 <button @click="openMenu($event, 'folder', row.f.id)" :aria-label="`Opciones de la carpeta ${row.f.name}`"
@@ -483,6 +537,34 @@
               <div class="h-3"></div>
             </div>
           </div>
+          </div>
+          </template>
+
+          <!-- ② MECANISMO A · handle de arrastre con snap a los tres valores.
+               El comentario pide «resize» y «medidas fijas» a la vez: el gesto es
+               continuo, el resultado siempre cae en sm/md/lg. Patrón WAI-ARIA
+               «window splitter»: `role="separator"` + flechas, así que hay paridad
+               por teclado sin control extra (mismo criterio que D7 con el drag). -->
+          <template x-if="!panelCollapsed && resizeMech === 'handle'">
+            <div role="separator" aria-orientation="vertical" tabindex="0"
+                 :aria-label="`Ancho del panel: ${panelSize.toUpperCase()}, ${panelPx} píxeles`"
+                 :aria-valuenow="panelPx" :aria-valuemin="SIZES.sm" :aria-valuemax="SIZES.lg"
+                 @pointerdown="startResize($event)"
+                 @keydown.arrow-right.prevent="stepSize(1)" @keydown.arrow-left.prevent="stepSize(-1)"
+                 @keydown.home.prevent="setSize('sm')" @keydown.end.prevent="setSize('lg')"
+                 class="group absolute inset-y-0 right-0 z-20 flex w-2 cursor-col-resize items-center justify-center focus-visible:outline-none"
+                 :class="resizing && 'bg-info/10'">
+              <span class="h-8 w-0.5 rounded-full bg-transparent transition-colors group-hover:bg-info/60 group-focus-visible:bg-info"
+                    :class="resizing && '!bg-info'"></span>
+            </div>
+          </template>
+
+          <!-- Al arrastrar: se muestra a qué medida va a caer, porque el snap
+               hace que el panel no siga al cursor y sin esto se siente roto. -->
+          <template x-if="resizing">
+            <div class="pointer-events-none absolute bottom-3 right-3 z-30 rounded-lg bg-foreground px-2 py-1 text-[11px] font-semibold text-background shadow-lg"
+                 x-text="`${snapTarget.toUpperCase()} · ${SIZES[snapTarget]}px`"></div>
+          </template>
         </aside>
 
         <!-- ═════ CONTENIDO ═════ -->
@@ -923,6 +1005,109 @@
         </div>
       </div>
 
+      <!-- ══ ② RESIZE DEL PANEL · cmt_mst640rv ══ -->
+      <div class="mt-3 rounded-lg border border-info/40 bg-info/5 p-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-info">② Ancho del panel</p>
+        <p class="mt-1 text-[11px] leading-snug text-sidebar-foreground">
+          Hoy producción tiene <code>w-72</code> fijo. Los tres valores no son a dedo:
+          cada uno responde a una pregunta distinta.
+        </p>
+
+        <div class="mt-2 inline-flex h-8 w-full items-center rounded-xl bg-muted p-1">
+          <template x-for="k in ['sm','md','lg']" :key="'d'+k">
+            <button @click="setSize(k)" class="h-6 flex-1 rounded-lg text-xs font-medium"
+                    :class="panelSize === k ? 'bg-background shadow' : 'text-muted-foreground'">
+              <span class="uppercase" x-text="k"></span> <span class="text-[10px]" x-text="SIZES[k]"></span>
+            </button>
+          </template>
+        </div>
+        <p class="mt-1.5 text-[10px] leading-snug text-sidebar-foreground">
+          <template x-if="panelSize === 'sm'"><span><strong class="text-foreground">288 · lo de hoy.</strong> Es el default: elegirlo no cambia nada de lo que ya está en producción.</span></template>
+          <template x-if="panelSize === 'md'"><span><strong class="text-foreground">384 · el anidamiento deja de costar.</strong> Un tablero en el nivel 3 queda más ancho que un suelto hoy, así que bajar un nivel ya no se paga con nombre.</span></template>
+          <template x-if="panelSize === 'lg'"><span><strong class="text-foreground">480 · el peor caso entra entero.</strong> El nombre más largo que genera el producto (<span x-text="longestName"></span> caracteres) se lee completo hasta el nivel 3.</span></template>
+        </p>
+
+        <!-- A/B del mecanismo -->
+        <div class="mt-2 border-t border-info/25 pt-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">Mecanismo · A/B</p>
+          <div class="mt-1 inline-flex h-8 w-full items-center rounded-xl bg-muted p-1">
+            <button @click="resizeMech = 'handle'" class="h-6 flex-1 rounded-lg text-xs font-medium" :class="resizeMech === 'handle' && 'bg-background shadow'">A · arrastrar</button>
+            <button @click="resizeMech = 'control'" class="h-6 flex-1 rounded-lg text-xs font-medium" :class="resizeMech === 'control' && 'bg-background shadow'">B · control S/M/L</button>
+          </div>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            <template x-if="resizeMech === 'handle'"><span>Arrastrá el <strong class="text-foreground">borde derecho</strong> del panel: el gesto es continuo, el resultado cae en sm/md/lg. No cuesta nada del header, pero hay que descubrir el borde. Con teclado: <kbd class="rounded bg-muted px-1">←</kbd> <kbd class="rounded bg-muted px-1">→</kbd> sobre el separador.</span></template>
+            <template x-if="resizeMech === 'control'"><span>Tres botones en el header del panel. Se descubre solo, pero se come ~72px del <strong class="text-foreground">slot 1</strong>, que ya tiene el título y el contador.</span></template>
+          </p>
+        </div>
+
+        <!-- Tabla de presupuesto VIVA -->
+        <div class="mt-2 border-t border-info/25 pt-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">
+            Presupuesto · <span x-text="panelPx"></span>px de panel = <strong class="text-foreground" x-text="rowPx"></strong>px de fila
+          </p>
+          <table class="mt-1 w-full text-[10px]">
+            <thead class="text-sidebar-foreground">
+              <tr><th class="text-left font-medium">Fila</th><th class="text-left font-medium">Nivel</th><th class="text-right font-medium">px</th><th class="text-right font-medium">chars</th></tr>
+            </thead>
+            <tbody>
+              <template x-for="(r, i) in budget" :key="i">
+                <tr :class="r.fits ? 'text-success' : 'text-sidebar-foreground'">
+                  <td x-text="r.what"></td>
+                  <td x-text="r.lvl"></td>
+                  <td class="text-right tabular-nums" x-text="r.px"></td>
+                  <td class="text-right tabular-nums"><span x-text="r.chars"></span><span x-show="r.fits">&nbsp;✓</span></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            En verde, las filas donde entran los <strong class="text-foreground" x-text="longestName"></strong> caracteres
+            del nombre más largo sin truncar.
+            <template x-if="worstFits"><strong class="text-success"> A este ancho no se trunca en ningún nivel.</strong></template>
+          </p>
+        </div>
+
+        <!-- ③ · el contador, medido en vez de discutido -->
+        <div class="mt-2 border-t border-info/25 pt-2">
+          <button @click="counterOff = !counterOff" class="flex w-full items-center gap-2 text-left">
+            <span class="flex h-4 w-7 shrink-0 items-center rounded-full p-0.5 transition-colors" :class="counterOff ? 'bg-info' : 'bg-muted'">
+              <span class="h-3 w-3 rounded-full bg-background transition-transform" :class="counterOff && 'translate-x-3'"></span>
+            </span>
+            <span class="flex-1 text-[11px] font-semibold">③ Sin contador de subárbol</span>
+          </button>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            Quitarlo devuelve <strong class="text-foreground">~20px</strong> al nombre de la carpeta.
+            Compará ese número con lo que devuelve subir de <code>sm</code> a <code>md</code>:
+            <strong class="text-foreground">+96px</strong>. Por eso ③ se resuelve acá y no quitando
+            información — la lección de Grafana sobre el contador sigue en pie (D2).
+          </p>
+        </div>
+
+        <!-- El hallazgo -->
+        <div class="mt-2 rounded-lg bg-warning/10 p-2 text-[10px] leading-snug ring-1 ring-inset ring-warning/40">
+          <p><strong class="text-foreground">Hallazgo · el umbral de colapso mide el contenedor, no la ventana.</strong>
+             <code>COLLAPSE_WIDTH_THRESHOLD = 1200</code> se compara contra
+             <code>entry.contentRect.width</code> del contenedor del OC, que ya excluye el nav
+             de plataforma (256px) y el <code>px-6</code> (48px). Es decir que se dispara
+             alrededor de los <strong class="text-foreground">1504px de ventana</strong>: en un
+             portátil de 1440px <strong class="text-foreground">el panel ya arranca colapsado</strong>
+             y el árbol de carpetas no se ve.</p>
+          <p class="mt-1">Contenedor ahora: <strong class="text-foreground" x-text="containerPx"></strong>px
+             de <span x-text="COLLAPSE_THRESHOLD"></span> ·
+             <span x-show="widthAutoCollapsed" class="font-semibold text-warning">colapsado por ancho</span>
+             <span x-show="!widthAutoCollapsed" class="font-semibold text-success">hay espacio</span>.
+             Angostá la ventana para verlo: gana el colapso, y al volver a ensanchar
+             se recupera <strong class="text-foreground" x-text="panelSize.toUpperCase()"></strong>.</p>
+        </div>
+
+        <p class="mt-2 border-t border-info/25 pt-2 text-[10px] leading-snug text-sidebar-foreground">
+          <strong class="text-foreground">A decidir:</strong> ¿esto es de SWAT-577 o es el segundo
+          spin-off? Argumento para separarlo: <strong class="text-foreground">beneficia al panel
+          exista o no el feature de carpetas</strong>, igual que D14 — y de hecho es la tercera
+          palanca de ancho del mismo issue (<code>ancho-util-lista-tableros/</code>).
+        </p>
+      </div>
+
       <!-- D11 · hace visible el patrón de 9 slots -->
       <div class="mt-3 rounded-lg border p-2" :class="patternMode ? 'border-info bg-info/5' : 'border-border'">
         <button @click="patternMode = !patternMode" class="flex w-full items-center gap-2 text-left">
@@ -985,6 +1170,10 @@
           <li><strong class="text-foreground">D6.</strong> Al eliminar una carpeta el contenido <strong class="text-foreground">sube un nivel</strong>, no a la raíz. ¿El copy lo deja claro? <span class="text-muted-foreground">(probar con «Visa», que está anidada)</span></li>
           <li><strong class="text-foreground">D12.</strong> Las 4 secciones del panel colapsan. ¿Se usa, o el chevron del encabezado pasa desapercibido?</li>
           <li><strong class="text-foreground">D13.</strong> El icono de carpeta reemplaza al chevron: <em>folder</em> cerrada, <em>folder-open</em> abierta. ¿Se lee el estado sin el chevron, o hace falta recuperarlo?</li>
+          <li><strong class="text-foreground">D17 · ancho del panel.</strong> ¿Los tres valores son los
+              correctos, y el mecanismo es el <strong class="text-foreground">A (arrastrar el borde)</strong>
+              o el <strong class="text-foreground">B (control S/M/L en el header)</strong>? La tabla de
+              presupuesto de arriba se recalcula al cambiar de tamaño.</li>
           <li class="border-t border-border pt-1.5"><strong class="text-foreground">D14 · otro issue.</strong> Los botones de fila aparecen en hover y empujan el texto (+20px en tableros, +40px en Favoritos), y el nombre se trunca al medio para conservar la cola (<code>Adquirencia_2026…_visa</code>). ¿El reacomodo en hover molesta al recorrer la lista? ¿El «…» del medio estorba al escanear?</li>
         </ul>
       </div>
@@ -998,7 +1187,8 @@
         <p class="mt-1">Profundidad: <strong class="text-foreground" x-text="maxDepth"></strong> de
            <strong class="text-foreground" x-text="MAX_DEPTH"></strong> niveles ·
            el nombre pierde <strong class="text-foreground" x-text="(maxDepth - 1) * 12"></strong>px en el más hondo
-           <span class="text-muted-foreground">(de 240px útiles, no 288: <code>px-3</code> se aplica dos veces)</span></p>
+           <span class="text-muted-foreground">(de <span x-text="rowPx"></span>px útiles, no <span x-text="panelPx"></span>:
+           <code>px-3</code> se aplica dos veces)</span></p>
         <p class="mt-1">Secciones colapsadas: <strong class="text-foreground" x-text="collapsed.length"></strong> de 4 ·
            <span class="text-muted-foreground">cerrar Pendientes y Favoritos devuelve 13 filas</span></p>
       </div>
@@ -1011,6 +1201,35 @@
 function proto() {
   const LS = "swat577_expanded";
   const LS_SEC = "swat577_sections";
+
+  // ══════════════ ② ANCHO DEL PANEL ══════════════
+  // Tercera clave de preferencia. NO se unifica con las otras dos a propósito:
+  // producción ya persiste el colapso en `oc_sidebar_collapsed` con su propia
+  // clave, así que el ancho va en paralelo. Unificar sería migrar lo que ya existe.
+  const LS_W = "swat577_panel_width";
+
+  // Los tres valores NO son arbitrarios — cada uno responde a una pregunta:
+  //   sm 288 (`w-72`)     · lo de hoy. Es el default y no regresiona nada.
+  //   md 384 (`w-96`)     · el anidamiento deja de costar ancho: un tablero en el
+  //                         nivel 3 queda en 262px, 60px MÁS que un suelto hoy (202px).
+  //   lg 480 (`w-[30rem]`)· el nombre más largo que genera el propio producto
+  //                         (`Adquirencia_2026_06_04_conciliacion_master_v2`, 45
+  //                         caracteres ≈ 329px) entra entero hasta el nivel 3.
+  // Progresión de +96px, y dos de los tres caen en la escala Tailwind por defecto.
+  const SIZES = { sm: 288, md: 384, lg: 480 };
+  const ORDER = ["sm", "md", "lg"];
+
+  // Ancho medio de carácter a `text-sm` en la fuente del desyk. No es una
+  // estimación libre: sale del dato medido en `ancho-util-lista-tableros/`
+  // («a 182px se ven ~25 caracteres» → 182/25 = 7.28).
+  const CHAR_PX = 7.28;
+  // El nombre más largo que build() genera. El peor caso REAL, no uno inventado.
+  const LONGEST = "Adquirencia_2026_06_04_conciliacion_master_v2".length;
+
+  // Producción colapsa el panel cuando el CONTENEDOR baja de esto —
+  // ojo: es el contenedor, no el viewport (OcContentLayout.tsx:56 y :127,
+  // y `entry.contentRect` excluye el `px-6`). Ver el hallazgo en el panel de demo.
+  const COLLAPSE_THRESHOLD = 1200;
   // D2 revisada: las carpetas anidan. `parentId: null` = raíz.
   // Tope de 3 niveles de carpeta. El tope acota el `path` materializado del BE;
   // la indentación de 12px por nivel y el truncado al medio hacen el resto.
@@ -1091,6 +1310,20 @@ function proto() {
     // Se guarda lo COLAPSADO, no lo abierto: así el default de toda sección es
     // «abierta», y una sección nueva no aparece cerrada por no estar en la lista.
     collapsed: (() => { try { return JSON.parse(localStorage.getItem(LS_SEC)) || []; } catch { return []; } })(),
+
+    // ── ② ancho del panel ──
+    SIZES,
+    panelSize: (() => { try { return ORDER.includes(localStorage.getItem(LS_W)) ? localStorage.getItem(LS_W) : "sm"; } catch { return "sm"; } })(),
+    resizeMech: "handle",        // A/B del mecanismo · handle de arrastre | control discreto
+    resizing: false,
+    snapTarget: "sm",            // a qué medida va a caer el arrastre en curso
+    panelCollapsed: false,
+    // Espejo de producción: la preferencia del usuario y los motivos de colapso
+    // automático se guardan por separado, para poder restaurar cuando el motivo
+    // desaparece (`restoreIfNoAutoCollapse` en OcContentLayout.tsx:86).
+    userPrefCollapsed: false,
+    widthAutoCollapsed: false,
+    counterOff: false,           // ③ · comparar cuánto cuesta de verdad el contador
     activeId: "d24",                 // un tablero dentro de «Cierre contable»
     sortAsc: true, searchInput: "", appliedSearch: "", unfiledShown: 20,
     dragOver: null, dragId: null,
@@ -1138,9 +1371,99 @@ function proto() {
       if (act?.folderId) this.revealAncestors(act.folderId);
       if (this.folders.length === 1) this.expanded = [this.folders[0].id];
       this.persist();
+      this.$nextTick(() => this.watchCollapse());   // ② colapso automático, como producción
     },
 
     patternMode: false,
+
+    // ══════════════ ② RESIZE DEL PANEL ══════════════
+
+    get panelPx() { return SIZES[this.panelSize]; },
+    /** Ancho útil de una fila: el `px-3` se aplica DOS veces (aside + cuerpo). */
+    get rowPx() { return this.panelPx - 48; },
+
+    /** Presupuesto de ancho por nivel — la cuenta de D2, parametrizada.
+     *  Es la tabla que ② tenía que producir, pero viva: se recalcula al cambiar
+     *  de tamaño, así que nadie tiene que confiar en un número copiado a mano. */
+    get budget() {
+      const chars = (px) => Math.floor(px / CHAR_PX);
+      const counter = this.counterOff ? 0 : 20;      // ③ · pl-1 + dos dígitos
+      const FIXED = 38;                               // px-2 16 + icono 14 + gap-2 8
+      const rows = [];
+      rows.push({ what: "Tablero suelto", lvl: "—", px: this.rowPx - FIXED });
+      for (let n = 1; n <= this.MAX_DEPTH; n++) {
+        // Una carpeta de nivel N está indentada N-1 veces; un tablero DENTRO de
+        // ella, N veces. De ahí que el tablero salga 12px más angosto que su madre
+        // y no más ancho, que es el error fácil al hacer esta cuenta a mano.
+        rows.push({ what: "Carpeta", lvl: n, px: this.rowPx - 12 * (n - 1) - FIXED - counter });
+        rows.push({ what: "Tablero dentro", lvl: n, px: this.rowPx - 12 * n - FIXED });
+      }
+      return rows.map((r) => ({ ...r, chars: chars(r.px), fits: chars(r.px) >= LONGEST }));
+    },
+    get longestName() { return LONGEST; },
+    /** ¿En qué nivel deja de entrar el peor caso real? Métrica de una línea. */
+    get worstFits() { return this.budget.every((r) => r.fits); },
+
+    setSize(k) {
+      if (!ORDER.includes(k)) return;
+      this.panelSize = k;
+      try { localStorage.setItem(LS_W, k); } catch {}
+    },
+    stepSize(dir) {
+      const i = ORDER.indexOf(this.panelSize) + dir;
+      if (i >= 0 && i < ORDER.length) this.setSize(ORDER[i]);
+    },
+
+    /** Arrastre continuo con snap: el gesto es libre, el resultado siempre cae
+     *  en uno de los tres valores. Durante el arrastre el panel NO sigue al
+     *  cursor — muestra el destino en un badge, porque si el ancho se moviera
+     *  libre y después saltara, el snap se leería como un bug. */
+    startResize(ev) {
+      ev.preventDefault();
+      const startX = ev.clientX, startPx = this.panelPx;
+      this.resizing = true;
+      this.snapTarget = this.panelSize;
+      const nearest = (px) => ORDER.reduce((a, b) =>
+        Math.abs(SIZES[b] - px) < Math.abs(SIZES[a] - px) ? b : a);
+      const move = (e) => {
+        const raw = Math.min(SIZES.lg + 40, Math.max(SIZES.sm - 40, startPx + (e.clientX - startX)));
+        this.snapTarget = nearest(raw);
+      };
+      const up = () => {
+        this.setSize(this.snapTarget);
+        this.resizing = false;
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+    },
+
+    // ── colapso · calcado de OcContentLayout para no inventar un modelo nuevo ──
+    setCollapsedByUser(v) { this.userPrefCollapsed = v; this.panelCollapsed = v; },
+    restoreIfNoAutoCollapse() {
+      if (!this.widthAutoCollapsed) this.panelCollapsed = this.userPrefCollapsed;
+    },
+    /** Vigila el contenedor, no la ventana — igual que producción. Esto es lo que
+     *  hace visible el hallazgo: el umbral se dispara mucho antes de lo que
+     *  «1200px» sugiere, porque el nav de plataforma y el `px-6` ya se descontaron. */
+    watchCollapse() {
+      const el = this.$refs.ocLayout;
+      if (!el || !window.ResizeObserver) return;
+      new ResizeObserver(([entry]) => {
+        if (!entry) return;
+        this.containerPx = Math.round(entry.contentRect.width);
+        if (this.containerPx <= COLLAPSE_THRESHOLD) {
+          this.widthAutoCollapsed = true;
+          this.panelCollapsed = true;
+        } else if (this.widthAutoCollapsed) {
+          this.widthAutoCollapsed = false;
+          this.restoreIfNoAutoCollapse();
+        }
+      }).observe(el);
+    },
+    containerPx: 0,
+    COLLAPSE_THRESHOLD,
 
     // ── derivados ──
     get searching() { return this.appliedSearch.trim().length > 0; },
