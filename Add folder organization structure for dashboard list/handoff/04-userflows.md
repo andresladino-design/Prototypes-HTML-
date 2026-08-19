@@ -1,7 +1,7 @@
 # User flows — Carpetas en la lista de tableros (SWAT-577)
 
-**Fecha:** 2026-08-03 · **reescrito el 2026-08-14**
-**Boards en Moka:** `.ohana/flow.json` — 12 user flows + 1 sitemap · todos enlazados al prototipo
+**Fecha:** 2026-08-03 · **reescrito el 2026-08-14** · **actualizado el 2026-08-19 (D17 · D18 · D20)**
+**Boards en Moka:** `.ohana/flow.json` — 13 user flows + 1 sitemap · todos enlazados al prototipo
 **Decisiones que los gobiernan:** [`01-decisiones.md`](01-decisiones.md) · [`01-benchmark.md`](01-benchmark.md) (I1–I6)
 
 > **🔄 Reescrito el 2026-08-14.** Dos reversiones cambiaron el set de flujos:
@@ -12,6 +12,14 @@
 > - **D2 → 3 niveles de anidamiento.** Entraron cuatro flujos nuevos y se corrigieron cuatro
 >   existentes que afirmaban cosas ya falsas.
 
+> **🔄 Actualizado el 2026-08-19** con el feedback del prototipo (Etapa 9):
+>
+> - **D20 → permisos por autoría.** Cuatro flujos ganan una **rama nueva**: qué pasa cuando
+>   **no sos quien creó la carpeta**. Antes esa rama no existía porque D1.b había aplazado la
+>   política. Y entra **F13** para el caso de la carpeta huérfana.
+> - **D17 → el ancho del panel es una preferencia.** F7 suma el gesto de redimensionar.
+> - **D18 → el contador sale de la fila.** Se cae un invariante que F7 afirmaba.
+
 Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo hace dos cosas.
 
 | Board | Pantallas | Cubre |
@@ -19,16 +27,20 @@ Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo 
 | F1 — Crear una carpeta (2 pasos) | 8 | C1 |
 | F2 — Mover un tablero a una carpeta | 9 | C2 |
 | F3 — Quitar un tablero de la carpeta | 7 | C3 |
-| F4 — Renombrar una carpeta | 8 | C1 |
-| F5 — Eliminar una carpeta (**disolver un nivel**) | 8 | C1, D6 |
+| F4 — Renombrar una carpeta 🔄 | 8 + rama | C1, **D20** |
+| F5 — Eliminar una carpeta (**disolver un nivel**) 🔄 | 8 + rama | C1, D6, **D20** |
 | F6 — Buscar un tablero · **resultados con ruta** | 7 | C5 |
-| F7 — Navegar y colapsar **el árbol** | 5 | C4 |
+| F7 — Navegar, redimensionar y colapsar **el árbol** 🔄 | 5 + 1 | C4, **D17** |
 | F8 — Agregar tableros a una carpeta existente | 7 | C2 |
 | **F9 — Crear una subcarpeta** ✨ | 9 | D2 |
-| **F10 — Mover una carpeta a otra** ✨ | 8 | D2 |
-| **F11 — Eliminar una carpeta con subcarpetas** ✨ | 7 | D2, D6 |
+| **F10 — Mover una carpeta a otra** ✨🔄 | 8 + rama | D2, **D20** |
+| **F11 — Eliminar una carpeta con subcarpetas** ✨🔄 | 7 + rama | D2, D6, **D20** |
 | **F12 — Colapsar las secciones del panel** ✨ | 6 | D12 |
+| **F13 — Carpeta huérfana · el escape por admin** ✨ | 7 | **D20** |
 | Sitemap — Dónde viven las carpetas (solo Tableros) | 14 | contexto |
+
+🔄 = cambió el 2026-08-19. **La «rama» es siempre la misma:** el gate de autoría de D20, que
+entra igual en los cuatro flujos que alteran una carpeta.
 
 > **F8 nació de las pruebas del prototipo**, no del análisis inicial. Ver D9 en [`01-decisiones.md`](01-decisiones.md).
 
@@ -55,6 +67,10 @@ nombre con `Dentro de: Adquirencia / Visa` → decisión **¿nombre único entre
   en la lista. Prevenir por ausencia en vez de dejar elegir y después fallar.
 - Lo mismo con el tope: un destino donde el subárbol no cabría tampoco se lista.
 - El diálogo incluye destino **`Primer nivel`** — sin él no habría forma de sacar una carpeta de su madre.
+- 🔄 **Rama nueva (D20):** «Mover carpeta a…» está deshabilitado si no la creaste. Nota de
+  consistencia: **D7 hace del drag un alias de «Mover a»**, así que si alguna vez se implementa el
+  drag de carpetas **tiene que respetar el mismo gate**. Hoy las carpetas no son arrastrables, así
+  que no hay conflicto — pero es una trampa fácil de pisar después.
 
 ### F11 — Eliminar una carpeta con subcarpetas
 
@@ -62,8 +78,9 @@ nombre con `Dentro de: Adquirencia / Visa` → decisión **¿nombre único entre
 
 - El punto del flujo es el copy: **«Sus 8 tableros y 1 subcarpeta suben a "Adquirencia"»**.
   No a la raíz (D6 revisada).
-- El «Deshacer» restaura **tres** cosas: la carpeta, el `parent_id` de sus hijas y el
-  `folder_id` de sus tableros.
+- El «Deshacer» restaura **cuatro** cosas: la carpeta, el `parent_id` de sus hijas, el
+  `folder_id` de sus tableros y —🔄 desde D20— el **`created_by` original**.
+- 🔄 **Rama nueva (D20):** el mismo gate de autoría que F5.
 
 ### F12 — Colapsar las secciones del panel
 
@@ -72,6 +89,62 @@ recargar → **el estado persiste**.
 
 - Los números son los del prototipo, no estimaciones.
 - Cierra el hallazgo #3 del benchmark: colapsar carpetas no alcanzaba, colapsar **secciones** sí mueve la aguja.
+
+### F13 — Carpeta huérfana · el escape por admin ✨
+
+```
+Inicio → Panel · carpeta «2025», la creó alguien que ya no está en la cuenta
+       → Menú ⋮ ⟨modal⟩ · Renombrar / Mover / Eliminar DESHABILITADOS
+       → ¿Tengo oc:manage_access? ─No→ Pie del menú: «Lucía ya no está en la cuenta.
+       │                                Solo alguien que gestione accesos puede…» → Fin
+       └Sí→ Los tres ítems habilitados · sigue por F4 / F10 / F11 → Fin
+```
+
+- **Es el flujo que justifica el escape.** Sin `oc:manage_access` como override, la carpeta de
+  alguien que se fue del equipo queda **inmanejable para siempre**.
+- **El copy es distinto al del caso normal, y es el punto del flujo.** Con un autor activo se
+  puede decir «pedile a María». Con una huérfana no hay a quién pedirle: hay que **nombrar la
+  salida real**, no la puerta cerrada.
+- No hay estado «carpeta abandonada» ni migración de autoría. La huérfana **no se detecta ni se
+  marca** — simplemente su autor está inactivo, y el override ya existe.
+- **Lo que NO hace:** reasignar la autoría. Quien tiene el permiso actúa sobre la carpeta, no se
+  convierte en su dueño. Reasignar sería un feature aparte.
+
+---
+
+## El gate de D20 — la rama que entra en F4, F5, F10 y F11
+
+Se describe **una vez** acá porque es idéntica en los cuatro; en cada flujo se referencia.
+
+```
+Menú ⋮ de la carpeta → ¿la creé yo, o tengo oc:manage_access?
+   ├─Sí→ el flujo continúa normal
+   └─No→ Renombrar / Mover / Eliminar DESHABILITADOS
+         + motivo al pie del menú → Fin (sin cambios)
+```
+
+| | |
+|---|---|
+| **Gated** | Renombrar · Mover a… · Eliminar |
+| **Libre** | Agregar tableros · Nueva subcarpeta · mover un tablero |
+
+La línea es **restringir lo que altera la carpeta de otro, no lo que la usa.** Si crear una
+subcarpeta requiriera ser dueño de la madre, «solo el autor» se volvería un candado sobre la
+ubicación compartida que definió D1.
+
+**Decisiones de flujo que esto fija:**
+
+- **Se deshabilita, no se oculta.** Mismo criterio que el tope de 3 niveles: esconder una acción
+  que existe en otras carpetas deja al usuario buscándola.
+- **La rama muere en «Fin», no en un error.** No hay diálogo, no hay toast: el usuario nunca
+  llega a intentar la acción. Es prevención por estado, igual que los destinos no ofrecidos de F10.
+- **El motivo va una vez al pie del menú**, no como tooltip por ítem: tres tooltips que dicen lo
+  mismo es ruido, y un tooltip no se lee con teclado.
+- **La autoría no se muestra en la fila.** Iría contra D17. Vive en el `title`, el `aria-label` y
+  el pie del menú — los tres cuestan 0px.
+- ⚠️ **Hay un camino que no pasa por el menú:** el **click derecho** sobre la fila abre el mismo
+  menú contextual, y el teclado puede disparar la acción. **La guarda tiene que estar en el
+  handler, no solo en el `disabled`.**
 
 ---
 
@@ -143,6 +216,8 @@ Inicio → Panel · con carpetas → Menú de la carpeta ⟨modal⟩ → Renombr
 
 - Mismo diálogo que F1 en modo `rename`, con el valor precargado y seleccionado.
 - El **409 del servidor** se muestra **inline en el diálogo**, además del toast — el patrón que ya usa el rename de tableros.
+- 🔄 **Rama nueva (D20):** si no creaste la carpeta, «Renombrar» está **deshabilitado** y el
+  diálogo nunca se abre. Ver [«El gate de D20»](#el-gate-de-d20--la-rama-que-entra-en-f4-f5-f10-y-f11).
 
 ## F5 — Eliminar una carpeta (disolver un nivel)
 
@@ -163,6 +238,12 @@ Inicio → Panel · carpeta con contenido → Menú de la carpeta ⟨modal⟩
 - **El contenido sube a la madre, no a la raíz** (D6 revisada). Si la carpeta era de primer nivel, sí queda suelto — mismo comportamiento de antes, ahora como caso particular.
 - ⚠️ **En BE ya no lo garantiza `ON DELETE SET NULL`.** Reparentar es lógica de servicio en una transacción, así que el test de que no borra tableros pasa a ser obligatorio. Ver [`07-handoff-be.md`](07-handoff-be.md) §3.
 - Con subcarpetas, el caso completo está en **F11**.
+- 🔄 **Rama nueva (D20):** solo quien creó la carpeta puede eliminarla. Y hay una razón extra
+  para que el gate exista acá: **D6 debilitó la premisa de D1.b.** El argumento para no pedir
+  permiso era que todo tenía «Deshacer» — pero eliminar ya no lo garantiza el motor de base de
+  datos, es lógica de servicio. La reversibilidad dejó de ser gratis.
+- 🔄 **Y una guarda que el flujo no tenía:** «Deshacer» restaura al **autor original**, no a quien
+  deshace. Si no, eliminar + deshacer sería una forma de apropiarse de la carpeta de otro.
 
 ## F6 — Buscar un tablero · resultados con ruta
 
@@ -190,7 +271,18 @@ Inicio → Panel · árbol con carpetas colapsadas → Subcarpeta expandida · s
 - Sin chevron: el icono de carpeta lleva el estado (D13).
 - El estado de expansión se **persiste en `localStorage`** por (cuenta, usuario). Colapsar todo en cada recarga se lee como un bug.
 - Los **tableros sueltos van después** de las carpetas y **sin indentar**: así la carpeta gana jerarquía sin degradar al suelto.
-- **Invariante:** la fila de carpeta mide 32 px igual que un tablero. Si el contador la empuja a 40 px, se pierde una fila visible por carpeta.
+- **Invariante:** la fila de carpeta mide 32 px igual que un tablero.
+- 🔄 **Se cae media afirmación (D18).** El invariante decía «si el contador la empuja a 40px, se
+  pierde una fila visible». **Ya no hay contador en la fila**, así que ese riesgo desapareció. El
+  invariante de 32px se queda; el motivo era otro.
+- ✨ **Paso nuevo (D17): redimensionar el panel.** Arrastrar el borde derecho, con snap a tres
+  anchos fijos (288 · 384 · 480). Durante el arrastre se sombrea **solo la franja que se gana o
+  devuelve** y las tres paradas quedan marcadas. Sin rótulo `S/M/L` — no le dice al usuario hasta
+  dónde va a llegar el panel.
+- **El ancho persiste** en `localStorage`, como el estado del árbol y el de las secciones. Tercera
+  clave, no unificada: producción ya persiste el colapso con la suya.
+- **Y convive con el colapso automático:** por debajo del umbral **gana el colapso**, y al volver a
+  ensanchar se recupera el tamaño elegido. Reusa `restoreIfNoAutoCollapse`, que ya existe.
 
 ## F8 — Agregar tableros a una carpeta existente
 
@@ -261,13 +353,36 @@ sirve como control de que el feature no lo afectó. Anomalías y Pendientes qued
 | Mover una carpeta | Diálogo con árbol de destinos y ruta; los inválidos por ciclo o tope **no se ofrecen** |
 | Colapsar secciones | Las 4 del panel, persistiendo **lo colapsado** (D12) |
 | Chevron de carpeta | No existe: el icono lleva el estado (D13) |
+| **Contador de carpeta** | **No existe en la fila** (D18); el total del subárbol vive en el `title` y el `aria-label` |
+| **Ancho del panel** | **Preferencia del usuario**: 3 anchos fijos, arrastrando el borde con snap y la franja del delta sombreada (D17) |
+| **Permisos de carpeta** | **Solo quien la creó** renombra, mueve o elimina; `oc:manage_access` es el escape. Se **deshabilita**, no se oculta, y el motivo va al pie del menú (D20) |
 
 ## Lo que estos flujos NO cubren (y por qué)
 
 - **Multi-selección como modo del panel** ("marcar 12 filas del sidebar y moverlas"): choca con C7. **Pero la selección múltiple sí existe** dentro del wizard de creación (D8, F1) y del "Agregar tableros" (D9, F8) — que es donde resuelve el problema de los 100 sueltos sin agregar un modo a la navegación principal.
 - **Reordenar carpetas a mano:** D5 resolvió el orden con el toggle A→Z existente.
-- **Más de 3 niveles** de anidamiento (D2 revisada), **etiquetas** (D3), **permisos por carpeta** (D1.b), **carpetas en Datasets/Anomalías/Pendientes** (D10 revisada).
-- **El ancho útil de la fila** (truncado al medio, botones en hover) — es un issue aparte: [`ancho-util-lista-tableros/`](../../ancho-util-lista-tableros/). El prototipo lo tiene activo, así que no todo lo que se ve ahí lo entregan estos flujos.
+- **Más de 3 niveles** de anidamiento (D2 revisada), **etiquetas** (D3), **carpetas en Datasets/Anomalías/Pendientes** (D10 revisada).
+- **Permisos por carpeta en el sentido de D1.b** —una ACL propia, con roles por carpeta— sigue
+  fuera. **D20 no es eso:** es una comprobación de autoría sobre tres acciones, reusando un
+  permiso que ya existe. No hay modelo de permisos nuevo.
+- **Reasignar la autoría** de una carpeta (F13 la deja actuar, no cambiar de dueño).
+- **El ancho útil de la fila** (truncado al medio, botones en hover) — es un issue aparte: [`ancho-util-lista-tableros/`](../../ancho-util-lista-tableros/). El prototipo lo tiene activo, así que no todo lo que se ve ahí lo entregan estos flujos. **Y D17 (el ancho del panel) es la tercera palanca del mismo issue**, aunque F7 la muestre.
+
+## ⚠️ Estado del board vs. este documento
+
+**Este documento está actualizado; el `flow.json` de Moka, al 2026-08-19, todavía no.**
+
+Los boards viven en `.ohana/flow.json`, que está en el `.gitignore` (`**/.ohana/`), así que
+**el board no viaja al repositorio** — este archivo es la fuente que el equipo consume. Cuando
+se sincronice el board, lo que hay que agregar es:
+
+| Flujo | Qué falta en el board |
+|---|---|
+| F4 · F5 · F10 · F11 | El nodo `decision` del gate de autoría + su rama negativa a `end` |
+| F7 | El paso de redimensionar el panel |
+| F13 | El flujo completo (7 nodos) |
+
+Ninguna de esas ediciones cambia lo que dice este doc, que ya las describe.
 
 ## Nota de proceso
 
