@@ -85,8 +85,8 @@ tiene 240px útiles** (`w-72` con `px-3` dos veces: en el `<aside>` y en el cuer
 sección) **y los nombres reales ya se truncan hoy**:
 
 ```
-Adquirencia_2026_06_04_conciliacion_visa     ← 40 caracteres
-Adquirencia_2026_06_04_conciliacion_master
+Adquirencia_2026_06_04_conciliacion_visa        ← 40 caracteres
+Adquirencia_2026_06_04_conciliacion_master_v2  ← 45 · el peor caso REAL
 ```
 
 Esa restricción es exactamente la que obliga a las **tres mitigaciones** del diseño actual.
@@ -98,12 +98,29 @@ Si alguien las revierte por parecer arbitrarias, el anidamiento se vuelve inusab
 | **Truncado al medio** fijando el último segmento | se pierde la cola, que es lo que desambigua `_visa` de `_master` |
 | **Tope de 3 niveles** | la profundidad se vuelve ilimitada y el `path` del BE, de largo impredecible |
 
-Presupuesto resultante — peor caso permitido:
+> **⚠️ Corrección del 2026-08-18: el peor caso son 45 caracteres, no 40.** Esta decisión se
+> calibró contra `Adquirencia_2026_06_04_conciliacion_visa` (40), pero el propio generador de
+> nombres del producto agrega sufijos `_master` y `_v2`:
+> **`Adquirencia_2026_06_04_conciliacion_master_v2`** = 45 caracteres ≈ **329px** a `text-sm`.
+> El presupuesto de abajo estaba calibrado contra un peor caso optimista.
+
+**Presupuesto actualizado.** Cambió dos veces desde la versión original: **D18** le quitó el
+contador a la fila de carpeta (+20px) y **D17** hizo del ancho del panel una preferencia.
+
+En `sm` (288px, el default — lo que hay hoy en producción):
 
 | | nivel 1 | nivel 2 | nivel 3 |
 |---|---|---|---|
-| Nombre de carpeta | 182px | 170px | **158px** |
+| Nombre de carpeta | 202px | 190px | **178px** |
 | Nombre de tablero dentro | 190px | 178px | **166px** |
+
+Sin contador, **una carpeta y un tablero a la misma indentación miden lo mismo**. La tabla
+original de esta decisión (carpeta 182/170/158) se calculó **con** contador.
+
+**Ninguno de esos números alcanza para los 45 caracteres** — hacen falta 329px, y solo `lg`
+(480px) los da en todos los niveles. Es decir: **el truncado al medio sigue siendo obligatorio
+a cualquier ancho**, y el tope de 3 niveles sigue justificado. Las tres mitigaciones aguantan;
+lo que cambió es que ahora hay una cuarta palanca, opcional y del usuario (D17).
 
 **Por qué 3 y no «sin tope»:** se evaluó profundidad libre y se descartó al revisar el BE.
 Con tope, el `path` materializado tiene largo acotado, el `CHECK` de profundidad es trivial
@@ -363,6 +380,10 @@ deshabilita — ahí no es una sección sino el resultado de una consulta.
 
 ## D13 ✨ — El icono de carpeta absorbe el chevron
 
+> **Nota del 2026-08-18:** sigue vigente sin cambios. Vale registrar que la fila de carpeta
+> perdió también el contador (**D18**), así que hoy tiene **dos** elementos menos que la versión
+> original: ni chevron ni contador. Lo que queda es icono + nombre + `⋮` en hover.
+
 **Fecha:** 2026-08-14
 
 **Decisión:** la fila de carpeta **no lleva chevron**. El propio icono indica el estado:
@@ -457,8 +478,17 @@ conclusión se sostuvo.
 **El trade-off que se acepta a cambio:** el drill-down tenía una ventaja real que el in-place no
 puede igualar — **el nombre nunca pierde ancho**, porque siempre ves el nivel actual sin indentar.
 El in-place paga **12px por nivel**. Se acepta porque las tres mitigaciones de D2 lo dejan en un
-peor caso de 158px, y porque el costo de navegación se paga en **cada** cambio de tablero mientras
+peor caso acotado, y porque el costo de navegación se paga en **cada** cambio de tablero mientras
 el costo de ancho se paga solo en el nivel más profundo.
+
+> **🔄 Revisado el 2026-08-18.** El argumento del ancho —el único a favor del drill-down— se
+> debilitó dos veces: **D18** devolvió 20px a la fila de carpeta y **D17** le da al usuario hasta
+> 192px más. El peor caso pasó de **158px a 178px** en `sm`, y a **370px** en `lg`.
+>
+> **D16 no se reabre: se refuerza.** Lo que sostenía al drill-down era compensar un ancho
+> escaso, y ahora hay tres formas de conseguir ancho sin cambiar de forma de navegar. La puerta
+> que D2 dejó abierta —«si la telemetría muestra que el ancho es un problema real»— tiene ahora
+> una salida más barata que rediseñar la navegación.
 
 **Consecuencias:**
 

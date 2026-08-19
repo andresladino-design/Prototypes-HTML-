@@ -186,8 +186,13 @@ Andrés: primero terminar el feedback (④), después flujos y handoff.
 `handoff/01-decisiones.md` (D2 · D13 · D16) · `handoff/01-benchmark.md` (I4) · `design.md` ·
 `handoff/07-handoff-fe.md` §4 · la tabla de `ancho-util-lista-tableros/`.
 
-Lo único que hay que arreglar **pase lo que pase** es el peor caso: D2 dice 40 caracteres
-y son 45.
+✅ **Hecho el 2026-08-19.** Re-sincronizados: `01-decisiones.md` (D2 · D13 · D16),
+`01-benchmark.md` (I4), `design.md`, `07-handoff-fe.md` (§4 + §4.a ancho + §4.b permisos),
+`07-handoff-be.md` (§6.b permisos + `created_by` en el response) y los dos docs de
+`ancho-util-lista-tableros/` (entra como palanca **2.c**).
+
+El peor caso de D2 quedó corregido en los cuatro lugares donde estaba mal: son **45**
+caracteres, no 40.
 
 ---
 

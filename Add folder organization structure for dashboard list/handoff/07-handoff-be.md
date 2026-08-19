@@ -56,7 +56,10 @@ class DashboardFolder(Base):
     )
     path:       Mapped[str] = mapped_column(String(120), nullable=False, index=True)
 
-    created_by: Mapped[str | None] = mapped_column(String(255), nullable=True)   # D1, trazabilidad
+    # ⚠️ D20 (2026-08-18): dejó de ser solo trazabilidad — AHORA GOBIERNA PERMISOS.
+    # Solo quien creó la carpeta puede renombrarla, moverla o eliminarla.
+    # Deja de poder ser nullable en la práctica: sin autor la carpeta es inmanejable.
+    created_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at / updated_at
 ```
 
@@ -79,7 +82,7 @@ Resuelve **tres** necesidades que si no requieren tres mecanismos distintos:
 | Necesidad | Con `path` | Sin `path` |
 |---|---|---|
 | Guarda de ciclos (D2) | `dest.path LIKE folder.path \|\| '%'` | CTE recursivo en cada move |
-| `subtree_count` (el contador visible) | `WHERE path LIKE '/a1b2c3/%'` | CTE recursivo por carpeta |
+| `subtree_count` (va al `title`, ya no a la fila — D18) | `WHERE path LIKE '/a1b2c3/%'` | CTE recursivo por carpeta |
 | Tope de 3 niveles (D2) | contar separadores → `CHECK` | validación solo en aplicación |
 
 `String(120)` alcanza: 3 niveles × (32 hex + 1 separador) + 1 = 100 caracteres.
@@ -150,7 +153,7 @@ folder_id: Mapped[uuid.UUID | None] = mapped_column(
 
 | Método | Ruta | Contrato |
 |--------|------|----------|
-| `GET` | `/dashboards/folders` | **Todas las carpetas, sin paginar.** Cada una: `{ id, name, parent_id, path, depth, direct_count, subtree_count }`. Es el endpoint que hace innecesario contar en cliente. |
+| `GET` | `/dashboards/folders` | **Todas las carpetas, sin paginar.** Cada una: `{ id, name, parent_id, path, depth, direct_count, subtree_count, created_by, can_manage }`. Es el endpoint que hace innecesario contar en cliente. **`created_by` y `can_manage` son nuevos (D20) y hoy no viajan** — sin ellos el FE no puede ni pintar los estados deshabilitados. |
 | `POST` | `/dashboards/folders` | `{ name, parent_id?: UUID, dashboard_ids?: UUID[] }` → crea **y asigna en una transacción** (D8). `409` nombre duplicado entre hermanas · `422` excede 3 niveles. |
 | `PATCH` | `/dashboards/folders/{id}` | `{ name }` → renombrar. `409` duplicado entre hermanas · `404` · `403` cross-account. |
 | `PATCH` | `/dashboards/folders/{id}/parent` | **Mover carpeta (D2, nuevo).** `{ parent_id: UUID \| null }`. `null` = primer nivel. Ver §4. |
@@ -266,9 +269,13 @@ El endpoint de carpetas devuelve **dos** números por carpeta:
 | `direct_count` | tableros con `folder_id = <id>` | `GROUP BY folder_id` |
 | `subtree_count` | tableros en la carpeta **y sus descendientes** | join por `path LIKE` |
 
-**El que se muestra en la UI es `subtree_count`.** Colapsada, «24» significa «hay 24 acá
-dentro», no «24 sueltos y quién sabe cuántos más abajo». `direct_count` alimenta el desglose
-del tooltip (*«16 directos · 24 en total»*).
+**El que usa la UI es `subtree_count`.** Colapsada, «24» significa «hay 24 acá dentro», no
+«24 sueltos y quién sabe cuántos más abajo». `direct_count` alimenta el desglose
+(*«16 directos · 24 en total»*).
+
+> **🔄 D18 (2026-08-18): el contador ya NO se pinta en la fila.** Los dos campos **siguen
+> siendo necesarios** —van al `title` y al `aria-label` de la fila— así que **para BE no cambia
+> nada**. Se aclara acá porque «el contador visible» aparece en §1.2 y ya no es visible.
 
 > Esta es la lección de Grafana ([#124158](https://github.com/grafana/grafana/issues/124158)):
 > un contador que significa cosas distintas según el contexto se rompe al anidar. Acá se
@@ -296,6 +303,48 @@ por cuenta es un join sobre `dashboards` agrupado por prefijo de `path`.
 
 ---
 
+## 6.b Permisos de carpeta (D20) — **nuevo, 2026-08-18**
+
+**Revierte D1.b**, que decía «no se introduce un permiso nuevo». No lo introduce —reusa
+`oc:manage_access`— pero **sí agrega una comprobación de autoría que hoy no existe**.
+
+```
+puede_gestionar(carpeta, usuario) =
+    carpeta.created_by == usuario.id  OR  usuario tiene "oc:manage_access"
+```
+
+| Operación | ¿Valida autoría? |
+|---|---|
+| `PATCH /folders/{id}` (renombrar) · `PATCH` de `parent_id` (mover) · `DELETE /folders/{id}` | ✅ **sí** |
+| `POST /folders` (crear, incluida subcarpeta) | ❌ no — mismo umbral que crear un tablero (D1) |
+| Asignar / quitar un tablero de una carpeta | ❌ no — lo gobierna `hasAccess` del tablero |
+
+La línea: **restringir lo que altera la carpeta de otro, no lo que la usa.** Si crear una
+subcarpeta requiriera ser dueño de la madre, «solo el autor» se volvería un candado sobre la
+ubicación compartida que definió D1.
+
+**Tres cosas que hay que cerrar:**
+
+1. **Validar en el endpoint, no confiar en la vista.** Un permiso que solo vive en el FE no es
+   un permiso. Los tres endpoints gated devuelven **403** si no pasa.
+2. **Devolver `can_manage` calculado por el servidor** en `GET /folders`, además de
+   `created_by`. Que el FE derive el booleano de comparar ids es duplicar la política en dos
+   lugares; que lo mande el server la deja en uno.
+3. **`created_by` tiene que quedar seteado siempre al crear.** Con `resolve_user_id(auth)` ya
+   disponible (§7) no debería costar — pero una carpeta sin autor es **inmanejable**: nadie la
+   puede renombrar ni eliminar salvo con `oc:manage_access`. Evaluar volverlo `NOT NULL`.
+
+**El caso que obliga a tener el escape:** si solo el creador puede eliminar, la carpeta de
+alguien que **se fue del equipo** queda inmanejable para siempre. `oc:manage_access` es la
+salida, y ya existe — no hay que modelar un estado «carpeta abandonada».
+
+**Para el copy del FE hace falta saber si el autor sigue activo.** Los mensajes son distintos
+(«pedile a María» vs. «pedile a alguien que gestione accesos»), así que `GET /folders` debería
+devolver algo como `created_by_name` y `created_by_active`, o el FE necesita poder resolver el
+usuario. **A definir con BE.**
+
+---
+
 ## 7. Convenciones del repo a cumplir
 
 `apps/dashboards/` DDD (`api/views` → `services` → `domain/repositories` → `domain/models`),
@@ -320,5 +369,9 @@ carpetas y el onboarding del primer uso son parte del diseño de FE, no de una m
 |---|---|---|
 | 1 | ¿`path` como `String` o extensión `ltree`? | `ltree` da operadores nativos; `String` no necesita extensión |
 | 2 | ¿`subtree_count` calculado o materializado? | Con ≤50 carpetas el join alcanza; si crece, columna denormalizada |
+| **D20-a** | ¿`oc:manage_access` es el override correcto para carpetas, o hace falta otro scope? | Reusarlo: ya gobierna «Gestionar acceso» y evita inventar modelo |
+| **D20-b** | ¿La validación de autoría vive en el servicio o en la política de acceso existente? | A criterio de BE — lo que no puede es vivir solo en el FE |
+| **D20-c** | ¿`GET /folders` puede devolver `created_by_name` y `created_by_active`? | El copy del FE los necesita para distinguir «pedile a María» de «el autor ya no está» |
+| **D20-d** | ¿`created_by` pasa a `NOT NULL`? | Una carpeta sin autor es inmanejable salvo con `oc:manage_access` |
 | 3 | ¿El lote de D9 en un endpoint propio o reusando `PATCH /dashboards/folder`? | Afecta la transaccionalidad del punto 12 |
 | 4 | ¿`ondelete` del `parent_id` en `RESTRICT` o `CASCADE`? | Propuesto `RESTRICT`: el servicio siempre reparenta antes, así que un `CASCADE` solo podría hacer daño silencioso |

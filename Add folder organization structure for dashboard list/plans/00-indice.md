@@ -119,8 +119,10 @@ Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../h
 ### Por qué D2 conserva su razón original
 
 D2 argumentaba carpetas planas porque **el panel mide 240px útiles y los nombres reales ya se truncan**
-(`Adquirencia_2026_06_04_conciliacion_visa` son 40 caracteres). Esa restricción **no desapareció** al
-abrir el anidamiento: es exactamente la que obliga a las tres mitigaciones del diseño actual.
+(`Adquirencia_2026_06_04_conciliacion_master_v2` son **45** caracteres ≈ 329px). Esa restricción
+**no desapareció** al abrir el anidamiento: es exactamente la que obliga a las tres mitigaciones
+del diseño actual. **Ni siquiera `lg` la elimina en todos los casos** — el truncado al medio es
+obligatorio a cualquier ancho.
 
 | Mitigación | Sin ella |
 |---|---|

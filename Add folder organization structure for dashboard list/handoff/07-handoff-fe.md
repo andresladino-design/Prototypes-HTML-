@@ -37,9 +37,10 @@ recomendación—, la fila ya viene con ~20px más de ancho y este feature los a
 4. Al buscar            → GET /dashboards?search=…         (plano, cruza todo, con folder.path)
 ```
 
-**Los contadores vienen del BE.** `subtree_count` es el número que se muestra;
-`direct_count` alimenta el tooltip. **No contar en cliente** — con paginación contarías
-solo lo que bajaste.
+**Los contadores vienen del BE.** `subtree_count` y `direct_count` **siguen siendo
+necesarios**, pero desde **D18 ya no se pintan en la fila**: alimentan el `title` y el
+`aria-label` de la carpeta. **No contar en cliente** — con paginación contarías solo lo que
+bajaste.
 
 Esto encaja con lo que ya existe: las carpetas arrancan **colapsadas** (I2), así que en
 el primer render solo se piden las carpetas y los sueltos. Es *menos* trabajo que hoy.
@@ -47,8 +48,8 @@ el primer render solo se piden las carpetas y los sueltos. Es *menos* trabajo qu
 ### Cómo pintar el árbol — lección medida en el prototipo
 
 Aplanar la estructura en filas con `depth` y pintar **una sola lista**, en vez de
-componentes recursivos por nivel. Y que **cada fila lleve ya calculado** su `path`,
-contador y estado.
+componentes recursivos por nivel. Y que **cada fila lleve ya calculado** su `path`, sus
+contadores (para el `title`), su autoría (D20) y su estado.
 
 La versión ingenua —llamar `countSubtree()` / `folderPath()` desde el render de cada
 fila— costaba **60 recorridos de la colección por render (~13.000 accesos)** contra
@@ -87,11 +88,11 @@ es la misma: **calcular una vez, arriba, y bajar datos planos a las filas.**
 
 ```
 Tableros (155)                          🗀+  ↕A→Z    ← 12px medium muted (header de sección)
-▾ 🗀 Adquirencia                     24              ← 14px MEDIUM · SIN chevron (D13)
-  │ ▸ 🗀 Visa                          8             ← indentado 12px + guía 1px
+▾ 🗀 Adquirencia                                     ← 14px MEDIUM · SIN chevron (D13) · SIN contador (D18)
+  │ ▸ 🗀 Visa                                        ← indentado 12px + guía 1px
   │ 🌐 ADQ-DASH
-▸ 🗀 Cierre contable                 12
-  Sin carpeta                        100             ← con chevron (D12)
+▸ 🗀 Cierre contable
+  Sin carpeta                        100             ← con chevron (D12) · el contador de SECCIÓN se queda
   🌐 Adquirencia_2026_06_04…                         ← suelto: sin indentar
 ```
 
@@ -99,16 +100,103 @@ Tableros (155)                          🗀+  ↕A→Z    ← 12px medium muted
 
 1. **`font-medium`** en la carpeta vs. `font-normal` en el tablero. La principal, y no cuesta densidad.
 2. **Icono `Folder` / `FolderOpen`** (`h-3.5 w-3.5`) que **lleva el estado** — sin chevron (D13). `aria-expanded` se conserva en el botón.
-3. **Contador** a la derecha, `text-xs muted`, con `subtree_count`. Sin paréntesis (esos son del header de sección).
-4. **Indentación de 12px por nivel** + guía vertical de 1px (`border-l border-sidebar-border`). **12, no 16 ni 19** — ver D2.
-5. **Fondo:** ninguno en reposo. `bg-accent` es de la fila activa, `hover:bg-muted` del hover.
+3. **Indentación de 12px por nivel** + guía vertical de 1px (`border-l border-sidebar-border`). **12, no 16 ni 19** — ver D2.
+4. **Fondo:** ninguno en reposo. `bg-accent` es de la fila activa, `hover:bg-muted` del hover.
 
 **Prohibido:** fuente más grande · mayúsculas · color de acento · negrita 600+. Todos esos
 registros ya están tomados y competirían con el header de sección.
 
-**Verificar en implementación:** que la fila de carpeta mantenga **32px** de alto. Si el
-contador la empuja a 36–40px, se pierde una fila visible por carpeta — y el feature se paga
-en el recurso que vino a ahorrar.
+### ⚠️ D18 — la fila de carpeta NO lleva contador
+
+Cambió el 2026-08-18. **`subtree_count` sigue siendo necesario en la API** (§1), pero **no se
+pinta en la fila**: va al `title` y al `aria-label`.
+
+```tsx
+// El total del subárbol NO se renderiza. Va en los atributos, que cuestan 0px de ancho.
+<span
+  className="min-w-0 flex-1 truncate text-sm font-medium"
+  title={`${path} · ${countLabel} · ${authorLabel}`}   // countLabel = "24 tableros" | "6 directos · 24 en total"
+>
+  {folder.name}
+</span>
+```
+
+**No confundir con los contadores de sección**, que **sí se quedan**: «Tableros (155)»,
+«Configuraciones pendientes (8)», «Favoritos (5/15)», «Sin carpeta 100». Existen en producción
+y no son de lo que hablaba el feedback.
+
+**Verificar en implementación:** que la fila de carpeta mantenga **32px** de alto. Sin contador
+hay un elemento menos, así que debería ser más fácil — pero el pie del menú de permisos (§4.b)
+no debe empujar la fila, porque vive en el popover, no en la lista.
+
+### 4.a — D17: el ancho del panel es una preferencia
+
+`OcContentLayout.tsx:171` pasa de clase fija a ancho por preferencia. **Es el único archivo.**
+
+| | Panel | Fila útil | Por qué ese valor |
+|---|---|---|---|
+| `sm` | 288px (`w-72`) | 240px | Lo de hoy. **Es el default**, así que nada regresiona |
+| `md` | 384px (`w-96`) | 336px | El anidamiento deja de costar ancho: nivel 3 queda más ancho que un suelto en `sm` |
+| `lg` | 480px (`w-[30rem]`) | 432px | El nombre más largo del producto (45 caracteres) entra entero hasta el nivel 3 |
+
+- **Mecanismo:** handle de arrastre en el borde derecho con **snap** a los tres valores. Durante
+  el arrastre se sombrea **solo la franja que se gana o devuelve** (no el panel entero, que
+  taparía la lista) con una línea de 2px en el borde destino, y las tres paradas marcadas con
+  líneas de 1px. **Sin rótulo `S/M/L`:** no le dice al usuario hasta dónde va a llegar el panel.
+- **Teclado:** `role="separator"` + `aria-orientation="vertical"` + `aria-valuenow/min/max`,
+  flechas ←/→ y Home/End. Patrón WAI-ARIA *window splitter*.
+- **Durante el arrastre:** `user-select: none` y `cursor: col-resize` en `body`, o el gesto va
+  seleccionando los nombres de la lista.
+- **El preview NO puede vivir dentro del `<aside>`** (tiene `overflow-hidden` y tiene que
+  dibujarse más ancho que el panel). Va en el contenedor que envuelve aside + contenido.
+- **Persistencia:** clave propia `oc_sidebar_width`. **No unificar** con
+  `oc_sidebar_collapsed` — ya existe con su clave y unificar sería migrar a cambio de nada.
+- **Colapso automático: reusar `restoreIfNoAutoCollapse` (`:86`), no inventar nada.** Ya separa
+  la preferencia del usuario de los motivos de colapso automático. **Gana el colapso, y al
+  reexpandir se recupera el tamaño elegido.**
+
+> **🔴 Verificar antes de implementar: el umbral de colapso mide el CONTENEDOR, no la ventana.**
+> `COLLAPSE_WIDTH_THRESHOLD = 1200` (`:56`) se compara contra `entry.contentRect.width` (`:127`),
+> y `contentRect` **excluye el padding** — del ancho de ventana ya se descontaron el nav de
+> plataforma y el `px-6`. Con el nav en 256px se dispara alrededor de los **1504px de ventana**:
+> **en un portátil de 1440px el panel arrancaría colapsado y el árbol de carpetas no se vería.**
+>
+> El ancho exacto del nav no vive en `fe-solutions-mf`, así que los 256px son un supuesto. El
+> número cambia; la dirección no. **Si se confirma, esto pesa más que elegir entre 384 y 480** —
+> y le pega a la premisa de D2 y D16, que asumen el panel expandido.
+
+### 4.b — D20: estados por permiso
+
+Solo quien creó la carpeta puede **renombrar**, **mover** o **eliminar**. `oc:manage_access` es
+el escape.
+
+```
+canManageFolder(folder) = folder.created_by === currentUser.id || hasPermission("oc:manage_access")
+```
+
+| Ítem del menú `⋮` | ¿Gated? |
+|---|---|
+| Renombrar carpeta · Mover carpeta a… · Eliminar carpeta | ✅ sí |
+| Agregar tableros · Nueva subcarpeta | ❌ no — la carpeta es una **ubicación compartida** (D1) |
+| Mover / quitar un tablero | ❌ no — lo gobierna `hasAccess` del tablero |
+
+- **Deshabilitar, no ocultar:** `opacity-50` + `cursor-not-allowed` + `aria-disabled`.
+- **El motivo va UNA vez al pie del menú** con `role="note"`, no como `title` por ítem: tres
+  tooltips iguales es ruido, y un `title` no se lee con teclado.
+- **El copy cambia según si el autor sigue en la cuenta:**
+  - Activo → *«Solo María, que creó esta carpeta, puede renombrarla, moverla o eliminarla.»*
+  - Inactivo → *«Lucía ya no está en la cuenta. Solo alguien que gestione accesos puede renombrarla, moverla o eliminarla.»*
+  - Mandar a «pedirle a Lucía» cuando Lucía no está es un callejón sin salida.
+- **La autoría NO va en la fila** — gastaría el ancho que D17 recuperó. `title` + `aria-label` +
+  pie del menú, que cuestan 0px.
+- **Guardar en el handler, no solo en el `disabled`:** el menú contextual (click derecho) y el
+  teclado pueden llegar a la acción sin pasar por el botón.
+- **Al crear una carpeta, `created_by` es el usuario actual** — si no, la creás y no la podés ni
+  renombrar. En el prototipo había **cuatro** rutas de creación; verificar las cuatro.
+- **«Deshacer» un borrado restaura al autor original**, no a quien deshace. Si no, eliminar +
+  deshacer es una forma de apropiarse de la carpeta de otro.
+- **Drag & drop:** D7 hace del drag un alias de «Mover a». Si se implementa el drag de carpetas,
+  **tiene que respetar D20** — hoy las carpetas no son arrastrables, así que no hay conflicto.
 
 ---
 
@@ -168,7 +256,7 @@ chevron se oculta. Ahí no es una sección, es el resultado de una consulta.
 | Carpeta vacía | Botón outline punteado de 32px con `⊕ Agregar tableros` (D9) |
 | Sin carpetas todavía | Empty state con «Agrupa tus tableros» + CTA (HU-08) |
 | Búsqueda sin resultados | `No se encontraron tableros para «xyz»` |
-| Tablero sin acceso | `opacity-60`, no navegable — igual que hoy. Cuenta en el contador de la carpeta |
+| Tablero sin acceso | `opacity-60`, no navegable — igual que hoy. Cuenta en `subtree_count` |
 
 ---
 
@@ -225,7 +313,9 @@ carpetas). Es lo que dice si el feature se adoptó.
 
 ## 11. Definition of done
 
-- [ ] Árbol de hasta 3 niveles con carga perezosa al expandir; contadores del BE.
+- [ ] Árbol de hasta 3 niveles con carga perezosa al expandir; contadores del BE en el `title`.
+- [ ] Ancho del panel elegible (D17) con snap, preview de la franja y persistencia.
+- [ ] Permisos de carpeta (D20): ítems deshabilitados, motivo al pie, autoría fuera de la fila.
 - [ ] Crear carpeta y subcarpeta, renombrar, mover, eliminar — con «Deshacer» en las cuatro.
 - [ ] Mover tablero por menú **y** por drag, con paridad de teclado.
 - [ ] Búsqueda cruza todo el árbol y muestra la ruta completa.
