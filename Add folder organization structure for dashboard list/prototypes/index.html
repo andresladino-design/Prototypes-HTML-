@@ -117,11 +117,73 @@
       <div></div>
     </header>
 
-    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6" x-show="view === 'tableros'">
-      <div class="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
+    <!-- Este div es el equivalente de OC_CONTENT_LAYOUT_ID: es el elemento cuyo
+         ancho vigila producción para colapsar el panel. -->
+    <div class="flex min-h-0 flex-1 gap-6 overflow-hidden px-6 pb-6" x-show="view === 'tableros'" x-ref="ocLayout">
+      <div class="relative flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-border">
+
+        <!-- ② PREVIEW DE ARRASTRE · la zona que el panel va a ocupar
+             Vive acá y no dentro del `<aside>` porque tiene que poder dibujarse MÁS
+             ANCHO que el panel actual, y el aside tiene `overflow-hidden`.
+             Reemplaza al badge «MD · 384px»: nombrar el tamaño con letras es una
+             convención de diseñador, no información para quien lo usa. La zona azul
+             SE VE, y como salta entre las tres posiciones, enseña que las medidas son
+             fijas sin tener que decirlo. -->
+        <template x-if="resizing">
+          <div class="pointer-events-none absolute inset-y-0 left-0 z-30">
+            <!-- Las tres paradas posibles, tenues: hacen visible que hay tres, no infinitas -->
+            <template x-for="k in ['sm','md','lg']" :key="'tick'+k">
+              <span class="absolute inset-y-0 w-px bg-info/25"
+                    :style="`left:${SIZES[k]}px`"></span>
+            </template>
+            <!-- Solo el DELTA, no todo el panel: sombrear los 288px enteros tapa la
+                 lista que estás leyendo, y lo que importa no es el ancho final sino
+                 cuánto ganás o cuánto devolvés. Con ancho 0 (volviste al tamaño de
+                 partida) no se dibuja nada, que es la lectura correcta. -->
+            <div class="absolute inset-y-0 transition-all duration-100"
+                 :class="deltaGrows ? 'bg-info/15' : 'bg-muted-foreground/10'"
+                 :style="`left:${deltaLeft}px;width:${deltaWidth}px`"></div>
+            <!-- El borde destino: es el ancla del gesto, y va en los dos sentidos -->
+            <div class="absolute inset-y-0 w-0.5 bg-info transition-all duration-100"
+                 :style="`left:${snapPx - 2}px`"></div>
+          </div>
+        </template>
+
 
         <!-- ═══════════ PANEL DE TABLEROS ═══════════ -->
-        <aside class="relative flex w-72 min-w-72 shrink-0 flex-col overflow-hidden border-r border-border bg-background px-3 pt-3">
+        <!-- ② ANCHO DEL PANEL · anchos fijos sm/md/lg (cmt_mst640rv)
+             Producción tiene `w-72 min-w-72` fijo (OcContentLayout.tsx:171). Acá el ancho
+             es una preferencia persistida, y el colapso automático de producción se modela
+             tal cual: gana el colapso, y al reexpandir se recupera el tamaño elegido.
+             `transition-all duration-200 ease-in-out` es la misma que ya usa el colapso,
+             así que el gesto se siente igual que lo que ya existe. -->
+        <aside class="relative flex shrink-0 flex-col overflow-hidden border-r border-border bg-background transition-all duration-200 ease-in-out"
+               :class="panelCollapsed ? 'w-14 min-w-14 px-2 pb-2 pt-4' : 'px-3 pt-3'"
+               :style="panelCollapsed ? '' : `width:${panelPx}px;min-width:${panelPx}px`">
+
+          <!-- Riel colapsado · réplica mínima de producción, para poder demostrar
+               que el tamaño elegido sobrevive al colapso automático. -->
+          <template x-if="panelCollapsed">
+            <div class="flex flex-col items-center">
+              <button @click="setCollapsedByUser(false)" aria-label="Expandir panel"
+                      class="rounded-xl p-2 hover:bg-accent" title="Expandir panel">
+                <i data-lucide="chevron-right" class="h-4 w-4"></i>
+              </button>
+              <div class="mt-2 flex flex-col items-center gap-1.5">
+                <button @click="switchEntity('dashboard'); setCollapsedByUser(false)" aria-label="Tableros"
+                        class="rounded-xl p-2" :class="entity === 'dashboard' ? 'bg-accent' : 'hover:bg-accent'">
+                  <i data-lucide="layout-grid" class="h-4 w-4"></i>
+                </button>
+                <button @click="switchEntity('dataset'); setCollapsedByUser(false)" aria-label="Datasets"
+                        class="rounded-xl p-2" :class="entity === 'dataset' ? 'bg-accent' : 'hover:bg-accent'">
+                  <i data-lucide="database" class="h-4 w-4"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <template x-if="!panelCollapsed">
+          <div class="flex min-h-0 flex-1 flex-col">
 
           <div class="flex items-center justify-between pb-2 pl-3 pt-1" data-slot="1" data-slot-label="Header">
             <div class="flex items-center gap-2">
@@ -129,7 +191,24 @@
               <!-- Slot 1 del patrón: el contador vive junto al título, no en el header de sección -->
               <span class="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-secondary-foreground" x-text="items.length"></span>
             </div>
-            <button class="rounded-xl p-1.5 hover:bg-accent" aria-label="Cerrar panel"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+            <div class="flex items-center gap-1">
+              <!-- ② MECANISMO B · control discreto de 3 opciones.
+                   Lectura literal del comentario («medidas fijas sm-md-lg»). Cuesta
+                   ~72px del header y compite con el contador del slot 1; a cambio el
+                   ancho se vuelve descubrible sin tener que encontrar el borde. -->
+              <template x-if="resizeMech === 'control'">
+                <div class="inline-flex h-6 items-center rounded-lg bg-muted p-0.5" role="group" aria-label="Ancho del panel">
+                  <template x-for="k in ['sm','md','lg']" :key="k">
+                    <button @click="setSize(k)" :aria-pressed="panelSize === k"
+                            :title="`${k.toUpperCase()} · ${SIZES[k]}px`"
+                            class="h-5 w-6 rounded-md text-[10px] font-semibold uppercase transition-colors"
+                            :class="panelSize === k ? 'bg-background text-foreground shadow' : 'text-muted-foreground hover:text-foreground'"
+                            x-text="k"></button>
+                  </template>
+                </div>
+              </template>
+              <button @click="setCollapsedByUser(true)" class="rounded-xl p-1.5 hover:bg-accent" aria-label="Cerrar panel"><i data-lucide="chevron-left" class="h-4 w-4"></i></button>
+            </div>
           </div>
 
           <div class="px-3">
@@ -380,11 +459,16 @@
                                       :aria-label="row.aria"
                                       @click="toggle(row.f.id)">
                                 <i :data-lucide="row.open ? 'folder-open' : 'folder'" class="h-3.5 w-3.5 shrink-0 text-sidebar-foreground"></i>
-                                <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="row.f.name" :title="row.path"></span>
+                                <!-- ④ la autoría va en el `title`, NO en la fila: un
+                                     «creada por María» visible gastaría el ancho que
+                                     D17 acaba de recuperar. Cuesta 0px y está a mano. -->
+                                <span class="min-w-0 flex-1 truncate text-sm font-medium" x-text="row.f.name" :title="rowTitle(row)"></span>
                               </button>
-                              <!-- Contador = TOTAL del subárbol. El title desambigua cuando hay hijas. -->
-                              <span class="flex shrink-0 items-center pl-1 text-xs text-sidebar-foreground"
-                                    x-text="row.count" :title="row.title"></span>
+                              <!-- ③ SIN CONTADOR (D18, cmt_mst64r43): «quitar este contador».
+                                   El total del subárbol no desaparece del producto, se muda al
+                                   `title` y al `aria-label`, que cuestan 0px. Lo que se acepta a
+                                   cambio: una carpeta CERRADA ya no dice cuánto tiene adentro
+                                   sin pasarle el mouse. Ver D18. -->
                               <div class="flex w-0 shrink-0 items-center justify-end self-center overflow-hidden opacity-0 transition-[width,opacity] duration-150 group-hover:w-6 group-hover:opacity-100 group-focus-within:w-6 group-focus-within:opacity-100">
                                 <button @click="openMenu($event, 'folder', row.f.id)" :aria-label="`Opciones de la carpeta ${row.f.name}`"
                                         class="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground mr-1">
@@ -483,6 +567,30 @@
               <div class="h-3"></div>
             </div>
           </div>
+          </div>
+          </template>
+
+          <!-- ② MECANISMO A · handle de arrastre con snap a los tres valores. ELEGIDO.
+               El comentario pide «resize» y «medidas fijas» a la vez: el gesto es
+               continuo, el resultado siempre cae en sm/md/lg. Patrón WAI-ARIA
+               «window splitter»: `role="separator"` + flechas, así que hay paridad
+               por teclado sin control extra (mismo criterio que D7 con el drag).
+               El feedback del arrastre es la ZONA AZUL que se dibuja arriba, no un
+               rótulo: ver hasta dónde llega el panel es la referencia que sirve. -->
+          <template x-if="!panelCollapsed && resizeMech === 'handle'">
+            <div role="separator" aria-orientation="vertical" tabindex="0"
+                 aria-label="Ancho del panel"
+                 :aria-valuenow="panelPx" :aria-valuemin="SIZES.sm" :aria-valuemax="SIZES.lg"
+                 @pointerdown="startResize($event)"
+                 @keydown.arrow-right.prevent="stepSize(1)" @keydown.arrow-left.prevent="stepSize(-1)"
+                 @keydown.home.prevent="setSize('sm')" @keydown.end.prevent="setSize('lg')"
+                 class="group absolute inset-y-0 right-0 z-20 flex w-2 cursor-col-resize items-center justify-center focus-visible:outline-none"
+                 :class="resizing && 'bg-info/10'">
+              <span class="h-8 w-0.5 rounded-full bg-transparent transition-colors group-hover:bg-info/60 group-focus-visible:bg-info"
+                    :class="resizing && '!bg-info'"></span>
+            </div>
+          </template>
+
         </aside>
 
         <!-- ═════ CONTENIDO ═════ -->
@@ -586,10 +694,33 @@
           <span class="min-w-0 flex-1 text-left">Nueva subcarpeta</span>
           <template x-if="!canNest(menu.id)"><span class="shrink-0 text-[10px]" x-text="`máx ${MAX_DEPTH}`"></span></template>
         </button>
-        <button @click="openRename(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="pencil-line" class="h-4 w-4"></i> Renombrar carpeta</button>
-        <button @click="openMove(menu.id, 'folder')" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-accent"><i data-lucide="folder-input" class="h-4 w-4"></i> Mover carpeta a…</button>
+        <!-- ④ D20 · las tres acciones que cambian LA CARPETA se restringen a quien la
+             creó. Se deshabilitan en vez de ocultarse: mismo criterio que el tope de
+             3 niveles — esconder una acción que existe en otras carpetas deja al
+             usuario buscándola. -->
+        <button @click="openRename(menu.id)" :disabled="!canManageFolder(menu.id)"
+                :aria-disabled="!canManageFolder(menu.id)"
+                :class="canManageFolder(menu.id) ? 'hover:bg-accent' : 'cursor-not-allowed opacity-50'"
+                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm"><i data-lucide="pencil-line" class="h-4 w-4"></i> Renombrar carpeta</button>
+        <button @click="openMove(menu.id, 'folder')" :disabled="!canManageFolder(menu.id)"
+                :aria-disabled="!canManageFolder(menu.id)"
+                :class="canManageFolder(menu.id) ? 'hover:bg-accent' : 'cursor-not-allowed opacity-50'"
+                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm"><i data-lucide="folder-input" class="h-4 w-4"></i> Mover carpeta a…</button>
         <div class="my-1 h-px bg-border"></div>
-        <button @click="openDelete(menu.id)" class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-destructive hover:bg-accent"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar carpeta</button>
+        <button @click="openDelete(menu.id)" :disabled="!canManageFolder(menu.id)"
+                :aria-disabled="!canManageFolder(menu.id)"
+                :class="canManageFolder(menu.id) ? 'text-destructive hover:bg-accent' : 'cursor-not-allowed text-destructive opacity-50'"
+                class="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm"><i data-lucide="trash-2" class="h-4 w-4"></i> Eliminar carpeta</button>
+
+        <!-- El motivo va UNA vez al pie, no como tooltip por ítem: tres tooltips que
+             dicen lo mismo es ruido, y un tooltip no se lee con teclado.
+             `role="note"` lo hace anunciable junto con los `aria-disabled`. -->
+        <template x-if="!canManageFolder(menu.id)">
+          <div class="mt-1 flex items-start gap-1.5 border-t border-border px-2 pb-0.5 pt-2 text-[11px] leading-snug text-sidebar-foreground" role="note">
+            <i data-lucide="lock" class="mt-px h-3 w-3 shrink-0"></i>
+            <span x-text="blockReason(menu.id)"></span>
+          </div>
+        </template>
       </div>
     </template>
   </div>
@@ -923,6 +1054,174 @@
         </div>
       </div>
 
+      <!-- ══ ② RESIZE DEL PANEL · cmt_mst640rv ══ -->
+      <div class="mt-3 rounded-lg border border-info/40 bg-info/5 p-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-info">② Ancho del panel</p>
+        <p class="mt-1 text-[11px] leading-snug text-sidebar-foreground">
+          Hoy producción tiene <code>w-72</code> fijo. Los tres valores no son a dedo:
+          cada uno responde a una pregunta distinta.
+        </p>
+
+        <div class="mt-2 inline-flex h-8 w-full items-center rounded-xl bg-muted p-1">
+          <template x-for="k in ['sm','md','lg']" :key="'d'+k">
+            <button @click="setSize(k)" class="h-6 flex-1 rounded-lg text-xs font-medium"
+                    :class="panelSize === k ? 'bg-background shadow' : 'text-muted-foreground'">
+              <span class="uppercase" x-text="k"></span> <span class="text-[10px]" x-text="SIZES[k]"></span>
+            </button>
+          </template>
+        </div>
+        <p class="mt-1.5 text-[10px] leading-snug text-sidebar-foreground">
+          <template x-if="panelSize === 'sm'"><span><strong class="text-foreground">288 · lo de hoy.</strong> Es el default: elegirlo no cambia nada de lo que ya está en producción.</span></template>
+          <template x-if="panelSize === 'md'"><span><strong class="text-foreground">384 · el anidamiento deja de costar.</strong> Un tablero en el nivel 3 queda más ancho que un suelto hoy, así que bajar un nivel ya no se paga con nombre.</span></template>
+          <template x-if="panelSize === 'lg'"><span><strong class="text-foreground">480 · el peor caso entra entero.</strong> El nombre más largo que genera el producto (<span x-text="longestName"></span> caracteres) se lee completo hasta el nivel 3.</span></template>
+        </p>
+
+        <!-- A/B del mecanismo -->
+        <div class="mt-2 border-t border-info/25 pt-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">Mecanismo · A/B</p>
+          <div class="mt-1 inline-flex h-8 w-full items-center rounded-xl bg-muted p-1">
+            <button @click="resizeMech = 'handle'" class="h-6 flex-1 rounded-lg text-xs font-medium" :class="resizeMech === 'handle' && 'bg-background shadow'">A · arrastrar</button>
+            <button @click="resizeMech = 'control'" class="h-6 flex-1 rounded-lg text-xs font-medium" :class="resizeMech === 'control' && 'bg-background shadow'">B · control S/M/L</button>
+          </div>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            <template x-if="resizeMech === 'handle'"><span><strong class="text-success">✓ Elegido.</strong>
+              Arrastrá el <strong class="text-foreground">borde derecho</strong> del panel: se sombrea
+              <strong class="text-info">solo la franja que gana o devuelve</strong> —no todo el panel, que
+              taparía la lista— y una línea azul marca dónde va a quedar el borde. Como salta entre las
+              tres paradas (líneas tenues), las medidas fijas se ven sin nombrarlas.
+              No cuesta nada del header. Con teclado:
+              <kbd class="rounded bg-muted px-1">←</kbd> <kbd class="rounded bg-muted px-1">→</kbd> sobre el separador.</span></template>
+            <template x-if="resizeMech === 'control'"><span><strong class="text-foreground">Descartado.</strong>
+              Tres botones en el header. Se descubre solo, pero se come ~72px del
+              <strong class="text-foreground">slot 1</strong> —que ya tiene título y contador— y obliga al
+              usuario a interpretar <strong class="text-foreground">S/M/L</strong>, que es vocabulario de
+              diseñador: no dice hasta dónde va a llegar el panel. Se conserva solo para comparar.</span></template>
+          </p>
+        </div>
+
+        <!-- Tabla de presupuesto VIVA -->
+        <div class="mt-2 border-t border-info/25 pt-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">
+            Presupuesto · <span x-text="panelPx"></span>px de panel = <strong class="text-foreground" x-text="rowPx"></strong>px de fila
+          </p>
+          <table class="mt-1 w-full text-[10px]">
+            <thead class="text-sidebar-foreground">
+              <tr><th class="text-left font-medium">Fila</th><th class="text-left font-medium">Nivel</th><th class="text-right font-medium">px</th><th class="text-right font-medium">chars</th></tr>
+            </thead>
+            <tbody>
+              <template x-for="(r, i) in budget" :key="i">
+                <tr :class="r.fits ? 'text-success' : 'text-sidebar-foreground'">
+                  <td x-text="r.what"></td>
+                  <td x-text="r.lvl"></td>
+                  <td class="text-right tabular-nums" x-text="r.px"></td>
+                  <td class="text-right tabular-nums"><span x-text="r.chars"></span><span x-show="r.fits">&nbsp;✓</span></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            En verde, las filas donde entran los <strong class="text-foreground" x-text="longestName"></strong> caracteres
+            del nombre más largo sin truncar.
+            <template x-if="worstFits"><strong class="text-success"> A este ancho no se trunca en ningún nivel.</strong></template>
+          </p>
+        </div>
+
+        <!-- ③ · decidido: el contador salió -->
+        <div class="mt-2 border-t border-info/25 pt-2">
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">③ Sin contador de subárbol</p>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            <strong class="text-foreground">La fila de carpeta ya no lleva contador</strong> (D18). El total
+            del subárbol no desapareció del producto: se mudó al <code>title</code> y al
+            <code>aria-label</code>, que cuestan 0px. Sumado a ②, la carpeta de nivel 3 pasó de
+            <strong class="text-foreground">158px</strong> a <strong class="text-success" x-text="`${budget.find(r => r.what === 'Carpeta' && r.lvl === 3).px}px`"></strong>.
+          </p>
+          <p class="mt-1 text-[10px] leading-snug text-warning">
+            <strong class="text-foreground">Lo que se acepta a cambio:</strong> una carpeta
+            <strong class="text-foreground">cerrada</strong> ya no dice cuánto tiene adentro sin pasarle
+            el mouse. Es la señal que se pierde — vale confirmar que no molesta al escanear.
+          </p>
+        </div>
+
+        <!-- El hallazgo -->
+        <div class="mt-2 rounded-lg bg-warning/10 p-2 text-[10px] leading-snug ring-1 ring-inset ring-warning/40">
+          <p><strong class="text-foreground">Hallazgo · el umbral de colapso mide el contenedor, no la ventana.</strong>
+             <code>COLLAPSE_WIDTH_THRESHOLD = 1200</code> se compara contra
+             <code>entry.contentRect.width</code> del contenedor del OC, que ya excluye el nav
+             de plataforma (256px) y el <code>px-6</code> (48px). Es decir que se dispara
+             alrededor de los <strong class="text-foreground">1504px de ventana</strong>: en un
+             portátil de 1440px <strong class="text-foreground">el panel ya arranca colapsado</strong>
+             y el árbol de carpetas no se ve.</p>
+          <p class="mt-1">Contenedor ahora: <strong class="text-foreground" x-text="containerPx"></strong>px
+             de <span x-text="COLLAPSE_THRESHOLD"></span> ·
+             <span x-show="widthAutoCollapsed" class="font-semibold text-warning">colapsado por ancho</span>
+             <span x-show="!widthAutoCollapsed" class="font-semibold text-success">hay espacio</span>.
+             Angostá la ventana para verlo: gana el colapso, y al volver a ensanchar
+             se recupera <strong class="text-foreground" x-text="panelSize.toUpperCase()"></strong>.</p>
+        </div>
+
+        <p class="mt-2 border-t border-info/25 pt-2 text-[10px] leading-snug text-sidebar-foreground">
+          <strong class="text-foreground">A decidir:</strong> ¿esto es de SWAT-577 o es el segundo
+          spin-off? Argumento para separarlo: <strong class="text-foreground">beneficia al panel
+          exista o no el feature de carpetas</strong>, igual que D14 — y de hecho es la tercera
+          palanca de ancho del mismo issue (<code>ancho-util-lista-tableros/</code>).
+        </p>
+      </div>
+
+      <!-- ══ ④ PERMISOS DE CARPETA · cmt_mst66vz6 ══ -->
+      <div class="mt-3 rounded-lg border border-border p-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-sidebar-foreground">④ ¿Quién puede eliminar una carpeta?</p>
+        <p class="mt-1 text-[11px] leading-snug text-sidebar-foreground">
+          <strong class="text-foreground">D20: solo quien la creó</strong> puede renombrarla, moverla o
+          eliminarla. «Agregar tableros» y «Nueva subcarpeta» quedan libres: una carpeta es una
+          <strong class="text-foreground">ubicación compartida</strong>, y organizar dentro de ella es
+          colaborativo.
+        </p>
+
+        <!-- El escape -->
+        <div class="mt-2 rounded-lg p-2" :class="canManageAll ? 'bg-info/10 ring-1 ring-inset ring-info/40' : 'bg-muted/50'">
+          <button @click="canManageAll = !canManageAll; menu.open = false" class="flex w-full items-center gap-2 text-left">
+            <span class="flex h-4 w-7 shrink-0 items-center rounded-full p-0.5 transition-colors" :class="canManageAll ? 'bg-info' : 'bg-muted'">
+              <span class="h-3 w-3 rounded-full bg-background transition-transform" :class="canManageAll && 'translate-x-3'"></span>
+            </span>
+            <span class="flex-1 text-[11px] font-semibold">Tengo <code>oc:manage_access</code></span>
+          </button>
+          <p class="mt-1 text-[10px] leading-snug text-sidebar-foreground">
+            <strong class="text-foreground">Este es el escape, y no es una política paralela.</strong>
+            Sin él, la carpeta de alguien que se fue del equipo queda inmanejable
+            <strong class="text-foreground">para siempre</strong>. Reusa el permiso que ya gobierna
+            «Gestionar acceso»: no inventa modelo ni un estado «carpeta abandonada».
+          </p>
+        </div>
+
+        <!-- Los tres casos, para no tener que buscarlos -->
+        <div class="mt-2 space-y-1">
+          <p class="text-[10px] font-semibold uppercase tracking-wide text-sidebar-foreground">Probá los tres casos</p>
+          <template x-for="c in [
+            { id: 'f1',  label: 'Adquirencia',   nota: 'la creaste vos → todo habilitado' },
+            { id: 'f1a', label: 'Visa',          nota: 'la creó María → 3 acciones bloqueadas' },
+            { id: 'f2b', label: '2025',          nota: 'huérfana: Lucía se fue → hace falta el escape' }
+          ]" :key="c.id">
+            <button @click="revealAncestors(c.id); $nextTick(() => { const el = document.getElementById('folder-' + c.id); el && el.scrollIntoView({block:'center'}); flash = c.id; setTimeout(() => flash = null, 1200); })"
+                    class="w-full rounded-lg px-2 py-1.5 text-left text-[11px] hover:bg-accent">
+              <span class="font-medium" x-text="c.label"></span>
+              <span class="text-sidebar-foreground"> — <span x-text="c.nota"></span></span>
+            </button>
+          </template>
+          <p class="text-[10px] leading-snug text-muted-foreground">Después abrí el menú <strong>⋮</strong> de la carpeta.</p>
+        </div>
+
+        <p class="mt-2 border-t border-border pt-2 text-[10px] leading-snug text-sidebar-foreground">
+          <strong class="text-foreground">La autoría no se muestra en la fila</strong> — iría contra D17,
+          que acaba de pelear por cada píxel. Vive en el <code>title</code> (pasá el mouse), en el
+          <code>aria-label</code> y en el pie del menú, que cuestan 0px.
+        </p>
+        <p class="mt-1.5 text-[10px] leading-snug text-warning">
+          <strong class="text-foreground">⚠️ A confirmar con BE:</strong> D20 revierte D1.b, que decía
+          «no se introduce un permiso nuevo». No lo introduce —reusa <code>oc:manage_access</code>— pero
+          sí agrega una <strong class="text-foreground">comprobación de autoría</strong> que hoy no existe.
+        </p>
+      </div>
+
       <!-- D11 · hace visible el patrón de 9 slots -->
       <div class="mt-3 rounded-lg border p-2" :class="patternMode ? 'border-info bg-info/5' : 'border-border'">
         <button @click="patternMode = !patternMode" class="flex w-full items-center gap-2 text-left">
@@ -985,6 +1284,15 @@
           <li><strong class="text-foreground">D6.</strong> Al eliminar una carpeta el contenido <strong class="text-foreground">sube un nivel</strong>, no a la raíz. ¿El copy lo deja claro? <span class="text-muted-foreground">(probar con «Visa», que está anidada)</span></li>
           <li><strong class="text-foreground">D12.</strong> Las 4 secciones del panel colapsan. ¿Se usa, o el chevron del encabezado pasa desapercibido?</li>
           <li><strong class="text-foreground">D13.</strong> El icono de carpeta reemplaza al chevron: <em>folder</em> cerrada, <em>folder-open</em> abierta. ¿Se lee el estado sin el chevron, o hace falta recuperarlo?</li>
+          <li><strong class="text-foreground">D17 · ancho del panel.</strong> Mecanismo
+              <strong class="text-foreground">decidido: arrastrar el borde</strong>, con la zona nueva
+              dibujada en azul — el rótulo <code>S/M/L</code> se cayó porque no le dice al usuario
+              hasta dónde va a llegar el panel. <strong class="text-foreground">Lo que queda por
+              validar son los tres valores</strong> (288 · 384 · 480): la tabla de presupuesto de
+              arriba se recalcula al cambiarlos.</li>
+          <li><strong class="text-foreground">D20 · permisos.</strong> ¿El copy del pie del menú alcanza,
+              o hace falta que la fila avise <em>antes</em> de abrir el ⋮? Y con la huérfana:
+              ¿«solo alguien que gestione accesos» le dice al usuario a quién pedirle?</li>
           <li class="border-t border-border pt-1.5"><strong class="text-foreground">D14 · otro issue.</strong> Los botones de fila aparecen en hover y empujan el texto (+20px en tableros, +40px en Favoritos), y el nombre se trunca al medio para conservar la cola (<code>Adquirencia_2026…_visa</code>). ¿El reacomodo en hover molesta al recorrer la lista? ¿El «…» del medio estorba al escanear?</li>
         </ul>
       </div>
@@ -998,7 +1306,8 @@
         <p class="mt-1">Profundidad: <strong class="text-foreground" x-text="maxDepth"></strong> de
            <strong class="text-foreground" x-text="MAX_DEPTH"></strong> niveles ·
            el nombre pierde <strong class="text-foreground" x-text="(maxDepth - 1) * 12"></strong>px en el más hondo
-           <span class="text-muted-foreground">(de 240px útiles, no 288: <code>px-3</code> se aplica dos veces)</span></p>
+           <span class="text-muted-foreground">(de <span x-text="rowPx"></span>px útiles, no <span x-text="panelPx"></span>:
+           <code>px-3</code> se aplica dos veces)</span></p>
         <p class="mt-1">Secciones colapsadas: <strong class="text-foreground" x-text="collapsed.length"></strong> de 4 ·
            <span class="text-muted-foreground">cerrar Pendientes y Favoritos devuelve 13 filas</span></p>
       </div>
@@ -1011,19 +1320,60 @@
 function proto() {
   const LS = "swat577_expanded";
   const LS_SEC = "swat577_sections";
+
+  // ══════════════ ② ANCHO DEL PANEL ══════════════
+  // Tercera clave de preferencia. NO se unifica con las otras dos a propósito:
+  // producción ya persiste el colapso en `oc_sidebar_collapsed` con su propia
+  // clave, así que el ancho va en paralelo. Unificar sería migrar lo que ya existe.
+  const LS_W = "swat577_panel_width";
+
+  // Los tres valores NO son arbitrarios — cada uno responde a una pregunta:
+  //   sm 288 (`w-72`)     · lo de hoy. Es el default y no regresiona nada.
+  //   md 384 (`w-96`)     · el anidamiento deja de costar ancho: un tablero en el
+  //                         nivel 3 queda en 262px, 60px MÁS que un suelto hoy (202px).
+  //   lg 480 (`w-[30rem]`)· el nombre más largo que genera el propio producto
+  //                         (`Adquirencia_2026_06_04_conciliacion_master_v2`, 45
+  //                         caracteres ≈ 329px) entra entero hasta el nivel 3.
+  // Progresión de +96px, y dos de los tres caen en la escala Tailwind por defecto.
+  const SIZES = { sm: 288, md: 384, lg: 480 };
+  const ORDER = ["sm", "md", "lg"];
+
+  // Ancho medio de carácter a `text-sm` en la fuente del desyk. No es una
+  // estimación libre: sale del dato medido en `ancho-util-lista-tableros/`
+  // («a 182px se ven ~25 caracteres» → 182/25 = 7.28).
+  const CHAR_PX = 7.28;
+  // El nombre más largo que build() genera. El peor caso REAL, no uno inventado.
+  const LONGEST = "Adquirencia_2026_06_04_conciliacion_master_v2".length;
+
+  // Producción colapsa el panel cuando el CONTENEDOR baja de esto —
+  // ojo: es el contenedor, no el viewport (OcContentLayout.tsx:56 y :127,
+  // y `entry.contentRect` excluye el `px-6`). Ver el hallazgo en el panel de demo.
+  const COLLAPSE_THRESHOLD = 1200;
   // D2 revisada: las carpetas anidan. `parentId: null` = raíz.
   // Tope de 3 niveles de carpeta. El tope acota el `path` materializado del BE;
   // la indentación de 12px por nivel y el truncado al medio hacen el resto.
+  // ══════════════ ④ AUTORÍA · D20 ══════════════
+  // El modelo ya guarda `created_by` (§1.1 del handoff BE); lo que faltaba era la
+  // política. `inactive` modela a quien se fue del equipo: es el caso que obliga a
+  // tener un escape, porque si no su carpeta queda inmanejable para siempre.
+  const USERS = {
+    u_me:     { name: "Vos",    inactive: false },
+    u_maria:  { name: "María",  inactive: false },
+    u_camilo: { name: "Camilo", inactive: false },
+    u_lucia:  { name: "Lucía",  inactive: true  },   // se fue del equipo
+  };
+  const ME = "u_me";
+
   const FOLDERS = [
-    { id: "f1",    name: "Adquirencia",         parentId: null },
-    { id: "f1a",   name: "Visa",                parentId: "f1" },
-    { id: "f1a1",  name: "Contracargos",        parentId: "f1a" },
-    { id: "f1b",   name: "Mastercard",          parentId: "f1" },
-    { id: "f2",    name: "Cierre contable",     parentId: null },
-    { id: "f2a",   name: "2026",                parentId: "f2" },
-    { id: "f2b",   name: "2025",                parentId: "f2" },
-    { id: "f3",    name: "Conciliación diaria", parentId: null },
-    { id: "f4",    name: "Pruebas y QA",        parentId: null },
+    { id: "f1",    name: "Adquirencia",         parentId: null,  createdBy: "u_me" },
+    { id: "f1a",   name: "Visa",                parentId: "f1",  createdBy: "u_maria" },
+    { id: "f1a1",  name: "Contracargos",        parentId: "f1a", createdBy: "u_me" },
+    { id: "f1b",   name: "Mastercard",          parentId: "f1",  createdBy: "u_camilo" },
+    { id: "f2",    name: "Cierre contable",     parentId: null,  createdBy: "u_me" },
+    { id: "f2a",   name: "2026",                parentId: "f2",  createdBy: "u_me" },
+    { id: "f2b",   name: "2025",                parentId: "f2",  createdBy: "u_lucia" },  // huérfana
+    { id: "f3",    name: "Conciliación diaria", parentId: null,  createdBy: "u_maria" },
+    { id: "f4",    name: "Pruebas y QA",        parentId: null,  createdBy: "u_me" },
   ];
   const sfx = ["conciliacion_visa","conciliacion_master","pagos_pse","recaudos","dispersiones",
                "chargebacks","comisiones","liquidacion","contracargos","ajustes"];
@@ -1091,6 +1441,25 @@ function proto() {
     // Se guarda lo COLAPSADO, no lo abierto: así el default de toda sección es
     // «abierta», y una sección nueva no aparece cerrada por no estar en la lista.
     collapsed: (() => { try { return JSON.parse(localStorage.getItem(LS_SEC)) || []; } catch { return []; } })(),
+
+    // ── ② ancho del panel ──
+    SIZES,
+    panelSize: (() => { try { return ORDER.includes(localStorage.getItem(LS_W)) ? localStorage.getItem(LS_W) : "sm"; } catch { return "sm"; } })(),
+    resizeMech: "handle",        // A/B del mecanismo · handle de arrastre | control discreto
+    resizing: false,
+    snapTarget: "sm",            // a qué medida va a caer el arrastre en curso
+    panelCollapsed: false,
+    // Espejo de producción: la preferencia del usuario y los motivos de colapso
+    // automático se guardan por separado, para poder restaurar cuando el motivo
+    // desaparece (`restoreIfNoAutoCollapse` en OcContentLayout.tsx:86).
+    userPrefCollapsed: false,
+    widthAutoCollapsed: false,
+
+    // ── ④ permisos de carpeta (D20) ──
+    USERS, ME,
+    /** Simula tener `oc:manage_access`. Es EL ESCAPE: sin esto, la carpeta de
+     *  alguien que se fue del equipo queda inmanejable para siempre. */
+    canManageAll: false,
     activeId: "d24",                 // un tablero dentro de «Cierre contable»
     sortAsc: true, searchInput: "", appliedSearch: "", unfiledShown: 20,
     dragOver: null, dragId: null,
@@ -1138,9 +1507,159 @@ function proto() {
       if (act?.folderId) this.revealAncestors(act.folderId);
       if (this.folders.length === 1) this.expanded = [this.folders[0].id];
       this.persist();
+      this.$nextTick(() => this.watchCollapse());   // ② colapso automático, como producción
     },
 
     patternMode: false,
+
+    // ══════════════ ② RESIZE DEL PANEL ══════════════
+
+    get panelPx() { return SIZES[this.panelSize]; },
+    /** Ancho al que va a caer el arrastre en curso. */
+    get snapPx() { return SIZES[this.snapTarget]; },
+    // ── La franja del preview: solo la diferencia entre el ancho actual y el destino ──
+    get deltaGrows() { return this.snapPx > this.panelPx; },
+    get deltaLeft() { return Math.min(this.panelPx, this.snapPx); },
+    get deltaWidth() { return Math.abs(this.snapPx - this.panelPx); },
+    /** Ancho útil de una fila: el `px-3` se aplica DOS veces (aside + cuerpo). */
+    get rowPx() { return this.panelPx - 48; },
+
+    /** Presupuesto de ancho por nivel — la cuenta de D2, parametrizada.
+     *  Es la tabla que ② tenía que producir, pero viva: se recalcula al cambiar
+     *  de tamaño, así que nadie tiene que confiar en un número copiado a mano. */
+    get budget() {
+      const chars = (px) => Math.floor(px / CHAR_PX);
+      // D18: la fila de carpeta ya no tiene contador, así que no se descuenta nada.
+      // La tabla de D2 (182/170/158) se calculó CON contador — de ahí los +20px.
+      const FIXED = 38;                               // px-2 16 + icono 14 + gap-2 8
+      const rows = [];
+      rows.push({ what: "Tablero suelto", lvl: "—", px: this.rowPx - FIXED });
+      for (let n = 1; n <= this.MAX_DEPTH; n++) {
+        // Una carpeta de nivel N está indentada N-1 veces; un tablero DENTRO de
+        // ella, N veces. De ahí que el tablero salga 12px más angosto que su madre
+        // y no más ancho, que es el error fácil al hacer esta cuenta a mano.
+        rows.push({ what: "Carpeta", lvl: n, px: this.rowPx - 12 * (n - 1) - FIXED });
+        rows.push({ what: "Tablero dentro", lvl: n, px: this.rowPx - 12 * n - FIXED });
+      }
+      return rows.map((r) => ({ ...r, chars: chars(r.px), fits: chars(r.px) >= LONGEST }));
+    },
+    get longestName() { return LONGEST; },
+    /** ¿En qué nivel deja de entrar el peor caso real? Métrica de una línea. */
+    get worstFits() { return this.budget.every((r) => r.fits); },
+
+    // ══════════════ ④ PERMISOS DE CARPETA · D20 ══════════════
+    // Política: SOLO QUIEN LA CREÓ puede renombrar, mover o eliminar una carpeta.
+    // `oc:manage_access` funciona como escape, no como política paralela: reusa un
+    // permiso que ya existe y ya gobierna «Gestionar acceso», y resuelve el huérfano
+    // sin inventar modelo ni un estado «carpeta abandonada».
+    //
+    // Lo que NO se restringe, y es deliberado: «Agregar tableros» y «Nueva
+    // subcarpeta». Una carpeta es una UBICACIÓN COMPARTIDA (D1) — organizar dentro
+    // de ella es colaborativo, y la subcarpeta que yo creo es mía, así que la puedo
+    // gestionar. Mover un tablero sigue gobernado por su propia regla (`hasAccess`).
+
+    /** `title` de la fila de carpeta: ruta + quién la creó. Cuesta 0px de ancho. */
+    /** `title` de la fila de carpeta. Acumula TODO lo que se sacó de la fila por
+     *  ancho: el conteo del subárbol (D18) y la autoría (D20). Cuesta 0px. */
+    rowTitle(row) {
+      const parts = [row.path, row.title];
+      const o = this.folderOwner(row.f.id);
+      if (o) parts.push(this.isMine(row.f.id)
+        ? "la creaste vos"
+        : `creada por ${o.name}${o.inactive ? " (ya no está en la cuenta)" : ""}`);
+      return parts.join(" · ");
+    },
+    folderOwner(id) { return USERS[this.folders.find((f) => f.id === id)?.createdBy] ?? null; },
+    isMine(id) { return this.folders.find((f) => f.id === id)?.createdBy === ME; },
+    /** Huérfana: la creó alguien que ya no está en la cuenta. */
+    isOrphan(id) { return !!this.folderOwner(id)?.inactive; },
+    canManageFolder(id) { return this.isMine(id) || this.canManageAll; },
+
+    /** Por qué está bloqueado, en el lenguaje del caso. El copy cambia con el
+     *  motivo: «pedile a María» es accionable; con una huérfana no hay a quién
+     *  pedirle, así que hay que nombrar la salida real. */
+    blockReason(id) {
+      if (this.canManageFolder(id)) return null;
+      const o = this.folderOwner(id);
+      if (!o) return "No se pudo determinar quién creó esta carpeta.";
+      return o.inactive
+        ? `${o.name} ya no está en la cuenta. Solo alguien que gestione accesos puede renombrarla, moverla o eliminarla.`
+        : `Solo ${o.name}, que creó esta carpeta, puede renombrarla, moverla o eliminarla.`;
+    },
+    /** Guarda en el método, no solo en el botón: el menú contextual y el teclado
+     *  pueden llegar acá sin pasar por el `:disabled`. */
+    guardFolder(id) {
+      if (this.canManageFolder(id)) return true;
+      this.menu.open = false;
+      this.notify(this.blockReason(id), null, "lock");
+      return false;
+    },
+
+    setSize(k) {
+      if (!ORDER.includes(k)) return;
+      this.panelSize = k;
+      try { localStorage.setItem(LS_W, k); } catch {}
+    },
+    stepSize(dir) {
+      const i = ORDER.indexOf(this.panelSize) + dir;
+      if (i >= 0 && i < ORDER.length) this.setSize(ORDER[i]);
+    },
+
+    /** Arrastre continuo con snap: el gesto es libre, el resultado siempre cae
+     *  en uno de los tres valores. Durante el arrastre el panel NO sigue al
+     *  cursor — muestra el destino en un badge, porque si el ancho se moviera
+     *  libre y después saltara, el snap se leería como un bug. */
+    startResize(ev) {
+      ev.preventDefault();
+      const startX = ev.clientX, startPx = this.panelPx;
+      this.resizing = true;
+      this.snapTarget = this.panelSize;
+      // Sin esto el arrastre va seleccionando los nombres de la lista al pasar.
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "col-resize";
+      const nearest = (px) => ORDER.reduce((a, b) =>
+        Math.abs(SIZES[b] - px) < Math.abs(SIZES[a] - px) ? b : a);
+      const move = (e) => {
+        const raw = Math.min(SIZES.lg + 40, Math.max(SIZES.sm - 40, startPx + (e.clientX - startX)));
+        this.snapTarget = nearest(raw);
+      };
+      const up = () => {
+        this.setSize(this.snapTarget);
+        this.resizing = false;
+        document.body.style.userSelect = "";
+        document.body.style.cursor = "";
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+    },
+
+    // ── colapso · calcado de OcContentLayout para no inventar un modelo nuevo ──
+    setCollapsedByUser(v) { this.userPrefCollapsed = v; this.panelCollapsed = v; },
+    restoreIfNoAutoCollapse() {
+      if (!this.widthAutoCollapsed) this.panelCollapsed = this.userPrefCollapsed;
+    },
+    /** Vigila el contenedor, no la ventana — igual que producción. Esto es lo que
+     *  hace visible el hallazgo: el umbral se dispara mucho antes de lo que
+     *  «1200px» sugiere, porque el nav de plataforma y el `px-6` ya se descontaron. */
+    watchCollapse() {
+      const el = this.$refs.ocLayout;
+      if (!el || !window.ResizeObserver) return;
+      new ResizeObserver(([entry]) => {
+        if (!entry) return;
+        this.containerPx = Math.round(entry.contentRect.width);
+        if (this.containerPx <= COLLAPSE_THRESHOLD) {
+          this.widthAutoCollapsed = true;
+          this.panelCollapsed = true;
+        } else if (this.widthAutoCollapsed) {
+          this.widthAutoCollapsed = false;
+          this.restoreIfNoAutoCollapse();
+        }
+      }).observe(el);
+    },
+    containerPx: 0,
+    COLLAPSE_THRESHOLD,
 
     // ── derivados ──
     get searching() { return this.appliedSearch.trim().length > 0; },
@@ -1310,7 +1829,10 @@ function proto() {
           rows.push({
             key: "f" + f.id, type: "folder", f, depth, path, open, count: total,
             title: direct === total ? `${total} tableros` : `${direct} directos · ${total} en total`,
-            aria: `${path.replace(/ \/ /g, ", dentro de ")}, ${total} tableros`,
+            // El total sigue acá: al no estar en la fila (D18), el `aria-label` pasa a
+            // ser la única forma de saberlo con teclado.
+            aria: `${path.replace(/ \/ /g, ", dentro de ")}, ${total} tableros`
+                  + (this.isMine(f.id) ? "" : `, creada por ${this.folderOwner(f.id)?.name ?? "otra persona"}`),
           });
           if (!open) continue;
           walk(f.id, depth + 1, path);                              // subcarpetas primero
@@ -1429,7 +1951,7 @@ function proto() {
       this.dlg = { open: true, mode: "create", step: 1, name: "", id: null, parentId,
                    error: null, selected: [], q: "", entity: "dashboard" };
     },
-    openRename(id) {
+    openRename(id) { if (!this.guardFolder(id)) return;
       this.menu.open = false;
       this.dlg = { open: true, mode: "rename", step: 2, name: this.folderName(id), id, parentId: null,
                    error: null, selected: [], q: "", entity: "dashboard" };
@@ -1490,7 +2012,7 @@ function proto() {
         const parentId = this.dlg.parentId ?? null;
         const picked = [...this.dlg.selected];
         const prev = picked.map((did) => ({ did, folderId: this.dashById(did)?.folderId ?? null }));
-        this.folders.push({ id, name, parentId });
+        this.folders.push({ id, name, parentId, createdBy: ME });   // ④ el autor sos vos
         picked.forEach((did) => { const d = this.dashById(did); if (d) d.folderId = id; });
         this.expanded = [...this.expanded, id];
         this.revealAncestors(id);
@@ -1526,6 +2048,7 @@ function proto() {
     // `type` distingue mover un TABLERO de mover una CARPETA (operación nueva
     // que abre el anidamiento). El destino `null` significa «a la raíz».
     openMove(id, type = "dashboard") {
+      if (type === "folder" && !this.guardFolder(id)) return;
       this.menu.open = false;
       this.move = { open: true, id, type, q: "", confirm: null };
     },
@@ -1591,7 +2114,7 @@ function proto() {
     // Con anidamiento, «desagrupar» ya no es mandar todo a la raíz: eso teletransportaría
     // los tableros de una hija profunda al primer nivel. El contenido SUBE UN NIVEL,
     // a la madre de la carpeta eliminada. Sigue siendo no destructivo y reversible.
-    openDelete(id) { this.menu.open = false; this.del = { open: true, id }; this.$nextTick(() => this.$refs.delcancel?.focus()); },
+    openDelete(id) { if (!this.guardFolder(id)) return; this.menu.open = false; this.del = { open: true, id }; this.$nextTick(() => this.$refs.delcancel?.focus()); },
     doDelete() {
       const id = this.del.id;
       const f = this.folderById(id); if (!f) return;
@@ -1599,6 +2122,7 @@ function proto() {
       const up = f.parentId ?? null;
       const phrase = this.deleteCountPhrase(id) || "0 tableros";
       const dashes = this.all.filter((d) => d.folderId === id);
+      const owner = this.folders.find((x) => x.id === id)?.createdBy;   // ④ para restaurarlo igual
       const kids = this.folders.filter((x) => x.parentId === id);
       dashes.forEach((d) => (d.folderId = up));
       kids.forEach((k) => (k.parentId = up));
@@ -1609,7 +2133,9 @@ function proto() {
       this.notify(
         `Carpeta «${name}» eliminada · ${phrase} ${up ? `en «${this.folderName(up)}»` : "en la lista"}`,
         () => {
-          this.folders.push({ id, name, parentId: up });
+          // Se restaura al autor original: si «Deshacer» te dejara como autor,
+          // eliminar + deshacer sería una forma de apropiarse de la carpeta de otro.
+          this.folders.push({ id, name, parentId: up, createdBy: owner });
           dashes.forEach((d) => (d.folderId = id));
           kids.forEach((k) => (k.parentId = id));
         });
@@ -1639,7 +2165,7 @@ function proto() {
       if (kind === "none") { this.all = build().map((d) => ({ ...d, folderId: null })); this.folders = []; this.expanded = []; }
       if (kind === "one")  { this.all = build(); this.folders = [{ ...FOLDERS[0] }];
                              this.all.forEach((d) => { if (d.folderId !== "f1") d.folderId = null; }); this.expanded = ["f1"]; }
-      if (kind === "empty"){ this.folders = [...fresh(), { id: "fnew", name: "Recién creada", parentId: "f1" }];
+      if (kind === "empty"){ this.folders = [...fresh(), { id: "fnew", name: "Recién creada", parentId: "f1", createdBy: ME }];
                              this.all = build(); this.expanded = ["f1", "fnew"]; }
       if (kind === "big")  { this.folders = fresh(); this.all = build();
                              this.all.slice(60, 120).forEach((d) => (d.folderId = "f1")); this.expanded = ["f1"]; }
@@ -1651,7 +2177,7 @@ function proto() {
         // f2 «Cierre contable» solo llega a 2 niveles: se le agrega el tercero.
         [["f2a", "Q1"], ["f2b", "Q4"]].forEach(([parent, name], i) => {
           const id = "max" + i;
-          this.folders.push({ id, name, parentId: parent });
+          this.folders.push({ id, name, parentId: parent, createdBy: ME });
           pool.slice(i * 3, i * 3 + 3).forEach((d) => (d.folderId = id));
         });
         this.expanded = ["f1", "f1a", "f1a1", "f2", "f2a", "f2b", "max0", "max1"];

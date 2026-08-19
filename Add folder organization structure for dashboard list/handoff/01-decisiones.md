@@ -2,8 +2,11 @@
 
 **Fechas:** D1–D7 el 2026-08-03 (antes de prototipar) · **D8 y D9 el 2026-08-04, tras probar el prototipo**
 · **D2, D6 y D10 revisadas el 2026-08-14** · **D12–D15 abiertas el 2026-08-14**
+· **D17–D20 el 2026-08-18, desde el feedback del prototipo en Ohana (Etapa 9)**
 **Decidido por:** Andrés Ladino (UX) con la exploración técnica de [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md)
-**Estado:** cerradas. Cambiar D1 o D3 después de la Etapa 7 implica rehacer el modelo de BE.
+**Estado:** cerradas, **menos D20**, que espera confirmación de BE. D17 quedó cerrada el
+2026-08-18 (mecanismo y valores confirmados). Cambiar D1 o D3 después de la Etapa 7 implica
+rehacer el modelo de BE.
 
 > D8 y D9 salieron de **usar** el prototipo, no de analizarlo. D8 además **revierte** una decisión previa mía
 > ("la carpeta nace vacía"). Quedan registradas acá con lo que reemplazan, para que el handoff no arrastre
@@ -39,6 +42,10 @@
 | **D14** ↗️ | Ancho útil de la fila | **Extraída a un issue aparte** — no depende de carpetas | 🟢 Bajo |
 | **D15** ✨ | Agrupamiento server-side | El árbol **no** se resuelve en cliente: la lista es paginada de 20 con `search`/`sort` en BE | 🔴 Alto — condiciona todo el contrato de API |
 | **D16** ✨ | Forma de navegar | **Árbol in-place.** Se descarta el drill-down por niveles | 🟡 Medio |
+| **D17** ✅ | Ancho del panel | **Tres anchos fijos: `sm` 288 · `md` 384 · `lg` 480**, persistidos. Arrastrar el borde, sombreando la franja del delta | 🟢 Bajo |
+| **D18** ✨ | Contador de subcarpeta | **Sale de la fila.** El total se muda al `title` y al `aria-label` (0px). +20px por fila de carpeta | 🟢 Bajo |
+| ~~**D19**~~ | ~~Acordeón exclusivo~~ | ⛔ **Descartada** — sacada del plan el 2026-08-18. D12 sigue: secciones independientes | — |
+| **D20** 🟡 | Permisos de carpeta | **Solo quien la creó** puede renombrar, mover o eliminar. `oc:manage_access` es el **escape**. **Revierte D1.b** · a confirmar con BE | 🟡 Medio — agrega comprobación de autoría |
 
 ---
 
@@ -468,6 +475,307 @@ el costo de ancho se paga solo en el nivel más profundo.
 ancho se vuelve un problema real, el drill-down vuelve a estar sobre la mesa — pero como
 alternativa, no como complemento. Tener las dos formas de navegar el mismo árbol sería peor que
 cualquiera de las dos.
+
+---
+
+## D17 🟡 — Tres anchos fijos de panel: `sm` 288 · `md` 384 · `lg` 480
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst640rv` de la revisión en Ohana ·
+**Estado: ✅ CERRADA el 2026-08-18.** Mecanismo decidido (arrastrar el borde, sombreando la
+franja del delta) y **los tres valores confirmados: 288 · 384 · 480.**
+Queda **re-sincronizar D2/D13/D16, I4, `design.md` y `07-handoff-fe` §4**.
+
+**Estado en producción, verificado:** el panel **no** es redimensionable. `w-72 min-w-72` fijo
+(`OcContentLayout.tsx:171`), sin handle ni preferencia de ancho.
+
+**Decisión propuesta:** el ancho pasa a ser una **preferencia del usuario** con tres valores
+fijos, persistida en `localStorage`.
+
+### Por qué esos tres números
+
+No se eligieron: cada uno responde a una pregunta. Es la cuenta de D2 parametrizada, y a 288px
+reproduce exacto sus números — que es la prueba de que es la misma cuenta.
+
+| | px | Clase | Qué pregunta responde |
+|---|---|---|---|
+| `sm` | **288** | `w-72` | Lo de hoy. Es el **default**: elegirlo no cambia nada de producción. |
+| `md` | **384** | `w-96` | **El anidamiento deja de costar ancho.** Un tablero en el nivel 3 pasa a 262px, 60px *más* que un tablero suelto a `sm` (202px). |
+| `lg` | **480** | `w-[30rem]` | **El peor caso real entra entero** hasta el nivel 3: 45 caracteres ≈ 329px. |
+
+Presupuesto para el nombre, por tamaño y nivel:
+
+| | `sm` 288 | `md` 384 | `lg` 480 |
+|---|---|---|---|
+| Tablero suelto | 202px · 27c | 298px · 40c | 394px · 54c ✓ |
+| Carpeta nivel 1 / 2 / 3 | 202 / 190 / **178** | 298 / 286 / **274** | 394 / 382 / **370** ✓ |
+| Tablero dentro, nivel 1 / 2 / 3 | 190 / 178 / **166** | 286 / 274 / **262** | 382 / 370 / **358** ✓ |
+
+✓ = entra el nombre más largo sin truncar. **Solo `lg` lo logra en todos los niveles.**
+
+> Las filas de carpeta ya **no descuentan contador** (D18), así que una carpeta y un tablero a
+> la misma indentación miden lo mismo. La tabla de D2 (182/170/158) se calculó **con** contador
+> — de ahí los +20px.
+
+> **⚠️ Corrección a D2.** El peor caso son **45 caracteres**, no 40:
+> `Adquirencia_2026_06_04_conciliacion_master_v2`. D2 se calibró contra
+> `Adquirencia_2026_06_04_conciliacion_visa` (40), que es un peor caso optimista — el propio
+> generador de nombres del producto pone sufijos `_v2` y `_master`. **Esto hay que corregir en
+> D2 pase lo que pase con D17.**
+
+**Se descartó la propuesta de arranque del plan (288/360/440):** 360 y 440 no salían de ningún
+criterio, y 440 se queda **3px corto** para el peor caso al nivel 3 — habría prometido algo que
+no cumple.
+
+### Mecanismo — ✅ A · arrastrar el borde (decidido el 2026-08-18)
+
+El comentario pedía dos cosas a la vez («explorar un **resize**» y «medidas **fijas**»), así que
+se prototiparon las dos:
+
+| | Cómo | A favor | En contra |
+|---|---|---|---|
+| **A** ✅ | Handle de arrastre en el borde, con **snap** a los tres valores | Cuesta **0px** del header. Es un resize de verdad. | Hay que descubrir el borde. |
+| **B** ⛔ | Control discreto **S/M/L** en el header del panel | Se descubre solo. Lectura literal del comentario. | Se come ~72px del **slot 1**, y **obliga a interpretar `S/M/L`**. |
+
+**Por qué se cayó B, y de paso el rótulo:** `S/M/L` es vocabulario de diseñador. No le dice al
+usuario **hasta dónde va a llegar el panel**, que es la única pregunta que tiene mientras
+arrastra. La primera versión de A tenía el mismo defecto en otro lugar: un badge que escribía
+«MD · 384px» durante el arrastre. Escribir el tamaño es admitir que no se ve.
+
+**El feedback correcto es espacial, no textual.** Al arrastrar se sombrea **solo la franja que
+el panel gana o devuelve**, y una línea azul de 2px marca dónde va a quedar el borde. Las tres
+paradas quedan marcadas con líneas tenues.
+
+**Se sombrea el delta, no el panel entero** — segunda corrección de Andrés. Pintar los 288px
+completos tapa la lista que el usuario está leyendo, y de paso resalta lo que no importa: la
+pregunta no es «cuánto va a medir» sino **«cuánto gano»**. La franja arranca en el borde actual
+y termina en el destino, así que funciona en los dos sentidos: creciendo se pinta en azul lo
+que se suma; encogiendo, en gris lo que se devuelve al contenido. Con el destino igual al
+tamaño de partida la franja mide 0 y no se dibuja nada, que es la lectura correcta.
+
+Dos cosas más se resuelven solas con esto:
+
+1. **El snap deja de sentirse como un bug.** El panel no sigue al cursor —salta entre tres
+   valores— y antes eso se leía como que la interfaz no responde. Ahora lo que se mueve es la
+   zona, y el salto se lee como intención.
+2. **Las medidas fijas se enseñan sin nombrarlas.** Ver tres paradas posibles comunica «hay
+   tres anchos» mejor que tres letras.
+
+El rótulo se eliminó de todas partes de cara al usuario: badge de arrastre, tooltip del riel
+colapsado y `aria-label` del separador (ahí el número lo dan `aria-valuenow`/`min`/`max`, que
+es lo que corresponde al patrón).
+
+Paridad por teclado con `role="separator"` + flechas (patrón WAI-ARIA *window splitter*),
+mismo criterio que **D7** con el drag. Durante el arrastre se suprime la selección de texto:
+sin eso el gesto va seleccionando los nombres de la lista al pasar.
+
+> **Crédito donde va:** esto lo corrigió Andrés al revisar el prototipo. La versión que yo
+> había hecho pasaba el problema del control B (nombrar el tamaño) al mecanismo A en vez de
+> resolverlo.
+
+### Persistencia
+
+Clave propia — `oc_sidebar_width` en producción. **No se unifican** las tres claves de
+preferencia: producción ya persiste el colapso en `oc_sidebar_collapsed` con su propia clave
+(`OcContentLayout.tsx:19`), así que el ancho va en paralelo. Unificarlas sería migrar algo que
+ya funciona a cambio de nada.
+
+### Interacción con el colapso automático: ya estaba resuelta
+
+No hubo que inventar nada. `restoreIfNoAutoCollapse()` (`OcContentLayout.tsx:86`) ya separa la
+**preferencia del usuario** de los **motivos de colapso automático** (viewport angosto, panel
+lateral abierto, modo edición de datasets) y restaura cuando el motivo desaparece. El ancho se
+cuelga del mismo mecanismo:
+
+**Gana el colapso, y al reexpandir se recupera el tamaño elegido.**
+
+### 🔴 Hallazgo colateral, y pesa más que D17
+
+**El umbral de colapso mide el contenedor, no la ventana.** `COLLAPSE_WIDTH_THRESHOLD = 1200`
+(`:56`) se compara contra `entry.contentRect.width` del contenedor del OC (`:127`), y
+`contentRect` **excluye el padding** — o sea que del ancho de ventana ya se descontaron el nav
+de plataforma y el `px-6`.
+
+Con el nav en 256px, el colapso se dispara alrededor de los **1504px de ventana**: **en un
+portátil de 1440px el panel arranca colapsado y el árbol de carpetas no se ve.**
+
+**Pendiente de verificar:** el nav de plataforma no vive en `fe-solutions-mf`, así que los
+256px son el supuesto del prototipo. El número exacto cambia; la dirección no. Si se confirma,
+esto le pega a la premisa de **D2** y **D16**, que asumen el panel expandido — y hay que
+resolverlo **antes** de discutir 384 vs 480.
+
+**Consecuencias si se aprueba:**
+
+1. **FE:** `OcContentLayout` pasa de clase fija a ancho por preferencia. Es el único archivo.
+2. **Nada de BE.** No toca modelo, API ni permisos.
+3. **Costo a validar:** a `lg` en 1920px el grid de 2 columnas del tablero baja a ~543px por
+   gráfico. Es el argumento más fuerte para que el default siga en `sm`.
+4. **Probablemente no es de SWAT-577.** Beneficia al panel exista o no el feature de carpetas,
+   igual que **D14** — y es la **tercera palanca de ancho** del mismo problema. Recomendación:
+   que las tres viajen juntas en `ancho-util-lista-tableros/`.
+
+---
+
+## D18 ✨ — El contador del subárbol sale de la fila de carpeta
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst64r43` («QUitar este contador») · **Cierra ③.**
+
+**Decisión: el contador se quita de la fila.** El total del subárbol **no desaparece del
+producto** — se muda al `title` y al `aria-label`, que cuestan 0px de ancho.
+
+> **Corrección de rumbo.** La primera versión de D18 decidió lo contrario: que el contador se
+> quedaba, porque el motivo del comentario era *ancho* y ② devolvía 96px donde el contador
+> devolvía 20. **Ese razonamiento contestaba una pregunta que nadie hizo.** El comentario era
+> una instrucción («quitar este contador»); el motivo explicaba *por qué*, no *si*. Convertir un
+> «por qué» en un «si o no» y resolverlo con una resta fue un error de lectura, no una decisión
+> de diseño. Queda registrado porque el razonamiento de la resta sigue siendo válido para lo que
+> sí decidía: que **quitarlo no era la forma de recuperar ancho**. Pero se quita igual, porque el
+> ancho no era la única razón para quitarlo.
+
+### Qué gana la fila
+
+| | Con contador (D2) | Sin contador | |
+|---|---|---|---|
+| Carpeta nivel 1 | 182px | **202px** | +20 |
+| Carpeta nivel 2 | 170px | **190px** | +20 |
+| Carpeta nivel 3 | **158px** | **178px** | +20 |
+
+Y aparece una propiedad que antes no estaba: **una carpeta y un tablero a la misma indentación
+miden exactamente lo mismo.** La fila deja de tener dos presupuestos distintos según el tipo,
+lo que hace la tabla de D17 más simple de razonar.
+
+Sumado a ② en `lg`, la carpeta de nivel 3 pasa de **158px a 370px**.
+
+### Lo que se pierde, y hay que decirlo
+
+**Una carpeta cerrada ya no dice cuánto tiene adentro.** Era la única señal de volumen sin
+expandir, y es justo el caso donde más servía: decidir si vale la pena abrirla.
+
+Mitigación: el total sigue en el `title` (hover) y en el `aria-label` (teclado y lector de
+pantalla). No es equivalente — un dato que exige un gesto no es un dato que se escanea.
+
+**A validar en la próxima revisión:** si al recorrer el panel se extraña saber el volumen de una
+carpeta cerrada. Si se extraña, la salida **no** es volver al contador en todas las filas, sino
+mostrarlo **solo en carpetas colapsadas** — con la carpeta abierta el número es redundante
+porque los hijos ya están a la vista.
+
+### Lo que NO cambia de D2
+
+La **definición** del contador sigue intacta para donde sí se muestre (`title`, `aria-label`):
+**total del subárbol**, con desglose «directos · en total» cuando hay hijas. La lección de
+Grafana ([#124158](https://github.com/grafana/grafana/issues/124158)) sigue en pie: un número
+que significa una cosa u otra según el contexto se rompe. Acá se define una sola vez.
+
+**Los contadores de sección no se tocan:** «Tableros» (slot 1), «Configuraciones pendientes
+(8)», «Favoritos (5/15)» y «Sin carpeta» existen en producción y no son de lo que hablaba el
+comentario, que estaba anclado en el `span` de una fila de carpeta.
+
+---
+
+## ~~D19~~ ⛔ — Acordeón exclusivo entre secciones: descartada
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst69j96` · **Sacada del plan por Andrés.**
+
+No se diseña. **D12 se mantiene:** las cuatro secciones del panel colapsan de forma
+**independiente**, y las carpetas del árbol también.
+
+Queda el registro porque el comentario sigue `open` en Ohana, y conviene que esté escrito por
+qué no se hizo. Los riesgos que se habían identificado —y que ya no hay que resolver— eran que
+«Tableros» es la sección principal y un acordeón exclusivo la cerraría para mostrar 5 atajos,
+y que entre carpetas chocaría con **I2** (estado persistido) y con «revelar después de actuar».
+
+---
+
+## D20 🟡 — Solo quien creó la carpeta puede renombrarla, moverla o eliminarla
+
+**Fecha:** 2026-08-18 · **Origen:** `cmt_mst66vz6` («¿solo elimino las carpetas que yo creo?») ·
+**Revierte D1.b** · **Estado: a confirmar con BE.**
+
+**Decisión:** la autoría gobierna las tres acciones que cambian **la carpeta misma**.
+`oc:manage_access` funciona como **escape**.
+
+| Acción | ¿Restringida? | Por qué |
+|---|---|---|
+| Renombrar carpeta | ✅ solo el autor | Cambia cómo la ven todos |
+| Mover carpeta a… | ✅ solo el autor | Idem, y reordena el árbol de otros |
+| Eliminar carpeta | ✅ solo el autor | Disuelve un nivel (D6) |
+| **Agregar tableros** | ❌ libre | Una carpeta es una **ubicación compartida** (D1): llenarla es colaborativo |
+| **Nueva subcarpeta** | ❌ libre | La subcarpeta que yo creo **es mía**, así que la puedo gestionar |
+| Mover / quitar un tablero | ❌ libre | Lo gobierna la regla del tablero (`hasAccess`), no la carpeta |
+
+La línea que separa las dos mitades: **restringir lo que altera la carpeta de otro, no lo que
+la usa.** Sin eso, «solo el autor» se vuelve un candado que impide colaborar en la ubicación
+compartida que D1 definió.
+
+### El escape, que es la parte que hace viable a (b)
+
+**`oc:manage_access` puede gestionar cualquier carpeta.** No es una política paralela: es la
+salida al problema que hacía inaceptable a (b) a secas.
+
+> Si solo el creador puede eliminar, la carpeta de alguien que **se fue del equipo** queda
+> inmanejable **para siempre**.
+
+Reusa un permiso que **ya existe** y ya gobierna «Gestionar acceso», así que no hay modelo
+nuevo ni un estado «carpeta abandonada» que mantener. El prototipo lo modela con una carpeta
+huérfana real (`2025`, creada por alguien marcado `inactive`) y un toggle para simular el
+permiso.
+
+### El copy cambia con el motivo
+
+No alcanza un mensaje único, porque las dos situaciones ofrecen salidas distintas:
+
+| Caso | Mensaje |
+|---|---|
+| La creó alguien que **sigue** en la cuenta | *«Solo María, que creó esta carpeta, puede renombrarla, moverla o eliminarla.»* |
+| La creó alguien que **se fue** | *«Lucía ya no está en la cuenta. Solo alguien que gestione accesos puede renombrarla, moverla o eliminarla.»* |
+
+Mandar a «pedirle a Lucía» cuando Lucía no está sería un callejón sin salida. **Un mensaje
+de permisos tiene que nombrar la salida, no solo la puerta cerrada.**
+
+### Dónde vive la autoría — y dónde NO
+
+**No va en la fila.** Un «creada por María» visible gastaría exactamente el ancho que **D17**
+acaba de recuperar; poner las dos decisiones juntas en el mismo sprint y que una se coma a la
+otra sería incoherente. Vive en tres lugares que cuestan **0px**:
+
+1. El **`title`** de la fila (`Adquirencia / Visa · creada por María`).
+2. El **`aria-label`** del `treeitem`, para que con teclado tampoco haya que abrir el menú.
+3. El **pie del menú `⋮`**, una sola vez y no como tooltip por ítem: tres tooltips que dicen
+   lo mismo es ruido, y un tooltip no se lee con teclado. Va con `role="note"` junto a los
+   `aria-disabled`.
+
+**Los ítems se deshabilitan, no se ocultan** — mismo criterio que el tope de 3 niveles:
+esconder una acción que existe en otras carpetas deja al usuario buscándola.
+
+### Dos trampas que el prototipo cierra
+
+1. **Una carpeta recién creada tiene que ser gestionable por quien la creó.** Si `createdBy` no
+   se asigna al crear, la creás y no la podés ni renombrar. Hay **cuatro** rutas de creación en
+   el proto y las cuatro lo asignan.
+2. **«Deshacer» un borrado restaura al autor original, no a quien deshace.** Si no, eliminar +
+   deshacer sería una forma de **apropiarse de la carpeta de otro** — un escalamiento de
+   privilegios por la puerta de atrás.
+
+### La tensión con D1.b, explícita
+
+D1.b decía *«no se introduce un permiso nuevo»*, y argumentaba que ninguna acción de carpetas
+es destructiva porque todo tiene «Deshacer». **D20 respeta la letra y rompe el espíritu:** no
+introduce un permiso nuevo (reusa `oc:manage_access`), pero **sí agrega una comprobación de
+autoría que hoy no existe**.
+
+Lo que habilitó el cambio: **D6 debilitó la premisa.** Eliminar ya no lo garantiza el motor de
+base de datos (`ON DELETE SET NULL`), es lógica de servicio que reparenta antes de borrar. La
+reversibilidad dejó de ser gratis.
+
+**Consecuencias:**
+
+1. **BE:** el dato ya existe (`created_by`, §1.1 del handoff BE). Falta **devolverlo en el
+   listado** —hoy no viaja— y **validar en el endpoint**, no solo en la vista: un permiso que
+   solo vive en el FE no es un permiso.
+2. **FE:** el menú de carpeta y las cuatro rutas de creación.
+3. **A confirmar con BE:** que `oc:manage_access` sea el override correcto, y si la validación
+   de autoría vive en el servicio o en la política de acceso existente.
+4. **Drag & drop:** D7 hace del drag un alias de «Mover a». Las carpetas no son arrastrables en
+   el proto, así que no hay inconsistencia hoy — **pero si se agrega, tiene que respetar D20.**
 
 ---
 
