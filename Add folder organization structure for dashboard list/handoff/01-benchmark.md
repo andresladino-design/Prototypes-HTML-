@@ -13,7 +13,7 @@
 | **I1** | Disparador de "Nueva carpeta" | **Botón icono `FolderPlus` + tooltip en el header de la sección "Tableros"**, junto al toggle A→Z. Deshabilitado durante la búsqueda. Entrada secundaria dentro del selector de "Mover a carpeta". |
 | **I2** | Default de expansión | **Colapsadas**, con 3 excepciones: se revela la carpeta del tablero activo · el estado se persiste en `localStorage` · si hay una sola carpeta, arranca expandida. |
 | **I3** | Carpeta en resultados de búsqueda | **Segunda línea dentro de la fila** (icono de carpeta + nombre, `text-[11px] text-muted-foreground`), clickable para revelar la carpeta. Las carpetas que coinciden con el término se listan primero. |
-| **I4** 🔄 | Jerarquía visual | Mismo `text-sm` que un tablero (la densidad no se toca) + **`font-medium`** + icono de carpeta **con estado (sin chevron, D13)** + contador del **subárbol** a la derecha + hijos indentados **12px** con guía de 1px. **Sin** fuente más grande, **sin** mayúsculas, **sin** color de acento. |
+| **I4** 🔄 | Jerarquía visual | Mismo `text-sm` que un tablero (la densidad no se toca) + **`font-medium`** + icono de carpeta **con estado (sin chevron, D13)** + hijos indentados **12px** con guía de 1px. **Sin contador** (D18 lo sacó de la fila). **Sin** fuente más grande, **sin** mayúsculas, **sin** color de acento. |
 | **I5** | Cuántas carpetas | **Sin tope duro.** Objetivo de diseño 7 ± 2 · aviso suave al pasar de 15 · máximo técnico defensivo 50 por cuenta. |
 | **I6** | ¿Reusar el `FolderNameDialog` de Almacenamiento? | **No reusar el componente ni su validación** — su regex rechaza acentos y `_`. Componente propio en `features/dashboards` que reusa las reglas de nombre de **tablero**. Sí se reusa el **léxico**. |
 
@@ -167,13 +167,15 @@ El header de sección ya ocupa el registro "12px + medium + muted + mayúscula v
 
 > **🔄 Revisada el 2026-08-14** por D2 (3 niveles), D13 (el icono absorbe el chevron) y la
 > corrección del ancho útil real del panel. La versión original está debajo, en «Lo que cambió».
+> **🔄 Revisada el 2026-08-18** por D17 (el ancho del panel es una preferencia de usuario) y
+> **D18, que le quitó una palanca: el contador.**
 
 ```
 Tableros (155)                    [🗀+] [↕A→Z]     ← 12px medium muted (header de sección)
-▾ 🗀 Adquirencia              24                   ← 14px MEDIUM · SIN chevron (D13)
-  │ ▸ 🗀 Visa                    8                 ← indentado 12px + guía 1px
+▾ 🗀 Adquirencia                                   ← 14px MEDIUM · SIN chevron (D13) · SIN contador (D18)
+  │ ▸ 🗀 Visa                                      ← indentado 12px + guía 1px
   │ 🌐 ADQ-DASH                                    ← 14px normal
-▸ 🗀 Cierre contable          12
+▸ 🗀 Cierre contable
   🌐 Adquirencia                                   ← suelto: 14px normal, sin indentar
 ```
 
@@ -181,9 +183,19 @@ Palancas, en orden de peso:
 
 1. **`font-medium`** en el nombre de la carpeta vs. `font-normal` en el tablero. Es la palanca principal y no cuesta densidad.
 2. **Icono `Folder` / `FolderOpen`** (`h-3.5 w-3.5`, `text-muted-foreground`) que **lleva el estado**. **Sin chevron** (D13): son 16px por fila y un elemento menos que procesar. `aria-expanded` se conserva en el botón.
-3. **Contador** a la derecha, `text-xs text-muted-foreground` — mismo registro que el `5/15` de Favoritos. Muestra el **total del subárbol**, no los directos. Sin paréntesis (los paréntesis son del header de sección).
-4. **Indentación de los hijos de 12px** + **guía vertical de 1px** (`border-l border-sidebar-border`), que es lo que hace legible el pertenecer. **12, no 16:** con 3 niveles de anidamiento, 16px por nivel dejaría el nombre en ~140px.
-5. **Fondo:** ninguno en reposo. `bg-accent` está reservado para la fila activa y `hover:bg-muted` para el hover — no se toca.
+3. **Indentación de los hijos de 12px** + **guía vertical de 1px** (`border-l border-sidebar-border`), que es lo que hace legible el pertenecer. **12, no 16:** con 3 niveles de anidamiento, 16px por nivel dejaría el nombre en ~140px.
+4. **Fondo:** ninguno en reposo. `bg-accent` está reservado para la fila activa y `hover:bg-muted` para el hover — no se toca.
+
+> **⛔ Se cayó la palanca #3: el contador.** D18 lo sacó de la fila. El dato sigue en el `title`
+> y el `aria-label`, pero **dejó de aportar jerarquía visual**.
+>
+> Las cuatro que quedan alcanzan, y no por casualidad: `font-medium` y el icono eran ya las dos
+> primeras en peso según este mismo benchmark. El contador nunca fue la palanca que hacía la
+> diferencia — era la que costaba 20px.
+>
+> **Lo que sí se perdió es otra cosa, y no es jerarquía:** una carpeta **cerrada** ya no comunica
+> volumen. Era la única señal de «cuánto hay acá dentro» sin expandir, que es justo la
+> información con la que se decide si vale abrirla. Pendiente de validar en la próxima revisión.
 
 ### Lo que cambió respecto a la versión original
 
@@ -191,8 +203,8 @@ Palancas, en orden de peso:
 |---|---|---|---|
 | Chevron | `ChevronRight` / `ChevronDown` a la izquierda del icono | **no existe** | D13 — el icono lleva el estado; 16px recuperados |
 | Indentación | ~16px | **12px** | D2 — con 3 niveles, 16px no cabe |
-| Contador | tableros de la carpeta | **total del subárbol** | D2 — colapsada, «24» debe significar «hay 24 acá dentro» |
-| Tamaño del contador | `text-[11px]` | `text-xs` (12px) | alineado con el resto de los contadores del panel |
+| Contador | tableros de la carpeta | **fuera de la fila** | D18 (2026-08-18) — el pedido era quitarlo. El total se muda al `title` y al `aria-label` |
+| Ancho del panel | `w-72` fijo (288px) | **preferencia: 288 · 384 · 480** | D17 (2026-08-18) — el default sigue en 288, así que nada regresiona |
 
 **Corrección de un dato del benchmark original:** decía «el panel mide ~280px». El ancho real
 disponible para una fila es **240px** — `w-72` (288px) menos `px-3` **dos veces**: en el

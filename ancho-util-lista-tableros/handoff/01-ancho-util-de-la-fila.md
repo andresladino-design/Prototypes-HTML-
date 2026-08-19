@@ -25,6 +25,31 @@ Sobre esos 240px, cada fila gasta espacio fijo en cosas que no son el nombre:
 
 Dos problemas distintos se suman ahí.
 
+> **🔄 Actualización del 2026-08-18 — apareció una tercera palanca.**
+> Prototipando SWAT-577 salió **D17**: hacer del ancho del panel una **preferencia del usuario**
+> con tres valores fijos (`sm` 288 · `md` 384 · `lg` 480, default `sm`). Es la palanca **2.c** de
+> este mismo documento, y es la más grande de las tres:
+>
+> | # | Palanca | Devuelve al nombre |
+> |---|---|---|
+> | 2.a | Botones de fila en hover | **+20px** (Tableros) · **+40px** (Favoritos) |
+> | 2.b | Truncado al medio | 0px, pero cambia *cuáles* caracteres se ven |
+> | **2.c** | **Ancho del panel elegible (D17)** | **+96px** a `md` · **+192px** a `lg` |
+>
+> Las tres son independientes y **se refuerzan**: a `lg`, con los botones en hover, el nombre de
+> un tablero suelto pasa de 182px a **394px**.
+>
+> **Y un peor caso peor que el documentado acá.** Este doc usa
+> `Adquirencia_2026_06_04_conciliacion_visa` (40 caracteres). El generador de nombres del
+> producto agrega `_master` y `_v2`: el real es **45 caracteres ≈ 329px**. Ninguna palanca sola
+> alcanza — **solo `lg` lo muestra entero.** Es el argumento más fuerte de este documento:
+> el truncado al medio (2.b) **no es opcional a ningún ancho razonable**.
+>
+> **Recomendación: que las tres viajen en este issue**, no en SWAT-577. Ninguna depende de
+> carpetas y las tres arreglan lo mismo. El detalle de D17 —mecanismo, persistencia, colapso
+> automático, y una nota sobre cómo se mide el umbral de colapso— está en
+> [`../Add folder organization structure for dashboard list/handoff/01-decisiones.md`](../Add%20folder%20organization%20structure%20for%20dashboard%20list/handoff/01-decisiones.md).
+
 ### 1.a · El ⋮ reserva espacio permanentemente para algo que solo sirve en hover
 
 El botón de opciones nunca se desmonta: vive con `text-muted-foreground/0` y solo

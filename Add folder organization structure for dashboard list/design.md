@@ -190,17 +190,28 @@ Resuelto en **I4**. La carpeta es un nivel **intermedio**: por debajo del header
 
 > **🔄 Revisado el 2026-08-14** por D2 (3 niveles), D13 (el icono absorbe el chevron) y la
 > corrección del ancho útil real del panel.
+> **🔄 Revisado el 2026-08-18** por D17 (el ancho del panel es una preferencia) y D18 (el
+> contador sale de la fila).
 
-**El ancho disponible para una fila es 240px, no 288.** `w-72` (288px) menos `px-3` **dos veces**:
-en el `<aside>` del layout (`OcContentLayout.tsx:171`) y otra vez en el cuerpo de la sección
-(`DashboardSection`). Todos los cálculos de jerarquía y truncado se hacen sobre **240**.
+**El ancho de la fila es el del panel menos 48px.** El `px-3` se aplica **dos veces**: en el
+`<aside>` del layout (`OcContentLayout.tsx:171`) y otra vez en el cuerpo de la sección
+(`DashboardSection`). Desde **D17** el panel tiene tres anchos y el usuario elige:
+
+| | Panel | Fila útil |
+|---|---|---|
+| `sm` | 288px (`w-72`) — **default**, lo que hay hoy en producción | **240px** |
+| `md` | 384px (`w-96`) | **336px** |
+| `lg` | 480px (`w-[30rem]`) | **432px** |
+
+Los cálculos de jerarquía y truncado se hacen **sobre el peor caso, que es `sm`**. Si algo no
+cabe en 240px, no cabe.
 
 ```
 Tableros (155)                    [🗀+] [↕A→Z]   ← 12px medium muted
-▾ 🗀 Adquirencia               24                ← 14px MEDIUM · SIN chevron · contador 12px
-  │ ▸ 🗀 Visa                     8               ← subcarpeta · indent 12px · guía 1px
+▾ 🗀 Adquirencia                                 ← 14px MEDIUM · SIN chevron · SIN contador
+  │ ▸ 🗀 Visa                                     ← subcarpeta · indent 12px · guía 1px
   │ 🌐 ADQ-DASH                                   ← 14px normal
-▸ 🗀 Cierre contable           12
+▸ 🗀 Cierre contable
   🌐 Adquirencia                                  ← suelto: 14px normal, sin indentar
 ```
 
@@ -208,18 +219,30 @@ Palancas, en orden de peso:
 
 1. **`font-medium`** en la carpeta vs. `font-normal` en el tablero. Palanca principal, no cuesta densidad.
 2. **Icono** `Folder` / `FolderOpen` (`h-3.5 w-3.5 text-muted-foreground`) que **lleva el estado**. **Sin chevron** (D13): son 16px por fila y un elemento menos que procesar al escanear. `aria-expanded` se conserva en el botón — lo que se fue es solo el glifo.
-3. **Contador** a la derecha, `text-xs text-muted-foreground`, **sin paréntesis** (los paréntesis son del header de sección: "Tableros (155)"). Muestra el **total del subárbol**, no los directos; el desglose va en el `title`.
-4. **Indentación** de los hijos de **12px** + **guía vertical de 1px** `border-l border-sidebar-border`, una guía por ancestro.
-5. **Fondo:** ninguno en reposo. `hover:bg-muted` para hover, `bg-accent` reservado para la fila activa.
+3. **Indentación** de los hijos de **12px** + **guía vertical de 1px** `border-l border-sidebar-border`, una guía por ancestro.
+4. **Fondo:** ninguno en reposo. `hover:bg-muted` para hover, `bg-accent` reservado para la fila activa.
+
+> **Se cayó una palanca: el contador** (D18). Era la #3 y mostraba el total del subárbol. El
+> dato no desapareció —vive en el `title` y el `aria-label`— pero **dejó de aportar jerarquía**.
+> Las cuatro que quedan alcanzan: `font-medium` y el icono hacen el trabajo, y son las dos que
+> el benchmark ya había puesto arriba. Lo que se perdió es otra cosa: **una carpeta cerrada ya
+> no comunica volumen.**
 
 **Por qué 12px y no 16.** Con 3 niveles de anidamiento (D2), 16px por nivel dejaría el nombre de
-un tablero de nivel 3 en ~140px, y los nombres reales tienen 40 caracteres. A 12px el peor caso
-es **166px** para el tablero y **158px** para la carpeta. Es el número que sostiene la decisión:
+un tablero de nivel 3 en ~140px, y el nombre más largo que genera el producto tiene **45
+caracteres** (`Adquirencia_2026_06_04_conciliacion_master_v2` ≈ 329px a `text-sm`). A 12px, y con
+el contador fuera, el peor caso en `sm` es **178px** para la carpeta y **166px** para el tablero:
 
 | | nivel 1 | nivel 2 | nivel 3 |
 |---|---|---|---|
-| Nombre de carpeta | 182px | 170px | **158px** |
+| Nombre de carpeta | 202px | 190px | **178px** |
 | Nombre de tablero dentro | 190px | 178px | **166px** |
+
+Sin contador, **una carpeta y un tablero a la misma indentación miden lo mismo** — la fila dejó
+de tener dos presupuestos según el tipo.
+
+**El nombre más largo solo entra completo en `lg`.** En `sm` y `md` se trunca, y por eso el
+truncado al medio (D14) sigue siendo necesario a cualquier ancho.
 
 **Dónde SÍ se conserva el chevron:** solo en los encabezados de sección colapsables (D12), que
 no tienen icono que pueda cargar el estado. Eso deja una distinción limpia:
@@ -229,6 +252,21 @@ El árbol es **in-place** y no navega por niveles (D16), así que no hay ningún
 chevron signifique «entrar».
 
 **Prohibido:** fuente mayor a 14px · mayúsculas · color de acento en la carpeta (los acentos están tomados: `text-info` en `Globe`, `warning` en pendiente, `destructive` en eliminar) · peso 600+.
+
+### Estados por permiso (D20)
+
+Solo quien creó la carpeta puede **renombrar**, **mover** o **eliminar**. `oc:manage_access`
+es el escape. Reglas visuales:
+
+- **Los ítems se deshabilitan, no se ocultan:** `opacity-50` + `cursor-not-allowed` +
+  `aria-disabled`. Esconder una acción que existe en otras carpetas deja al usuario buscándola
+  — mismo criterio que el tope de 3 niveles.
+- **El motivo va una vez al pie del menú**, no como `title` por ítem: tres tooltips que dicen lo
+  mismo es ruido, y un `title` no se lee con teclado. `role="note"`, `text-[11px]`, con icono
+  `Lock` de `h-3 w-3`.
+- **La autoría NO se muestra en la fila.** Iría contra D17: un «creada por María» visible
+  gastaría el ancho que la preferencia de panel acaba de recuperar. Vive en el `title` de la
+  fila, en el `aria-label` del `treeitem` y en el pie del menú — los tres cuestan **0px**.
 
 ### Drop target (drag como atajo, D7)
 

@@ -27,12 +27,23 @@ Adquirencia_2026_06_18_c…        Adquirencia_2026_06_18_conciliacion…_visa
 |---|---|---|
 | 2.a | Los botones de fila aparecen en hover en vez de reservar espacio siempre | +20px en Tableros · +40px en Favoritos |
 | 2.b | Truncado al medio, fijando el último segmento del nombre | Los caracteres visibles pasan a ser los que desambiguan |
+| **2.c** | **El ancho del panel es una preferencia: `sm` 288 · `md` 384 · `lg` 480** (D17, 2026-08-18) | **+96px** a `md` · **+192px** a `lg` |
 
-Son independientes: se pueden implementar por separado.
+Son independientes: se pueden implementar por separado, y se refuerzan. A `lg` con los botones
+en hover, el nombre de un tablero pasa de 182px a **394px**.
+
+> **2.c salió del feedback del prototipo de SWAT-577.** Se documenta acá porque **no depende de
+> carpetas** — igual que las otras dos. El default se queda en 288px, así que nada regresiona.
 
 ## Alcance
 
-Solo FE, un componente (`DashboardListItem`). No toca modelo de datos, API ni permisos.
+Solo FE. **2.a** y **2.b** son un componente (`DashboardListItem`); **2.c** es otro
+(`OcContentLayout`) más una clave de `localStorage`. No toca modelo de datos, API ni permisos.
+
+> **Nota al probar 2.c:** el colapso automático del panel (`COLLAPSE_WIDTH_THRESHOLD = 1200`)
+> se compara contra el ancho del **contenedor**, no de la ventana, así que se dispara antes de
+> lo que «1200» sugiere. **El comportamiento es el esperado y no se toca** (revisado, 2026-08-19);
+> se menciona para que no sorprenda al probar en distintos tamaños de pantalla.
 
 ## Documento
 

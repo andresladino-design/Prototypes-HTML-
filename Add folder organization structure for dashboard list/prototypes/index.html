@@ -1142,21 +1142,20 @@
           </p>
         </div>
 
-        <!-- El hallazgo -->
-        <div class="mt-2 rounded-lg bg-warning/10 p-2 text-[10px] leading-snug ring-1 ring-inset ring-warning/40">
-          <p><strong class="text-foreground">Hallazgo · el umbral de colapso mide el contenedor, no la ventana.</strong>
-             <code>COLLAPSE_WIDTH_THRESHOLD = 1200</code> se compara contra
-             <code>entry.contentRect.width</code> del contenedor del OC, que ya excluye el nav
-             de plataforma (256px) y el <code>px-6</code> (48px). Es decir que se dispara
-             alrededor de los <strong class="text-foreground">1504px de ventana</strong>: en un
-             portátil de 1440px <strong class="text-foreground">el panel ya arranca colapsado</strong>
-             y el árbol de carpetas no se ve.</p>
+        <!-- Colapso automático · el comportamiento de producción, replicado -->
+        <div class="mt-2 rounded-lg bg-muted/50 p-2 text-[10px] leading-snug">
+          <p><strong class="text-foreground">Colapso automático · convive con el tamaño elegido.</strong>
+             Producción colapsa el panel cuando el <strong class="text-foreground">contenedor</strong>
+             baja de <code>1200</code> — no la ventana: <code>entry.contentRect.width</code> ya excluye
+             el nav de plataforma y el <code>px-6</code>, así que se dispara antes de lo que «1200»
+             sugiere. <strong class="text-foreground">Los umbrales están bien</strong> y no se tocan;
+             se aclara para que no sorprenda al probar en distintos tamaños.</p>
           <p class="mt-1">Contenedor ahora: <strong class="text-foreground" x-text="containerPx"></strong>px
              de <span x-text="COLLAPSE_THRESHOLD"></span> ·
              <span x-show="widthAutoCollapsed" class="font-semibold text-warning">colapsado por ancho</span>
              <span x-show="!widthAutoCollapsed" class="font-semibold text-success">hay espacio</span>.
-             Angostá la ventana para verlo: gana el colapso, y al volver a ensanchar
-             se recupera <strong class="text-foreground" x-text="panelSize.toUpperCase()"></strong>.</p>
+             Angostá la ventana para verlo: <strong class="text-foreground">gana el colapso</strong>, y al
+             volver a ensanchar se recupera el tamaño que habías elegido.</p>
         </div>
 
         <p class="mt-2 border-t border-info/25 pt-2 text-[10px] leading-snug text-sidebar-foreground">
@@ -1347,7 +1346,9 @@ function proto() {
 
   // Producción colapsa el panel cuando el CONTENEDOR baja de esto —
   // ojo: es el contenedor, no el viewport (OcContentLayout.tsx:56 y :127,
-  // y `entry.contentRect` excluye el `px-6`). Ver el hallazgo en el panel de demo.
+  // y `entry.contentRect` excluye el `px-6`), así que se dispara antes de lo que
+  // «1200» sugiere. El umbral está bien; se replica tal cual para poder demostrar
+  // que el tamaño elegido sobrevive al colapso.
   const COLLAPSE_THRESHOLD = 1200;
   // D2 revisada: las carpetas anidan. `parentId: null` = raíz.
   // Tope de 3 niveles de carpeta. El tope acota el `path` materializado del BE;
@@ -1640,9 +1641,9 @@ function proto() {
     restoreIfNoAutoCollapse() {
       if (!this.widthAutoCollapsed) this.panelCollapsed = this.userPrefCollapsed;
     },
-    /** Vigila el contenedor, no la ventana — igual que producción. Esto es lo que
-     *  hace visible el hallazgo: el umbral se dispara mucho antes de lo que
-     *  «1200px» sugiere, porque el nav de plataforma y el `px-6` ya se descontaron. */
+    /** Vigila el contenedor, no la ventana — igual que producción, porque el nav de
+     *  plataforma y el `px-6` ya se descontaron. Está acá para poder demostrar que
+     *  el tamaño elegido (D17) sobrevive al colapso y se recupera al reexpandir. */
     watchCollapse() {
       const el = this.$refs.ocLayout;
       if (!el || !window.ResizeObserver) return;
