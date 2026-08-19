@@ -83,9 +83,8 @@ La única que se puede adelantar en paralelo es la 3 (vista espejo), porque repl
 >
 > **Al 2026-08-18:** ② quedó resuelto en el prototipo como **D17** (propuesta: falta elegir
 > mecanismo), ③ se cerró como **D18** sin quitar el contador, y ⑤ se descartó. **D2 arrastra
-> un error que hay que corregir igual:** su peor caso son 45 caracteres, no 40. Y salió un
-> hallazgo que pesa más que ②: el **umbral de colapso mide el contenedor, no la ventana**, así
-> que en un portátil de 1440px el panel arranca colapsado y el árbol no se ve.
+> un error que hay que corregir igual:** su peor caso son 45 caracteres, no 40 — corregido el
+> 2026-08-19 junto con el resto del re-sync de handoff.
 
 ---
 

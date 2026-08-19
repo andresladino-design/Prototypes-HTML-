@@ -47,7 +47,7 @@ Dos problemas distintos se suman ahí.
 >
 > **Recomendación: que las tres viajen en este issue**, no en SWAT-577. Ninguna depende de
 > carpetas y las tres arreglan lo mismo. El detalle de D17 —mecanismo, persistencia, colapso
-> automático, y un hallazgo sobre el umbral de colapso que pesa más que el ancho— está en
+> automático, y una nota sobre cómo se mide el umbral de colapso— está en
 > [`../Add folder organization structure for dashboard list/handoff/01-decisiones.md`](../Add%20folder%20organization%20structure%20for%20dashboard%20list/handoff/01-decisiones.md).
 
 ### 1.a · El ⋮ reserva espacio permanentemente para algo que solo sirve en hover

@@ -155,15 +155,15 @@ no debe empujar la fila, porque vive en el popover, no en la lista.
   la preferencia del usuario de los motivos de colapso automático. **Gana el colapso, y al
   reexpandir se recupera el tamaño elegido.**
 
-> **🔴 Verificar antes de implementar: el umbral de colapso mide el CONTENEDOR, no la ventana.**
+> **Nota sobre el umbral de colapso — revisado, no hay que cambiarlo.**
 > `COLLAPSE_WIDTH_THRESHOLD = 1200` (`:56`) se compara contra `entry.contentRect.width` (`:127`),
-> y `contentRect` **excluye el padding** — del ancho de ventana ya se descontaron el nav de
-> plataforma y el `px-6`. Con el nav en 256px se dispara alrededor de los **1504px de ventana**:
-> **en un portátil de 1440px el panel arrancaría colapsado y el árbol de carpetas no se vería.**
+> o sea el **contenedor**, no la ventana: del ancho de ventana ya se descontaron el nav de
+> plataforma y el `px-6`. Vale tenerlo presente al probar —el panel se colapsa «antes» de lo que
+> «1200» sugiere— pero **el comportamiento es el esperado** (revisado con Andrés, 2026-08-19) y
+> **no se toca en este cambio.**
 >
-> El ancho exacto del nav no vive en `fe-solutions-mf`, así que los 256px son un supuesto. El
-> número cambia; la dirección no. **Si se confirma, esto pesa más que elegir entre 384 y 480** —
-> y le pega a la premisa de D2 y D16, que asumen el panel expandido.
+> La única consecuencia para D17: por debajo del umbral **gana el colapso**, y el tamaño elegido
+> se recupera al reexpandir. Eso ya está resuelto por `restoreIfNoAutoCollapse`.
 
 ### 4.b — D20: estados por permiso
 

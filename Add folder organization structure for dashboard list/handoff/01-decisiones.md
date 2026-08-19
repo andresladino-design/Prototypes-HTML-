@@ -618,20 +618,19 @@ cuelga del mismo mecanismo:
 
 **Gana el colapso, y al reexpandir se recupera el tamaño elegido.**
 
-### 🔴 Hallazgo colateral, y pesa más que D17
+### Hallazgo colateral — ✅ cerrado, el umbral está bien
 
 **El umbral de colapso mide el contenedor, no la ventana.** `COLLAPSE_WIDTH_THRESHOLD = 1200`
 (`:56`) se compara contra `entry.contentRect.width` del contenedor del OC (`:127`), y
 `contentRect` **excluye el padding** — o sea que del ancho de ventana ya se descontaron el nav
-de plataforma y el `px-6`.
+de plataforma y el `px-6`. El panel se colapsa **antes** de lo que «1200» sugiere.
 
-Con el nav en 256px, el colapso se dispara alrededor de los **1504px de ventana**: **en un
-portátil de 1440px el panel arranca colapsado y el árbol de carpetas no se ve.**
+**Revisado con Andrés el 2026-08-19: el comportamiento es el esperado y no se cambia.** Se deja
+escrito porque es contraintuitivo al leer el código y al probar en distintos tamaños de
+pantalla, no porque haya algo que arreglar.
 
-**Pendiente de verificar:** el nav de plataforma no vive en `fe-solutions-mf`, así que los
-256px son el supuesto del prototipo. El número exacto cambia; la dirección no. Si se confirma,
-esto le pega a la premisa de **D2** y **D16**, que asumen el panel expandido — y hay que
-resolverlo **antes** de discutir 384 vs 480.
+**Lo que sí importa para D17:** por debajo del umbral **gana el colapso**, y el tamaño elegido
+se recupera al reexpandir — resuelto reusando `restoreIfNoAutoCollapse`, sin mecanismo nuevo.
 
 **Consecuencias si se aprueba:**
 

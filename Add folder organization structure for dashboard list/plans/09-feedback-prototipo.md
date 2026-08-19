@@ -147,23 +147,20 @@ poder demostrarlo.
 `shrink-0` en la cola), sin medir en JS, así que se adapta solo a cualquier ancho. Una de
 las cuatro decisiones que ② «reabría» no necesitaba tocarse.
 
-### 🔴 Hallazgo nuevo, y es más grave que ②
+### Hallazgo colateral — ✅ cerrado el 2026-08-19
 
 **El umbral de colapso mide el contenedor, no la ventana.**
 `COLLAPSE_WIDTH_THRESHOLD = 1200` (`OcContentLayout.tsx:56`) se compara contra
 `entry.contentRect.width` del contenedor del OC (`:127`) — y `contentRect` **excluye el
-padding**, así que del ancho de ventana ya se descontaron el nav de plataforma y el `px-6`.
+padding**, así que del ancho de ventana ya se descontaron el nav de plataforma y el `px-6`. El
+panel se colapsa **antes** de lo que «1200» sugiere.
 
-Con el nav en 256px (lo que replica el prototipo), el colapso se dispara alrededor de los
-**1504px de ventana**. Es decir: **en un portátil de 1440px el panel arranca colapsado y el
-árbol de carpetas no se ve nunca.**
+**Andrés lo revisó: los umbrales están bien.** No se cambia nada. Queda escrito porque es
+contraintuitivo al leer el código y al probar en distintos tamaños, no porque haya algo que
+arreglar.
 
-- [ ] **Verificar el ancho real del nav de plataforma.** No vive en `fe-solutions-mf`, así
-      que los 256px son el supuesto del prototipo, no un dato medido. El número exacto
-      cambia, la dirección no: el umbral se dispara **antes** de lo que «1200px» sugiere.
-- [ ] Si se confirma, esto es **más importante que elegir entre 384 y 480**: un panel que no
-      se muestra no tiene ancho que discutir. Y le pega a la premisa de D16 (árbol in-place)
-      y de D2, que asumen el panel expandido.
+Lo que sí queda de esto para D17: por debajo del umbral **gana el colapso** y el tamaño elegido
+se recupera al reexpandir — ya resuelto reusando `restoreIfNoAutoCollapse`.
 
 ### Lo que queda abierto
 
@@ -330,8 +327,6 @@ escrito por qué no se hizo, no solo que no se hizo.
 - ⚠️ **Tratar ② como ajuste de UI.** Sigue vivo, con el signo invertido: los docs **todavía no
   se re-sincronizaron**, y eso es deliberado (los valores no están confirmados). El riesgo
   ahora es *olvidarse* de hacerlo cuando se confirmen. La lista está en §②.
-- 🔴 **Que el umbral de colapso quede sin verificar.** Si en 1440px el panel arranca
-  colapsado, los tres anchos son el ancho de algo que no se muestra.
 - 🔴 **Que D20 se implemente solo en el FE.** Un permiso que vive en la vista no es un permiso.
   Y BE hoy **no devuelve `created_by`** en el listado, así que sin eso el FE no puede ni
   pintar los estados deshabilitados.

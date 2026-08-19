@@ -40,10 +40,10 @@ en hover, el nombre de un tablero pasa de 182px a **394px**.
 Solo FE. **2.a** y **2.b** son un componente (`DashboardListItem`); **2.c** es otro
 (`OcContentLayout`) más una clave de `localStorage`. No toca modelo de datos, API ni permisos.
 
-> **🔴 Antes de implementar 2.c, verificar el umbral de colapso.**
-> `COLLAPSE_WIDTH_THRESHOLD = 1200` se compara contra el ancho del **contenedor**, no de la
-> ventana, así que se dispara alrededor de los **1504px**: en un portátil de 1440px el panel
-> arranca colapsado. Un panel que no se muestra no tiene ancho que discutir.
+> **Nota al probar 2.c:** el colapso automático del panel (`COLLAPSE_WIDTH_THRESHOLD = 1200`)
+> se compara contra el ancho del **contenedor**, no de la ventana, así que se dispara antes de
+> lo que «1200» sugiere. **El comportamiento es el esperado y no se toca** (revisado, 2026-08-19);
+> se menciona para que no sorprenda al probar en distintos tamaños de pantalla.
 
 ## Documento
 
