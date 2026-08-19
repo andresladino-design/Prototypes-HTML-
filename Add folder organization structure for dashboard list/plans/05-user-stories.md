@@ -1,7 +1,7 @@
 # Etapa 5 — User stories UX
 
 **Objetivo:** convertir los 7 flujos en historias con criterios de aceptación verificables, listas para que FE/BE estimen y para que QA pruebe.
-**Entregable:** `handoff/05-user-stories.md`
+**Entregable:** `handoff/04-historias.md`
 **Precondición:** Etapa 4 (los flujos definen el alcance de cada historia).
 **Herramienta:** skill `ux-user-stories` (audiencia: diseño + FE + BE + QA), y `ux-heuristics` como paso de revisión.
 
@@ -82,7 +82,7 @@ Pasar las 8 historias por `ux-heuristics`:
 
 ## 6. Definition of done
 
-- [ ] 8 historias en `handoff/05-user-stories.md` con el formato completo.
+- [ ] 8 historias en `handoff/04-historias.md` con el formato completo.
 - [ ] Cada criterio del issue (C1–C8) trazado a al menos una historia.
 - [ ] Copy definitivo en español para cada mensaje, listo para volverse keys de i18n.
 - [ ] A11y explícita por historia (no un párrafo genérico al final).

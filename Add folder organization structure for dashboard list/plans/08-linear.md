@@ -36,7 +36,7 @@ va a empezar a consumirlo. Si se hace después, se mide dos veces.
 Agregar a la descripción, sin reescribir el reporte original:
 
 - **Objetivo de UX** y las leyes que lo sustentan (Miller · reconocer > recordar).
-- **Links:** prototipo en GitHub Pages · `handoff/07-handoff-fe.md` · `handoff/07-handoff-be.md` · `handoff/07-antes-despues.md` · flows de Moka.
+- **Links:** prototipo en GitHub Pages · `handoff/01-frontend.md` · `handoff/02-backend.md` · `handoff/05-antes-despues.md` · flows de Moka.
 - **Sistemas involucrados:**
   - `op-center-backend` — modelo con `parent_id` + `path`, migración, CRUD de carpetas, mover carpeta, filtro en `GET /dashboards`
   - `fe-solutions-mf` — panel de Tableros (árbol, diálogos, servicios, i18n)

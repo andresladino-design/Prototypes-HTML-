@@ -12,7 +12,7 @@
 >
 > 1. **§5.1 se convirtió en la decisión D15.** El riesgo que este doc anticipó —«el agrupamiento
 >    no puede ser client-side» — se perdió de vista al diseñar el anidamiento y reapareció al
->    revisar el BE. Ahora está cerrado con contrato en [`07-handoff-be.md`](07-handoff-be.md).
+>    revisar el BE. Ahora está cerrado con contrato en [`handoff/02-backend.md`](../handoff/02-backend.md).
 >    Los números concretos: `DASHBOARDS_PAGE_SIZE = 20` (`DashboardList.tsx:117`) y
 >    `page_size` con tope duro `le=100` (`utils/common/dependencies/pagination.py:8`).
 > 2. **Las preguntas abiertas de §6 ya se decidieron.** En particular D2 («¿un solo nivel o

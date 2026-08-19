@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-08-03 · **reescrito el 2026-08-14** · **actualizado el 2026-08-19 (D17 · D18 · D20)**
 **Boards en Moka:** `.ohana/flow.json` — 13 user flows + 1 sitemap · todos enlazados al prototipo
-**Decisiones que los gobiernan:** [`01-decisiones.md`](01-decisiones.md) · [`01-benchmark.md`](01-benchmark.md) (I1–I6)
+**Decisiones que los gobiernan:** [`01-decisiones.md`](../design-record/01-decisiones.md) · [`01-benchmark.md`](../design-record/02-benchmark.md) (I1–I6)
 
 > **🔄 Reescrito el 2026-08-14.** Dos reversiones cambiaron el set de flujos:
 >
@@ -42,7 +42,7 @@ Cada flujo es **una tarea** con un backbone lineal (criterio C7). Ningún flujo 
 🔄 = cambió el 2026-08-19. **La «rama» es siempre la misma:** el gate de autoría de D20, que
 entra igual en los cuatro flujos que alteran una carpeta.
 
-> **F8 nació de las pruebas del prototipo**, no del análisis inicial. Ver D9 en [`01-decisiones.md`](01-decisiones.md).
+> **F8 nació de las pruebas del prototipo**, no del análisis inicial. Ver D9 en [`01-decisiones.md`](../design-record/01-decisiones.md).
 
 ---
 
@@ -236,7 +236,7 @@ Inicio → Panel · carpeta con contenido → Menú de la carpeta ⟨modal⟩
 - `AlertDialog`, no `Dialog`: no se descarta clickeando fuera.
 - Si falla, `Alert variant="destructive"` **dentro** del diálogo (no toast).
 - **El contenido sube a la madre, no a la raíz** (D6 revisada). Si la carpeta era de primer nivel, sí queda suelto — mismo comportamiento de antes, ahora como caso particular.
-- ⚠️ **En BE ya no lo garantiza `ON DELETE SET NULL`.** Reparentar es lógica de servicio en una transacción, así que el test de que no borra tableros pasa a ser obligatorio. Ver [`07-handoff-be.md`](07-handoff-be.md) §3.
+- ⚠️ **En BE ya no lo garantiza `ON DELETE SET NULL`.** Reparentar es lógica de servicio en una transacción, así que el test de que no borra tableros pasa a ser obligatorio. Ver [`handoff/02-backend.md`](02-backend.md) §3.
 - Con subcarpetas, el caso completo está en **F11**.
 - 🔄 **Rama nueva (D20):** solo quien creó la carpeta puede eliminarla. Y hay una razón extra
   para que el gate exista acá: **D6 debilitó la premisa de D1.b.** El argumento para no pedir
@@ -309,7 +309,7 @@ Inicio → Panel · carpeta vacía ⟨empty⟩ ──⊕ Agregar tableros (o men
 
 *El diseño que documentaban —sobre todo la **membresía heredada**: que un incidente herede
 la carpeta del recurso que monitorea, resuelto en query y no persistido— se conserva en
-[`06-organizacion-transversal.md`](06-organizacion-transversal.md), marcado como descartado.*
+[`design-record/descartado/organizacion-transversal.md`](../design-record/descartado/organizacion-transversal.md), marcado como descartado.*
 
 *Los números F9 y F10 ahora son los flujos de anidamiento (ver arriba).*
 

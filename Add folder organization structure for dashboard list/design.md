@@ -4,7 +4,7 @@
 > **Regla de oro:** todo lo que está acá se puede señalar en el código. Si no se puede señalar, va marcado `⚠️ PROPUESTA`.
 
 **Basado en:** `@simetrikinc/desyk-components@1.30.0-0` · `fe-solutions-mf` @ `8aebc1879`
-**Decisiones que lo gobiernan:** [`handoff/01-decisiones.md`](handoff/01-decisiones.md) (D1–D7) · [`handoff/01-benchmark.md`](handoff/01-benchmark.md) (I1–I6)
+**Decisiones que lo gobiernan:** [`design-record/01-decisiones.md`](design-record/01-decisiones.md) (D1–D7) · [`design-record/02-benchmark.md`](design-record/02-benchmark.md) (I1–I6)
 **Última actualización:** 2026-08-03
 
 ---
@@ -411,7 +411,7 @@ crear. Se derivan del eje artefacto/evento.
 - **2026-08-03 — Toda la fila de carpeta es el área de toggle** (288 × 32px), no el chevron de 12px. Razón: hallazgo 🔴 C1 de la revisión heurística — expandir es la acción más frecuente del feature y el umbral de Fitts para escritorio es 40×36px. El `⋮` se mantiene chico a propósito, por consistencia con las filas de tablero.
 - **2026-08-03 — La carpeta en resultados de búsqueda va en 12px (`text-xs`), no 11px.** Razón: hallazgo 🟡 I1 — 11px queda lejos del mínimo de legibilidad y esa línea **lleva información** que el usuario necesita. Sube a 12px y a contraste 10:1. Queda por validar en la demo si la fila de dos líneas molesta al escanear (PA-12).
 - **2026-08-03 — La animación de expandir respeta `prefers-reduced-motion`** y usa el acordeón de desyk (200ms), no los 120ms que pide el checklist del OC para toggles. Razón: consistencia con el resto del producto; desviación registrada.
-- **2026-08-03 — Crear carpeta pasa a ser un wizard de 2 pasos** (elegir tableros → nombre), y toda acción sobre una carpeta la **revela** con scroll + resalte de ~2s. Razón: al probar el prototipo, crear una carpeta cerraba el diálogo y dejaba al usuario buscando su propio resultado entre 4 carpetas y 100 sueltos; y una carpeta vacía no es un resultado verificable. Ver D8 en `handoff/01-decisiones.md`.
+- **2026-08-03 — Crear carpeta pasa a ser un wizard de 2 pasos** (elegir tableros → nombre), y toda acción sobre una carpeta la **revela** con scroll + resalte de ~2s. Razón: al probar el prototipo, crear una carpeta cerraba el diálogo y dejaba al usuario buscando su propio resultado entre 4 carpetas y 100 sueltos; y una carpeta vacía no es un resultado verificable. Ver D8 en `design-record/01-decisiones.md`.
 - **2026-08-03 — El botón de confirmación nombra la consecuencia:** "Crear con 12 tableros" en vez de "Crear". Razón: el label es el último lugar donde el usuario puede verificar qué está guardando.
 - **2026-08-04 — Los estados vacíos ofrecen la acción, no la describen.** La carpeta vacía lleva un **botón outline punteado** de 32px (`border-dashed border-border`, hover `border-info/60 bg-info/5`) con `⊕ Agregar tableros`, en vez del texto "mueve tableros desde su menú de opciones". Razón: describir el mecanismo obliga al usuario a traducirlo en pasos; el punteado comunica "acá falta contenido" sin competir con las filas reales. Ver D9.
 - **2026-08-04 — Se documenta el patrón «Panel de recursos del OC»** con 9 slots en orden fijo, y el eje **artefacto vs. evento** como criterio que deriva la anatomía. Razón: los tres paneles divergían en 10 de 10 slots y las carpetas tienen que aterrizar en los tres; sin patrón común, el componente se implementa tres veces. Se unifica lo accidental (contador, buscador, alturas) y se documenta como regla lo semántico (fila, ancho, paginación).

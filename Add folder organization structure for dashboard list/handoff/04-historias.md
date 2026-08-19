@@ -1,7 +1,7 @@
 # User stories UX — Carpetas en la lista de tableros (SWAT-577)
 
 **Fecha:** 2026-08-03 · **actualizado el 2026-08-14** · **Audiencia:** diseño · FE · BE · QA
-**Base:** [`01-decisiones.md`](01-decisiones.md) · [`01-benchmark.md`](01-benchmark.md) (I1–I6) · [`04-userflows.md`](04-userflows.md) · [`../design.md`](../design.md)
+**Base:** [`01-decisiones.md`](../design-record/01-decisiones.md) · [`01-benchmark.md`](../design-record/02-benchmark.md) (I1–I6) · [`04-userflows.md`](03-flujos.md) · [`../design.md`](../design.md)
 
 > **🔄 Actualizado el 2026-08-14.** HU-01 a HU-08 se escribieron con **D2 = un solo nivel** y
 > **D10 = alcance transversal**. Ambas se revirtieron. Los cambios:
@@ -325,7 +325,7 @@ Carpeta de primer nivel — el caso de antes, ahora como particular:
 > borrara tableros. Ahora reparentar es **lógica de servicio en una transacción** (D6 revisada),
 > así que la garantía es **testeable, no estructural**. El test de que `count(*) FROM dashboards`
 > no cambia al eliminar carpetas de cada nivel pasa a ser **obligatorio**. Ver
-> [`07-handoff-be.md`](07-handoff-be.md) §3.
+> [`handoff/02-backend.md`](02-backend.md) §3.
 - [ ] Tras eliminar, los tableros aparecen en "Sin carpeta" y siguen abribles.
 - [ ] Si falla, el error se ve **dentro** del diálogo y nada se elimina.
 - [ ] El botón destructivo no es el foco por defecto al abrir el diálogo.

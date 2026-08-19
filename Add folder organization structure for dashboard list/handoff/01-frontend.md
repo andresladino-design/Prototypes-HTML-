@@ -5,8 +5,8 @@
 **Prototipo:** [`prototypes/index.html`](../prototypes/index.html) · baseline «antes»: [`prototypes/00-baseline-tableros.html`](../prototypes/00-baseline-tableros.html)
 **Forma de navegar:** **árbol in-place** (D16). El drill-down por niveles se descartó y se quitó del prototipo.
 
-Decisiones que gobiernan este documento: [`01-decisiones.md`](01-decisiones.md).
-Contrato de API: [`07-handoff-be.md`](07-handoff-be.md).
+Decisiones que gobiernan este documento: [`01-decisiones.md`](../design-record/01-decisiones.md).
+Contrato de API: [`handoff/02-backend.md`](02-backend.md).
 
 ---
 

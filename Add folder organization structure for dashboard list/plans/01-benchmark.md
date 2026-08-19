@@ -1,8 +1,8 @@
 # Etapa 1 — Benchmark acotado
 
 **Objetivo:** resolver las **6 preguntas de interacción** (I1–I6) con evidencia, dentro del modelo ya decidido.
-**Entregable:** `handoff/01-benchmark.md` con matriz comparativa + una recomendación por pregunta.
-**Precondiciones:** `handoff/00-exploracion-fe-be.md` ✅ · `handoff/01-decisiones.md` ✅ (D1–D7 cerradas)
+**Entregable:** `design-record/02-benchmark.md` con matriz comparativa + una recomendación por pregunta.
+**Precondiciones:** `design-record/03-exploracion-fe-be.md` ✅ · `design-record/01-decisiones.md` ✅ (D1–D7 cerradas)
 
 > **Cambio de foco respecto al plan original.** D1–D7 se cerraron el 2026-08-03 sin necesidad del benchmark
 > (la evidencia del propio issue y de los precedentes internos alcanzó). Esta etapa ya **no decide el modelo**:
@@ -70,7 +70,7 @@ Para cada uno: 1–2 screenshots en `handoff/assets/benchmark/` + la respuesta p
 
 ## 5. Definition of done
 
-- [ ] `handoff/01-benchmark.md` con la matriz I1–I6.
+- [ ] `design-record/02-benchmark.md` con la matriz I1–I6.
 - [ ] Screenshots en `handoff/assets/benchmark/`.
 - [ ] **I1–I6 cerradas**, cada una con razón y respaldo.
 - [ ] Inventario de copy reusable vs. copy nuevo.

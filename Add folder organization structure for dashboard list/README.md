@@ -21,7 +21,7 @@ el buscador exige recordar el nombre. Este proyecto diseña el mecanismo de **re
 
 > ⚠️ **El prototipo construye el árbol en cliente.** Producción pagina de 20 en 20 con orden y
 > búsqueda server-side, así que **no es implementable tal cual** — el contrato correcto está en
-> [`handoff/07-handoff-be.md`](handoff/07-handoff-be.md) (D15). Todo lo demás sí se replica.
+> [`handoff/02-backend.md`](handoff/02-backend.md) (D15). Todo lo demás sí se replica.
 >
 > ⚠️ **Parte de la mejora visual no es de este issue.** El truncado al medio y los botones de fila
 > en hover son un entregable aparte: [`../ancho-util-lista-tableros/`](../ancho-util-lista-tableros/).
@@ -30,7 +30,8 @@ el buscador exige recordar el nombre. Este proyecto diseña el mecanismo de **re
 
 ```
 plans/      → un plan por etapa (empezar por plans/00-indice.md)
-handoff/    → documentos para el equipo (exploración, decisiones, benchmark, handoff FE/BE)
+handoff/       → SOLO lo implementable. Entrada: handoff/00-spec.md
+design-record/ → el porqué: decisiones, benchmark, exploración, y lo descartado
 design.md   → sistema de diseño del prototipo, derivado de desyk
 design/     → tokens.css + tailwind.desyk.js extraídos de desyk
 prototypes/ → los HTML
@@ -41,18 +42,18 @@ prototypes/ → los HTML
 
 | # | Etapa | Entregable | Estado |
 |---|-------|-----------|--------|
-| 0 | Exploración FE / BE | `handoff/00-exploracion-fe-be.md` | ✅ |
-| 0.5 | Decisiones de modelo | `handoff/01-decisiones.md` (D1–D15) | ✅ |
-| 1 | Benchmark de interacción (I1–I6) | `handoff/01-benchmark.md` | ✅ |
+| 0 | Exploración FE / BE | `design-record/03-exploracion-fe-be.md` | ✅ |
+| 0.5 | Decisiones de modelo | `design-record/01-decisiones.md` (D1–D15) | ✅ |
+| 1 | Benchmark de interacción (I1–I6) | `design-record/02-benchmark.md` | ✅ |
 | 2 | Sistema de diseño desde desyk | `design.md` + `design/` | ✅ |
 | 3 | Vista espejo del panel actual | `prototypes/00-baseline-tableros.html` | ✅ |
-| 4 | User flows | `.ohana/flow.json` (**12 flows + sitemap**) + `handoff/04-userflows.md` | ✅ |
-| 5 | User stories UX | `handoff/05-user-stories.md` (11 historias + revisión heurística) | ✅ |
+| 4 | User flows | `.ohana/flow.json` (**12 flows + sitemap**) + `handoff/03-flujos.md` | ✅ |
+| 5 | User stories UX | `handoff/04-historias.md` (11 historias + revisión heurística) | ✅ |
 | 6 | Prototipo con carpetas | `prototypes/index.html` (A/B + antes/después) | ✅ |
 | 6.6 | Anidamiento de 3 niveles | árbol, mover carpeta, ciclos, tope | ✅ |
 | 6.7 | Secciones colapsables | las 4 del panel, persistidas | ✅ |
 | ~~6.5~~ | ~~Alcance transversal (D10)~~ | ⛔ descartado — se conserva como registro | — |
-| 7 | Handoff FE + BE | `handoff/07-handoff-fe.md` · `07-handoff-be.md` · `07-antes-despues.md` | ✅ falta capturas |
+| 7 | Handoff FE + BE | `handoff/01-frontend.md` · `handoff/02-backend.md` · `handoff/05-antes-despues.md` | ✅ falta capturas |
 | 8 | Tickets en Linear | sub-issues de SWAT-577 | ⬜ |
 
 ## Decisiones tomadas
@@ -71,7 +72,7 @@ feature no lo afectó. Anomalías y Pendientes quedan fuera.
 se truncan, así que el anidamiento solo funciona con indentación de **12px** por nivel, **truncado
 al medio** y **tope de 3**. Peor caso: 158px para una carpeta de nivel 3. Ver D2.
 
-Detalle y razones en [`handoff/01-decisiones.md`](handoff/01-decisiones.md).
+Detalle y razones en [`design-record/01-decisiones.md`](design-record/01-decisiones.md).
 
 
 ---
@@ -124,7 +125,7 @@ Tailwind CSS (CDN) · Alpine.js · Lucide Icons · tokens de desyk (`design/toke
 
 ### 2026-08-04 — benchmark y flujos del alcance transversal
 > ⛔ *Revertido el 2026-08-14 (D10). Se conserva como registro de lo que se exploró.*
-- **Benchmark transversal** (`handoff/02-benchmark-transversal.md`): el modelo de D10 es el **patrón dominante**. Grafana mete dashboards y reglas de alerta en la misma carpeta y la navega **con tabs por tipo**; Metabase hace que los eventos de una timeline aparezcan solos en los gráficos de su colección (**herencia por co-locación**); Datadog usa tags en vez de carpetas para monitores (el contrafactual). **Nadie obliga a archivar eventos a mano.**
+- **Benchmark transversal** (`design-record/descartado/benchmark-transversal.md`): el modelo de D10 es el **patrón dominante**. Grafana mete dashboards y reglas de alerta en la misma carpeta y la navega **con tabs por tipo**; Metabase hace que los eventos de una timeline aparezcan solos en los gráficos de su colección (**herencia por co-locación**); Datadog usa tags en vez de carpetas para monitores (el contrafactual). **Nadie obliga a archivar eventos a mano.**
 - Cierra **SD-1** (no archivar incidentes a mano), **SD-2** (filtro antes que agrupación), **SD-3** (el filtro guardado sí puede incluir carpeta — `filters` es JSONB, sin migración), **SD-5** ("carpeta" se mantiene: es el término de Grafana para esta mezcla) y **SD-6**.
 - Flujos nuevos: **F9** (una carpeta con tableros y datasets, con el contador por vista y el copy destructivo por entidad) y **F10** (anomalías de una carpeta por herencia). F1–F8 quedan marcados como **agnósticos de la entidad**. Sitemap ampliado a las cuatro vistas.
 

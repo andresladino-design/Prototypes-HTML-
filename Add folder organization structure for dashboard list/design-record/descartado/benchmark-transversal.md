@@ -7,13 +7,13 @@
 > panel (D11, los 9 slots)**: describe la anatomía real del panel de Tableros y dónde entra
 > el slot 7, que es lo que agrega este feature.
 >
-> **No usar como fuente para implementar.** Ver [`01-decisiones.md`](01-decisiones.md) § D10.
+> **No usar como fuente para implementar.** Ver [`01-decisiones.md`](../01-decisiones.md) § D10.
 
 # Benchmark — organización transversal a varias entidades
 
 **Fecha:** 2026-08-04
 **Pregunta de fondo:** cuando un producto tiene que organizar **varios tipos de contenido** (tableros, datasets, alertas, eventos), ¿usa un solo namespace de carpetas o uno por tipo? ¿Y qué hace con las cosas que **llegan solas**?
-**Complementa:** [`01-benchmark.md`](01-benchmark.md) (interacción, I1–I6) · [`06-organizacion-transversal.md`](06-organizacion-transversal.md) (el modelo elegido)
+**Complementa:** [`02-benchmark.md`](../02-benchmark.md) (interacción, I1–I6) · [`organizacion-transversal.md`](organizacion-transversal.md) (el modelo elegido)
 
 ---
 
