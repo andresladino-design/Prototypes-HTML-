@@ -1,7 +1,8 @@
 # User flows — Carpetas en la lista de tableros (SWAT-577)
 
 **Fecha:** 2026-08-03 · **reescrito el 2026-08-14** · **actualizado el 2026-08-19 (D17 · D18 · D20)**
-**Boards en Moka:** `.ohana/flow.json` — 13 user flows + 1 sitemap · todos enlazados al prototipo
+**13 user flows + 1 sitemap.** Cada uno está **escrito completo acá**: la secuencia de pasos, las
+decisiones y sus ramas. **No hace falta abrir nada más para implementarlos.**
 **Decisiones que los gobiernan:** [`01-decisiones.md`](../design-record/01-decisiones.md) · [`01-benchmark.md`](../design-record/02-benchmark.md) (I1–I6)
 
 > **🔄 Reescrito el 2026-08-14.** Dos reversiones cambiaron el set de flujos:
@@ -50,8 +51,18 @@ entra igual en los cuatro flujos que alteran una carpeta.
 
 ### F9 — Crear una subcarpeta
 
-`Panel` → `⋮ de la carpeta` → `Nueva subcarpeta` → **paso 1** elegir tableros → **paso 2**
-nombre con `Dentro de: Adquirencia / Visa` → decisión **¿nombre único entre hermanas?**
+```
+Inicio → Panel · «Visa» existe dentro de «Adquirencia» ⟨page⟩
+       → Menú ⋮ de la carpeta ⟨modal⟩ ──Nueva subcarpeta──▶
+         Paso 1 · Elige los tableros ⟨dialog⟩ ──Siguiente──▶
+         Paso 2 · Ponle nombre · «Dentro de: Adquirencia / Visa» ⟨dialog⟩
+       → ¿Nombre único ENTRE HERMANAS? ─Sí→ Subcarpeta creada · se abre toda la
+                                      │     cadena de ancestros y se revela → Fin
+                                      └No→ Error inline · 409 ⟨dialog⟩ ⤸ vuelve al paso 2
+
+rama del tope:
+       Carpeta ya en el nivel 3 → «Nueva subcarpeta» DESHABILITADA con etiqueta «máx 3» → Fin
+```
 
 - La decisión **no** es «¿nombre único?» sino **«¿único entre hermanas?»** — `Adquirencia / 2026`
   y `Cierre contable / 2026` conviven (D2, consecuencia 4).
@@ -60,8 +71,20 @@ nombre con `Dentro de: Adquirencia / Visa` → decisión **¿nombre único entre
 
 ### F10 — Mover una carpeta a otra
 
-`Panel` → `⋮` → `Mover carpeta a…` → diálogo con **árbol de destinos y ruta** → decisión
-**¿el destino cuelga de la propia carpeta?**
+```
+Inicio → Panel · con el árbol ⟨page⟩
+       → Menú ⋮ de la carpeta ⟨modal⟩ ──Mover carpeta a…──▶
+         Selector · ÁRBOL de destinos con ruta ⟨dialog⟩
+             · el subárbol propio NO se lista        (guarda de ciclos)
+             · los destinos que superarían 3 niveles NO se listan
+             · incluye «Primer nivel (sin carpeta madre)»
+       → ¿Eligió un destino? ─Sí→ Carpeta movida · se revela en su nueva ruta
+                             │    + toast con «Deshacer» → Fin
+                             └No→ Cancela · nada cambia → Fin
+
+rama de permiso (D20):
+       No sos el autor → «Mover carpeta a…» DESHABILITADO + motivo al pie del menú → Fin
+```
 
 - La rama negativa es **«no ofrecido»**, no «error»: el subárbol propio simplemente **no aparece**
   en la lista. Prevenir por ausencia en vez de dejar elegir y después fallar.
@@ -74,7 +97,17 @@ nombre con `Dentro de: Adquirencia / Visa` → decisión **¿nombre único entre
 
 ### F11 — Eliminar una carpeta con subcarpetas
 
-`Panel` → `⋮` → `Eliminar carpeta` → alert dialog → decisión **¿confirma?**
+```
+Inicio → Panel · «Visa» tiene hija «Contracargos» y tableros propios ⟨page⟩
+       → Menú ⋮ de la carpeta ⟨modal⟩ ──Eliminar carpeta──▶
+         AlertDialog · «Sus 8 tableros y 1 subcarpeta suben a Adquirencia» ⟨dialog⟩
+       → ¿Confirma? ─Sí→ Carpeta disuelta · el contenido sube UN nivel, no a la raíz
+                    │    + toast con «Deshacer» → Fin
+                    └No→ Cancela · nada cambia → Fin
+
+rama de permiso (D20):
+       No sos el autor → «Eliminar carpeta» DESHABILITADO + motivo al pie del menú → Fin
+```
 
 - El punto del flujo es el copy: **«Sus 8 tableros y 1 subcarpeta suben a "Adquirencia"»**.
   No a la raíz (D6 revisada).
@@ -84,8 +117,18 @@ nombre con `Dentro de: Adquirencia / Visa` → decisión **¿nombre único entre
 
 ### F12 — Colapsar las secciones del panel
 
-`59 filas` → colapsar Pendientes y Favoritos → `46` → colapsar Sin carpeta → `26` →
-recargar → **el estado persiste**.
+```
+Inicio → Panel · las 4 secciones abiertas · 59 filas visibles ⟨page⟩
+       → Colapsa «Configuraciones pendientes» y «Favoritos» → 46 filas ⟨page⟩
+       → Colapsa «Sin carpeta» → 26 filas ⟨page⟩
+       → Recarga la página
+       → ¿Había secciones colapsadas? ─Sí→ Vuelven colapsadas → Fin
+                                      └No→ Todas abiertas · es el default → Fin
+
+durante la búsqueda:
+       «Tableros» pasa a ser «Resultados» → el toggle se DESHABILITA y el chevron se oculta
+       (ahí no es una sección, es el resultado de una consulta)
+```
 
 - Los números son los del prototipo, no estimaciones.
 - Cierra el hallazgo #3 del benchmark: colapsar carpetas no alcanzaba, colapsar **secciones** sí mueve la aguja.
@@ -368,13 +411,16 @@ sirve como control de que el feature no lo afectó. Anomalías y Pendientes qued
 - **Reasignar la autoría** de una carpeta (F13 la deja actuar, no cambiar de dueño).
 - **El ancho útil de la fila** (truncado al medio, botones en hover) — es un issue aparte: [`ancho-util-lista-tableros/`](../../ancho-util-lista-tableros/). El prototipo lo tiene activo, así que no todo lo que se ve ahí lo entregan estos flujos. **Y D17 (el ancho del panel) es la tercera palanca del mismo issue**, aunque F7 la muestre.
 
-## ⚠️ Estado del board vs. este documento
+## Sobre el board de Moka
 
-**Este documento está actualizado; el `flow.json` de Moka, al 2026-08-19, todavía no.**
+**Este archivo es la fuente. El board es una comodidad local, no un requisito.**
 
-Los boards viven en `.ohana/flow.json`, que está en el `.gitignore` (`**/.ohana/`), así que
-**el board no viaja al repositorio** — este archivo es la fuente que el equipo consume. Cuando
-se sincronice el board, lo que hay que agregar es:
+Los boards viven en `.ohana/flow.json`, que está en el `.gitignore` (`**/.ohana/`): **no viajan al
+repositorio y nadie del equipo los va a ver.** Por eso los 13 flujos están escritos completos
+acá, con su diagrama — leer este archivo alcanza para implementar.
+
+Al 2026-08-19 el board está **desactualizado** respecto de este documento. Si alguien lo
+sincroniza, lo que le falta es:
 
 | Flujo | Qué falta en el board |
 |---|---|
@@ -382,7 +428,7 @@ se sincronice el board, lo que hay que agregar es:
 | F7 | El paso de redimensionar el panel |
 | F13 | El flujo completo (7 nodos) |
 
-Ninguna de esas ediciones cambia lo que dice este doc, que ya las describe.
+**No bloquea nada.** Ninguna de esas ediciones cambiaría lo que dice este documento.
 
 ## Nota de proceso
 
