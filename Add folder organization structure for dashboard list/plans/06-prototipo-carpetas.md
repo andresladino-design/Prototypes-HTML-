@@ -13,7 +13,7 @@ La única diferencia debe ser la organización — así la demo aísla la variab
 
 ## 2. Las dos alternativas (A/B con switch, según la forma de trabajo del equipo)
 
-> **Ambas variantes comparten el modelo ya decidido** (`handoff/01-decisiones.md`): carpetas **por cuenta**,
+> **Ambas variantes comparten el modelo ya decidido** (`design-record/01-decisiones.md`): carpetas **por cuenta**,
 > **un solo nivel**, pertenencia **exclusiva**, eliminar **desagrupa**, mover por **menú + drag**.
 > El A/B no pone en juego el modelo: pone en juego **I2** (default de expansión) e **I4** (jerarquía visual y forma de navegar).
 

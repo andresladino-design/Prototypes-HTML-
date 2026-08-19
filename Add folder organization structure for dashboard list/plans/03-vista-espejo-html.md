@@ -16,7 +16,7 @@
 
 ## 1. Qué se replica, componente por componente
 
-Fuente: `fe-solutions-mf/src/oc/features/dashboards/` (rutas exactas en `handoff/00-exploracion-fe-be.md` §2).
+Fuente: `fe-solutions-mf/src/oc/features/dashboards/` (rutas exactas en `design-record/03-exploracion-fe-be.md` §2).
 
 ```
 Panel (ancho ~280 px, borde derecho, fondo --sidebar-background)

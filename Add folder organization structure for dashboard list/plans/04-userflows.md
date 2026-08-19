@@ -1,7 +1,7 @@
 # Etapa 4 — User flows en Moka
 
 **Objetivo:** definir cada tarea como un flujo lineal, verificable, de **una tarea a la vez** (criterio C7).
-**Entregables:** flows en `.ohana/flow.json` + `handoff/04-userflows.md` (narrativa + decisiones de interacción).
+**Entregables:** flows en `.ohana/flow.json` + `handoff/03-flujos.md` (narrativa + decisiones de interacción).
 **Precondición:** Etapas 1 y 2 cerradas.
 
 > Ya existe un flow vacío llamado **"Create folders in dashboards"** en `.ohana/flow.json` con una pantalla `P1`.
@@ -75,7 +75,7 @@ A resolver: **estado por defecto** (¿todas colapsadas, o recordar por usuario e
 3. Poblar la anatomía de las pantallas clave (panel, dialogs) con **secciones y componentes desyk** del `design.md`.
 4. Marcar los empty states con `variant:"empty"` (panel sin carpetas, carpeta vacía, búsqueda sin resultados).
 5. Layout automático y revisión visual: ningún cruce de líneas, ningún fan de conexiones.
-6. Escribir `handoff/04-userflows.md`: por flujo → objetivo, pasos, estados, decisiones de interacción tomadas, y qué queda por validar.
+6. Escribir `handoff/03-flujos.md`: por flujo → objetivo, pasos, estados, decisiones de interacción tomadas, y qué queda por validar.
 
 ## Definition of done
 
@@ -83,7 +83,7 @@ A resolver: **estado por defecto** (¿todas colapsadas, o recordar por usuario e
 - [ ] Cada `decision` con sus 2 salidas resueltas (verde/rojo) y reintentos con `dir:"back"`.
 - [ ] Empty states marcados como estado, no como pantalla.
 - [ ] Todas las pantallas usan solo componentes que existen en el `design.md`.
-- [ ] `handoff/04-userflows.md` cierra: disparador de "Nueva carpeta", exclusividad al mover, copy del diálogo destructivo, estado por defecto de expansión, comportamiento del sort y de la búsqueda.
+- [ ] `handoff/03-flujos.md` cierra: disparador de "Nueva carpeta", exclusividad al mover, copy del diálogo destructivo, estado por defecto de expansión, comportamiento del sort y de la búsqueda.
 
 ## Riesgos
 

@@ -2,7 +2,7 @@
 
 **Objetivo:** cerrar los hallazgos de la revisión del prototipo, en el orden en que
 no obliga a medir dos veces.
-**Entregables:** decisiones D17–D19 en `handoff/01-decisiones.md` · prototipo actualizado ·
+**Entregables:** decisiones D17–D19 en `design-record/01-decisiones.md` · prototipo actualizado ·
 `handoff/07-*` re-sincronizado **cuando** se confirmen los valores de ancho.
 **Precondición:** ninguna. **② bloqueaba a ③** (ver §Orden).
 
@@ -34,7 +34,7 @@ Haberlo resuelto primero es lo que dejó ③ decidido con un número en vez de u
 ```
 ② resize del panel  ──┬──▶ ③ quitar contador   ✅ quitado (el motivo era ancho,
                       │                          pero el pedido era quitarlo)
-                      └──▶ recalcular D2 · D13 · D16 · design.md · 07-handoff-fe
+                      └──▶ recalcular D2 · D13 · D16 · design.md · 01-frontend
                              ⏸ pendiente de que se confirmen los valores
 
 ① límites por carpeta ─── independiente
@@ -180,12 +180,12 @@ se recupera al reexpandir — ya resuelto reusando `restoreIfNoAutoCollapse`.
 Se hace en la **fase de cierre** de esta etapa, junto con los flujos, según el orden que pidió
 Andrés: primero terminar el feedback (④), después flujos y handoff.
 
-`handoff/01-decisiones.md` (D2 · D13 · D16) · `handoff/01-benchmark.md` (I4) · `design.md` ·
-`handoff/07-handoff-fe.md` §4 · la tabla de `ancho-util-lista-tableros/`.
+`design-record/01-decisiones.md` (D2 · D13 · D16) · `design-record/02-benchmark.md` (I4) · `design.md` ·
+`handoff/01-frontend.md` §4 · la tabla de `ancho-util-lista-tableros/`.
 
 ✅ **Hecho el 2026-08-19.** Re-sincronizados: `01-decisiones.md` (D2 · D13 · D16),
-`01-benchmark.md` (I4), `design.md`, `07-handoff-fe.md` (§4 + §4.a ancho + §4.b permisos),
-`07-handoff-be.md` (§6.b permisos + `created_by` en el response) y los dos docs de
+`design-record/02-benchmark.md` (I4), `design.md`, `handoff/01-frontend.md` (§4 + §4.a ancho + §4.b permisos),
+`handoff/02-backend.md` (§6.b permisos + `created_by` en el response) y los dos docs de
 `ancho-util-lista-tableros/` (entra como palanca **2.c**).
 
 El peor caso de D2 quedó corregido en los cuatro lugares donde estaba mal: son **45**
@@ -311,7 +311,7 @@ escrito por qué no se hizo, no solo que no se hizo.
       Etapa 7. La Etapa 9 arranca en rama propia desde `main`:
       `feat/swat-577-feedback-prototipo`.
       🔗 https://github.com/andresladino-design/Prototypes-HTML-/pull/54
-- [ ] **Capturas antes/después** de `handoff/07-antes-despues.md` §8 — lo único que queda
+- [ ] **Capturas antes/después** de `handoff/05-antes-despues.md` §8 — lo único que queda
       abierto de la Etapa 7.
 - [x] ~~**Push:** la credencial activa es `amladinon94-source` y da 403.~~ **Resuelto:**
       `gh auth switch --user andresladino-design`. Ojo, no es permanente — hay que

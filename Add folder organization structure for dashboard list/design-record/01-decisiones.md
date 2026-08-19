@@ -3,7 +3,7 @@
 **Fechas:** D1–D7 el 2026-08-03 (antes de prototipar) · **D8 y D9 el 2026-08-04, tras probar el prototipo**
 · **D2, D6 y D10 revisadas el 2026-08-14** · **D12–D15 abiertas el 2026-08-14**
 · **D17–D20 el 2026-08-18, desde el feedback del prototipo en Ohana (Etapa 9)**
-**Decidido por:** Andrés Ladino (UX) con la exploración técnica de [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md)
+**Decidido por:** Andrés Ladino (UX) con la exploración técnica de [`03-exploracion-fe-be.md`](03-exploracion-fe-be.md)
 **Estado:** cerradas, **menos D20**, que espera confirmación de BE. D17 quedó cerrada el
 2026-08-18 (mecanismo y valores confirmados). Cambiar D1 o D3 después de la Etapa 7 implica
 rehacer el modelo de BE.
@@ -129,7 +129,7 @@ y las consultas de subárbol son predecibles. Sin tope, todo eso queda abierto. 
 
 **Consecuencias:**
 
-1. **BE:** `parent_id` (self-FK) + `path` materializado. Ver [`07-handoff-be.md`](07-handoff-be.md).
+1. **BE:** `parent_id` (self-FK) + `path` materializado. Ver [`handoff/02-backend.md`](../handoff/02-backend.md).
 2. **Ciclos:** una carpeta no puede colgar de su propio subárbol → guarda por prefijo de `path`.
 3. **`MoveToFolderDialog` deja de ser una lista simple y pasa a ser un árbol con ruta** — con anidamiento puede haber tres carpetas llamadas «2026», y el nombre solo no alcanza.
 4. **Unicidad de nombre pasa a ser entre hermanas**, no global: `Adquirencia / 2026` y `Cierre contable / 2026` conviven (ver I6 y el gotcha de Postgres en el handoff de BE).
@@ -309,7 +309,7 @@ en la suite de BE, no opcional.
 5. El wizard (D8) deja de parametrizarse por entidad: siempre dice «Elige los tableros».
 6. **SD-1, SD-2, SD-7 y SD-8 quedan fuera de alcance** — todas eran del alcance transversal.
 7. Los flujos **F9 (tableros + datasets)** y **F10 (anomalías por carpeta)** se **borraron del board** de Moka. Sus números se reutilizaron para los flujos de anidamiento.
-8. `06-organizacion-transversal.md` y `02-benchmark-transversal.md` se **conservan como registro** de la exploración, marcados como descartados.
+8. Los dos documentos de `descartado/` se **conservan como registro** de la exploración, marcados como descartados.
 
 **Qué sobrevive del alcance transversal:** el **patrón de panel** (D11, los 9 slots) se derivó
 comparando los cuatro paneles del OC. Ese análisis sigue siendo válido y útil aunque el feature
@@ -323,7 +323,7 @@ ya no los toque: describe la anatomía real del panel de Tableros y dónde entra
 idea de membresía heredada si el alcance se reabre.*
 
 **Fecha:** 2026-08-04 · **Origen:** feedback al prototipo.
-**Detalle completo:** [`06-organizacion-transversal.md`](06-organizacion-transversal.md) *(descartado)*
+**Detalle completo:** [`descartado/organizacion-transversal.md`](descartado/organizacion-transversal.md) *(descartado)*
 
 **Qué pasó:** el feedback señaló que el contexto de SWAT-577 era más chico que el problema — *"lo que toca lograr es una organización para las diferentes entidades, principalmente tableros y datasets… deberíamos ver si lo hacemos de forma transversal, como ya lo hiciste para anomalías"*.
 
@@ -454,9 +454,9 @@ implementable.
 > es implementable tal cual**. Es el riesgo #1 del handoff: se ve implementable y no lo es.
 
 **Contrato:** carpetas completas sin paginar (son pocas, I5) + tableros paginados por carpeta,
-pedidos **al expandir**. Detalle en [`07-handoff-be.md`](07-handoff-be.md).
+pedidos **al expandir**. Detalle en [`handoff/02-backend.md`](../handoff/02-backend.md).
 
-**Nota:** este riesgo **ya estaba escrito** en [`00-exploracion-fe-be.md`](00-exploracion-fe-be.md) §5.1
+**Nota:** este riesgo **ya estaba escrito** en [`03-exploracion-fe-be.md`](03-exploracion-fe-be.md) §5.1
 desde el 2026-08-03. Se perdió de vista al diseñar el anidamiento. Queda como D15 para que no
 vuelva a pasar.
 
@@ -513,7 +513,7 @@ cualquiera de las dos.
 **Fecha:** 2026-08-18 · **Origen:** `cmt_mst640rv` de la revisión en Ohana ·
 **Estado: ✅ CERRADA el 2026-08-18.** Mecanismo decidido (arrastrar el borde, sombreando la
 franja del delta) y **los tres valores confirmados: 288 · 384 · 480.**
-Queda **re-sincronizar D2/D13/D16, I4, `design.md` y `07-handoff-fe` §4**.
+Queda **re-sincronizar D2/D13/D16, I4, `design.md` y `handoff/01-frontend.md` §4**.
 
 **Estado en producción, verificado:** el panel **no** es redimensionable. `w-72 min-w-72` fijo
 (`OcContentLayout.tsx:171`), sin handle ni preferencia de ancho.

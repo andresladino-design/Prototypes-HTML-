@@ -2,7 +2,7 @@
 
 **Issue:** [SWAT-577](https://linear.app/simetrik/issue/SWAT-577/enhancement-dashboards-add-folderorganization-structure-for-dashboard) · Backlog · High · Operation Center · Swat AI
 **Proyecto local:** `Add folder organization structure for dashboard list/`
-**Exploración técnica base:** [`handoff/00-exploracion-fe-be.md`](../handoff/00-exploracion-fe-be.md) ✅
+**Exploración técnica base:** [`design-record/03-exploracion-fe-be.md`](../design-record/03-exploracion-fe-be.md) ✅
 
 ---
 
@@ -48,21 +48,21 @@ el buscador exige **recordar** el nombre. Necesitamos un mecanismo de **reconoci
 
 | # | Etapa | Entregable | Estado |
 |---|-------|-----------|--------|
-| 0 | Exploración FE / BE | `handoff/00-exploracion-fe-be.md` | ✅ Hecha |
-| 0.5 | Decisiones de modelo (D1–D7) | `handoff/01-decisiones.md` | ✅ Cerradas · D2 y D6 revisadas |
-| 1 | [Benchmark acotado](01-benchmark.md) | `handoff/01-benchmark.md` — I1–I6 resueltas | ✅ Hecha · I4 revisada |
+| 0 | Exploración FE / BE | `design-record/03-exploracion-fe-be.md` | ✅ Hecha |
+| 0.5 | Decisiones de modelo (D1–D7) | `design-record/01-decisiones.md` | ✅ Cerradas · D2 y D6 revisadas |
+| 1 | [Benchmark acotado](../design-record/02-benchmark.md) | `design-record/02-benchmark.md` — I1–I6 resueltas | ✅ Hecha · I4 revisada |
 | 2 | [design.md desde desyk](02-design-md-desyk.md) | `design.md` + `design/tokens.css` + `design/tailwind.desyk.js` | ✅ Hecha |
 | 3 | [Vista espejo HTML del panel actual](03-vista-espejo-html.md) | `prototypes/00-baseline-tableros.html` | ✅ Hecha — falta revisión visual lado a lado |
-| 4 | [User flows en Moka](04-userflows.md) | flows + sitemap en `.ohana/flow.json` + `handoff/04-userflows.md` | ✅ Hecha · reescrita en 6.8 |
-| 5 | [User stories UX](05-user-stories.md) | `handoff/05-user-stories.md` — 8 historias + revisión heurística | ✅ Hecha — **desactualizada**, ver 7 |
+| 4 | [User flows en Moka](../handoff/03-flujos.md) | flows + sitemap en `.ohana/flow.json` + `handoff/03-flujos.md` | ✅ Hecha · reescrita en 6.8 |
+| 5 | [User stories UX](../handoff/04-historias.md) | `handoff/04-historias.md` — 8 historias + revisión heurística | ✅ Hecha — **desactualizada**, ver 7 |
 | 6 | [Prototipo HTML con carpetas](06-prototipo-carpetas.md) | `prototypes/index.html` (antes/después) | ✅ Hecha · **el A/B se cerró: ganó in-place (D16)** |
-| ~~6.5~~ | ~~Alcance transversal (D10)~~ | `handoff/06-organizacion-transversal.md` | ⛔ **Descartada** (D10 revisada) — se conserva como registro |
-| ~~6.5b~~ | ~~Benchmark transversal (T1–T6)~~ | `handoff/02-benchmark-transversal.md` | ⛔ **Descartada** — se conserva como registro |
+| ~~6.5~~ | ~~Alcance transversal (D10)~~ | `design-record/descartado/organizacion-transversal.md` | ⛔ **Descartada** (D10 revisada) — se conserva como registro |
+| ~~6.5b~~ | ~~Benchmark transversal (T1–T6)~~ | `design-record/descartado/benchmark-transversal.md` | ⛔ **Descartada** — se conserva como registro |
 | ~~6.5c~~ | ~~Flujos transversales F9, F10~~ | `.ohana/flow.json` | ⛔ **Revertida**: los flujos se borraron del board |
 | 6.6 | Anidamiento hasta 3 niveles en el prototipo | `prototypes/index.html` — árbol, mover carpeta, ciclos, tope | ✅ Hecha |
 | 6.7 | Secciones colapsables del panel | `prototypes/index.html` — Pendientes · Favoritos · Tableros · Sin carpeta | ✅ Hecha |
 | 6.8 | Flujos reescritos al alcance real | F9–F12 nuevos + F1/F5/F6/F7 + sitemap corregidos | ✅ Hecha |
-| 7 | [Handoff FE + BE](07-handoff-fe-be.md) | `handoff/07-handoff-fe.md` · `handoff/07-handoff-be.md` · `handoff/07-antes-despues.md` | ✅ Hecha — falta la revisión visual y las capturas |
+| 7 | [Handoff FE + BE](07-handoff-fe-be.md) | `handoff/01-frontend.md` · `handoff/02-backend.md` · `handoff/05-antes-despues.md` | ✅ Hecha — falta la revisión visual y las capturas |
 | 8 | [Tickets en Linear](08-linear.md) | sub-issues colgando de SWAT-577 | ⬜ |
 | **9** | [**Feedback del prototipo**](09-feedback-prototipo.md) | 5 hallazgos de la revisión en Ohana → D17–D20 | 🔄 **Feedback cerrado** — ②③④ resueltos, ①⑤ fuera. Falta re-sincronizar flujos y handoff |
 
@@ -73,7 +73,7 @@ La única que se puede adelantar en paralelo es la 3 (vista espejo), porque repl
 > server-side (D15), que no existía cuando se planeó. Lo que queda abierto de ella son
 > **las capturas antes/después** y la revisión visual contra el baseline.
 >
-> Antes de la Etapa 8 hay que revisar `handoff/05-user-stories.md`: se escribió con
+> Antes de la Etapa 8 hay que revisar `handoff/04-historias.md`: se escribió con
 > D2 = un nivel y D10 = transversal.
 >
 > **Y antes de la 8 va la [Etapa 9](09-feedback-prototipo.md):** la revisión del prototipo
@@ -91,7 +91,7 @@ La única que se puede adelantar en paralelo es la 3 (vista espejo), porque repl
 ## Decisiones de modelo
 
 Cerradas el 2026-08-03 · **D2, D6 y D10 revisadas el 2026-08-14**.
-Registro completo con razones y consecuencias: [`handoff/01-decisiones.md`](../handoff/01-decisiones.md)
+Registro completo con razones y consecuencias: [`design-record/01-decisiones.md`](../design-record/01-decisiones.md)
 
 | # | Decisión | Resultado |
 |---|----------|-----------|
@@ -136,7 +136,7 @@ Peor caso permitido hoy: **158px** para una carpeta de nivel 3, **166px** para u
 ## Decisiones de interacción
 
 Cerradas el 2026-08-03 · **I4 revisada el 2026-08-14**.
-Registro con evidencia: [`handoff/01-benchmark.md`](../handoff/01-benchmark.md)
+Registro con evidencia: [`design-record/02-benchmark.md`](../design-record/02-benchmark.md)
 
 | # | Resultado |
 |---|-----------|
@@ -158,8 +158,10 @@ Registro con evidencia: [`handoff/01-benchmark.md`](../handoff/01-benchmark.md)
 
 ## Convenciones del proyecto
 
-- Carpetas: `prototypes/` (HTML) · `plans/` (estos planes) · `handoff/` (docs para el repo/equipo) · `design/` + `design.md` (sistema de diseño) · `.ohana/` (flows de Moka).
+- Carpetas: `prototypes/` (HTML) · `plans/` (estos planes) · **`handoff/` (solo lo implementable — entrada: [`00-spec.md`](../handoff/00-spec.md))** · **`design-record/` (el porqué: decisiones, benchmark, exploración, descartados)** · `design/` + `design.md` (sistema de diseño) · `.ohana/` (flows de Moka).
+- **La separación `handoff/` vs `design-record/` es de audiencia:** quien implementa no debería leer 1.400 líneas de deliberación para encontrar la spec; quien quiere discutir una decisión necesita exactamente esas líneas. Hecha el 2026-08-19 con `/simetrik-ui handoff`.
 - Stack de prototipo: Tailwind CDN + Alpine.js + Lucide, tokens desyk vía `design/tokens.css`.
 - Idioma de la UI y los docs: español. Glosario Simetrik obligatorio (**tablero**, no "dashboard", en el copy de cara al usuario).
 - Demos con alternativas → switch A/B visible + nota para recoger feedback antes del handoff.
-- **Los planes `01`–`06` no se reescriben** cuando una decisión cambia: documentan cómo se llegó a lo que existe. Las revisiones se registran acá y en `handoff/01-decisiones.md`.
+- **Los planes `01`–`06` no se reescriben** cuando una decisión cambia: documentan cómo se llegó a lo que existe. Las revisiones se registran acá y en `design-record/01-decisiones.md`.
+- **El `handoff/` sí se re-sincroniza** siempre que una decisión cambia. Es la diferencia entre los dos directorios: uno es histórico, el otro tiene que describir el presente.

@@ -8,7 +8,7 @@
 > hereden la carpeta del recurso que monitorean, resuelta en query y no persistida) es una
 > idea que puede volver a servir si el alcance se reabre.
 >
-> **No usar como fuente para implementar.** Ver [`01-decisiones.md`](01-decisiones.md) § D10.
+> **No usar como fuente para implementar.** Ver [`01-decisiones.md`](../01-decisiones.md) § D10.
 
 # Organización transversal — carpetas para las cuatro entidades del OC
 

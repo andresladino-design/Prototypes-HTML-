@@ -1,7 +1,7 @@
 # Etapa 7 — Handoff FE + BE
 
 **Objetivo:** que FE y BE puedan estimar e implementar sin volver a preguntar el "qué", y que el "antes → después" quede enumerado contra producción.
-**Entregables:** `handoff/07-handoff-fe.md` · `handoff/07-handoff-be.md` · `handoff/07-antes-despues.md`
+**Entregables:** `handoff/01-frontend.md` · `handoff/02-backend.md` · `handoff/05-antes-despues.md`
 **Precondición:** Etapas 5 (historias) y 6 (prototipo).
 
 > **Actualizado el 2026-08-14** tras revisar `op-center-backend` @ `8cc5bc3b` y
@@ -32,7 +32,7 @@ lo hace posible; si no, BE lo inventa y FE lo descubre en integración.
 
 ---
 
-## 1. `handoff/07-antes-despues.md` — el diff contra producción
+## 1. `handoff/05-antes-despues.md` — el diff contra producción
 
 Convención del equipo: los cambios se enumeran contra el **estado real de producción** (`fe-solutions-mf` @ `8aebc1879`), no contra una versión idealizada.
 
@@ -52,7 +52,7 @@ Cada fila con captura antes/después del prototipo.
 
 ---
 
-## 2. `handoff/07-handoff-be.md`
+## 2. `handoff/02-backend.md`
 
 ### Modelo — con anidamiento (D2)
 
@@ -159,7 +159,7 @@ y van completas; los tableros son muchos y van paginados por carpeta.**
 
 ---
 
-## 3. `handoff/07-handoff-fe.md`
+## 3. `handoff/01-frontend.md`
 
 ### Componentes nuevos
 
@@ -212,7 +212,7 @@ Borrador de la ayuda: qué es una carpeta, cómo crear una subcarpeta, cómo mov
 ## 5. Definition of done
 
 - [ ] Los 3 documentos escritos, con capturas del prototipo.
-- [ ] `07-antes-despues.md` enumera cada cambio contra archivos reales de producción.
+- [ ] `handoff/05-antes-despues.md` enumera cada cambio contra archivos reales de producción.
 - [ ] Contrato de API completo: rutas, payloads, códigos de error, y **D15 resuelta en el documento**, no delegada.
 - [ ] Modelo con `parent_id` + `path`, los dos índices parciales, y el `CHECK` de profundidad.
 - [ ] Reparentado de D6 especificado como transacción, no como FK.

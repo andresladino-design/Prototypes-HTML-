@@ -4,7 +4,7 @@
 **Alcance:** solo Tableros (D10). Datasets, Anomalías y Pendientes **no se tocan**.
 **Campo verde:** `grep -ril folder apps/ migrations/` → 0 resultados. No hay nada que migrar.
 
-Decisiones que gobiernan este documento: [`01-decisiones.md`](01-decisiones.md) — en
+Decisiones que gobiernan este documento: [`01-decisiones.md`](../design-record/01-decisiones.md) — en
 particular **D1** (scope de cuenta), **D2** (3 niveles), **D3** (pertenencia exclusiva),
 **D6** (eliminar disuelve un nivel) y **D15** (agrupamiento server-side).
 
