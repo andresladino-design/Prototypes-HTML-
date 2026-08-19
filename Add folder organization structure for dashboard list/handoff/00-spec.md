@@ -14,6 +14,7 @@
 > | [`03-flujos.md`](03-flujos.md) | Los 13 user flows con sus ramas |
 > | [`04-historias.md`](04-historias.md) | Historias y criterios de aceptación |
 > | [`05-antes-despues.md`](05-antes-despues.md) | Diff contra producción |
+> | [`06-plan-panel-ancho.md`](06-plan-panel-ancho.md) | **Plan de D17** · resuelve H1, y tiene una decisión pendiente |
 >
 > El **porqué** de cada decisión no vive acá: está en [`../design-record/`](../design-record/).
 > Si vas a discutir una decisión, empezá por [`01-decisiones.md`](../design-record/01-decisiones.md).
@@ -63,7 +64,7 @@ Ocho historias con criterios de aceptación en [`04-historias.md`](04-historias.
 
 | Elemento de la UI | Componente desyk | Notas |
 |---|---|---|
-| Panel lateral | `Sidebar` (ya existe) | `OcContentLayout.tsx` — se le agrega ancho variable, ver §7 |
+| Panel lateral | **`Panel`** (`variant="collapsible"`) | ⚠️ hoy es un `<aside>` a mano en `OcContentLayout.tsx:171`. **Hay que migrarlo** — ver [`06-plan-panel-ancho.md`](06-plan-panel-ancho.md) |
 | Secciones colapsables | `Collapsible` | Las 4: Pendientes · Favoritos · Tableros · Sin carpeta |
 | Fila de carpeta | composición propia sobre `Button variant="ghost"` | icono `Folder`/`FolderOpen` + nombre. **Sin chevron** (D13), **sin contador** (D18) |
 | Menú de la fila | `DropdownMenu` | Disparador `⋮`, visible en hover/focus |
@@ -77,7 +78,7 @@ Ocho historias con criterios de aceptación en [`04-historias.md`](04-historias.
 | Carga | `Skeleton` | **Nunca spinner** |
 | Sin carpetas | `EmptyState` | Con CTA, ver §5 |
 | Contadores de sección | `Badge` | Solo de **sección**; la fila de carpeta no lleva |
-| Handle de ancho | convenciones de `Resizable` | ver §7 y hallazgo **H1** |
+| Handle de ancho | composición propia sobre el borde del `Panel` | **No `Resizable`** — desyk lo prohíbe para paneles laterales. Sigue sus convenciones de handle (8px, doble click) |
 
 ## 5. Estados
 
@@ -142,16 +143,18 @@ canon a favor de la consistencia con producción.
 ### El gesto de redimensionar (D17)
 
 - **Handle en el borde derecho**, hit area de **8px** (mínimo desyk), visualmente sutil.
-- **Snap a tres anchos fijos**: 288 (`sm`, default) · 384 (`md`) · 480 (`lg`).
+- **Snap a los tres tamaños del `Panel`**: `M` (default) · `L` · `XL`. ⚠️ **Los valores están en
+  discusión:** desyk los define en porcentajes (20/30/40%) y esta feature necesita píxeles fijos
+  (288/384/480). Es la decisión pendiente de [`06-plan-panel-ancho.md`](06-plan-panel-ancho.md) §4.
 - **El panel NO sigue al cursor.** Durante el arrastre se sombrea **solo la franja que se gana o
   se devuelve**, con una línea de 2px en el borde destino y las tres paradas marcadas en 1px.
   Sombrear el panel entero taparía la lista que el usuario está leyendo.
-- **Sin rótulo `S`/`M`/`L`:** es vocabulario de diseñador, no le dice al usuario hasta dónde va a
-  llegar el panel.
+- **Sin rótulo `M`/`L`/`XL`:** es vocabulario de diseñador, no le dice al usuario hasta dónde va
+  a llegar el panel.
 - **`user-select: none`** en `body` durante el arrastre, o el gesto va seleccionando nombres.
 - **Teclado:** `role="separator"` + `aria-valuenow/min/max`, flechas ←/→, `Home`/`End`.
 - **Doble click en el handle → vuelve al default** (288) en 200ms `ease-out`. Convención desyk.
-- **Persistencia:** `oc_sidebar_width`, clave propia. **No unificar** con `oc_sidebar_collapsed`.
+- **Persistencia:** `oc_panel_size`, clave propia. **No unificar** con `oc_sidebar_collapsed`.
 - **Colapso automático:** reusar `restoreIfNoAutoCollapse` (`OcContentLayout.tsx:86`). **Gana el
   colapso**, y al reexpandir se recupera el tamaño elegido. No inventar mecanismo.
 
@@ -264,8 +267,8 @@ Corrida con `/simetrik-ui handoff` el 2026-08-19.
 
 | # | Hallazgo | Severidad |
 |---|---|---|
-| **H1** | **desyk dice «Sidebar fija con ancho del producto → `Sidebar`, NO `Resizable` simulando sidebar».** D17 hace redimensionable el panel, así que hay tensión con esa regla. El argumento a favor: no estamos *simulando* un sidebar con `Resizable`, estamos dando ancho variable a uno que ya existe, y los nombres reales de 45 caracteres no caben en 240px. **Hay que decidirlo explícitamente con FE o lo van a frenar en review.** | 🔴 |
-| **H2** | **Faltaba el doble click en el handle para volver al default.** Es convención desyk. Ya está incorporado en §7, falta en el prototipo. | 🟡 |
+| **H1** | ✅ **RESUELTO** en [`06-plan-panel-ancho.md`](06-plan-panel-ancho.md). La premisa estaba mal: el panel de Tableros **no es un `Sidebar`** (esa regla habla del nav primario), es un **`Panel`**. Y desyk ya trae `Panel` con tres tamaños, colapso y riel — no hay que construir nada, hay que **migrar**. **Pero apareció algo más grande:** los tamaños de `Panel` son **porcentajes**, y a 1440px `M` daría **141px** de nombre contra los 202px de hoy. Decisión pendiente en §4 del plan. | 🔴→⚠️ |
+| **H2** | ✅ Incorporado a §7 y a la Fase 3 del plan. Falta en el prototipo. | 🟡 |
 | **H3** | **`duration-150` y `duration-100` no son canon** (120/200/320). El prototipo usa 150 en seis lugares y 100 en dos. Corregir a 120 al implementar. | 🟡 |
 | **H4** | **El wizard de crear es un `Dialog`, y por el árbol de overlays debería ser `Sheet`.** `Dialog` es para «tarea modal corta, 1–3 inputs». El wizard tiene dos pasos y multi-selección sobre 155 tableros — y además el usuario está eligiendo *de la lista que queda detrás*, que es el caso de uso de `Sheet`. | 🟡 |
 | **H5** | **`MoveToFolderDialog` con árbol de destinos, mismo caso que H4.** Es un picker sustantivo, no 1–3 inputs. | 🟡 |
@@ -289,4 +292,5 @@ decisiones cerradas. Quedan como recomendación del skill para revisar, no como 
 - [ ] Fila de 32px · indentación de 12px · handle de 8px
 - [ ] `created_by` y `can_manage` en el response del BE (**bloqueante**)
 - [ ] Validación de permisos en el endpoint, no solo en la vista (**bloqueante**)
-- [ ] **H1 resuelto** con FE antes de implementar el resize
+- [ ] **Migrado a `Panel`** (Fase 1 del plan) sin cambio visible
+- [ ] **La decisión de §4 del plan tomada** — porcentajes vs fijos — antes de la Fase 2
