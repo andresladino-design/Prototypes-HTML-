@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cómo se llega al tablero de Contracargos · Opción A y B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root{
+    --background:0 0% 100%; --foreground:240 6% 10%;
+    --card:0 0% 100%; --primary:240 94% 60%; --primary-foreground:0 0% 98%;
+    --secondary:240 5% 96%; --muted:240 5% 96%; --muted-foreground:0 0% 55%;
+    --accent:240 5% 96%; --border:0 0% 85%; --input:0 0% 85%; --ring:221 83% 63%;
+    --success:138 76% 36%; --warning:41 96% 40%; --info:221 83% 53%; --destructive:360 72% 51%;
+    --radius:0.5rem;
+    --sidebar-background:0 0% 98%; --sidebar-foreground:240 5% 26%;
+    --sidebar-accent:240 6% 96%; --sidebar-border:240 6% 90%;
+    --ai-purple:280 100% 61%; --ai-blue:222 97% 66%;
+    --ai-gray-primary:228 33% 96%; --ai-gray-secondary:224 33% 91%;
+    --chart-1:222 83% 69%; --chart-2:264 92% 70%; --chart-3:161 70% 67%; --chart-4:127 52% 62%;
+    --chart-5:201 82% 74%; --chart-6:34 90% 69%;
+  }
+  html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif}
+  body{background:hsl(240 5% 92%);color:hsl(var(--foreground));-webkit-font-smoothing:antialiased}
+  .tnum{font-variant-numeric:tabular-nums}
+  .ai-block{background:hsl(var(--ai-gray-primary));position:relative;border-radius:var(--radius)}
+  .ai-block::before{content:"";position:absolute;inset:0;border-radius:var(--radius);padding:1px;
+    background:linear-gradient(90deg,hsl(var(--ai-purple)/.35),hsl(var(--ai-blue)/.35));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  [x-cloak]{display:none!important}
+  .fade{animation:f .32s ease-out both}
+  @keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+<script>
+tailwind.config={theme:{extend:{
+  fontFamily:{sans:['Inter','ui-sans-serif','system-ui','sans-serif']},
+  colors:{background:'hsl(var(--background))',foreground:'hsl(var(--foreground))',card:'hsl(var(--card))',
+    primary:'hsl(var(--primary))','primary-foreground':'hsl(var(--primary-foreground))',
+    secondary:'hsl(var(--secondary))',muted:'hsl(var(--muted))','muted-foreground':'hsl(var(--muted-foreground))',
+    accent:'hsl(var(--accent))',border:'hsl(var(--border))',success:'hsl(var(--success))',
+    warning:'hsl(var(--warning))',info:'hsl(var(--info))',destructive:'hsl(var(--destructive))',
+    sidebar:'hsl(var(--sidebar-background))','sidebar-fg':'hsl(var(--sidebar-foreground))',
+    'sidebar-accent':'hsl(var(--sidebar-accent))','sidebar-border':'hsl(var(--sidebar-border))',
+    c1:'hsl(var(--chart-1))',c2:'hsl(var(--chart-2))',c3:'hsl(var(--chart-3))',c4:'hsl(var(--chart-4))',
+    c5:'hsl(var(--chart-5))',c6:'hsl(var(--chart-6))'},
+  borderRadius:{DEFAULT:'var(--radius)',lg:'var(--radius)',md:'calc(var(--radius) - 2px)'},
+}}}
+</script>
+</head>
+<body x-data="demo()" x-cloak class="min-h-screen">
+
+<!-- ═════ BARRA DE PRESENTACIÓN ═════ -->
+<header class="sticky top-0 z-40 border-b border-border bg-background">
+  <div class="flex flex-wrap items-center gap-4 px-6 py-3">
+    <div class="min-w-0">
+      <h1 class="text-sm font-semibold">Cómo llega el merchant al tablero de Contracargos</h1>
+      <p class="text-[11.5px] text-muted-foreground">Dos experiencias propuestas. Ambas terminan en el mismo tablero.</p>
+    </div>
+    <div class="ml-auto flex items-center gap-1 rounded-full bg-secondary p-1">
+      <template x-for="o in opciones" :key="o.id">
+        <button @click="ir(o.id,0)"
+          class="rounded-full px-4 py-1.5 text-xs font-medium transition-colors"
+          :class="opcion===o.id?'bg-background shadow-sm text-foreground':'text-muted-foreground hover:text-foreground'">
+          <span x-text="o.chip"></span>
+        </button>
+      </template>
+    </div>
+  </div>
+  <div class="flex items-center gap-3 border-t border-border bg-[hsl(var(--muted))] px-6 py-2 text-[11.5px]">
+    <i data-lucide="info" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+    <span class="text-muted-foreground">Prototipo demostrativo para recoger feedback. En el handoff queda <b class="font-medium text-foreground">una sola</b> de las dos.</span>
+    <a href="contracargos-merchant.html" class="ml-auto flex shrink-0 items-center gap-1 font-medium text-primary hover:underline">
+      Ver el tablero al que llegan<i data-lucide="arrow-right" class="h-3 w-3"></i>
+    </a>
+  </div>
+</header>
+
+<div class="mx-auto max-w-[1400px] px-6 py-5">
+
+  <!-- Encabezado de la opción -->
+  <div class="mb-4 flex flex-wrap items-start gap-4">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-lg font-semibold" x-text="op.titulo"></h2>
+      <p class="mt-0.5 max-w-3xl text-[13px] text-muted-foreground" x-text="op.bajada"></p>
+    </div>
+    <div class="flex shrink-0 gap-2">
+      <template x-for="t in op.tags" :key="t.l">
+        <span class="rounded-full px-2.5 py-1 text-[11px] font-medium" :class="t.c" x-text="t.l"></span>
+      </template>
+    </div>
+  </div>
+
+  <!-- Rail de pasos -->
+  <div class="mb-4 flex flex-wrap items-center gap-1.5">
+    <template x-for="(p,i) in op.pasos" :key="p.id">
+      <button @click="paso=i" class="group flex items-center gap-2">
+        <span class="flex items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-3 text-[11.5px] font-medium transition-colors"
+          :class="i===paso?'border-primary bg-primary text-primary-foreground'
+                 :i<paso?'border-border bg-background text-muted-foreground'
+                        :'border-dashed border-border bg-transparent text-muted-foreground'">
+          <span class="tnum grid h-5 w-5 place-items-center rounded-full text-[10px]"
+            :class="i===paso?'bg-primary-foreground/25':'bg-secondary'" x-text="i+1"></span>
+          <span x-text="p.nav"></span>
+        </span>
+        <i x-show="i<op.pasos.length-1" data-lucide="chevron-right" class="h-3.5 w-3.5 text-muted-foreground/50"></i>
+      </button>
+    </template>
+  </div>
+
+  <!-- ═════ CANVAS ═════ -->
+  <div class="overflow-hidden rounded-xl border border-border bg-background shadow-sm">
+    <!-- chrome del navegador -->
+    <div class="flex items-center gap-2 border-b border-border bg-[hsl(var(--muted))] px-3 py-2">
+      <span class="flex gap-1.5"><i class="h-2.5 w-2.5 rounded-full bg-border"></i><i class="h-2.5 w-2.5 rounded-full bg-border"></i><i class="h-2.5 w-2.5 rounded-full bg-border"></i></span>
+      <div class="ml-2 flex-1 truncate rounded bg-background px-2.5 py-1 text-[11px] text-muted-foreground" x-text="pasoActual.url"></div>
+    </div>
+
+    <div class="flex h-[620px]">
+      <!-- Sidebar del producto -->
+      <aside class="flex w-[190px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+        <div class="flex items-center gap-2 px-3 py-3">
+          <span class="grid h-5 w-5 place-items-center rounded bg-primary text-[10px] font-bold text-primary-foreground">S</span>
+          <span class="text-[13px] font-semibold">Simetrik</span>
+        </div>
+        <div class="mx-2 mb-3 flex items-center gap-2 rounded-md border border-sidebar-border bg-background px-2 py-1.5">
+          <span class="grid h-4 w-4 place-items-center rounded bg-c2/25 text-[9px] font-bold">R</span>
+          <span class="truncate text-[11px] font-medium">Rappi</span>
+        </div>
+        <nav class="space-y-0.5 px-2 text-xs text-sidebar-fg">
+          <template x-for="n in nav" :key="n.l">
+            <a class="flex items-center gap-2 rounded-md px-2 py-1.5"
+               :class="n.k===pasoActual.nav?'bg-sidebar-accent font-medium text-foreground':'hover:bg-sidebar-accent'">
+              <i :data-lucide="n.i" class="h-3.5 w-3.5"></i><span x-text="n.l"></span>
+            </a>
+          </template>
+        </nav>
+      </aside>
+
+      <!-- Pantalla -->
+      <div class="min-w-0 flex-1 overflow-y-auto" :key="opcion+paso">
+
+        <!-- ══════════ A1 · CATÁLOGO DEL MARKETPLACE ══════════ -->
+        <div x-show="es('a1')" class="fade">
+          <div class="border-b border-border px-6 py-4">
+            <h3 class="text-base font-semibold">Marketplace</h3>
+            <p class="text-[12px] text-muted-foreground">Controles listos para instalar en tu espacio de trabajo</p>
+          </div>
+          <div class="p-6">
+            <!-- Destacado: esto ya existe (Marketplace Manager · featured) -->
+            <div class="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <i data-lucide="star" class="h-3 w-3"></i>Destacado
+            </div>
+            <div class="mb-6 overflow-hidden rounded-lg border border-primary/30 bg-gradient-to-br from-primary/[0.05] to-transparent">
+              <div class="flex flex-wrap items-center gap-6 p-5">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="grid h-9 w-9 place-items-center rounded-lg bg-primary/10"><i data-lucide="shield-alert" class="h-5 w-5 text-primary"></i></span>
+                    <div>
+                      <h4 class="text-[15px] font-semibold">Contracargos</h4>
+                      <p class="text-[11.5px] text-muted-foreground">Template by Simetrik.inc · Marketplaces</p>
+                    </div>
+                  </div>
+                  <p class="mt-3 max-w-xl text-[13px] text-muted-foreground">
+                    Mira lo que te notificaron y lo que ya te debitaron, con la tasa contra los umbrales de Visa y Mastercard, las tarjetas por bloquear y la detección de doble débito.
+                  </p>
+                  <div class="mt-3 flex flex-wrap gap-1.5">
+                    <template x-for="c in ['Notificado y debitado','Umbral VAMP / ECM','Doble débito','Monitoreo incluido']" :key="c">
+                      <span class="rounded-full border border-border bg-background px-2 py-0.5 text-[11px]" x-text="c"></span>
+                    </template>
+                  </div>
+                </div>
+                <div class="shrink-0">
+                  <button @click="paso=1" class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground hover:bg-primary/90">
+                    Ver detalle<i data-lucide="arrow-right" class="h-4 w-4"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Todos los controles</div>
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <template x-for="t in catalogo" :key="t.n">
+                <div class="rounded-lg border border-border p-3.5 hover:bg-accent/40">
+                  <span class="grid h-7 w-7 place-items-center rounded-md bg-secondary"><i :data-lucide="t.i" class="h-4 w-4 text-muted-foreground"></i></span>
+                  <div class="mt-2.5 text-[13px] font-medium" x-text="t.n"></div>
+                  <div class="mt-0.5 text-[11.5px] text-muted-foreground" x-text="t.d"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ A2 · DETALLE DEL TEMPLATE ══════════ -->
+        <div x-show="es('a2')" class="fade">
+          <div class="flex items-center gap-2 border-b border-border px-6 py-3 text-[12px] text-muted-foreground">
+            <button @click="paso=0" class="hover:text-foreground">Marketplace</button>
+            <i data-lucide="chevron-right" class="h-3 w-3"></i><span class="text-foreground">Contracargos</span>
+          </div>
+          <div class="grid gap-6 p-6 lg:grid-cols-[1fr_320px]">
+            <div class="min-w-0 space-y-5">
+              <!-- Preview con mock data: patrón real del producto -->
+              <div>
+                <div class="mb-2 flex items-center justify-between">
+                  <h4 class="text-[13px] font-semibold">Vista previa</h4>
+                  <span class="rounded-full bg-secondary px-2 py-0.5 text-[10.5px] text-muted-foreground">Datos de ejemplo</span>
+                </div>
+                <div class="overflow-hidden rounded-lg border border-border">
+                  <div class="grid grid-cols-3 gap-px bg-border">
+                    <div class="bg-background p-3">
+                      <div class="text-[10.5px] text-muted-foreground">Debitado</div>
+                      <div class="tnum mt-1 text-lg font-semibold">$214.320</div>
+                    </div>
+                    <div class="bg-background p-3">
+                      <div class="text-[10.5px] text-muted-foreground">Notificado sin gestionar</div>
+                      <div class="tnum mt-1 text-lg font-semibold">$48.900</div>
+                    </div>
+                    <div class="bg-background p-3">
+                      <div class="text-[10.5px] text-muted-foreground">Tasa vs. umbral</div>
+                      <div class="tnum mt-1 text-lg font-semibold text-warning">1,42%</div>
+                    </div>
+                  </div>
+                  <div class="flex items-end gap-1 border-t border-border bg-background p-3" style="height:96px">
+                    <template x-for="(h,i) in [38,52,44,61,48,74,66,81,58,70,63,88]" :key="i">
+                      <div class="flex-1 rounded-t-[2px]" :class="i%3===0?'bg-warning/60':'bg-c1'" :style="`height:${h}%`"></div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 class="mb-2 text-[13px] font-semibold">Qué se instala</h4>
+                <div class="grid gap-2 sm:grid-cols-2">
+                  <template x-for="r in recursos" :key="r.n">
+                    <div class="flex items-start gap-2.5 rounded-lg border border-border p-2.5">
+                      <i :data-lucide="r.i" class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"></i>
+                      <div class="min-w-0">
+                        <div class="text-[12.5px] font-medium" x-text="r.n"></div>
+                        <div class="text-[11px] text-muted-foreground" x-text="r.d"></div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <div class="ai-block flex items-start gap-2.5 p-3.5 text-[12.5px]">
+                <i data-lucide="sparkles" class="mt-0.5 h-4 w-4 shrink-0" style="color:hsl(var(--ai-purple))"></i>
+                <div>
+                  <b class="font-semibold">El template trae su propio contexto.</b>
+                  <span class="text-muted-foreground"> Qué significa notificado y debitado, por qué importa el umbral de red y cómo se prioriza cada anomalía. Simetrik lo usa para explicarte el tablero cuando preguntes.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel de instalación -->
+            <aside class="space-y-3">
+              <div class="rounded-lg border border-border p-4">
+                <h4 class="text-[13px] font-semibold">Archivos que necesitas</h4>
+                <div class="mt-2.5 space-y-2">
+                  <template x-for="f in archivos" :key="f.n">
+                    <div class="flex items-center gap-2 text-[12px]">
+                      <i data-lucide="file-text" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+                      <span class="font-medium" x-text="f.n"></span>
+                      <span class="ml-auto rounded px-1.5 py-0.5 text-[10.5px] font-medium"
+                        :class="f.tiene?'bg-success/15 text-success':'bg-secondary text-muted-foreground'"
+                        x-text="f.tiene?'Ya la tienes':'Por cargar'"></span>
+                    </div>
+                  </template>
+                </div>
+                <p class="mt-3 border-t border-border pt-2.5 text-[11.5px] text-muted-foreground">
+                  Detectamos 2 de 3 fuentes ya conectadas en tu espacio de trabajo. Las puedes vincular sin subir nada.
+                </p>
+              </div>
+              <button @click="paso=2" class="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary text-[13px] font-medium text-primary-foreground hover:bg-primary/90">
+                <i data-lucide="download" class="h-4 w-4"></i>Instalar template
+              </button>
+              <p class="text-center text-[11px] text-muted-foreground">Se instala en <b class="font-medium text-foreground">Rappi</b></p>
+            </aside>
+          </div>
+        </div>
+
+        <!-- ══════════ A3 · INSTALANDO ══════════ -->
+        <div x-show="es('a3')" class="fade grid h-full place-items-center p-6">
+          <div class="w-full max-w-md text-center">
+            <div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary/10">
+              <i data-lucide="loader-circle" class="h-6 w-6 animate-spin text-primary"></i>
+            </div>
+            <h3 class="mt-4 text-[15px] font-semibold">Instalando Contracargos</h3>
+            <p class="mt-1 text-[12.5px] text-muted-foreground">Toma un momento. Te avisamos cuando esté listo, puedes seguir en otra cosa.</p>
+            <div class="mt-5 space-y-2 text-left">
+              <template x-for="(s,i) in instalacion" :key="s">
+                <div class="flex items-center gap-2.5 rounded-md border border-border px-3 py-2 text-[12.5px]">
+                  <i :data-lucide="i<3?'circle-check':'loader-circle'" class="h-4 w-4 shrink-0"
+                     :class="i<3?'text-success':'animate-spin text-muted-foreground'"></i>
+                  <span :class="i<3?'':'text-muted-foreground'" x-text="s"></span>
+                </div>
+              </template>
+            </div>
+            <button @click="paso=3" class="mt-5 h-9 rounded-md border border-border px-4 text-[13px] font-medium hover:bg-accent">Continuar</button>
+          </div>
+        </div>
+
+        <!-- ══════════ A4 · ATERRIZAJE EN EL OC ══════════ -->
+        <div x-show="es('a4')" class="fade">
+          <div x-html="shellOC('pendiente')"></div>
+        </div>
+
+        <!-- ══════════ A5 · VINCULAR FUENTES (swap) ══════════ -->
+        <div x-show="es('a5')" class="fade">
+          <div class="border-b border-border px-6 py-4">
+            <h3 class="text-base font-semibold">Fuentes de Contracargos</h3>
+            <p class="text-[12px] text-muted-foreground">Vincula cada fuente del template con un recurso tuyo, o carga el archivo</p>
+          </div>
+          <div class="space-y-3 p-6">
+            <template x-for="f in fuentes" :key="f.n">
+              <div class="rounded-lg border p-4" :class="f.estado==='vinculada'?'border-success/40 bg-success/[0.04]':'border-border'">
+                <div class="flex flex-wrap items-center gap-3">
+                  <i :data-lucide="f.estado==='vinculada'?'circle-check':'circle-dashed'" class="h-4 w-4 shrink-0"
+                     :class="f.estado==='vinculada'?'text-success':'text-muted-foreground'"></i>
+                  <div class="min-w-0">
+                    <div class="text-[13px] font-medium" x-text="f.n"></div>
+                    <div class="text-[11.5px] text-muted-foreground" x-text="f.cols"></div>
+                  </div>
+                  <div class="ml-auto flex items-center gap-2">
+                    <template x-if="f.estado==='vinculada'">
+                      <span class="flex items-center gap-1.5 text-[12px]">
+                        <span class="text-muted-foreground">Vinculada a</span>
+                        <span class="rounded bg-background px-2 py-1 font-medium tnum border border-border" x-text="f.recurso"></span>
+                      </span>
+                    </template>
+                    <template x-if="f.estado==='sugerida'">
+                      <div class="flex items-center gap-2">
+                        <span class="flex items-center gap-1.5 rounded-md px-2 py-1 text-[12px]" style="background:hsl(var(--ai-gray-primary))">
+                          <i data-lucide="sparkles" class="h-3 w-3" style="color:hsl(var(--ai-purple))"></i>
+                          Encontramos <b class="font-medium" x-text="f.recurso"></b>
+                        </span>
+                        <button @click="f.estado='vinculada'" class="h-8 rounded-md bg-primary px-3 text-[12px] font-medium text-primary-foreground">Vincular</button>
+                      </div>
+                    </template>
+                    <template x-if="f.estado==='falta'">
+                      <div class="flex gap-2">
+                        <button class="h-8 rounded-md border border-border px-3 text-[12px] font-medium hover:bg-accent">Elegir una fuente</button>
+                        <button class="h-8 rounded-md border border-border px-3 text-[12px] font-medium hover:bg-accent">Cargar archivo</button>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <div class="flex items-center gap-3 pt-1">
+              <p class="text-[12px] text-muted-foreground">
+                <b class="font-medium text-foreground" x-text="fuentes.filter(f=>f.estado==='vinculada').length + ' de ' + fuentes.length"></b> vinculadas.
+                Los gráficos se desbloquean a medida que llegan los datos.
+              </p>
+              <button @click="paso=5" class="ml-auto flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground">
+                Ver el tablero<i data-lucide="arrow-right" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ B1 · SUGERENCIA EN EL OC ══════════ -->
+        <div x-show="es('b1')" class="fade">
+          <div x-html="shellOC('sugerido')"></div>
+        </div>
+
+        <!-- ══════════ B2 · QUÉ DETECTAMOS ══════════ -->
+        <div x-show="es('b2')" class="fade">
+          <div class="border-b border-border px-6 py-4">
+            <div class="flex items-center gap-2">
+              <i data-lucide="sparkles" class="h-4 w-4" style="color:hsl(var(--ai-purple))"></i>
+              <h3 class="text-base font-semibold">Esto es lo que encontramos</h3>
+            </div>
+            <p class="mt-0.5 text-[12px] text-muted-foreground">Revisa la clasificación antes de armar el tablero. Puedes corregirla.</p>
+          </div>
+          <div class="space-y-4 p-6">
+            <div class="ai-block flex items-center gap-3 p-3.5 text-[12.5px]">
+              <i data-lucide="sparkles" class="h-4 w-4 shrink-0" style="color:hsl(var(--ai-purple))"></i>
+              <span>Clasificamos <b class="font-medium">3 de tus 9 recursos</b> como contracargos, con una confianza promedio del <b class="font-medium tnum">68%</b>. Los nombres de los otros 6 no son concluyentes.</span>
+            </div>
+            <div class="overflow-hidden rounded-lg border border-border">
+              <table class="w-full text-[12.5px]">
+                <thead class="border-b border-border bg-[hsl(var(--muted))]">
+                  <tr class="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <th class="px-4 py-2 font-medium">Recurso</th>
+                    <th class="px-3 py-2 font-medium">Lo leemos como</th>
+                    <th class="px-3 py-2 font-medium">Confianza</th>
+                    <th class="px-4 py-2 text-right font-medium">Corregir</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="d in detectados" :key="d.r">
+                    <tr class="border-b border-border last:border-0">
+                      <td class="px-4 py-2.5 font-medium" x-text="d.r"></td>
+                      <td class="px-3 py-2.5">
+                        <span class="rounded px-1.5 py-0.5 text-[11px] font-medium"
+                          :class="d.como==='No es contracargo'?'bg-secondary text-muted-foreground':'bg-primary/10 text-primary'"
+                          x-text="d.como"></span>
+                      </td>
+                      <td class="px-3 py-2.5">
+                        <div class="flex items-center gap-2">
+                          <div class="h-1.5 w-16 overflow-hidden rounded-full bg-secondary">
+                            <div class="h-full rounded-full" :style="`width:${d.conf}%;background:${d.conf>60?'hsl(var(--success))':'hsl(var(--warning))'}`"></div>
+                          </div>
+                          <span class="tnum text-[11px] text-muted-foreground" x-text="d.conf+'%'"></span>
+                        </div>
+                      </td>
+                      <td class="px-4 py-2.5 text-right">
+                        <button class="rounded-md border border-border px-2 py-1 text-[11px] hover:bg-accent">Cambiar</button>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <div class="flex items-center gap-3">
+              <p class="text-[12px] text-muted-foreground">Si algo está mal clasificado, corrígelo ahora o después desde el conjunto de datos.</p>
+              <button @click="paso=2" class="ml-auto flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground">
+                Armar el tablero<i data-lucide="arrow-right" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ A6 / B3 · TABLERO LISTO ══════════ -->
+        <div x-show="es('listo')" class="fade">
+          <div x-html="shellOC('listo')"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Pie: explicación del paso -->
+    <div class="flex flex-wrap items-center gap-4 border-t border-border bg-[hsl(var(--muted))] px-5 py-3">
+      <div class="min-w-0 flex-1">
+        <div class="text-[12.5px] font-semibold" x-text="pasoActual.titulo"></div>
+        <p class="mt-0.5 text-[12px] text-muted-foreground" x-text="pasoActual.nota"></p>
+      </div>
+      <div class="flex shrink-0 items-center gap-2">
+        <button @click="paso=Math.max(0,paso-1)" :disabled="paso===0"
+          class="flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-[12px] font-medium disabled:opacity-40">
+          <i data-lucide="chevron-left" class="h-3.5 w-3.5"></i>Atrás
+        </button>
+        <button @click="paso=Math.min(op.pasos.length-1,paso+1)" :disabled="paso===op.pasos.length-1"
+          class="flex h-8 items-center gap-1.5 rounded-md bg-foreground px-3 text-[12px] font-medium text-background disabled:opacity-40">
+          Siguiente<i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════ COMPARACIÓN ═════ -->
+  <div class="mt-6 grid gap-4 lg:grid-cols-2">
+    <template x-for="o in opciones" :key="o.id">
+      <div class="rounded-xl border bg-background p-5"
+           :class="opcion===o.id?'border-primary/40 ring-1 ring-primary/20':'border-border'">
+        <div class="flex items-center gap-2">
+          <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="o.id==='a'?'bg-primary/10 text-primary':'bg-c2/20 text-foreground'" x-text="o.chip"></span>
+          <h3 class="text-[13px] font-semibold" x-text="o.corto"></h3>
+          <button x-show="opcion!==o.id" @click="ir(o.id,0)" class="ml-auto text-[11.5px] font-medium text-primary hover:underline">Verla</button>
+        </div>
+        <dl class="mt-3.5 space-y-2.5 text-[12.5px]">
+          <template x-for="c in o.criterios" :key="c.k">
+            <div class="flex gap-3">
+              <dt class="w-32 shrink-0 text-muted-foreground" x-text="c.k"></dt>
+              <dd class="min-w-0"><span :class="c.cls" x-text="c.v"></span></dd>
+            </div>
+          </template>
+        </dl>
+        <p class="mt-3.5 border-t border-border pt-3 text-[12px]" x-html="o.veredicto"></p>
+      </div>
+    </template>
+  </div>
+
+  <!-- Recomendación -->
+  <div class="mt-4 rounded-xl border border-border bg-background p-5">
+    <h3 class="text-[13px] font-semibold">La recomendación</h3>
+    <p class="mt-2 max-w-4xl text-[13px] leading-relaxed text-muted-foreground">
+      <b class="font-medium text-foreground">Empezar por A, y que B venga después.</b>
+      Las dos terminan en el mismo tablero, así que la puerta se puede cambiar sin rehacer el contenido.
+      A no inventa nada: el template, el preview, la instalación y el destacado del catálogo ya están construidos.
+      B es mejor experiencia, tres pasos contra seis, pero exige un patrón de "sugerido" que hoy no existe en el Centro de operaciones y que nadie más ha pedido todavía.
+      Y una vez que A existe, B se vuelve barata: <b class="font-medium text-foreground">la sugerencia simplemente instala el template que ya está publicado.</b>
+    </p>
+    <div class="mt-4 rounded-lg border border-warning/40 bg-warning/[0.06] p-3.5">
+      <div class="flex items-start gap-2.5">
+        <i data-lucide="triangle-alert" class="mt-0.5 h-4 w-4 shrink-0 text-warning"></i>
+        <div class="text-[12.5px]">
+          <b class="font-semibold">Lo que hay que decidir el viernes, y no es de diseño.</b>
+          <p class="mt-1 text-muted-foreground">
+            El catálogo del Marketplace es <b class="font-medium text-foreground">global, cross-account</b>: no existe segmentación por cuenta.
+            Publicar Contracargos significa que lo ven todas las cuentas habilitadas, no solo los 11 marketplaces.
+            Tampoco hay actualización en sitio: si mejoramos el template, quien ya lo instaló se queda con la versión vieja.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function demo(){return{
+  opcion:'a', paso:0,
+
+  nav:[{k:'resumen',l:'Resumen',i:'house'},{k:'agent',l:'Simetrik Agent',i:'sparkles'},
+       {k:'oc',l:'Centro de operaciones',i:'radar'},{k:'mkt',l:'Marketplace',i:'store'},
+       {k:'repos',l:'Repositorios',i:'folder'}],
+
+  opciones:[
+    {id:'a', chip:'Opción A', corto:'Template en el Marketplace',
+     titulo:'Opción A · El merchant lo encuentra en el Marketplace',
+     bajada:'Contracargos se publica como un template destacado. El merchant lo abre, ve la vista previa con datos de ejemplo, lo instala en su espacio de trabajo y vincula sus fuentes existentes.',
+     tags:[{l:'No inventa UI',c:'bg-success/15 text-success'},{l:'6 pasos',c:'bg-secondary text-muted-foreground'}],
+     criterios:[
+       {k:'Descubribilidad',v:'Media. El merchant tiene que entrar al Marketplace, pero está en el sidebar y el template va destacado',cls:''},
+       {k:'Qué hay que construir',v:'Nada de interfaz. El template, el preview, la instalación y el destacado ya existen',cls:'text-success'},
+       {k:'Encaje',v:'Total. Un template ES un tablero con sus datasets, recursos y anomalías',cls:''},
+       {k:'Reversibilidad',v:'Alta. Si no funciona, se despublica y no queda deuda',cls:''},
+     ],
+     veredicto:'<b class="font-medium">Es la que se puede poner en manos de un merchant esta iteración.</b> El costo está en publicar y curar, no en diseñar.',
+     pasos:[
+       {id:'a1',nav:'Marketplace',navk:'mkt',url:'app.simetrik.com/marketplace',titulo:'El template va destacado en el catálogo',
+        nota:'El Marketplace Manager ya permite elegir qué templates salen como destacados y recomendados. Esto es configuración, no interfaz nueva.'},
+       {id:'a2',nav:'Detalle',navk:'mkt',url:'app.simetrik.com/marketplace/contracargos',titulo:'Ve el tablero antes de instalarlo',
+        nota:'Vista previa con datos de ejemplo, el mapa de lo que se va a crear y los archivos requeridos. Detectamos que 2 de las 3 fuentes ya las tiene conectadas.'},
+       {id:'a3',nav:'Instalación',navk:'mkt',url:'app.simetrik.com/marketplace/contracargos',titulo:'La instalación corre sola',
+        nota:'Es asíncrona: crea el tablero, los conjuntos de datos, las conciliaciones y las anomalías ya configuradas. El merchant no arma el monitoreo, viene puesto.'},
+       {id:'a4',nav:'Aterriza en el OC',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Cae directo en su tablero',
+        nota:'El sistema lo lleva al Centro de operaciones con el filtro ya puesto en el tablero nuevo. Se ve completo, con datos de ejemplo y un aviso de configuración pendiente.'},
+       {id:'a5',nav:'Vincular fuentes',navk:'oc',url:'app.simetrik.com/operation-center/sources',titulo:'Vincula lo que ya tiene, no sube nada',
+        nota:'Los marketplaces ya tienen los recursos de notificados y debitados dentro de Simetrik. En vez de cargar archivos, se vinculan los existentes. Es el camino corto y casi nadie lo conoce.'},
+       {id:'listo',nav:'Tablero listo',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Operando con datos reales',
+        nota:'Mismo destino que la opción B. A partir de acá el merchant edita por chat o por conjunto de datos.'},
+     ]},
+
+    {id:'b', chip:'Opción B', corto:'Sugerencia en el Centro de operaciones',
+     titulo:'Opción B · Simetrik se lo propone sin que lo busque',
+     bajada:'El sistema detecta contracargos en las fuentes del merchant y se lo propone en su lista de tableros. Un clic, revisa qué se detectó, y el tablero queda armado.',
+     tags:[{l:'Patrón nuevo',c:'bg-warning/15 text-warning'},{l:'3 pasos',c:'bg-secondary text-muted-foreground'}],
+     criterios:[
+       {k:'Descubribilidad',v:'La más alta. Aparece donde el merchant ya está, sin buscar nada',cls:'text-success'},
+       {k:'Qué hay que construir',v:'El patrón de "sugerido" no existe en el Centro de operaciones. Hay que definir dónde vive, cuándo aparece, cómo se descarta y si vuelve',cls:'text-warning'},
+       {k:'Encaje',v:'Coherente con el producto agentizado, pero introduce una categoría nueva en una lista que hoy solo tiene Favoritos y Tableros',cls:''},
+       {k:'Reversibilidad',v:'Media. Una vez que hay sugeridos, el patrón se vuelve expectativa para el resto del producto',cls:''},
+     ],
+     veredicto:'<b class="font-medium">Es la mejor experiencia y la única que exige diseño nuevo.</b> Vale la pena, pero como segunda fase y con presupuesto propio.',
+     pasos:[
+       {id:'b1',nav:'Lo ve sugerido',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Aparece en su lista de tableros',
+        nota:'Sin buscar nada. El bloque va marcado como inferido por el sistema, con la confianza a la vista. Este patrón hay que inventarlo: hoy la lista solo tiene Favoritos y Tableros.'},
+       {id:'b2',nav:'Revisa qué detectamos',navk:'oc',url:'app.simetrik.com/operation-center/dashboards/sugerido',titulo:'Puede revisar antes de aceptar',
+        nota:'El motor acierta entre el 30% y el 70% según qué tan raros sean los nombres de los recursos. Mostrar la confianza y dejar corregir es lo que hace que el merchant confíe.'},
+       {id:'listo',nav:'Tablero listo',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Operando con datos reales',
+        nota:'Mismo destino que la opción A. Por detrás instala exactamente el mismo template.'},
+     ]},
+  ],
+
+  get op(){return this.opciones.find(o=>o.id===this.opcion)},
+  get pasoActual(){const p=this.op.pasos[this.paso]||this.op.pasos[0];return{...p,nav:p.navk}},
+  es(id){return (this.op.pasos[this.paso]||{}).id===id},
+  ir(o,p){this.opcion=o;this.paso=p;this.$nextTick(()=>lucide.createIcons())},
+
+  catalogo:[
+    {n:'Adquirencia',d:'Liquidaciones y comisiones por adquirente',i:'credit-card'},
+    {n:'Conciliación de payins',d:'Cruce de recaudos contra el banco',i:'git-compare'},
+    {n:'Cierre contable',d:'Asientos y período contable',i:'book-open-text'},
+    {n:'Reversos',d:'Devoluciones y su trazabilidad',i:'undo-2'},
+    {n:'Comisiones PSP',d:'Validación de tarifas pactadas',i:'percent'},
+  ],
+  recursos:[
+    {n:'1 tablero',d:'Resumen, notificados, debitados y controles',i:'layout-grid'},
+    {n:'3 conjuntos de datos',d:'Con el ratio mensual ya calculado',i:'database'},
+    {n:'2 conciliaciones',d:'Contracargo contra venta interna',i:'git-compare'},
+    {n:'4 anomalías',d:'Umbral de red, doble débito, fuente sin llegar',i:'circle-alert'},
+  ],
+  archivos:[
+    {n:'notificados',tiene:true},{n:'debitados',tiene:true},{n:'transacciones',tiene:false},
+  ],
+  instalacion:['Creando el tablero y sus páginas','Creando los conjuntos de datos','Creando las conciliaciones','Configurando el monitoreo'],
+  fuentes:[
+    {n:'Contracargos notificados',cols:'Espera: fecha, ARN, monto, motivo, tarjeta',estado:'vinculada',recurso:'rappi_cbk_notif_co'},
+    {n:'Contracargos debitados',cols:'Espera: fecha, ARN, monto, motivo, tarjeta',estado:'sugerida',recurso:'rappi_cbk_deb_co'},
+    {n:'Transacciones liquidadas',cols:'Espera: fecha, ARN, monto, autorización',estado:'falta',recurso:''},
+  ],
+  detectados:[
+    {r:'rappi_cbk_notif_co',como:'Notificados',conf:82},
+    {r:'rappi_cbk_deb_co',como:'Debitados',conf:76},
+    {r:'rappi_contracargos_mx',como:'Debitados',conf:47},
+    {r:'rappi_ajustes_varios',como:'No es contracargo',conf:38},
+  ],
+
+  // Shell del Centro de operaciones, reusado en 3 pantallas
+  shellOC(modo){
+    const tabs=['Tableros','Anomalías','Pendientes','Almacenamiento','Asientos contables'];
+    const tabsHtml=tabs.map((t,i)=>`<span class="rounded-full px-2.5 py-1 text-[11px] font-medium ${i===0?'bg-background shadow-sm':'text-muted-foreground'}">${t}</span>`).join('');
+
+    const sugerido = modo==='sugerido' ? `
+      <div class="ai-block p-3 mb-2">
+        <div class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide" style="color:hsl(var(--ai-purple))">
+          <span>◇</span> Sugerido para ti
+        </div>
+        <div class="mt-1.5 text-[12.5px] font-medium leading-snug">Encontramos contracargos en 3 de tus fuentes</div>
+        <div class="mt-1 text-[11px] text-muted-foreground">Rappi CO, Rappi MX, PedidosYa BR · confianza 68%</div>
+        <button onclick="Alpine.$data(document.querySelector('[x-data]')).paso=1"
+          class="mt-2.5 w-full rounded-md bg-primary px-2 py-1.5 text-[11.5px] font-medium text-primary-foreground">Ver qué detectamos</button>
+      </div>` : '';
+
+    const banner = modo==='pendiente' ? `
+      <div class="mx-5 mt-4 flex items-start gap-3 rounded-lg border border-warning/40 bg-warning/[0.07] p-3.5">
+        <span class="mt-0.5 text-warning">⚠</span>
+        <div class="min-w-0 flex-1 text-[12.5px]">
+          <div class="font-semibold">Configuración pendiente</div>
+          <p class="mt-0.5 text-muted-foreground">Los gráficos muestran datos de ejemplo. Vincula 1 fuente para ver tu operación real.</p>
+        </div>
+        <button onclick="Alpine.$data(document.querySelector('[x-data]')).paso=4"
+          class="h-[30px] shrink-0 rounded-md bg-primary px-2.5 text-[11.5px] font-medium text-primary-foreground">Ir a Fuentes</button>
+      </div>` : '';
+
+    const dim = modo==='pendiente' ? 'opacity-50' : '';
+    const val = (r) => modo==='pendiente' ? '—' : r;
+    const listo = modo==='listo' ? `
+      <div class="mx-5 mt-4 flex items-center gap-2.5 rounded-lg border border-success/40 bg-success/[0.06] px-3.5 py-2.5 text-[12.5px]">
+        <span class="text-success">✓</span><span>Tablero activo con datos reales. El monitoreo quedó vigilando la columna del ratio y las fuentes que la alimentan.</span>
+      </div>` : '';
+
+    return `
+    <div class="flex h-full">
+      <div class="w-[190px] shrink-0 border-r border-border p-3">
+        <div class="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Favoritos</div>
+        ${sugerido}
+        <div class="flex items-center gap-2 rounded-md ${modo==='sugerido'?'':'bg-accent'} px-2 py-1.5 text-[12px] font-medium">
+          <span class="text-primary">▦</span> Contracargos
+        </div>
+        <div class="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mt-3 mb-1.5">Tableros <span class="float-right font-normal normal-case">155</span></div>
+        ${['Adquirencia','Conciliación diaria','Liquidaciones MX','Payins Colombia'].map(d=>
+          `<div class="flex items-center gap-2 rounded-md px-2 py-1.5 text-[12px] text-muted-foreground">▦ ${d}</div>`).join('')}
+      </div>
+      <div class="min-w-0 flex-1 overflow-y-auto">
+        <div class="flex h-12 items-center justify-between px-5">
+          <div class="flex items-center gap-2"><span class="text-[15px] font-semibold">Centro de operaciones</span>
+            <span class="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-medium">Beta</span></div>
+          <div class="flex items-center gap-1 rounded-full bg-secondary p-1">${tabsHtml}</div>
+        </div>
+        ${banner}${listo}
+        <div class="flex items-start justify-between gap-3 px-5 pt-4 pb-3">
+          <div>
+            <div class="text-[13px] font-semibold">▦ Contracargos</div>
+            <div class="mt-0.5 text-[11.5px] text-muted-foreground">3 conjuntos de datos usados · Corte 26 ago, 06:00</div>
+          </div>
+          <div class="flex gap-2">
+            <span class="flex h-[30px] items-center gap-1.5 rounded-md border border-border px-2.5 text-[11.5px] font-medium">
+              Monitoreo <span class="rounded bg-success/15 px-1.5 py-0.5 text-[10px] text-success">Activado</span></span>
+            <span class="flex h-[30px] items-center rounded-md bg-primary px-2.5 text-[11.5px] font-medium text-primary-foreground">Editar tablero</span>
+          </div>
+        </div>
+        <div class="flex gap-1 border-b border-border px-5 pb-2">
+          ${['Resumen','Notificados','Debitados','Controles'].map((p,i)=>
+            `<span class="rounded-md px-2.5 py-1 text-[12px] font-medium ${i===0?'bg-accent':'text-muted-foreground'}">${p}</span>`).join('')}
+        </div>
+        <div class="grid grid-cols-3 gap-3 p-5 ${dim}">
+          <div class="rounded-lg border border-border p-3.5">
+            <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span class="h-1.5 w-1.5 rounded-full bg-destructive"></span>Debitado en el período</div>
+            <div class="tnum mt-1.5 text-2xl font-semibold">${val('$214.320')}</div>
+            <div class="mt-1 text-[11px] text-muted-foreground">${val('1.284 contracargos')}</div>
+          </div>
+          <div class="rounded-lg border border-border p-3.5">
+            <div class="flex items-center gap-1.5 text-[11px] text-muted-foreground"><span class="h-1.5 w-1.5 rounded-full bg-warning"></span>Notificado sin gestionar</div>
+            <div class="tnum mt-1.5 text-2xl font-semibold">${val('$48.900')}</div>
+            <div class="mt-1 text-[11px] text-muted-foreground">${val('312 contracargos')}</div>
+          </div>
+          <div class="rounded-lg border border-border p-3.5">
+            <div class="text-[11px] text-muted-foreground">Tasa vs. umbral de red</div>
+            <div class="mt-2 space-y-1.5 text-[11px]">
+              <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" style="background:#1434CB"></span>Visa
+                <span class="rounded bg-secondary px-1 text-[9px]">VAMP</span>
+                <span class="tnum ml-auto font-semibold text-warning">${val('1,42%')}</span><span class="tnum text-muted-foreground">≤ 1,50%</span></div>
+              <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" style="background:#EB001B"></span>Mastercard
+                <span class="rounded bg-secondary px-1 text-[9px]">ECM</span>
+                <span class="tnum ml-auto font-semibold text-success">${val('1,10%')}</span><span class="tnum text-muted-foreground">≤ 1,50%</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="px-5 pb-5 ${dim}">
+          <div class="rounded-lg border border-border p-3.5">
+            <div class="text-[12px] font-semibold">Debitado por motivo</div>
+            <div class="mt-3 space-y-2">
+              ${[['13.1 No recibido',54,'hsl(var(--destructive))'],['12.6 Pago duplicado',19,'hsl(var(--chart-2))'],
+                 ['13.3 No como se describe',16,'hsl(var(--chart-3))'],['10.4 Fraude sin tarjeta',11,'hsl(var(--chart-5))']]
+                .map(([l,p,c])=>`<div><div class="flex text-[11px]"><span>${l}</span><span class="tnum ml-auto text-muted-foreground">${modo==='pendiente'?'—':p+'%'}</span></div>
+                <div class="mt-1 h-1.5 rounded-full bg-secondary"><div class="h-full rounded-full" style="width:${p}%;background:${c}"></div></div></div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  init(){
+    this.$nextTick(()=>lucide.createIcons());
+    this.$watch('paso',()=>this.$nextTick(()=>lucide.createIcons()));
+    this.$watch('opcion',()=>this.$nextTick(()=>lucide.createIcons()));
+  },
+}}
+</script>
+</body>
+</html>

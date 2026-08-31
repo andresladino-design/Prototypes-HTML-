@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contracargos · Merchant — Operation Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  /* Tokens reales de @simetrikinc/desyk-components@1.30.0-0 — ver design.md */
+  :root{
+    --background:0 0% 100%; --foreground:240 6% 10%;
+    --card:0 0% 100%; --card-foreground:240 10% 4%;
+    --popover:0 0% 100%; --popover-foreground:240 10% 4%;
+    --primary:240 94% 60%; --primary-foreground:0 0% 98%;
+    --secondary:240 5% 96%; --secondary-foreground:240 6% 10%;
+    --muted:240 5% 96%; --muted-foreground:0 0% 55%;
+    --accent:240 5% 96%; --accent-foreground:240 6% 10%;
+    --success:138 76% 36%; --success-foreground:138 76% 97%;
+    --warning:41 96% 40%; --warning-foreground:55 92% 95%;
+    --info:221 83% 53%; --info-foreground:0 0% 100%;
+    --destructive:360 72% 51%; --destructive-foreground:0 86% 97%;
+    --border:0 0% 85%; --input:0 0% 85%; --ring:221 83% 63%;
+    --radius:0.5rem;
+    --sidebar-background:0 0% 98%; --sidebar-foreground:240 5% 26%;
+    --sidebar-accent:240 6% 96%; --sidebar-accent-foreground:240 6% 10%;
+    --sidebar-border:240 6% 90%;
+    --ai-purple:280 100% 61%; --ai-blue:222 97% 66%;
+    --ai-gray-primary:228 33% 96%; --ai-gray-secondary:224 33% 91%;
+    --chart-1:222 83% 69%; --chart-2:264 92% 70%; --chart-3:161 70% 67%; --chart-4:127 52% 62%;
+    --chart-5:201 82% 74%; --chart-6:34 90% 69%; --chart-7:21 81% 82%; --chart-8:354 71% 74%;
+  }
+  html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{background:hsl(var(--background));color:hsl(var(--foreground));-webkit-font-smoothing:antialiased}
+  .tnum{font-variant-numeric:tabular-nums}
+  /* Bloque AI: el gradiente marca SOLO lo inferido por el sistema */
+  .ai-block{background:hsl(var(--ai-gray-primary));position:relative;border-radius:var(--radius)}
+  .ai-block::before{content:"";position:absolute;inset:0;border-radius:var(--radius);padding:1px;
+    background:linear-gradient(90deg,hsl(var(--ai-purple)/.35),hsl(var(--ai-blue)/.35));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  [x-cloak]{display:none!important}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:hsl(216 8% 84%);border-radius:99px;border:3px solid hsl(var(--background))}
+</style>
+<script>
+tailwind.config={theme:{extend:{
+  fontFamily:{sans:['Inter','ui-sans-serif','system-ui','-apple-system','Segoe UI','Roboto','sans-serif']},
+  colors:{
+    background:'hsl(var(--background))',foreground:'hsl(var(--foreground))',
+    card:'hsl(var(--card))',primary:'hsl(var(--primary))','primary-foreground':'hsl(var(--primary-foreground))',
+    secondary:'hsl(var(--secondary))',muted:'hsl(var(--muted))','muted-foreground':'hsl(var(--muted-foreground))',
+    accent:'hsl(var(--accent))',border:'hsl(var(--border))',ring:'hsl(var(--ring))',
+    success:'hsl(var(--success))',warning:'hsl(var(--warning))',info:'hsl(var(--info))',
+    destructive:'hsl(var(--destructive))',
+    sidebar:'hsl(var(--sidebar-background))','sidebar-fg':'hsl(var(--sidebar-foreground))',
+    'sidebar-accent':'hsl(var(--sidebar-accent))','sidebar-border':'hsl(var(--sidebar-border))',
+    c1:'hsl(var(--chart-1))',c2:'hsl(var(--chart-2))',c3:'hsl(var(--chart-3))',c4:'hsl(var(--chart-4))',
+    c5:'hsl(var(--chart-5))',c6:'hsl(var(--chart-6))',c7:'hsl(var(--chart-7))',c8:'hsl(var(--chart-8))',
+  },
+  borderRadius:{DEFAULT:'var(--radius)',lg:'var(--radius)',md:'calc(var(--radius) - 2px)',sm:'calc(var(--radius) - 4px)'},
+}}}
+</script>
+</head>
+<body x-data="app()" x-cloak>
+
+<!-- ══ NOTA DE DEMO ══ -->
+<div class="flex flex-wrap items-center gap-3 border-b border-border bg-[hsl(var(--muted))] px-5 py-2 text-xs">
+  <span class="font-semibold">Prototipo · Contracargos para merchant</span>
+  <span class="text-muted-foreground">Demostrativo. El selector de estado es para dar feedback; en el handoff queda un solo comportamiento.</span>
+  <div class="ml-auto flex items-center gap-1">
+    <template x-for="s in estados" :key="s.id">
+      <button @click="estado=s.id"
+        class="rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors"
+        :class="estado===s.id?'bg-foreground text-background':'text-muted-foreground hover:bg-accent'"
+        x-text="s.label"></button>
+    </template>
+  </div>
+</div>
+
+<div class="flex h-[calc(100vh-37px)] overflow-hidden">
+
+  <!-- ══ SIDEBAR (light, tokens de sidebar desyk) ══ -->
+  <aside class="flex w-[228px] shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+    <div class="flex items-center gap-2 px-3 py-3">
+      <span class="grid h-6 w-6 place-items-center rounded bg-primary text-[11px] font-bold text-primary-foreground">S</span>
+      <span class="text-sm font-semibold">Simetrik</span>
+    </div>
+    <div class="mx-2 mb-2 flex items-center gap-2 rounded-md border border-sidebar-border bg-background px-2 py-1.5">
+      <span class="grid h-5 w-5 place-items-center rounded bg-c2/25 text-[10px] font-bold">R</span>
+      <div class="min-w-0 leading-tight">
+        <div class="truncate text-xs font-semibold">Rappi</div>
+        <div class="truncate text-[10px] text-muted-foreground">Espacio de trabajo</div>
+      </div>
+    </div>
+    <button class="mx-2 mb-3 flex items-center gap-2 rounded-md border border-sidebar-border px-2 py-1.5 text-xs text-muted-foreground hover:bg-sidebar-accent">
+      <i data-lucide="search" class="h-3.5 w-3.5"></i> Buscar
+      <kbd class="ml-auto rounded border border-sidebar-border px-1 text-[10px]">⌘K</kbd>
+    </button>
+    <nav class="flex-1 space-y-0.5 px-2 text-[13px] text-sidebar-fg">
+      <a class="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-sidebar-accent"><i data-lucide="house" class="h-4 w-4"></i>Resumen</a>
+      <a class="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-sidebar-accent"><i data-lucide="sparkles" class="h-4 w-4"></i>Simetrik Agent</a>
+      <a class="flex items-center gap-2.5 rounded-md bg-sidebar-accent px-2 py-1.5 font-medium text-foreground"><i data-lucide="radar" class="h-4 w-4"></i>Centro de operaciones</a>
+      <a class="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-sidebar-accent"><i data-lucide="store" class="h-4 w-4"></i>Marketplace</a>
+      <a class="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-sidebar-accent"><i data-lucide="folder" class="h-4 w-4"></i>Repositorios</a>
+      <a class="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-sidebar-accent"><i data-lucide="settings" class="h-4 w-4"></i>Configuración</a>
+    </nav>
+    <!-- Patrón canónico: el chat es botón en el footer del sidebar, abre Sheet lateral -->
+    <div class="border-t border-sidebar-border p-2">
+      <button @click="chat=true" class="flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-[13px] text-sidebar-fg hover:bg-sidebar-accent">
+        <i data-lucide="message-square" class="h-4 w-4"></i>Preguntar a Simetrik
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="flex min-w-0 flex-1 flex-col">
+
+    <!-- Top nav: los 5 tabs REALES de producción (no existe un tab "Disputas") -->
+    <header class="flex h-14 shrink-0 items-center justify-between bg-background px-7">
+      <div class="flex min-w-0 items-center gap-2 pr-8">
+        <i data-lucide="radar" class="h-[18px] w-[18px] shrink-0"></i>
+        <span class="truncate text-base font-semibold">Centro de operaciones</span>
+        <span class="shrink-0 rounded-md bg-secondary px-2 py-0.5 text-[10.5px] font-medium">Beta</span>
+      </div>
+      <div class="flex items-center gap-1 rounded-full bg-secondary p-1">
+        <template x-for="t in navTabs" :key="t.k">
+          <button class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+            :class="t.k==='tableros'?'bg-background text-foreground shadow-sm':'text-muted-foreground hover:text-foreground'">
+            <i :data-lucide="t.i" class="h-3.5 w-3.5"></i><span x-text="t.l"></span>
+          </button>
+        </template>
+      </div>
+      <div class="w-8"></div>
+    </header>
+
+    <div class="flex min-h-0 flex-1">
+
+      <!-- Lista de tableros -->
+      <aside class="flex w-[236px] shrink-0 flex-col border-r border-border">
+        <div class="flex items-center justify-between px-4 pt-4 pb-2">
+          <h2 class="text-sm font-semibold">Tableros</h2>
+          <i data-lucide="panel-left-close" class="h-4 w-4 text-muted-foreground"></i>
+        </div>
+        <div class="mx-3 mb-2 flex rounded-md bg-secondary p-0.5 text-xs">
+          <button class="flex-1 rounded-[5px] bg-background py-1 font-medium shadow-sm">Tableros</button>
+          <button class="flex-1 rounded-[5px] py-1 text-muted-foreground">Conjuntos de datos</button>
+        </div>
+        <button class="mx-3 mb-2 flex items-center gap-2 rounded-md border border-dashed border-border px-2 py-1.5 text-xs text-muted-foreground hover:bg-accent">
+          <i data-lucide="plus" class="h-3.5 w-3.5"></i>Nuevo tablero
+        </button>
+        <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+          <div class="px-1 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Favoritos</div>
+          <div class="mb-2 flex items-center gap-2 rounded-md bg-accent px-2 py-1.5 text-[13px] font-medium">
+            <i data-lucide="layout-grid" class="h-3.5 w-3.5 text-primary"></i>Contracargos
+          </div>
+          <div class="px-1 pt-2 pb-1 text-[10.5px] font-semibold uppercase tracking-wide text-muted-foreground">Tableros <span class="float-right font-normal normal-case">155</span></div>
+          <template x-for="d in ['Adquirencia','Conciliación diaria','Liquidaciones MX','Payins Colombia','Reversos PSP']" :key="d">
+            <div class="flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-muted-foreground hover:bg-accent">
+              <i data-lucide="layout-grid" class="h-3.5 w-3.5"></i><span x-text="d"></span>
+            </div>
+          </template>
+        </div>
+      </aside>
+
+      <!-- Contenido -->
+      <main class="min-w-0 flex-1 overflow-y-auto">
+
+        <!-- Header del tablero -->
+        <div class="flex flex-wrap items-start gap-3 bg-background pl-4 pr-5 pt-5 pb-3">
+          <div class="flex min-w-0 flex-1 flex-col gap-1">
+            <div class="flex h-6 items-center gap-1.5 rounded-md pl-1 pr-2 text-sm font-semibold">
+              <i data-lucide="layout-grid" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>Contracargos
+            </div>
+            <div class="flex items-center gap-1.5 pl-1 text-xs text-muted-foreground">
+              <i data-lucide="database" class="h-3.5 w-3.5"></i>3 conjuntos de datos usados
+              <span class="mx-1 text-border">·</span>
+              <span class="tnum">Corte 26 ago, 06:00</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="flex h-[30px] items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium hover:bg-accent">
+              <i data-lucide="brain" class="h-4 w-4"></i>Contexto
+            </button>
+            <button @click="monitor=true" class="flex h-[30px] items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium hover:bg-accent">
+              <i data-lucide="activity" class="h-4 w-4"></i>Monitoreo
+              <span class="ml-0.5 flex h-5 items-center rounded-md bg-success/15 px-2 text-[10.5px] font-medium leading-none text-success">Activado</span>
+            </button>
+            <button class="flex h-[30px] items-center gap-1.5 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground hover:bg-primary/90">
+              <i data-lucide="pencil-line" class="h-4 w-4"></i>Editar tablero
+            </button>
+          </div>
+        </div>
+
+        <!-- Subtabs -->
+        <div class="flex items-center gap-1 border-b border-border px-4 py-2">
+          <template x-for="p in paginas" :key="p.id">
+            <button @click="pagina=p.id"
+              class="rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors"
+              :class="pagina===p.id?'bg-accent text-foreground':'text-muted-foreground hover:bg-accent/60'">
+              <span x-text="p.label"></span>
+              <span x-show="p.n" class="ml-1.5 tnum rounded bg-background px-1.5 py-0.5 text-[10.5px]" x-text="p.n"></span>
+            </button>
+          </template>
+        </div>
+
+        <!-- ══ BANDA: detección parcial (bloque AI) ══ -->
+        <div x-show="estado==='parcial'" class="ai-block mx-4 mt-4 flex items-start gap-3 p-3.5">
+          <i data-lucide="sparkles" class="mt-0.5 h-4 w-4 shrink-0" style="color:hsl(var(--ai-purple))"></i>
+          <div class="min-w-0 flex-1 text-[13px]">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold">Clasificamos 3 de tus 9 recursos como contracargos</span>
+              <span class="tnum rounded bg-background/70 px-1.5 py-0.5 text-[10.5px] font-medium">Confianza 31%</span>
+            </div>
+            <p class="mt-0.5 text-muted-foreground">Los nombres de los recursos restantes no son concluyentes. Revisa cuáles faltan o corrige la clasificación desde el conjunto de datos.</p>
+          </div>
+          <div class="flex shrink-0 gap-2">
+            <button class="h-[30px] rounded-md border border-border bg-background px-2.5 text-xs font-medium hover:bg-accent">Ver qué detectamos</button>
+            <button class="h-[30px] rounded-md border border-border bg-background px-2.5 text-xs font-medium hover:bg-accent">Corregir</button>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-wrap items-center gap-2 px-4 pt-4">
+          <span class="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground">
+            <i data-lucide="funnel" class="h-3.5 w-3.5"></i>Filtros
+          </span>
+          <template x-for="f in ['Adquirente','Franquicia','País','Fecha','Moneda']" :key="f">
+            <button class="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-accent">
+              <span x-text="f"></span><i data-lucide="chevron-down" class="h-3 w-3 text-muted-foreground"></i>
+            </button>
+          </template>
+        </div>
+
+        <!-- ══════════ RESUMEN ══════════ -->
+        <section x-show="pagina==='resumen'" class="space-y-4 p-4">
+
+          <!-- KPIs: notificado y debitado NO se agregan en un total -->
+          <div class="grid gap-4 lg:grid-cols-3">
+
+            <!-- Debitado: pérdida consumada -->
+            <div class="rounded-lg border border-border bg-card p-4" :class="mock&&'opacity-60'">
+              <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <span class="h-2 w-2 rounded-full bg-destructive"></span>Debitado en el período
+              </div>
+              <div class="mt-2 tnum text-[30px] font-semibold leading-none" x-text="v('$214.320')"></div>
+              <div class="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
+                <span class="tnum" x-text="v('1.284')+' contracargos'"></span>
+                <span class="text-border">·</span><span>USD</span>
+              </div>
+              <p class="mt-3 border-t border-border pt-2.5 text-[11.5px] text-muted-foreground">Plata que el adquirente ya descontó. No es recuperable sin gestión.</p>
+            </div>
+
+            <!-- Notificado: ventana abierta -->
+            <div class="rounded-lg border border-border bg-card p-4" :class="mock&&'opacity-60'">
+              <div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <span class="h-2 w-2 rounded-full bg-warning"></span>Notificado sin gestionar
+              </div>
+              <div class="mt-2 tnum text-[30px] font-semibold leading-none" x-text="v('$48.900')"></div>
+              <div class="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
+                <span class="tnum" x-text="v('312')+' contracargos'"></span>
+                <span class="text-border">·</span><span>USD</span>
+              </div>
+              <p class="mt-3 border-t border-border pt-2.5 text-[11.5px] text-muted-foreground">El más antiguo lleva <b class="font-medium text-foreground tnum">9 días</b> esperando. Todavía se puede actuar.</p>
+            </div>
+
+            <!-- Semáforo de umbral: no es un KPI, es un semáforo -->
+            <div class="rounded-lg border bg-card p-4"
+                 :class="estado==='umbral'?'border-destructive/50 bg-destructive/[0.04]':'border-border'">
+              <div class="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                <span>Tasa vs. umbral de red</span>
+                <span class="text-[10.5px]">Mensual, por red</span>
+              </div>
+              <div class="mt-3 space-y-2.5">
+                <template x-for="n in redes" :key="n.red">
+                  <div>
+                    <div class="flex items-baseline gap-2 text-xs">
+                      <span class="h-2.5 w-2.5 shrink-0 rounded-sm" :style="`background:${n.color}`"></span>
+                      <span class="font-medium" x-text="n.red"></span>
+                      <span class="rounded bg-secondary px-1.5 text-[10px] font-medium text-muted-foreground" x-text="n.prog"></span>
+                      <span class="ml-auto tnum font-semibold" :class="n.cls" x-text="pct(n.actual)+'%'"></span>
+                      <span class="tnum text-[11px] text-muted-foreground" x-text="'≤ '+pct(n.umbral)+'%'"></span>
+                    </div>
+                    <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-secondary">
+                      <div class="h-full rounded-full" :style="`width:${ancho(n)}%;background:${n.bar}`"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <p class="mt-3 border-t border-border pt-2.5 text-[11.5px]"
+                 :class="estado==='umbral'?'font-medium text-destructive':'text-muted-foreground'"
+                 x-text="notaUmbral"></p>
+            </div>
+          </div>
+
+          <!-- Gráficos -->
+          <div class="grid gap-4 lg:grid-cols-2">
+
+            <!-- Composición por reason code -->
+            <div class="rounded-lg border border-border bg-card p-4" :class="mock&&'opacity-60'">
+              <div class="flex items-center justify-between">
+                <h3 class="text-[13px] font-semibold">Debitado por motivo</h3>
+                <span class="text-[11px] text-muted-foreground">Últimos 30 días</span>
+              </div>
+              <div class="mt-3.5 space-y-3">
+                <template x-for="r in motivos" :key="r.code">
+                  <div>
+                    <div class="flex items-baseline gap-2 text-xs">
+                      <span class="font-medium" x-text="r.code"></span>
+                      <span class="text-muted-foreground" x-text="r.label"></span>
+                      <span x-show="r.anom" class="flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-medium text-destructive">
+                        <i data-lucide="trending-up" class="h-2.5 w-2.5"></i>+3.2σ
+                      </span>
+                      <span class="ml-auto tnum font-semibold" x-text="v(r.monto)"></span>
+                      <span class="tnum w-8 text-right text-[11px] text-muted-foreground" x-text="r.pct+'%'"></span>
+                    </div>
+                    <div class="mt-1.5 h-2 overflow-hidden rounded-full bg-secondary">
+                      <div class="h-full rounded-full" :style="`width:${r.pct}%;background:${r.anom?'hsl(var(--destructive))':r.color}`"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="ai-block mt-3.5 flex items-start gap-2 p-2.5 text-[11.5px]">
+                <i data-lucide="sparkles" class="mt-px h-3.5 w-3.5 shrink-0" style="color:hsl(var(--ai-purple))"></i>
+                <span>El motivo <b class="font-medium">13.1 no recibido</b> está 3.2 desviaciones por encima de su histórico. Suele apuntar a logística o a fallas de entrega, no a fraude.</span>
+              </div>
+            </div>
+
+            <!-- Serie notificado vs debitado -->
+            <div class="rounded-lg border border-border bg-card p-4" :class="mock&&'opacity-60'">
+              <div class="flex items-center justify-between">
+                <h3 class="text-[13px] font-semibold">Notificado y debitado por día</h3>
+                <div class="flex items-center gap-3 text-[11px] text-muted-foreground">
+                  <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-warning"></span>Notificado</span>
+                  <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-sm bg-destructive"></span>Debitado</span>
+                </div>
+              </div>
+              <div class="mt-4 flex h-[168px] items-end gap-[6px]">
+                <template x-for="(d,i) in serie" :key="i">
+                  <div class="group flex flex-1 flex-col items-center gap-1">
+                    <div class="flex w-full flex-col justify-end gap-px" style="height:140px">
+                      <div class="w-full rounded-t-[2px] bg-destructive/85" :style="`height:${d.deb}%`"></div>
+                      <div class="w-full rounded-b-[2px] bg-warning/70" :style="`height:${d.not}%`"></div>
+                    </div>
+                    <span class="text-[9.5px] tnum text-muted-foreground" x-text="d.dia"></span>
+                  </div>
+                </template>
+              </div>
+              <p class="mt-3 border-t border-border pt-2.5 text-[11.5px] text-muted-foreground">El débito llega entre 2 y 5 días después del aviso. Esa ventana es el margen para gestionar.</p>
+            </div>
+          </div>
+
+          <!-- Requiere acción hoy -->
+          <div class="overflow-hidden rounded-lg border border-border bg-card" :class="mock&&'opacity-60'">
+            <div class="flex items-center justify-between border-b border-border px-4 py-3">
+              <h3 class="text-[13px] font-semibold">Requiere acción hoy</h3>
+              <span class="tnum rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive" x-text="v(filas.length)+' casos'"></span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[860px] text-[13px]">
+                <thead class="border-b border-border bg-[hsl(var(--muted))/0.5]">
+                  <tr class="text-left text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    <th class="px-4 py-2 font-medium">Franquicia</th>
+                    <th class="px-3 py-2 font-medium">ID</th>
+                    <th class="px-3 py-2 font-medium">Adquirente</th>
+                    <th class="px-3 py-2 font-medium">Fecha</th>
+                    <th class="px-3 py-2 text-right font-medium">Monto</th>
+                    <th class="px-3 py-2 font-medium">Motivo</th>
+                    <th class="px-3 py-2 font-medium">Estado</th>
+                    <th class="px-3 py-2 font-medium">Tarjeta</th>
+                    <th class="px-4 py-2 text-right font-medium">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="f in filas" :key="f.id">
+                    <tr class="border-b border-border last:border-0 hover:bg-accent/50">
+                      <td class="px-4 py-2.5"><span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm" :style="`background:${f.fcolor}`"></span><span x-text="f.franq"></span></span></td>
+                      <td class="px-3 py-2.5 tnum text-muted-foreground" x-text="f.id"></td>
+                      <td class="px-3 py-2.5" x-text="f.adq"></td>
+                      <td class="px-3 py-2.5 tnum text-muted-foreground" x-text="f.fecha"></td>
+                      <td class="px-3 py-2.5 text-right tnum font-medium"><span x-text="v(f.monto)"></span> <span class="font-normal text-muted-foreground" x-text="f.mon"></span></td>
+                      <td class="px-3 py-2.5"><span class="rounded bg-secondary px-1.5 py-0.5 text-[11px]" x-text="f.motivo"></span></td>
+                      <td class="px-3 py-2.5">
+                        <span class="rounded-full px-2 py-0.5 text-[11px] font-medium" :class="badge(f.estado)" x-text="f.estado"></span>
+                      </td>
+                      <td class="px-3 py-2.5 tnum text-muted-foreground" x-text="'•••• '+f.tarjeta"></td>
+                      <td class="px-4 py-2.5 text-right">
+                        <button class="rounded-md border border-border px-2 py-1 text-[11.5px] font-medium hover:bg-accent" x-text="f.accion"></button>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════════ NOTIFICADOS / DEBITADOS ══════════ -->
+        <section x-show="pagina==='notificados'||pagina==='debitados'" class="p-4">
+          <div class="rounded-lg border border-border bg-card p-8 text-center">
+            <div class="mx-auto grid h-10 w-10 place-items-center rounded-full bg-secondary">
+              <i data-lucide="table" class="h-5 w-5 text-muted-foreground"></i>
+            </div>
+            <h3 class="mt-3 text-sm font-semibold" x-text="pagina==='notificados'?'Notificados':'Debitados'"></h3>
+            <p class="mx-auto mt-1 max-w-md text-[13px] text-muted-foreground">
+              Tabla completa con los mismos filtros del Resumen, columna de antigüedad y acciones en lote.
+              Pendiente de detallar con Andrea.
+            </p>
+          </div>
+        </section>
+
+        <!-- ══════════ CONTROLES ══════════ -->
+        <section x-show="pagina==='controles'" class="space-y-4 p-4">
+          <template x-for="c in controles" :key="c.id">
+            <div class="overflow-hidden rounded-lg border bg-card"
+                 :class="c.hallazgo?'border-destructive/40':'border-border'">
+              <div class="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
+                <div class="grid h-7 w-7 shrink-0 place-items-center rounded-md"
+                     :class="c.hallazgo?'bg-destructive/10':'bg-secondary'">
+                  <i :data-lucide="c.icon" class="h-4 w-4" :class="c.hallazgo?'text-destructive':'text-muted-foreground'"></i>
+                </div>
+                <div class="min-w-0">
+                  <h3 class="text-[13px] font-semibold" x-text="c.titulo"></h3>
+                  <p class="text-[11.5px] text-muted-foreground" x-text="c.sub"></p>
+                </div>
+                <div class="ml-auto flex items-center gap-2">
+                  <span class="tnum text-lg font-semibold" x-text="v(c.n)"></span>
+                  <button class="h-[30px] rounded-md px-2.5 text-xs font-medium"
+                    :class="c.hallazgo?'bg-destructive text-white hover:bg-destructive/90':'border border-border hover:bg-accent'"
+                    x-text="c.cta"></button>
+                </div>
+              </div>
+              <div class="px-4 py-3 text-[12.5px] text-muted-foreground" x-text="c.detalle"></div>
+            </div>
+          </template>
+
+          <div class="ai-block flex items-start gap-2.5 p-3.5 text-[12.5px]">
+            <i data-lucide="sparkles" class="mt-0.5 h-4 w-4 shrink-0" style="color:hsl(var(--ai-purple))"></i>
+            <div>
+              <b class="font-semibold">El doble débito es plata recuperable.</b>
+              <span class="text-muted-foreground"> Son contracargos que el adquirente descontó dos veces, en la liquidación y en el refund. Nadie los está reclamando.</span>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHEET: monitoreo ══ -->
+<div x-show="monitor" class="fixed inset-0 z-50 flex justify-end bg-foreground/20" @click.self="monitor=false">
+  <div class="flex h-full w-[440px] flex-col border-l border-border bg-background shadow-xl">
+    <div class="flex items-center justify-between border-b border-border px-5 py-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="activity" class="h-4 w-4"></i>
+        <h2 class="text-sm font-semibold">Monitoreo</h2>
+        <span class="rounded-md bg-success/15 px-2 py-0.5 text-[10.5px] font-medium text-success">Activado</span>
+      </div>
+      <button @click="monitor=false" class="rounded p-1 hover:bg-accent"><i data-lucide="x" class="h-4 w-4"></i></button>
+    </div>
+    <div class="min-h-0 flex-1 space-y-4 overflow-y-auto p-5 text-[13px]">
+
+      <!-- Los DOS monitoreos: no es decisión del usuario, pero tiene que ser visible -->
+      <div class="rounded-lg border border-border p-3.5">
+        <h3 class="text-[13px] font-semibold">Qué está vigilado</h3>
+        <p class="mt-1 text-[12px] text-muted-foreground">Se activan dos al tiempo. Sin el segundo no se puede saber la causa de una caída.</p>
+        <div class="mt-3 space-y-2.5">
+          <div class="flex gap-2.5 rounded-md bg-[hsl(var(--muted))] p-2.5">
+            <i data-lucide="columns-3" class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"></i>
+            <div>
+              <div class="text-[12.5px] font-medium">La columna del dato de negocio</div>
+              <div class="text-[11.5px] text-muted-foreground"><code class="rounded bg-background px-1">cbk_ratio_mensual</code> del conjunto de datos, segmentada por franquicia.</div>
+            </div>
+          </div>
+          <div class="flex gap-2.5 rounded-md bg-[hsl(var(--muted))] p-2.5">
+            <i data-lucide="database" class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"></i>
+            <div>
+              <div class="text-[12.5px] font-medium">Las fuentes que la alimentan</div>
+              <div class="text-[11.5px] text-muted-foreground">notificados, debitados. Si el archivo no llega, la alerta lo dice en vez de reportar una caída falsa.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Umbrales -->
+      <div class="rounded-lg border border-border p-3.5">
+        <h3 class="text-[13px] font-semibold">Umbral por red</h3>
+        <p class="mt-1 text-[12px] text-muted-foreground">Pre-cargado del programa de cada red. Ajústalo si lo necesitas.</p>
+        <div class="mt-3 space-y-2">
+          <template x-for="n in redes" :key="n.red">
+            <div class="flex items-center gap-2">
+              <span class="h-2.5 w-2.5 rounded-sm" :style="`background:${n.color}`"></span>
+              <span class="w-24 text-[12.5px] font-medium" x-text="n.red"></span>
+              <span class="rounded bg-secondary px-1.5 text-[10px] font-medium text-muted-foreground" x-text="n.prog"></span>
+              <span class="ml-auto text-muted-foreground">≤</span>
+              <input class="tnum w-16 rounded-md border border-input px-2 py-1 text-right text-[12.5px]" :value="pct(n.umbral)">
+              <span class="text-muted-foreground">%</span>
+            </div>
+          </template>
+        </div>
+        <div class="mt-2.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <i data-lucide="info" class="h-3 w-3"></i>Vigente desde el 1 de abril de 2026
+        </div>
+        <p class="mt-3 border-t border-border pt-2.5 text-[11.5px] text-muted-foreground">
+          Las dos redes llegan al 1,50% con fórmulas distintas: VAMP suma reportes de fraude a las disputas, ECM cuenta solo contracargos. Por eso el umbral se define por red y no agregado.
+        </p>
+      </div>
+
+      <!-- Canales -->
+      <div class="rounded-lg border border-border p-3.5">
+        <h3 class="text-[13px] font-semibold">Dónde te avisamos</h3>
+        <div class="mt-3 space-y-2">
+          <template x-for="c in [['mail','Correo',true],['message-square','Slack',true],['bell','En la aplicación',false]]" :key="c[1]">
+            <div class="flex items-center gap-2.5">
+              <i :data-lucide="c[0]" class="h-4 w-4 text-muted-foreground"></i>
+              <span class="text-[12.5px]" x-text="c[1]"></span>
+              <span class="ml-auto flex h-5 w-9 items-center rounded-full px-0.5 transition-colors" :class="c[2]?'bg-primary':'bg-secondary'">
+                <span class="h-4 w-4 rounded-full bg-white shadow-sm transition-transform" :class="c[2]&&'translate-x-4'"></span>
+              </span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHEET: chat ══ -->
+<div x-show="chat" class="fixed inset-0 z-50 flex justify-end bg-foreground/20" @click.self="chat=false">
+  <div class="flex h-full w-[400px] flex-col border-l border-border bg-background shadow-xl">
+    <div class="flex items-center justify-between border-b border-border px-5 py-4">
+      <h2 class="text-sm font-semibold">Preguntar a Simetrik</h2>
+      <button @click="chat=false" class="rounded p-1 hover:bg-accent"><i data-lucide="x" class="h-4 w-4"></i></button>
+    </div>
+    <div class="flex-1 p-5 text-[13px] text-muted-foreground">
+      Patrón canónico: botón en el pie del sidebar que abre un panel lateral. Nunca burbuja flotante ni modal centrado.
+    </div>
+  </div>
+</div>
+
+<script>
+function app(){return{
+  estado:'normal', pagina:'resumen', monitor:false, chat:false,
+  estados:[{id:'normal',label:'Operación normal'},{id:'umbral',label:'Umbral roto'},{id:'parcial',label:'Detección parcial'}],
+  navTabs:[{k:'tableros',l:'Tableros',i:'layout-grid'},{k:'anomalias',l:'Anomalías',i:'circle-alert'},{k:'pendientes',l:'Pendientes',i:'clock'},{k:'almacenamiento',l:'Almacenamiento',i:'hard-drive'},{k:'asientos',l:'Asientos contables',i:'book-open-text'}],
+  paginas:[{id:'resumen',label:'Resumen'},{id:'notificados',label:'Notificados',n:'312'},{id:'debitados',label:'Debitados',n:'1.284'},{id:'controles',label:'Controles',n:'3'}],
+
+  // El tablero llega usable desde la instalación: no hay estado sin datos que simular
+  get mock(){return false},
+  v(x){return x},
+
+  // Valores numéricos; el formato con coma decimal se hace al pintar (es-CO)
+  get redes(){
+    const roto=this.estado==='umbral';
+    return [
+      {red:'Visa',prog:'VAMP',umbral:1.50,actual:roto?1.68:1.42,color:'#1434CB',
+       bar:roto?'hsl(var(--destructive))':'hsl(var(--warning))',cls:roto?'text-destructive':'text-warning'},
+      {red:'Mastercard',prog:'ECM',umbral:1.50,actual:1.10,color:'#EB001B',
+       bar:'hsl(var(--success))',cls:'text-success'},
+    ];
+  },
+  pct(n){return n.toLocaleString('es-CO',{minimumFractionDigits:2,maximumFractionDigits:2})},
+  ancho(n){return Math.min(100,(n.actual/n.umbral)*100)},
+  get notaUmbral(){
+    if(this.estado==='umbral') return 'Visa rompió VAMP por 0,18 puntos. La marca puede sancionar: hay que bloquear los comercios que más contracargos generan.';
+    return 'A Visa le faltan 0,08 puntos para romper VAMP. Mastercard tiene 0,40 de margen.';
+  },
+
+  motivos:[
+    {code:'13.1',label:'No recibido',monto:'$114.200',pct:54,anom:true,color:'hsl(var(--chart-1))'},
+    {code:'12.6',label:'Pago duplicado',monto:'$41.700',pct:19,anom:false,color:'hsl(var(--chart-2))'},
+    {code:'13.3',label:'No como se describe',monto:'$33.400',pct:16,anom:false,color:'hsl(var(--chart-3))'},
+    {code:'10.4',label:'Fraude sin presencia de tarjeta',monto:'$25.020',pct:11,anom:false,color:'hsl(var(--chart-5))'},
+  ],
+  serie:[{dia:'19',not:22,deb:38},{dia:'20',not:30,deb:44},{dia:'21',not:26,deb:52},{dia:'22',not:41,deb:48},
+         {dia:'23',not:35,deb:61},{dia:'24',not:28,deb:74},{dia:'25',not:44,deb:66},{dia:'26',not:52,deb:81}],
+
+  filas:[
+    {id:'CBK-884412',franq:'Visa',fcolor:'#1434CB',adq:'Credibanco',fecha:'26 ago',monto:'2.140',mon:'USD',motivo:'13.1',estado:'Debitado',tarjeta:'4821',accion:'Bloquear'},
+    {id:'CBK-884390',franq:'Mastercard',fcolor:'#EB001B',adq:'Redeban',fecha:'26 ago',monto:'890',mon:'USD',motivo:'4834',estado:'Doble débito',tarjeta:'2019',accion:'Reclamar'},
+    {id:'CBK-884377',franq:'Visa',fcolor:'#1434CB',adq:'Credibanco',fecha:'25 ago',monto:'3.100',mon:'USD',motivo:'10.4',estado:'Debitado',tarjeta:'7734',accion:'Bloquear'},
+    {id:'CBK-884341',franq:'Amex',fcolor:'#016FD0',adq:'Amex Direct',fecha:'25 ago',monto:'540',mon:'USD',motivo:'C08',estado:'Notificado',tarjeta:'3391',accion:'Gestionar'},
+    {id:'CBK-884299',franq:'Visa',fcolor:'#1434CB',adq:'Redeban',fecha:'24 ago',monto:'2.015',mon:'USD',motivo:'13.3',estado:'Notificado',tarjeta:'5560',accion:'Gestionar'},
+    {id:'CBK-884255',franq:'Mastercard',fcolor:'#EB001B',adq:'Credibanco',fecha:'24 ago',monto:'420',mon:'USD',motivo:'4837',estado:'Debitado',tarjeta:'8812',accion:'Bloquear'},
+  ],
+  badge(e){return {
+    'Debitado':'bg-destructive/10 text-destructive',
+    'Notificado':'bg-warning/15 text-warning',
+    'Doble débito':'bg-destructive text-white',
+    'Revertido':'bg-success/15 text-success',
+  }[e]||'bg-secondary text-muted-foreground'},
+
+  controles:[
+    {id:'tarjetas',icon:'credit-card',titulo:'Tarjetas por bloquear',sub:'De lo debitado que todavía no se bloquea',n:'847',cta:'Bloquear en lote',hallazgo:false,
+     detalle:'Cada día sin bloquear es exposición a que la misma tarjeta vuelva a transar. Se pueden bloquear una por una o todas las del corte.'},
+    {id:'doble',icon:'copy',titulo:'Doble débito',sub:'Descontado dos veces sobre la misma transacción',n:'23',cta:'Marcar para reclamo',hallazgo:true,
+     detalle:'Agrupados por transacción original. Es plata recuperable: el adquirente descontó en la liquidación y otra vez en el refund.'},
+    {id:'cruce',icon:'git-compare',titulo:'Sin cruce con venta interna',sub:'Contracargos que no machean con la venta',n:'64',cta:'Ir a la conciliación',hallazgo:false,
+     detalle:'Puede ser una llave de cruce que no resolvió o un contracargo que no corresponde a una venta tuya. Se revisa en la conciliación.'},
+  ],
+
+  init(){ this.$nextTick(()=>lucide.createIcons());
+          this.$watch('estado',()=>this.$nextTick(()=>lucide.createIcons()));
+          this.$watch('pagina',()=>this.$nextTick(()=>lucide.createIcons()));
+          this.$watch('monitor',()=>this.$nextTick(()=>lucide.createIcons()));
+          this.$watch('chat',()=>this.$nextTick(()=>lucide.createIcons())); },
+}}
+</script>
+</body>
+</html>
