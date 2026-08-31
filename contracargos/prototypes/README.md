@@ -2,66 +2,49 @@
 
 | Archivo | Qué es | Estado |
 |---|---|---|
-| `../Simetrik · Centro de Disputas — Operations Center.html` | **⭐ El archivo de la presentación.** El proto de Andrea, con las dos experiencias de acceso integradas encima | Listo para presentar, 27-ago-2026 |
-| `acceso-al-tablero-ab.html` | Las mismas dos experiencias, versión limpia sobre tokens desyk | Alterno, 26-ago-2026 |
-| `contracargos-merchant.html` | El tablero al que llegan las dos. Tokens desyk reales | Iterable, 26-ago-2026 |
-| `plans/archivo-julio-2026/proto-andrea-original-2026-06-30.html` | El proto de Andrea **sin tocar** | Respaldo del original |
+| `acceso-marketplace.html` | **⭐ El que se presenta.** El camino del merchant desde el Marketplace hasta el tablero operando | Al día con la sesión del 28-ago |
+| `contracargos-merchant.html` | El tablero al que llega. Tokens desyk reales | Iterable, 28-ago-2026 |
+| `../plans/archivo-agosto-2026/presentacion-ab-2026-08-27.html` | La presentación A/B sobre el proto de Andrea. **Archivada:** la opción B se descartó el 28-ago | Archivo |
+| `../plans/archivo-julio-2026/proto-andrea-original-2026-06-30.html` | El proto de Andrea **sin tocar** | Respaldo del original |
 
 ---
 
-## El archivo de la presentación
+## Qué cambió el 28-ago
 
-Los dos caminos viven **dentro del prototipo de Andrea**, que es el que se presenta. Se añadieron como una capa: todo lleva prefijo `pz-` y se inyecta por JavaScript, así que **el markup y el JS originales no se modificaron**. El respaldo del original está en `plans/archivo-julio-2026/`.
+La sesión con Andrea cerró el A/B y reacotó el prototipo. Las decisiones y su rastro están en `../plans/05-cambios-post-sesion-28-ago.md`; acá queda lo que se ve en pantalla:
 
-**Cómo se maneja en vivo**
-
-| Gesto | Qué hace |
-|---|---|
-| Botones **Opción A / Opción B** | Cambia de camino y vuelve al paso 1 |
-| Rail de pasos | Salta a cualquier paso |
-| **← →** | Paso anterior y siguiente |
-| **A** / **B** | Salta de camino sin usar el mouse |
-
-Cada paso trae abajo el título de lo que se ve y por qué, para no tener que recordar el guion. Cuando el paso depende de algo que no existe todavía, sale una etiqueta amarilla a la derecha.
-
-Los caminos usan el shell real del prototipo: el sidebar marca Marketplace o Centro de operaciones según dónde esté el usuario, y el tablero final es el mismo de Andrea. El tab **Tableros** del header devuelve siempre al tablero ya montado.
+- **Gana el Marketplace.** La opción B (sugerencia proactiva en el Centro de operaciones) se descartó y salió del prototipo. Le quitaba visibilidad al usuario —si el motor no podía armar el tablero, el merchant nunca se enteraba de que podía— y una sugerencia que se cierra obliga a inventar cómo devolverla
+- **Una tarjeta por tipo de actor** en el catálogo: merchant, adquirente, PSP y emisor. Se descartó que el backend infiriera el actor por la industria del cliente, porque hay clientes que son dos cosas a la vez: Melin tiene Mercado Pago (PSP) y marketplace, y dLocal opera cuatro industrias. Solo merchant navega; adquirente ya existe en dev y hay que refinarlo, PSP está por definir y emisor queda fuera de alcance
+- **Sin selector de rol dentro del tablero.** El actor lo define el template que se instaló, no un switch en la vista
+- **Sin pestaña de Disputas.** Baja a ser un gráfico más del tablero, para que el usuario no tenga que irse a otro lado
+- **Sin flujo del emisor.** Los 8 pasos tipo Mastercard son de otro actor que todavía no se toca
 
 ---
 
-## acceso-al-tablero-ab.html
+## acceso-marketplace.html
 
-Responde la pregunta que dejó Andrea: *"no sé dónde meterle el cómo llegar a esa mierda del tablero"*. Dos experiencias completas, recorribles paso a paso, con switch arriba.
+Siete pasos, recorribles con el rail de arriba o con Atrás / Siguiente. Alpine + Tailwind sobre los tokens de `design.md`.
 
-### Opción A · Template en el Marketplace — 4 pasos
+| # | Paso | Qué muestra |
+|---|---|---|
+| 1 | Catálogo | Las cuatro tarjetas por actor dentro de la categoría *contracargos*, que ya existe en dev |
+| 2 | Detalle | Vista previa con datos de ejemplo, el **árbol de dependencias** de todo lo que se va a crear y qué hereda del Centro de operaciones |
+| 3 | Espacio de trabajo | Dónde se instala. La pantalla ya existe en el Marketplace |
+| 4 | Instalación | Asíncrona: tablero, conjuntos de datos, conciliaciones y anomalías |
+| 5 | Aterrizaje | El tablero creado **aunque falte una fuente**. No bloquea: solo espera lo que depende de ella |
+| 6 | Conectar la fuente | Vincular recursos existentes en vez de cargar archivos, con la confianza del motor y las dos salidas para corregir |
+| 7 | Tablero listo | Operando, con el monitoreo vigilando el ratio y las fuentes |
 
-1. **Catálogo** con Contracargos
-2. **Detalle**: vista previa del tablero, categorías, publicador, beneficios
-3. **Instalación** asíncrona
-4. **Tablero operando**, usable de una
+### El argumento, en una línea
 
-> Las fuentes de notificados y debitados de los marketplaces ya están integradas en Simetrik, así que el template se instala con fuentes preintegradas: **no hay pantalla de configuración, ni carga de archivos, ni widgets bloqueados**.
+**Economía de lógica.** El Marketplace ya resuelve separar casos de uso, elegir espacio, mostrar el árbol de dependencias, manejar la fuente faltante y crear el conjunto de datos. Y como lo instalado es un conjunto de datos normal, el tablero hereda gratis las anomalías, las alertas por incidente y los resúmenes del Operation Center.
 
-### Opción B · Sugerencia en el Centro de operaciones — 3 pasos
+### Lo que hay que resolver, y no es de diseño
 
-1. **Lo ve sugerido** en su lista de tableros, sin buscarlo
-2. **Revisa qué se detectó**, con la confianza por recurso y la opción de corregir
-3. **Tablero operando**
-
-### El argumento
-
-Las dos terminan en el **mismo tablero**. La puerta se decide después; el contenido no cambia. Por eso no son dos construcciones, son la misma con dos entradas: cuando A existe, la sugerencia de B simplemente instala el template ya publicado.
-
-Recomendación: **A primero, B después.** A no inventa interfaz: el template, el preview, la instalación y el destacado del catálogo ya están construidos y verificados en `fe-solutions-mf` y en el Brain. Y con las fuentes preintegradas queda en 3 clics, contra 2 de B, así que **el argumento de "menos pasos" que sostenía a B se desinfló**. Lo que le queda a B es que el merchant no tiene que saber que el template existe; es real, pero ya no compensa inventar un patrón de "sugerido" en esta iteración.
-
-### Lo que hay que decidir el viernes, y no es de diseño
-
-- El catálogo del Marketplace es **global, cross-account**. No hay segmentación por cuenta: publicar Contracargos significa que lo ven todas las cuentas habilitadas, no solo los 11 marketplaces
-- **No hay actualización en sitio.** Si mejoramos el template, quien ya lo instaló se queda con la versión vieja
-- Los nombres de los recursos instalados se sufijan con timestamp
-
-### Hallazgo que vale la pena resaltar en la presentación
-
-**Instalar y ya.** Para los marketplaces el template se arma con fuentes preintegradas, así que entre abrir el catálogo y tener el control operando hay tres clics. Ese es el argumento más fuerte de la opción A y conviene decirlo con esas palabras.
+- **¿Todos los clientes ven el Marketplace?** Es el bloqueante real. Si el acceso está restringido por permisos, el camino de entrada se replantea entero
+- El catálogo es **global, cross-account**: publicar Contracargos significa que lo ven todas las cuentas habilitadas, no solo los marketplaces
+- **No hay actualización en sitio:** quien ya instaló se queda con la versión vieja del template
+- Alinear con **Pedro Marota**, que va a montar controles de contracargos desde el Simetrik Agent
 
 ---
 
@@ -110,5 +93,7 @@ Tailwind CDN + Alpine + Lucide, tokens de `design.md`. Un solo archivo, sin depe
 ## Pendiente
 
 - Las pestañas Notificados y Debitados son placeholder, falta definir columnas con Andrea
-- Falta el prototipo A/B/C de las rutas de acceso (`plans/01`), que es el otro entregable del viernes
 - El ciclo de vida del contracargo está bloqueado hasta que Santi confirme las llaves de cruce
+- **Averiguar los permisos de acceso al Marketplace por tipo de cliente.** Bloqueante: si no todos lo ven, el camino de entrada se replantea
+- Refinar los templates de contracargos que ya están en dev (categoría y template de adquirencia, de Daiver Doria)
+- Definir qué métricas cambian para PSP y para adquirente respecto al merchant
