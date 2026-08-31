@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contracargos · UX Team Simetrik</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>html{font-family:Inter,ui-sans-serif,system-ui,sans-serif}</style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+<div class="max-w-3xl mx-auto px-6 py-14">
+
+  <a href="../" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 mb-8">
+    <i data-lucide="arrow-left" class="w-4 h-4"></i> Prototypes HTML
+  </a>
+
+  <h1 class="text-3xl font-semibold tracking-tight">Contracargos</h1>
+  <p class="text-slate-600 mt-3 leading-relaxed">
+    Control de contracargos para los marketplaces de Simetrik. Los archivos de <b>notificados</b> y <b>debitados</b>
+    llegan por SFTP y hoy terminan en un export que nadie abre. El tablero los convierte en una operación diaria:
+    qué te van a debitar, qué ya te debitaron, la tasa contra los umbrales de Visa y Mastercard, y las tarjetas
+    que faltan por bloquear.
+  </p>
+
+  <div class="mt-9 space-y-3">
+
+    <a href="./Simetrik%20%C2%B7%20Centro%20de%20Disputas%20%E2%80%94%20Operations%20Center.html"
+       class="group block bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-sm transition-all">
+      <div class="flex items-start gap-4">
+        <span class="shrink-0 w-9 h-9 rounded-lg bg-blue-50 grid place-items-center"><i data-lucide="presentation" class="w-4 h-4 text-blue-600"></i></span>
+        <div class="min-w-0">
+          <h2 class="font-semibold flex items-center gap-2">Cómo se llega al tablero
+            <span class="text-[11px] font-medium bg-blue-100 text-blue-700 rounded px-1.5 py-0.5">Para presentar</span></h2>
+          <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+            Las dos experiencias de acceso, opción A y opción B, sobre el prototipo del centro de disputas.
+            El control está en el botón flotante de abajo a la derecha.
+          </p>
+        </div>
+        <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-900 shrink-0"></i>
+      </div>
+    </a>
+
+    <a href="./prototypes/contracargos-merchant.html"
+       class="group block bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-sm transition-all">
+      <div class="flex items-start gap-4">
+        <span class="shrink-0 w-9 h-9 rounded-lg bg-slate-100 grid place-items-center"><i data-lucide="layout-grid" class="w-4 h-4 text-slate-600"></i></span>
+        <div class="min-w-0">
+          <h2 class="font-semibold">Tablero de contracargos</h2>
+          <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+            El tablero para merchant sobre los tokens reales de desyk. Selector de estado arriba:
+            operación normal, umbral de red roto y detección parcial.
+          </p>
+        </div>
+        <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-900 shrink-0"></i>
+      </div>
+    </a>
+
+    <a href="./prototypes/acceso-al-tablero-ab.html"
+       class="group block bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-sm transition-all">
+      <div class="flex items-start gap-4">
+        <span class="shrink-0 w-9 h-9 rounded-lg bg-slate-100 grid place-items-center"><i data-lucide="git-compare" class="w-4 h-4 text-slate-600"></i></span>
+        <div class="min-w-0">
+          <h2 class="font-semibold">Acceso al tablero · versión limpia</h2>
+          <p class="text-sm text-slate-600 mt-1 leading-relaxed">
+            Las mismas dos opciones, en una versión aparte con la comparación de criterios y la recomendación escritas.
+          </p>
+        </div>
+        <i data-lucide="arrow-up-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-900 shrink-0"></i>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="mt-10 border-t border-slate-200 pt-6">
+    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Documentación</h3>
+    <div class="flex flex-wrap gap-2">
+      <a href="https://github.com/andresladino-design/Prototypes-HTML-/blob/main/contracargos/plans/00-plan-de-trabajo.md" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="file-text" class="w-4 h-4"></i> Plan de trabajo</a>
+      <a href="https://github.com/andresladino-design/Prototypes-HTML-/blob/main/contracargos/plans/01-spec-acceso-al-tablero.md" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="route" class="w-4 h-4"></i> Spec de acceso</a>
+      <a href="https://github.com/andresladino-design/Prototypes-HTML-/blob/main/contracargos/plans/02-spec-tablero-merchant.md" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="layout-grid" class="w-4 h-4"></i> Spec del tablero</a>
+      <a href="https://github.com/andresladino-design/Prototypes-HTML-/blob/main/contracargos/plans/04-respuestas-preguntas-abiertas.md" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="search-check" class="w-4 h-4"></i> Hallazgos</a>
+      <a href="https://github.com/andresladino-design/Prototypes-HTML-/blob/main/contracargos/design.md" class="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5"><i data-lucide="palette" class="w-4 h-4"></i> design.md</a>
+    </div>
+  </div>
+
+  <p class="mt-10 text-xs text-slate-500">Con Andrea Giraldo · UX Team Simetrik</p>
+</div>
+<script>lucide.createIcons()</script>
+</body>
+</html>
