@@ -4,8 +4,9 @@
 |---|---|---|
 | `acceso-marketplace.html` | **⭐ El que se presenta.** El camino del merchant desde el Marketplace hasta el tablero operando | Al día con la sesión del 28-ago |
 | `contracargos-merchant.html` | El tablero al que llega. Tokens desyk reales | Iterable, 28-ago-2026 |
-| `../plans/archivo-agosto-2026/presentacion-ab-2026-08-27.html` | La presentación A/B sobre el proto de Andrea. **Archivada:** la opción B se descartó el 28-ago | Archivo |
 | `../plans/archivo-julio-2026/proto-andrea-original-2026-06-30.html` | El proto de Andrea **sin tocar** | Respaldo del original |
+
+> La presentación A/B que se mostró el 27-ago se borró: su único aporte sobre el original de Andrea era la capa de las dos opciones, y la opción B quedó descartada el 28-ago. Vive en el historial de git si hiciera falta.
 
 ---
 

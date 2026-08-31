@@ -11,12 +11,12 @@
 
 | Decisión | Qué se aprobó |
 |---|---|
-| **Archivos** | **Camino 2.** `contracargos-merchant.html` es el tablero destino; sobre `acceso-al-tablero-ab.html` se rehace el camino del Marketplace. El HTML de 400 KB de la presentación se archiva |
+| **Archivos** | **Camino 2.** `contracargos-merchant.html` es el tablero destino; sobre `acceso-al-tablero-ab.html` se rehace el camino del Marketplace. El HTML de 400 KB de la presentación **se borra**: su único aporte sobre el original de Andrea era la capa A/B |
 | **Opción B** | **Se borra.** Fuera del prototipo entera. El porqué del descarte vive en este documento, no en la interfaz |
 | **Tarjetas por actor** | **Las 4 visibles, solo merchant navega.** El catálogo muestra adquirente / PSP / emisor / merchant; solo merchant tiene detalle e instalación reales |
 | **Flujo del emisor** | **Se borra.** No se extrae a un HTML aparte. El respaldo es `plans/archivo-julio-2026/proto-andrea-original-2026-06-30.html`, que lo conserva intacto |
 
-> **Consecuencia a manejar:** al archivar el HTML de la presentación cambia el link que hoy está publicado en Pages. Hay que reapuntar `contracargos/index.html` y el `index.html` de la raíz al nuevo prototipo principal.
+> **Consecuencia a manejar:** al borrar el HTML de la presentación cambia el link que hoy está publicado en Pages. Hay que reapuntar `contracargos/index.html` y el `index.html` de la raíz al nuevo prototipo principal.
 
 ---
 
