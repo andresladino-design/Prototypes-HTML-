@@ -2011,7 +2011,7 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
 
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     CÓMO SE LLEGA AL TABLERO · Opción A y Opción B
+     CÓMO SE LLEGA AL TABLERO · Marketplace
      Capa de presentación añadida sobre el prototipo. 26-ago-2026.
      Todo va con prefijo pz- y se inyecta por JS: no toca el markup original.
      ═══════════════════════════════════════════════════════════════════ -->
@@ -2196,7 +2196,7 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
     padding:8px 16px;font-size:11.5px;font-weight:600;color:hsl(var(--muted-foreground));box-shadow:0 4px 14px rgba(16,18,27,.07)}
 </style>
 <script>
-/* ═══ CÓMO SE LLEGA AL TABLERO · Opción A / Opción B ═══════════════════
+/* ═══ CÓMO SE LLEGA AL TABLERO · Marketplace ══════════════════════════
    Capa de presentación. No modifica el markup ni el JS originales:
    inyecta sus vistas y controla la visibilidad de las que ya existían.   */
 (function(){
@@ -2214,7 +2214,7 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
 
   /* ── Guion ─────────────────────────────────────────────────────── */
   const OPC = {
-    a:{ chip:'Opción A', nombre:'Template en el Marketplace',
+    a:{ chip:'Cómo se llega al tablero', nombre:'Template en el Marketplace',
         pasos:[
           {id:'a1', nav:'Marketplace', t:'El template va destacado en el catálogo',
            d:'El Marketplace Manager ya permite elegir qué templates salen destacados y recomendados. Esto es configuración, no interfaz nueva.'},
@@ -2223,16 +2223,7 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
           {id:'a3', nav:'Instalación', t:'La instalación corre sola',
            d:'Asíncrona: crea el tablero, los conjuntos de datos, las conciliaciones y las anomalías ya configuradas. El monitoreo no lo arma el merchant, viene puesto dentro del template.'},
           {id:'ok', nav:'Tablero listo', t:'Queda usable, sin configurar nada',
-           d:'Las fuentes del template ya están integradas para los marketplaces, así que el tablero aterriza con datos reales. Sin pantalla de configuración, sin cargar archivos, sin widgets bloqueados. Mismo destino que la opción B.'},
-        ]},
-    b:{ chip:'Opción B', nombre:'Sugerencia en el Centro de operaciones',
-        pasos:[
-          {id:'b1', nav:'Lo ve sugerido', t:'Aparece en su lista de tableros, sin buscarlo',
-           d:'El bloque va marcado como inferido por el sistema, con la confianza a la vista. Este patrón hay que inventarlo: hoy la lista solo tiene Favoritos y Tableros.'},
-          {id:'b2', nav:'Revisa qué detectamos', t:'Puede revisar y corregir antes de aceptar',
-           d:'El motor acierta entre el 30% y el 70% según qué tan raros sean los nombres de los recursos. Mostrar la confianza y dejar corregir es lo que hace que el merchant confíe.'},
-          {id:'ok', nav:'Tablero listo', t:'Operando con datos reales',
-           d:'Mismo destino que la opción A. Por detrás instala exactamente el mismo template.'},
+           d:'Las fuentes del template ya están integradas para los marketplaces, así que el tablero aterriza con datos reales. Sin pantalla de configuración, sin cargar archivos, sin widgets bloqueados.'},
         ]},
   };
 
@@ -2249,12 +2240,11 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
   panel.innerHTML=`
     <div class="hd">
       <div class="t">Cómo llega el merchant al tablero</div>
-      <div class="s">Dos experiencias. Las dos terminan en el mismo tablero.</div>
+      <div class="s">Se instala desde el Marketplace, on demand.</div>
     </div>
-    <div class="pz-seg" id="pzSeg"><button data-o="a">Opción A</button><button data-o="b">Opción B</button></div>
     <div class="pz-steps" id="pzSteps"></div>
     <div class="pz-navb"><button id="pzPrev">‹ Atrás</button><button id="pzNext">Siguiente ›</button></div>
-    <div class="kbd">← → para moverte · A / B para cambiar de camino</div>`;
+    <div class="kbd">← → para moverte</div>`;
   document.body.appendChild(panel);
 
   let abierto=false;
@@ -2357,33 +2347,6 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
     </div>`;
   content.appendChild(det);
 
-  const dtc=document.createElement('div'); dtc.className='pz-view'; dtc.id='pzDetect';
-  dtc.innerHTML=`
-    <div class="pz-hd"><h1 style="display:flex;align-items:center;gap:8px">${flower}Esto es lo que encontramos</h1>
-      <p>Revisa la clasificación antes de armar el tablero. La puedes corregir.</p></div>
-    <div class="pz-pad">
-      <div class="note" style="margin-top:0">${flower}
-        <div>Clasificamos <b>3 de tus 9 recursos</b> como contracargos, con una confianza promedio del <b>68%</b>. Los nombres de los otros 6 no son concluyentes.</div>
-      </div>
-      <div class="dcard" style="margin-top:16px"><table class="dtable">
-        <thead><tr><th>Recurso</th><th>Lo leemos como</th><th>Confianza</th><th style="text-align:right">Corregir</th></tr></thead>
-        <tbody>${[['rappi_cbk_notif_co','Notificados',82],['rappi_cbk_deb_co','Debitados',76],
-                  ['rappi_contracargos_mx','Debitados',47],['rappi_ajustes_varios','No es contracargo',38]]
-          .map(([r,c,p])=>`<tr>
-            <td class="tnum" style="font-weight:600">${r}</td>
-            <td><span class="pz-tag" style="background:${c==='No es contracargo'?'hsl(var(--muted))':'hsl(var(--primary)/0.1)'};color:${c==='No es contracargo'?'hsl(var(--muted-foreground))':'hsl(var(--primary))'}">${c}</span></td>
-            <td><div style="display:flex;align-items:center;gap:8px">
-              <div style="width:70px;height:5px;border-radius:99px;background:hsl(var(--muted));overflow:hidden">
-                <i style="display:block;height:100%;width:${p}%;background:${p>60?'hsl(var(--success))':'hsl(var(--warning))'}"></i></div>
-              <span class="tnum" style="font-size:11px;color:hsl(var(--muted-foreground))">${p}%</span></div></td>
-            <td style="text-align:right"><button class="btn" style="padding:5px 10px;font-size:11px">Cambiar</button></td></tr>`).join('')}
-        </tbody></table></div>
-      <div style="display:flex;align-items:center;gap:14px;margin-top:16px">
-        <p style="font-size:11.5px;color:hsl(var(--muted-foreground))">Si algo está mal clasificado, corrígelo ahora o después desde el conjunto de datos.</p>
-        <button class="btn primary" id="pzBuild" style="margin-left:auto">Armar el tablero ${ic(I.arr,15)}</button>
-      </div>
-    </div>`;
-  content.appendChild(dtc);
 
   /* Aviso sobre el tablero */
     const done=document.createElement('div'); done.id='pzDone';
@@ -2391,18 +2354,11 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
   const dv=document.getElementById('dashview');
   dv.parentNode.insertBefore(done,dv);
 
-  /* Bloque de sugerencia en la lista de tableros */
-  const sug=document.createElement('div'); sug.id='pzSug';
-  sug.innerHTML=`<div class="h">◇ Sugerido para ti</div>
-    <div class="t">Encontramos contracargos en 3 de tus fuentes</div>
-    <div class="s">Rappi CO, Rappi MX, PedidosYa BR · confianza 68%</div>
-    <button id="pzSeeDetect">Ver qué detectamos</button>`;
-  const ls=$('.lscroll'); ls.insertBefore(sug, ls.firstChild);
 
   /* ── Motor ─────────────────────────────────────────────────────── */
   function reset(){
-    ['pzMkt','pzMktDetail','pzDetect'].forEach(id=>document.getElementById(id).classList.remove('show'));
-    ['pzDone','pzSug'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    ['pzMkt','pzMktDetail'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    ['pzDone'].forEach(id=>document.getElementById(id).classList.remove('show'));
     inst.classList.remove('show');
     document.getElementById('flowview').classList.remove('show');
     document.getElementById('caseView').classList.remove('show');
@@ -2433,8 +2389,6 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
     a1(){ document.getElementById('pzMkt').classList.add('show'); navOn('Marketplace'); },
     a2(){ document.getElementById('pzMktDetail').classList.add('show'); navOn('Marketplace'); },
     a3(){ inst.classList.add('show'); navOn('Marketplace'); },
-    b1(){ board('ghost'); document.getElementById('pzSug').classList.add('show'); },
-    b2(){ document.getElementById('pzDetect').classList.add('show'); navOn('Centro de operaciones'); },
     ok(){ board('ok'); },
   };
 
@@ -2442,7 +2396,6 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
     opc=o; paso=Math.max(0,Math.min(OPC[o].pasos.length-1,p));
     reset(); (RENDER[cur().id]||RENDER.ok)();
     // control de la demo
-    document.querySelectorAll('#pzSeg button').forEach(b=>b.classList.toggle('on',b.dataset.o===opc));
     document.getElementById('pzSteps').innerHTML=OPC[opc].pasos.map((st,i)=>
       `<div class="pz-step ${i===paso?'on':i<paso?'done':''}" data-i="${i}">
          <span class="n">${i+1}</span>
@@ -2451,33 +2404,28 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
     document.querySelectorAll('#pzSteps .pz-step').forEach(el=>el.onclick=()=>go(opc,+el.dataset.i));
     document.getElementById('pzPrev').disabled = paso===0;
     document.getElementById('pzNext').disabled = paso===OPC[opc].pasos.length-1;
-    document.getElementById('pzFabT').textContent = OPC[opc].chip + ' · ' + cur().nav;
+    document.getElementById('pzFabT').textContent = cur().nav;
     document.getElementById('pzFabP').textContent = (paso+1) + '/' + OPC[opc].pasos.length;
   }
 
   /* ── Eventos ───────────────────────────────────────────────────── */
-  document.getElementById('pzSeg').onclick = e => { const b=e.target.closest('button'); if(b) go(b.dataset.o,0); };
   document.getElementById('pzPrev').onclick = () => go(opc,paso-1);
   document.getElementById('pzNext').onclick = () => go(opc,paso+1);
   document.querySelectorAll('.pzTplCbk').forEach(c=>c.onclick=()=>go('a',1));
   document.getElementById('pzBackMkt').onclick  = () => go('a',0);
   document.getElementById('pzInstall').onclick  = () => go('a',2);
-  document.getElementById('pzSeeDetect').onclick= () => go('b',1);
-  document.getElementById('pzBuild').onclick    = () => go('b',2);
   document.addEventListener('keydown',e=>{
     if(e.target.matches('input,textarea')) return;
     if(e.key==='ArrowRight') go(opc,paso+1);
     if(e.key==='ArrowLeft')  go(opc,paso-1);
-    if(e.key==='a'||e.key==='A') go('a',0);
-    if(e.key==='b'||e.key==='B') go('b',0);
     if(e.key==='Escape'&&abierto) togglePanel(false);
   });
 
   /* Cualquier navegación nativa del prototipo tiene que apagar esta capa,
      si no las vistas se apilan sobre las de Andrea. */
   function hidePz(){
-    ['pzMkt','pzMktDetail','pzDetect'].forEach(id=>document.getElementById(id).classList.remove('show'));
-    ['pzDone','pzSug'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    ['pzMkt','pzMktDetail'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    ['pzDone'].forEach(id=>document.getElementById(id).classList.remove('show'));
     inst.classList.remove('show');
     document.getElementById('dashview').classList.remove('pz-dim');
     document.querySelectorAll('.pz-ghost').forEach(g=>g.remove());
@@ -2490,7 +2438,6 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
   },true);
   // Lista de tableros y detalle de caso: también salen de la capa
   document.querySelector('.lcol').addEventListener('click',e=>{
-    if(e.target.closest('#pzSug')) return;          // el bloque sugerido sí es nuestro
     if(e.target.closest('.ditem')) hidePz();
   },true);
   // Sidebar: Marketplace y Centro de operaciones sí navegan

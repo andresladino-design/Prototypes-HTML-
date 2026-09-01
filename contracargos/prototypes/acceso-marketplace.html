@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Cómo se llega al tablero de Contracargos · Opción A y B</title>
+<title>Contracargos en el Marketplace · Cómo llega el merchant al tablero</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -54,51 +54,33 @@ tailwind.config={theme:{extend:{
 </script>
 </head>
 <body x-data="demo()" x-cloak class="min-h-screen">
+<body x-data="demo()" x-cloak class="min-h-screen">
 
 <!-- ═════ BARRA DE PRESENTACIÓN ═════ -->
 <header class="sticky top-0 z-40 border-b border-border bg-background">
   <div class="flex flex-wrap items-center gap-4 px-6 py-3">
     <div class="min-w-0">
       <h1 class="text-sm font-semibold">Cómo llega el merchant al tablero de Contracargos</h1>
-      <p class="text-[11.5px] text-muted-foreground">Dos experiencias propuestas. Ambas terminan en el mismo tablero.</p>
+      <p class="text-[11.5px] text-muted-foreground">Se instala desde el Marketplace, on demand, con una tarjeta por tipo de actor.</p>
     </div>
-    <div class="ml-auto flex items-center gap-1 rounded-full bg-secondary p-1">
-      <template x-for="o in opciones" :key="o.id">
-        <button @click="ir(o.id,0)"
-          class="rounded-full px-4 py-1.5 text-xs font-medium transition-colors"
-          :class="opcion===o.id?'bg-background shadow-sm text-foreground':'text-muted-foreground hover:text-foreground'">
-          <span x-text="o.chip"></span>
-        </button>
-      </template>
-    </div>
+    <span class="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-[11.5px] font-medium text-success">
+      <i data-lucide="check" class="h-3.5 w-3.5"></i>Decidido el 28-ago con Andrea
+    </span>
   </div>
   <div class="flex items-center gap-3 border-t border-border bg-[hsl(var(--muted))] px-6 py-2 text-[11.5px]">
     <i data-lucide="info" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
-    <span class="text-muted-foreground">Prototipo demostrativo para recoger feedback. En el handoff queda <b class="font-medium text-foreground">una sola</b> de las dos.</span>
+    <span class="text-muted-foreground">El camino no inventa interfaz: el catálogo, el detalle, la instalación y el manejo de fuentes faltantes <b class="font-medium text-foreground">ya existen</b> en el Marketplace.</span>
     <a href="contracargos-merchant.html" class="ml-auto flex shrink-0 items-center gap-1 font-medium text-primary hover:underline">
-      Ver el tablero al que llegan<i data-lucide="arrow-right" class="h-3 w-3"></i>
+      Ver el tablero al que llega<i data-lucide="arrow-right" class="h-3 w-3"></i>
     </a>
   </div>
 </header>
 
 <div class="mx-auto max-w-[1400px] px-6 py-5">
 
-  <!-- Encabezado de la opción -->
-  <div class="mb-4 flex flex-wrap items-start gap-4">
-    <div class="min-w-0 flex-1">
-      <h2 class="text-lg font-semibold" x-text="op.titulo"></h2>
-      <p class="mt-0.5 max-w-3xl text-[13px] text-muted-foreground" x-text="op.bajada"></p>
-    </div>
-    <div class="flex shrink-0 gap-2">
-      <template x-for="t in op.tags" :key="t.l">
-        <span class="rounded-full px-2.5 py-1 text-[11px] font-medium" :class="t.c" x-text="t.l"></span>
-      </template>
-    </div>
-  </div>
-
   <!-- Rail de pasos -->
   <div class="mb-4 flex flex-wrap items-center gap-1.5">
-    <template x-for="(p,i) in op.pasos" :key="p.id">
+    <template x-for="(p,i) in pasos" :key="p.id">
       <button @click="paso=i" class="group flex items-center gap-2">
         <span class="flex items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-3 text-[11.5px] font-medium transition-colors"
           :class="i===paso?'border-primary bg-primary text-primary-foreground'
@@ -108,14 +90,13 @@ tailwind.config={theme:{extend:{
             :class="i===paso?'bg-primary-foreground/25':'bg-secondary'" x-text="i+1"></span>
           <span x-text="p.nav"></span>
         </span>
-        <i x-show="i<op.pasos.length-1" data-lucide="chevron-right" class="h-3.5 w-3.5 text-muted-foreground/50"></i>
+        <i x-show="i<pasos.length-1" data-lucide="chevron-right" class="h-3.5 w-3.5 text-muted-foreground/50"></i>
       </button>
     </template>
   </div>
 
   <!-- ═════ CANVAS ═════ -->
   <div class="overflow-hidden rounded-xl border border-border bg-background shadow-sm">
-    <!-- chrome del navegador -->
     <div class="flex items-center gap-2 border-b border-border bg-[hsl(var(--muted))] px-3 py-2">
       <span class="flex gap-1.5"><i class="h-2.5 w-2.5 rounded-full bg-border"></i><i class="h-2.5 w-2.5 rounded-full bg-border"></i><i class="h-2.5 w-2.5 rounded-full bg-border"></i></span>
       <div class="ml-2 flex-1 truncate rounded bg-background px-2.5 py-1 text-[11px] text-muted-foreground" x-text="pasoActual.url"></div>
@@ -135,7 +116,7 @@ tailwind.config={theme:{extend:{
         <nav class="space-y-0.5 px-2 text-xs text-sidebar-fg">
           <template x-for="n in nav" :key="n.l">
             <a class="flex items-center gap-2 rounded-md px-2 py-1.5"
-               :class="n.k===pasoActual.nav?'bg-sidebar-accent font-medium text-foreground':'hover:bg-sidebar-accent'">
+               :class="n.k===pasoActual.navk?'bg-sidebar-accent font-medium text-foreground':'hover:bg-sidebar-accent'">
               <i :data-lucide="n.i" class="h-3.5 w-3.5"></i><span x-text="n.l"></span>
             </a>
           </template>
@@ -143,50 +124,60 @@ tailwind.config={theme:{extend:{
       </aside>
 
       <!-- Pantalla -->
-      <div class="min-w-0 flex-1 overflow-y-auto" :key="opcion+paso">
+      <div class="min-w-0 flex-1 overflow-y-auto" :key="paso">
 
-        <!-- ══════════ A1 · CATÁLOGO DEL MARKETPLACE ══════════ -->
-        <div x-show="es('a1')" class="fade">
+        <!-- ══════════ 1 · CATÁLOGO: UNA TARJETA POR ACTOR ══════════ -->
+        <div x-show="es('catalogo')" class="fade">
           <div class="border-b border-border px-6 py-4">
             <h3 class="text-base font-semibold">Marketplace</h3>
             <p class="text-[12px] text-muted-foreground">Controles listos para instalar en tu espacio de trabajo</p>
           </div>
           <div class="p-6">
-            <!-- Destacado: esto ya existe (Marketplace Manager · featured) -->
-            <div class="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-              <i data-lucide="star" class="h-3 w-3"></i>Destacado
+            <div class="mb-3 flex flex-wrap items-center gap-2">
+              <span class="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">Categoría · Contracargos</span>
+              <span class="text-[11.5px] text-muted-foreground">La categoría ya existe en dev</span>
             </div>
-            <div class="mb-6 overflow-hidden rounded-lg border border-primary/30 bg-gradient-to-br from-primary/[0.05] to-transparent">
-              <div class="flex flex-wrap items-center gap-6 p-5">
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <span class="grid h-9 w-9 place-items-center rounded-lg bg-primary/10"><i data-lucide="shield-alert" class="h-5 w-5 text-primary"></i></span>
-                    <div>
-                      <h4 class="text-[15px] font-semibold">Contracargos</h4>
-                      <p class="text-[11.5px] text-muted-foreground">Template by Simetrik.inc · Marketplaces</p>
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <template x-for="a in actores" :key="a.id">
+                <div class="rounded-lg border p-4 transition-colors"
+                     :class="a.estado==='listo'?'cursor-pointer border-primary/40 bg-primary/[0.03] hover:border-primary hover:bg-primary/[0.06]':'border-border opacity-70'"
+                     @click="a.estado==='listo' && (paso=1)">
+                  <div class="flex items-start gap-2.5">
+                    <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+                          :class="a.estado==='listo'?'bg-primary/10':'bg-secondary'">
+                      <i :data-lucide="a.i" class="h-4 w-4" :class="a.estado==='listo'?'text-primary':'text-muted-foreground'"></i>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h4 class="text-[13.5px] font-semibold" x-text="a.n"></h4>
+                        <span class="rounded-full px-2 py-0.5 text-[10.5px] font-medium" :class="a.cls" x-text="a.badge"></span>
+                      </div>
+                      <p class="mt-1.5 text-[11.5px] leading-snug text-muted-foreground" x-text="a.d"></p>
+                      <div class="mt-2.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <i data-lucide="user" class="h-3 w-3"></i>Simetrik.inc
+                        <template x-if="a.estado==='listo'">
+                          <span class="ml-auto flex items-center gap-1 font-medium text-primary">Ver detalle<i data-lucide="arrow-right" class="h-3 w-3"></i></span>
+                        </template>
+                      </div>
                     </div>
                   </div>
-                  <p class="mt-3 max-w-xl text-[13px] text-muted-foreground">
-                    Mira lo que te notificaron y lo que ya te debitaron, con la tasa contra los umbrales de Visa y Mastercard, las tarjetas por bloquear y la detección de doble débito.
-                  </p>
-                  <div class="mt-3 flex flex-wrap gap-1.5">
-                    <template x-for="c in ['Notificado y debitado','Umbral VAMP / ECM','Doble débito','Monitoreo incluido']" :key="c">
-                      <span class="rounded-full border border-border bg-background px-2 py-0.5 text-[11px]" x-text="c"></span>
-                    </template>
-                  </div>
                 </div>
-                <div class="shrink-0">
-                  <button @click="paso=1" class="flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground hover:bg-primary/90">
-                    Ver detalle<i data-lucide="arrow-right" class="h-4 w-4"></i>
-                  </button>
-                </div>
+              </template>
+            </div>
+
+            <div class="mt-4 flex items-start gap-2.5 rounded-lg border border-border bg-[hsl(var(--muted))] p-3.5 text-[12px]">
+              <i data-lucide="layers" class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"></i>
+              <div>
+                <b class="font-semibold">Elige el usuario, no lo infiere el backend.</b>
+                <span class="text-muted-foreground"> Un cliente puede ser dos cosas a la vez: Melin tiene Mercado Pago (PSP) y marketplace, y dLocal opera cuatro industrias. Ese cliente instala varias tarjetas, una por operación.</span>
               </div>
             </div>
 
-            <div class="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Todos los controles</div>
+            <div class="mt-5 mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Otras categorías</div>
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <template x-for="t in catalogo" :key="t.n">
-                <div class="rounded-lg border border-border p-3.5 hover:bg-accent/40">
+                <div class="rounded-lg border border-border p-3.5 opacity-60">
                   <span class="grid h-7 w-7 place-items-center rounded-md bg-secondary"><i :data-lucide="t.i" class="h-4 w-4 text-muted-foreground"></i></span>
                   <div class="mt-2.5 text-[13px] font-medium" x-text="t.n"></div>
                   <div class="mt-0.5 text-[11.5px] text-muted-foreground" x-text="t.d"></div>
@@ -196,15 +187,15 @@ tailwind.config={theme:{extend:{
           </div>
         </div>
 
-        <!-- ══════════ A2 · DETALLE DEL TEMPLATE ══════════ -->
-        <div x-show="es('a2')" class="fade">
+        <!-- ══════════ 2 · DETALLE DEL TEMPLATE ══════════ -->
+        <div x-show="es('detalle')" class="fade">
           <div class="flex items-center gap-2 border-b border-border px-6 py-3 text-[12px] text-muted-foreground">
             <button @click="paso=0" class="hover:text-foreground">Marketplace</button>
-            <i data-lucide="chevron-right" class="h-3 w-3"></i><span class="text-foreground">Contracargos</span>
+            <i data-lucide="chevron-right" class="h-3 w-3"></i><span class="text-foreground">Contracargos merchant</span>
           </div>
           <div class="grid gap-6 p-6 lg:grid-cols-[1fr_320px]">
             <div class="min-w-0 space-y-5">
-              <!-- Preview con mock data: patrón real del producto -->
+              <!-- Vista previa -->
               <div>
                 <div class="mb-2 flex items-center justify-between">
                   <h4 class="text-[13px] font-semibold">Vista previa</h4>
@@ -233,16 +224,60 @@ tailwind.config={theme:{extend:{
                 </div>
               </div>
 
+              <!-- Árbol de dependencias -->
               <div>
-                <h4 class="mb-2 text-[13px] font-semibold">Qué se instala</h4>
-                <div class="grid gap-2 sm:grid-cols-2">
-                  <template x-for="r in recursos" :key="r.n">
-                    <div class="flex items-start gap-2.5 rounded-lg border border-border p-2.5">
-                      <i :data-lucide="r.i" class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"></i>
-                      <div class="min-w-0">
-                        <div class="text-[12.5px] font-medium" x-text="r.n"></div>
-                        <div class="text-[11px] text-muted-foreground" x-text="r.d"></div>
+                <div class="mb-2 flex items-center justify-between">
+                  <h4 class="text-[13px] font-semibold">Qué se va a crear</h4>
+                  <span class="text-[11px] text-muted-foreground">Árbol de dependencias</span>
+                </div>
+                <div class="rounded-lg border border-border p-4 text-[12px]">
+                  <div class="flex items-center gap-2 font-medium">
+                    <i data-lucide="package" class="h-4 w-4 text-primary"></i>Contracargos merchant
+                  </div>
+                  <div class="mt-2 space-y-1.5 border-l border-border pl-4 ml-2">
+                    <template x-for="r in arbol" :key="r.n">
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <i :data-lucide="r.i" class="h-3.5 w-3.5 shrink-0 text-muted-foreground"></i>
+                          <span class="font-medium" x-text="r.n"></span>
+                          <span class="text-[11px] text-muted-foreground" x-text="r.d"></span>
+                        </div>
+                        <template x-if="r.hijos">
+                          <div class="mt-1 space-y-1 border-l border-border pl-4 ml-1.5">
+                            <template x-for="h in r.hijos" :key="h.n">
+                              <div class="flex items-center gap-2 text-[11.5px]">
+                                <span class="tnum text-muted-foreground" x-text="h.n"></span>
+                                <i data-lucide="arrow-left" class="h-3 w-3 text-muted-foreground/60"></i>
+                                <span class="tnum" :class="h.ok?'text-foreground':'text-warning'" x-text="h.fuente"></span>
+                                <span class="rounded px-1.5 py-0.5 text-[10px] font-medium"
+                                      :class="h.ok?'bg-success/15 text-success':'bg-warning/15 text-warning'"
+                                      x-text="h.ok?'Conectada':'Por conectar'"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
                       </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+
+              <!-- C7 · lo que hereda del Operation Center -->
+              <div class="rounded-lg border border-success/40 bg-success/[0.04] p-4">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="radar" class="h-4 w-4 text-success"></i>
+                  <h4 class="text-[13px] font-semibold">Queda vigilado desde el primer día</h4>
+                </div>
+                <p class="mt-1.5 text-[12px] text-muted-foreground">
+                  Por detrás es un conjunto de datos como cualquier otro, así que hereda el Centro de operaciones completo. No hay lógica de monitoreo que inventar.
+                </p>
+                <div class="mt-3 grid gap-2 sm:grid-cols-3">
+                  <template x-for="h in hereda" :key="h.n">
+                    <div class="rounded-md border border-border bg-background p-2.5">
+                      <div class="flex items-center gap-1.5 text-[12px] font-medium">
+                        <i :data-lucide="h.i" class="h-3.5 w-3.5 text-muted-foreground"></i><span x-text="h.n"></span>
+                      </div>
+                      <div class="mt-1 text-[11px] text-muted-foreground" x-text="h.d"></div>
                     </div>
                   </template>
                 </div>
@@ -257,10 +292,10 @@ tailwind.config={theme:{extend:{
               </div>
             </div>
 
-            <!-- Panel de instalación -->
+            <!-- Panel lateral -->
             <aside class="space-y-3">
               <div class="rounded-lg border border-border p-4">
-                <h4 class="text-[13px] font-semibold">Archivos que necesitas</h4>
+                <h4 class="text-[13px] font-semibold">Fuentes que necesita</h4>
                 <div class="mt-2.5 space-y-2">
                   <template x-for="f in archivos" :key="f.n">
                     <div class="flex items-center gap-2 text-[12px]">
@@ -273,24 +308,48 @@ tailwind.config={theme:{extend:{
                   </template>
                 </div>
                 <p class="mt-3 border-t border-border pt-2.5 text-[11.5px] text-muted-foreground">
-                  Detectamos 2 de 3 fuentes ya conectadas en tu espacio de trabajo. Las puedes vincular sin subir nada.
+                  Detectamos 2 de 3 fuentes ya conectadas. <b class="font-medium text-foreground">La que falta no bloquea la instalación:</b> el tablero se crea igual y esa parte queda pendiente.
                 </p>
               </div>
               <button @click="paso=2" class="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary text-[13px] font-medium text-primary-foreground hover:bg-primary/90">
                 <i data-lucide="download" class="h-4 w-4"></i>Instalar template
               </button>
-              <p class="text-center text-[11px] text-muted-foreground">Se instala en <b class="font-medium text-foreground">Rappi</b></p>
             </aside>
           </div>
         </div>
 
-        <!-- ══════════ A3 · INSTALANDO ══════════ -->
-        <div x-show="es('a3')" class="fade grid h-full place-items-center p-6">
+        <!-- ══════════ 3 · ESPACIO DE TRABAJO ══════════ -->
+        <div x-show="es('espacio')" class="fade grid h-full place-items-center p-6">
+          <div class="w-full max-w-lg">
+            <h3 class="text-[15px] font-semibold">¿En qué espacio de trabajo lo creamos?</h3>
+            <p class="mt-1 text-[12.5px] text-muted-foreground">El template crea el tablero, los conjuntos de datos y las conciliaciones dentro de un espacio. Es la misma pregunta que hace hoy el Marketplace con cualquier template.</p>
+            <div class="mt-4 space-y-2">
+              <template x-for="e in espacios" :key="e.n">
+                <button @click="espacio=e.n"
+                  class="flex w-full items-center gap-3 rounded-lg border p-3.5 text-left transition-colors"
+                  :class="espacio===e.n?'border-primary bg-primary/[0.05]':'border-border hover:bg-accent/40'">
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-c2/25 text-[11px] font-bold" x-text="e.ini"></span>
+                  <span class="min-w-0">
+                    <span class="block text-[13px] font-medium" x-text="e.n"></span>
+                    <span class="block text-[11.5px] text-muted-foreground" x-text="e.d"></span>
+                  </span>
+                  <i x-show="espacio===e.n" data-lucide="circle-check" class="ml-auto h-4 w-4 shrink-0 text-primary"></i>
+                </button>
+              </template>
+            </div>
+            <button @click="paso=3" class="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary text-[13px] font-medium text-primary-foreground hover:bg-primary/90">
+              Instalar en <b class="font-semibold" x-text="espacio"></b><i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ══════════ 4 · INSTALANDO ══════════ -->
+        <div x-show="es('instalando')" class="fade grid h-full place-items-center p-6">
           <div class="w-full max-w-md text-center">
             <div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary/10">
               <i data-lucide="loader-circle" class="h-6 w-6 animate-spin text-primary"></i>
             </div>
-            <h3 class="mt-4 text-[15px] font-semibold">Instalando Contracargos</h3>
+            <h3 class="mt-4 text-[15px] font-semibold">Instalando Contracargos merchant</h3>
             <p class="mt-1 text-[12.5px] text-muted-foreground">Toma un momento. Te avisamos cuando esté listo, puedes seguir en otra cosa.</p>
             <div class="mt-5 space-y-2 text-left">
               <template x-for="(s,i) in instalacion" :key="s">
@@ -301,17 +360,17 @@ tailwind.config={theme:{extend:{
                 </div>
               </template>
             </div>
-            <button @click="paso=3" class="mt-5 h-9 rounded-md border border-border px-4 text-[13px] font-medium hover:bg-accent">Continuar</button>
+            <button @click="paso=4" class="mt-5 h-9 rounded-md border border-border px-4 text-[13px] font-medium hover:bg-accent">Continuar</button>
           </div>
         </div>
 
-        <!-- ══════════ A4 · ATERRIZAJE EN EL OC ══════════ -->
-        <div x-show="es('a4')" class="fade">
+        <!-- ══════════ 5 · ATERRIZAJE EN EL OC ══════════ -->
+        <div x-show="es('aterriza')" class="fade">
           <div x-html="shellOC('pendiente')"></div>
         </div>
 
-        <!-- ══════════ A5 · VINCULAR FUENTES (swap) ══════════ -->
-        <div x-show="es('a5')" class="fade">
+        <!-- ══════════ 6 · CONECTAR LA FUENTE QUE FALTA ══════════ -->
+        <div x-show="es('fuentes')" class="fade">
           <div class="border-b border-border px-6 py-4">
             <h3 class="text-base font-semibold">Fuentes de Contracargos</h3>
             <p class="text-[12px] text-muted-foreground">Vincula cada fuente del template con un recurso tuyo, o carga el archivo</p>
@@ -330,7 +389,8 @@ tailwind.config={theme:{extend:{
                     <template x-if="f.estado==='vinculada'">
                       <span class="flex items-center gap-1.5 text-[12px]">
                         <span class="text-muted-foreground">Vinculada a</span>
-                        <span class="rounded bg-background px-2 py-1 font-medium tnum border border-border" x-text="f.recurso"></span>
+                        <span class="tnum rounded border border-border bg-background px-2 py-1 font-medium" x-text="f.recurso"></span>
+                        <button @click="f.estado='sugerida'" class="rounded-md border border-border px-2 py-1 text-[11px] hover:bg-accent">Cambiar</button>
                       </span>
                     </template>
                     <template x-if="f.estado==='sugerida'">
@@ -338,96 +398,51 @@ tailwind.config={theme:{extend:{
                         <span class="flex items-center gap-1.5 rounded-md px-2 py-1 text-[12px]" style="background:hsl(var(--ai-gray-primary))">
                           <i data-lucide="sparkles" class="h-3 w-3" style="color:hsl(var(--ai-purple))"></i>
                           Encontramos <b class="font-medium" x-text="f.recurso"></b>
+                          <span class="tnum text-muted-foreground" x-text="f.conf+'%'"></span>
                         </span>
                         <button @click="f.estado='vinculada'" class="h-8 rounded-md bg-primary px-3 text-[12px] font-medium text-primary-foreground">Vincular</button>
                       </div>
                     </template>
                     <template x-if="f.estado==='falta'">
                       <div class="flex gap-2">
-                        <button class="h-8 rounded-md border border-border px-3 text-[12px] font-medium hover:bg-accent">Elegir una fuente</button>
-                        <button class="h-8 rounded-md border border-border px-3 text-[12px] font-medium hover:bg-accent">Cargar archivo</button>
+                        <button @click="f.estado='vinculada';f.recurso='rappi_tx_liquidadas'" class="h-8 rounded-md border border-border px-3 text-[12px] font-medium hover:bg-accent">Elegir una fuente</button>
+                        <button @click="f.estado='vinculada';f.recurso='tx_liquidadas.csv'" class="h-8 rounded-md border border-border px-3 text-[12px] font-medium hover:bg-accent">Cargar archivo</button>
                       </div>
                     </template>
                   </div>
                 </div>
               </div>
             </template>
-            <div class="flex items-center gap-3 pt-1">
+
+            <div class="ai-block flex flex-wrap items-center gap-3 p-3.5 text-[12.5px]">
+              <i data-lucide="sparkles" class="h-4 w-4 shrink-0" style="color:hsl(var(--ai-purple))"></i>
+              <span class="min-w-0">
+                <b class="font-semibold">Lo que ves vinculado lo propuso el motor de inferencia.</b>
+                <span class="text-muted-foreground"> Acierta entre el 30% y el 70% según qué tan raros sean los nombres de los recursos, por eso muestra la confianza y deja corregir.</span>
+              </span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 pt-1">
               <p class="text-[12px] text-muted-foreground">
                 <b class="font-medium text-foreground" x-text="fuentes.filter(f=>f.estado==='vinculada').length + ' de ' + fuentes.length"></b> vinculadas.
-                Los gráficos se desbloquean a medida que llegan los datos.
+                Si algo quedó mal, se corrige por chat o cambiando la consulta del conjunto de datos.
               </p>
-              <button @click="paso=5" class="ml-auto flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground">
+              <button @click="paso=6" class="ml-auto flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground">
                 Ver el tablero<i data-lucide="arrow-right" class="h-4 w-4"></i>
               </button>
             </div>
-          </div>
-        </div>
-
-        <!-- ══════════ B1 · SUGERENCIA EN EL OC ══════════ -->
-        <div x-show="es('b1')" class="fade">
-          <div x-html="shellOC('sugerido')"></div>
-        </div>
-
-        <!-- ══════════ B2 · QUÉ DETECTAMOS ══════════ -->
-        <div x-show="es('b2')" class="fade">
-          <div class="border-b border-border px-6 py-4">
-            <div class="flex items-center gap-2">
-              <i data-lucide="sparkles" class="h-4 w-4" style="color:hsl(var(--ai-purple))"></i>
-              <h3 class="text-base font-semibold">Esto es lo que encontramos</h3>
-            </div>
-            <p class="mt-0.5 text-[12px] text-muted-foreground">Revisa la clasificación antes de armar el tablero. Puedes corregirla.</p>
-          </div>
-          <div class="space-y-4 p-6">
-            <div class="ai-block flex items-center gap-3 p-3.5 text-[12.5px]">
-              <i data-lucide="sparkles" class="h-4 w-4 shrink-0" style="color:hsl(var(--ai-purple))"></i>
-              <span>Clasificamos <b class="font-medium">3 de tus 9 recursos</b> como contracargos, con una confianza promedio del <b class="font-medium tnum">68%</b>. Los nombres de los otros 6 no son concluyentes.</span>
-            </div>
-            <div class="overflow-hidden rounded-lg border border-border">
-              <table class="w-full text-[12.5px]">
-                <thead class="border-b border-border bg-[hsl(var(--muted))]">
-                  <tr class="text-left text-[11px] uppercase tracking-wide text-muted-foreground">
-                    <th class="px-4 py-2 font-medium">Recurso</th>
-                    <th class="px-3 py-2 font-medium">Lo leemos como</th>
-                    <th class="px-3 py-2 font-medium">Confianza</th>
-                    <th class="px-4 py-2 text-right font-medium">Corregir</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <template x-for="d in detectados" :key="d.r">
-                    <tr class="border-b border-border last:border-0">
-                      <td class="px-4 py-2.5 font-medium" x-text="d.r"></td>
-                      <td class="px-3 py-2.5">
-                        <span class="rounded px-1.5 py-0.5 text-[11px] font-medium"
-                          :class="d.como==='No es contracargo'?'bg-secondary text-muted-foreground':'bg-primary/10 text-primary'"
-                          x-text="d.como"></span>
-                      </td>
-                      <td class="px-3 py-2.5">
-                        <div class="flex items-center gap-2">
-                          <div class="h-1.5 w-16 overflow-hidden rounded-full bg-secondary">
-                            <div class="h-full rounded-full" :style="`width:${d.conf}%;background:${d.conf>60?'hsl(var(--success))':'hsl(var(--warning))'}`"></div>
-                          </div>
-                          <span class="tnum text-[11px] text-muted-foreground" x-text="d.conf+'%'"></span>
-                        </div>
-                      </td>
-                      <td class="px-4 py-2.5 text-right">
-                        <button class="rounded-md border border-border px-2 py-1 text-[11px] hover:bg-accent">Cambiar</button>
-                      </td>
-                    </tr>
-                  </template>
-                </tbody>
-              </table>
-            </div>
-            <div class="flex items-center gap-3">
-              <p class="text-[12px] text-muted-foreground">Si algo está mal clasificado, corrígelo ahora o después desde el conjunto de datos.</p>
-              <button @click="paso=2" class="ml-auto flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[13px] font-medium text-primary-foreground">
-                Armar el tablero<i data-lucide="arrow-right" class="h-4 w-4"></i>
-              </button>
+            <div class="flex flex-wrap gap-2 border-t border-border pt-3">
+              <span class="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11.5px] font-medium">
+                <i data-lucide="sparkles" class="h-3.5 w-3.5" style="color:hsl(var(--ai-purple))"></i>Corregir con Simetrik Agent
+              </span>
+              <span class="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11.5px] font-medium">
+                <i data-lucide="database" class="h-3.5 w-3.5 text-muted-foreground"></i>Editar la consulta del conjunto de datos
+              </span>
             </div>
           </div>
         </div>
 
-        <!-- ══════════ A6 / B3 · TABLERO LISTO ══════════ -->
+        <!-- ══════════ 7 · TABLERO LISTO ══════════ -->
         <div x-show="es('listo')" class="fade">
           <div x-html="shellOC('listo')"></div>
         </div>
@@ -446,7 +461,7 @@ tailwind.config={theme:{extend:{
           class="flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-[12px] font-medium disabled:opacity-40">
           <i data-lucide="chevron-left" class="h-3.5 w-3.5"></i>Atrás
         </button>
-        <button @click="paso=Math.min(op.pasos.length-1,paso+1)" :disabled="paso===op.pasos.length-1"
+        <button @click="paso=Math.min(pasos.length-1,paso+1)" :disabled="paso===pasos.length-1"
           class="flex h-8 items-center gap-1.5 rounded-md bg-foreground px-3 text-[12px] font-medium text-background disabled:opacity-40">
           Siguiente<i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
         </button>
@@ -454,170 +469,164 @@ tailwind.config={theme:{extend:{
     </div>
   </div>
 
-  <!-- ═════ COMPARACIÓN ═════ -->
-  <div class="mt-6 grid gap-4 lg:grid-cols-2">
-    <template x-for="o in opciones" :key="o.id">
-      <div class="rounded-xl border bg-background p-5"
-           :class="opcion===o.id?'border-primary/40 ring-1 ring-primary/20':'border-border'">
-        <div class="flex items-center gap-2">
-          <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="o.id==='a'?'bg-primary/10 text-primary':'bg-c2/20 text-foreground'" x-text="o.chip"></span>
-          <h3 class="text-[13px] font-semibold" x-text="o.corto"></h3>
-          <button x-show="opcion!==o.id" @click="ir(o.id,0)" class="ml-auto text-[11.5px] font-medium text-primary hover:underline">Verla</button>
-        </div>
-        <dl class="mt-3.5 space-y-2.5 text-[12.5px]">
-          <template x-for="c in o.criterios" :key="c.k">
-            <div class="flex gap-3">
-              <dt class="w-32 shrink-0 text-muted-foreground" x-text="c.k"></dt>
-              <dd class="min-w-0"><span :class="c.cls" x-text="c.v"></span></dd>
-            </div>
-          </template>
-        </dl>
-        <p class="mt-3.5 border-t border-border pt-3 text-[12px]" x-html="o.veredicto"></p>
+  <!-- ═════ POR QUÉ EL MARKETPLACE ═════ -->
+  <div class="mt-6 grid gap-4 lg:grid-cols-[1fr_400px]">
+    <div class="rounded-xl border border-border bg-background p-5">
+      <h3 class="text-[13px] font-semibold">Por qué el Marketplace</h3>
+      <p class="mt-2 max-w-3xl text-[13px] leading-relaxed text-muted-foreground">
+        <b class="font-medium text-foreground">Economía de lógica, no preferencia estética.</b>
+        El Marketplace ya resuelve separar casos de uso, elegir espacio de trabajo, mostrar el árbol de dependencias, manejar la fuente que falta y crear el conjunto de datos por detrás. Y como lo que queda instalado es un conjunto de datos normal, el tablero hereda gratis las anomalías, las alertas por incidente y los resúmenes del Centro de operaciones.
+      </p>
+      <div class="mt-3.5 grid gap-2 sm:grid-cols-3">
+        <template x-for="p in porque" :key="p.n">
+          <div class="rounded-lg border border-border p-3">
+            <div class="flex items-center gap-1.5 text-[12px] font-medium"><i :data-lucide="p.i" class="h-3.5 w-3.5 text-success"></i><span x-text="p.n"></span></div>
+            <p class="mt-1 text-[11.5px] text-muted-foreground" x-text="p.d"></p>
+          </div>
+        </template>
       </div>
-    </template>
-  </div>
+    </div>
 
-  <!-- Recomendación -->
-  <div class="mt-4 rounded-xl border border-border bg-background p-5">
-    <h3 class="text-[13px] font-semibold">La recomendación</h3>
-    <p class="mt-2 max-w-4xl text-[13px] leading-relaxed text-muted-foreground">
-      <b class="font-medium text-foreground">Empezar por A, y que B venga después.</b>
-      Las dos terminan en el mismo tablero, así que la puerta se puede cambiar sin rehacer el contenido.
-      A no inventa nada: el template, el preview, la instalación y el destacado del catálogo ya están construidos.
-      B es mejor experiencia, tres pasos contra seis, pero exige un patrón de "sugerido" que hoy no existe en el Centro de operaciones y que nadie más ha pedido todavía.
-      Y una vez que A existe, B se vuelve barata: <b class="font-medium text-foreground">la sugerencia simplemente instala el template que ya está publicado.</b>
-    </p>
-    <div class="mt-4 rounded-lg border border-warning/40 bg-warning/[0.06] p-3.5">
-      <div class="flex items-start gap-2.5">
-        <i data-lucide="triangle-alert" class="mt-0.5 h-4 w-4 shrink-0 text-warning"></i>
-        <div class="text-[12.5px]">
-          <b class="font-semibold">Lo que hay que decidir el viernes, y no es de diseño.</b>
-          <p class="mt-1 text-muted-foreground">
-            El catálogo del Marketplace es <b class="font-medium text-foreground">global, cross-account</b>: no existe segmentación por cuenta.
-            Publicar Contracargos significa que lo ven todas las cuentas habilitadas, no solo los 11 marketplaces.
-            Tampoco hay actualización en sitio: si mejoramos el template, quien ya lo instaló se queda con la versión vieja.
-          </p>
-        </div>
+    <div class="rounded-xl border border-warning/40 bg-warning/[0.06] p-5">
+      <div class="flex items-center gap-2">
+        <i data-lucide="triangle-alert" class="h-4 w-4 text-warning"></i>
+        <h3 class="text-[13px] font-semibold">Lo que falta decidir, y no es de diseño</h3>
       </div>
+      <ul class="mt-2.5 space-y-2.5 text-[12.5px]">
+        <template x-for="r in riesgos" :key="r.t">
+          <li>
+            <b class="font-semibold" x-text="r.t"></b>
+            <p class="mt-0.5 text-muted-foreground" x-text="r.d"></p>
+          </li>
+        </template>
+      </ul>
     </div>
   </div>
 </div>
 
 <script>
 function demo(){return{
-  opcion:'a', paso:0,
+  paso:0,
+  espacio:'Rappi',
 
   nav:[{k:'resumen',l:'Resumen',i:'house'},{k:'agent',l:'Simetrik Agent',i:'sparkles'},
        {k:'oc',l:'Centro de operaciones',i:'radar'},{k:'mkt',l:'Marketplace',i:'store'},
        {k:'repos',l:'Repositorios',i:'folder'}],
 
-  opciones:[
-    {id:'a', chip:'Opción A', corto:'Template en el Marketplace',
-     titulo:'Opción A · El merchant lo encuentra en el Marketplace',
-     bajada:'Contracargos se publica como un template destacado. El merchant lo abre, ve la vista previa con datos de ejemplo, lo instala en su espacio de trabajo y vincula sus fuentes existentes.',
-     tags:[{l:'No inventa UI',c:'bg-success/15 text-success'},{l:'6 pasos',c:'bg-secondary text-muted-foreground'}],
-     criterios:[
-       {k:'Descubribilidad',v:'Media. El merchant tiene que entrar al Marketplace, pero está en el sidebar y el template va destacado',cls:''},
-       {k:'Qué hay que construir',v:'Nada de interfaz. El template, el preview, la instalación y el destacado ya existen',cls:'text-success'},
-       {k:'Encaje',v:'Total. Un template ES un tablero con sus datasets, recursos y anomalías',cls:''},
-       {k:'Reversibilidad',v:'Alta. Si no funciona, se despublica y no queda deuda',cls:''},
-     ],
-     veredicto:'<b class="font-medium">Es la que se puede poner en manos de un merchant esta iteración.</b> El costo está en publicar y curar, no en diseñar.',
-     pasos:[
-       {id:'a1',nav:'Marketplace',navk:'mkt',url:'app.simetrik.com/marketplace',titulo:'El template va destacado en el catálogo',
-        nota:'El Marketplace Manager ya permite elegir qué templates salen como destacados y recomendados. Esto es configuración, no interfaz nueva.'},
-       {id:'a2',nav:'Detalle',navk:'mkt',url:'app.simetrik.com/marketplace/contracargos',titulo:'Ve el tablero antes de instalarlo',
-        nota:'Vista previa con datos de ejemplo, el mapa de lo que se va a crear y los archivos requeridos. Detectamos que 2 de las 3 fuentes ya las tiene conectadas.'},
-       {id:'a3',nav:'Instalación',navk:'mkt',url:'app.simetrik.com/marketplace/contracargos',titulo:'La instalación corre sola',
-        nota:'Es asíncrona: crea el tablero, los conjuntos de datos, las conciliaciones y las anomalías ya configuradas. El merchant no arma el monitoreo, viene puesto.'},
-       {id:'a4',nav:'Aterriza en el OC',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Cae directo en su tablero',
-        nota:'El sistema lo lleva al Centro de operaciones con el filtro ya puesto en el tablero nuevo. Se ve completo, con datos de ejemplo y un aviso de configuración pendiente.'},
-       {id:'a5',nav:'Vincular fuentes',navk:'oc',url:'app.simetrik.com/operation-center/sources',titulo:'Vincula lo que ya tiene, no sube nada',
-        nota:'Los marketplaces ya tienen los recursos de notificados y debitados dentro de Simetrik. En vez de cargar archivos, se vinculan los existentes. Es el camino corto y casi nadie lo conoce.'},
-       {id:'listo',nav:'Tablero listo',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Operando con datos reales',
-        nota:'Mismo destino que la opción B. A partir de acá el merchant edita por chat o por conjunto de datos.'},
-     ]},
-
-    {id:'b', chip:'Opción B', corto:'Sugerencia en el Centro de operaciones',
-     titulo:'Opción B · Simetrik se lo propone sin que lo busque',
-     bajada:'El sistema detecta contracargos en las fuentes del merchant y se lo propone en su lista de tableros. Un clic, revisa qué se detectó, y el tablero queda armado.',
-     tags:[{l:'Patrón nuevo',c:'bg-warning/15 text-warning'},{l:'3 pasos',c:'bg-secondary text-muted-foreground'}],
-     criterios:[
-       {k:'Descubribilidad',v:'La más alta. Aparece donde el merchant ya está, sin buscar nada',cls:'text-success'},
-       {k:'Qué hay que construir',v:'El patrón de "sugerido" no existe en el Centro de operaciones. Hay que definir dónde vive, cuándo aparece, cómo se descarta y si vuelve',cls:'text-warning'},
-       {k:'Encaje',v:'Coherente con el producto agentizado, pero introduce una categoría nueva en una lista que hoy solo tiene Favoritos y Tableros',cls:''},
-       {k:'Reversibilidad',v:'Media. Una vez que hay sugeridos, el patrón se vuelve expectativa para el resto del producto',cls:''},
-     ],
-     veredicto:'<b class="font-medium">Es la mejor experiencia y la única que exige diseño nuevo.</b> Vale la pena, pero como segunda fase y con presupuesto propio.',
-     pasos:[
-       {id:'b1',nav:'Lo ve sugerido',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Aparece en su lista de tableros',
-        nota:'Sin buscar nada. El bloque va marcado como inferido por el sistema, con la confianza a la vista. Este patrón hay que inventarlo: hoy la lista solo tiene Favoritos y Tableros.'},
-       {id:'b2',nav:'Revisa qué detectamos',navk:'oc',url:'app.simetrik.com/operation-center/dashboards/sugerido',titulo:'Puede revisar antes de aceptar',
-        nota:'El motor acierta entre el 30% y el 70% según qué tan raros sean los nombres de los recursos. Mostrar la confianza y dejar corregir es lo que hace que el merchant confíe.'},
-       {id:'listo',nav:'Tablero listo',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',titulo:'Operando con datos reales',
-        nota:'Mismo destino que la opción A. Por detrás instala exactamente el mismo template.'},
-     ]},
+  pasos:[
+    {id:'catalogo',nav:'Catálogo',navk:'mkt',url:'app.simetrik.com/marketplace?categoria=contracargos',
+     titulo:'Una tarjeta por tipo de actor',
+     nota:'Las métricas cambian según el actor, así que en vez de un tablero que se adapta hay cuatro templates. El usuario instala el suyo; si opera en dos industrias, instala dos.'},
+    {id:'detalle',nav:'Detalle',navk:'mkt',url:'app.simetrik.com/marketplace/contracargos-merchant',
+     titulo:'Ve todo lo que se va a crear antes de instalarlo',
+     nota:'Vista previa con datos de ejemplo, el árbol de dependencias completo y el estado de cada fuente. Detectamos que 2 de las 3 ya están conectadas.'},
+    {id:'espacio',nav:'Espacio de trabajo',navk:'mkt',url:'app.simetrik.com/marketplace/contracargos-merchant/instalar',
+     titulo:'Elige dónde se crea',
+     nota:'El template se instala dentro de un espacio de trabajo. Esta pantalla ya existe: es la misma de cualquier template del Marketplace.'},
+    {id:'instalando',nav:'Instalación',navk:'mkt',url:'app.simetrik.com/marketplace/contracargos-merchant/instalar',
+     titulo:'La instalación corre sola',
+     nota:'Asíncrona: crea el tablero, los conjuntos de datos, las conciliaciones y las anomalías ya configuradas. El merchant no arma el monitoreo, viene puesto dentro del template.'},
+    {id:'aterriza',nav:'Aterriza en el OC',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',
+     titulo:'El tablero ya existe aunque falte una fuente',
+     nota:'La fuente que falta no bloquea ni cancela nada. El tablero queda creado y solo los gráficos que dependen de ella esperan; el resto ya opera.'},
+    {id:'fuentes',nav:'Conectar la fuente',navk:'oc',url:'app.simetrik.com/operation-center/sources',
+     titulo:'Vincula lo que ya tiene, no sube nada',
+     nota:'Los marketplaces ya tienen los recursos de notificados y debitados dentro de Simetrik. En vez de cargar archivos, se vinculan los existentes.'},
+    {id:'listo',nav:'Tablero listo',navk:'oc',url:'app.simetrik.com/operation-center/dashboards',
+     titulo:'Operando con datos reales',
+     nota:'Desde acá el merchant edita por chat o cambiando la consulta del conjunto de datos. El monitoreo ya quedó vigilando el ratio y las fuentes que lo alimentan.'},
   ],
 
-  get op(){return this.opciones.find(o=>o.id===this.opcion)},
-  get pasoActual(){const p=this.op.pasos[this.paso]||this.op.pasos[0];return{...p,nav:p.navk}},
-  es(id){return (this.op.pasos[this.paso]||{}).id===id},
-  ir(o,p){this.opcion=o;this.paso=p;this.$nextTick(()=>lucide.createIcons())},
+  get pasoActual(){return this.pasos[this.paso]||this.pasos[0]},
+  es(id){return (this.pasos[this.paso]||{}).id===id},
+
+  actores:[
+    {id:'merchant',n:'Contracargos merchant',i:'store',estado:'listo',
+     badge:'Instalable',cls:'bg-primary/10 text-primary',
+     d:'Para marketplaces y comercios que reciben el débito del adquirente. Notificado contra debitado, tasa frente a VAMP y ECM, tarjetas por bloquear y doble débito.'},
+    {id:'adq',n:'Contracargos adquirente',i:'credit-card',estado:'dev',
+     badge:'Ya existe en dev',cls:'bg-warning/15 text-warning',
+     d:'Para adquirentes que trasladan el contracargo al comercio. El template de adquirencia ya está creado en dev: se refina, no se inventa.'},
+    {id:'psp',n:'Contracargos PSP',i:'git-compare',estado:'proximo',
+     badge:'Por definir',cls:'bg-secondary text-muted-foreground',
+     d:'Para procesadores que operan entre el comercio y el adquirente. Falta definir qué métricas cambian respecto al merchant.'},
+    {id:'issuer',n:'Contracargos emisor',i:'landmark',estado:'fuera',
+     badge:'Fuera de alcance',cls:'bg-secondary text-muted-foreground',
+     d:'Para bancos emisores que lanzan y defienden la disputa. Es otro actor y otro flujo; queda fuera de esta iteración.'},
+  ],
 
   catalogo:[
     {n:'Adquirencia',d:'Liquidaciones y comisiones por adquirente',i:'credit-card'},
     {n:'Conciliación de payins',d:'Cruce de recaudos contra el banco',i:'git-compare'},
     {n:'Cierre contable',d:'Asientos y período contable',i:'book-open-text'},
-    {n:'Reversos',d:'Devoluciones y su trazabilidad',i:'undo-2'},
-    {n:'Comisiones PSP',d:'Validación de tarifas pactadas',i:'percent'},
-  ],
-  recursos:[
-    {n:'1 tablero',d:'Resumen, notificados, debitados y controles',i:'layout-grid'},
-    {n:'3 conjuntos de datos',d:'Con el ratio mensual ya calculado',i:'database'},
-    {n:'2 conciliaciones',d:'Contracargo contra venta interna',i:'git-compare'},
-    {n:'4 anomalías',d:'Umbral de red, doble débito, fuente sin llegar',i:'circle-alert'},
-  ],
-  archivos:[
-    {n:'notificados',tiene:true},{n:'debitados',tiene:true},{n:'transacciones',tiene:false},
-  ],
-  instalacion:['Creando el tablero y sus páginas','Creando los conjuntos de datos','Creando las conciliaciones','Configurando el monitoreo'],
-  fuentes:[
-    {n:'Contracargos notificados',cols:'Espera: fecha, ARN, monto, motivo, tarjeta',estado:'vinculada',recurso:'rappi_cbk_notif_co'},
-    {n:'Contracargos debitados',cols:'Espera: fecha, ARN, monto, motivo, tarjeta',estado:'sugerida',recurso:'rappi_cbk_deb_co'},
-    {n:'Transacciones liquidadas',cols:'Espera: fecha, ARN, monto, autorización',estado:'falta',recurso:''},
-  ],
-  detectados:[
-    {r:'rappi_cbk_notif_co',como:'Notificados',conf:82},
-    {r:'rappi_cbk_deb_co',como:'Debitados',conf:76},
-    {r:'rappi_contracargos_mx',como:'Debitados',conf:47},
-    {r:'rappi_ajustes_varios',como:'No es contracargo',conf:38},
   ],
 
-  // Shell del Centro de operaciones, reusado en 3 pantallas
+  arbol:[
+    {n:'1 tablero',d:'Resumen, notificados, debitados y controles',i:'layout-grid'},
+    {n:'3 conjuntos de datos',d:'con el ratio mensual ya calculado',i:'database',hijos:[
+      {n:'cbk_notificados',fuente:'rappi_cbk_notif_co',ok:true},
+      {n:'cbk_debitados',fuente:'rappi_cbk_deb_co',ok:true},
+      {n:'tx_liquidadas',fuente:'sin recurso asignado',ok:false},
+    ]},
+    {n:'2 conciliaciones',d:'contracargo contra venta interna',i:'git-compare'},
+    {n:'4 anomalías',d:'umbral de red, doble débito, fuente sin llegar',i:'circle-alert'},
+  ],
+
+  hereda:[
+    {n:'Anomalías',d:'Configuradas dentro del template',i:'circle-alert'},
+    {n:'Alertas por incidente',d:'Cuando algo se rompe, avisa',i:'bell'},
+    {n:'Resúmenes',d:'En los ciclos que el usuario programe',i:'calendar-clock'},
+  ],
+
+  espacios:[
+    {n:'Rappi',ini:'R',d:'12 conjuntos de datos · donde vive la operación de contracargos'},
+    {n:'Rappi MX',ini:'RM',d:'4 conjuntos de datos'},
+    {n:'PedidosYa',ini:'PY',d:'7 conjuntos de datos'},
+  ],
+
+  archivos:[
+    {n:'notificados',tiene:true},{n:'debitados',tiene:true},{n:'transacciones liquidadas',tiene:false},
+  ],
+
+  instalacion:['Creando el tablero y sus páginas','Creando los conjuntos de datos','Creando las conciliaciones','Configurando el monitoreo y las anomalías'],
+
+  fuentes:[
+    {n:'Contracargos notificados',cols:'Espera: fecha, ARN, monto, motivo, tarjeta',estado:'vinculada',recurso:'rappi_cbk_notif_co',conf:82},
+    {n:'Contracargos debitados',cols:'Espera: fecha, ARN, monto, motivo, tarjeta',estado:'sugerida',recurso:'rappi_cbk_deb_co',conf:76},
+    {n:'Transacciones liquidadas',cols:'Espera: fecha, ARN, monto, autorización',estado:'falta',recurso:'',conf:0},
+  ],
+
+  porque:[
+    {n:'No inventa interfaz',d:'Catálogo, detalle, instalación y manejo de fuentes ya están construidos',i:'check'},
+    {n:'Separa los casos de uso',d:'Una tarjeta por actor, sin que el backend tenga que adivinar la industria',i:'check'},
+    {n:'Compatible con el OC',d:'Es un conjunto de datos normal: anomalías, alertas y resúmenes funcionan solos',i:'check'},
+  ],
+
+  riesgos:[
+    {t:'¿Todos los clientes ven el Marketplace?',
+     d:'Es el bloqueante real. Falta averiguar cómo funcionan los permisos por tipo de cliente. Si el acceso está restringido, el camino de entrada hay que replantearlo.'},
+    {t:'El catálogo es global, cross-account',
+     d:'No hay segmentación por cuenta: publicar Contracargos significa que lo ven todas las cuentas habilitadas, no solo los marketplaces.'},
+    {t:'No hay actualización en sitio',
+     d:'Si mejoramos el template, quien ya lo instaló se queda con la versión vieja.'},
+    {t:'Alinear con Pedro Marota',
+     d:'Va a montar controles de contracargos desde el Simetrik Agent. Hay que ver si se solapa con esto o lo complementa.'},
+  ],
+
+  // Shell del Centro de operaciones, reusado en 2 pantallas
   shellOC(modo){
     const tabs=['Tableros','Anomalías','Pendientes','Almacenamiento','Asientos contables'];
     const tabsHtml=tabs.map((t,i)=>`<span class="rounded-full px-2.5 py-1 text-[11px] font-medium ${i===0?'bg-background shadow-sm':'text-muted-foreground'}">${t}</span>`).join('');
-
-    const sugerido = modo==='sugerido' ? `
-      <div class="ai-block p-3 mb-2">
-        <div class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide" style="color:hsl(var(--ai-purple))">
-          <span>◇</span> Sugerido para ti
-        </div>
-        <div class="mt-1.5 text-[12.5px] font-medium leading-snug">Encontramos contracargos en 3 de tus fuentes</div>
-        <div class="mt-1 text-[11px] text-muted-foreground">Rappi CO, Rappi MX, PedidosYa BR · confianza 68%</div>
-        <button onclick="Alpine.$data(document.querySelector('[x-data]')).paso=1"
-          class="mt-2.5 w-full rounded-md bg-primary px-2 py-1.5 text-[11.5px] font-medium text-primary-foreground">Ver qué detectamos</button>
-      </div>` : '';
 
     const banner = modo==='pendiente' ? `
       <div class="mx-5 mt-4 flex items-start gap-3 rounded-lg border border-warning/40 bg-warning/[0.07] p-3.5">
         <span class="mt-0.5 text-warning">⚠</span>
         <div class="min-w-0 flex-1 text-[12.5px]">
-          <div class="font-semibold">Configuración pendiente</div>
-          <p class="mt-0.5 text-muted-foreground">Los gráficos muestran datos de ejemplo. Vincula 1 fuente para ver tu operación real.</p>
+          <div class="font-semibold">Falta 1 fuente por conectar</div>
+          <p class="mt-0.5 text-muted-foreground">El tablero ya quedó creado. Los gráficos que dependen de las transacciones liquidadas muestran datos de ejemplo hasta que la conectes; el resto ya opera.</p>
         </div>
-        <button onclick="Alpine.$data(document.querySelector('[x-data]')).paso=4"
-          class="h-[30px] shrink-0 rounded-md bg-primary px-2.5 text-[11.5px] font-medium text-primary-foreground">Ir a Fuentes</button>
+        <button onclick="Alpine.$data(document.querySelector('[x-data]')).paso=5"
+          class="h-[30px] shrink-0 rounded-md bg-primary px-2.5 text-[11.5px] font-medium text-primary-foreground">Conectar la fuente</button>
       </div>` : '';
 
     const dim = modo==='pendiente' ? 'opacity-50' : '';
@@ -631,8 +640,7 @@ function demo(){return{
     <div class="flex h-full">
       <div class="w-[190px] shrink-0 border-r border-border p-3">
         <div class="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">Favoritos</div>
-        ${sugerido}
-        <div class="flex items-center gap-2 rounded-md ${modo==='sugerido'?'':'bg-accent'} px-2 py-1.5 text-[12px] font-medium">
+        <div class="flex items-center gap-2 rounded-md bg-accent px-2 py-1.5 text-[12px] font-medium">
           <span class="text-primary">▦</span> Contracargos
         </div>
         <div class="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mt-3 mb-1.5">Tableros <span class="float-right font-normal normal-case">155</span></div>
@@ -702,7 +710,6 @@ function demo(){return{
   init(){
     this.$nextTick(()=>lucide.createIcons());
     this.$watch('paso',()=>this.$nextTick(()=>lucide.createIcons()));
-    this.$watch('opcion',()=>this.$nextTick(()=>lucide.createIcons()));
   },
 }}
 </script>

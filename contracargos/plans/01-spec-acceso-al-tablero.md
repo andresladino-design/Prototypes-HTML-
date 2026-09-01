@@ -3,6 +3,8 @@
 **Estado:** propuesta para validar · **Decide:** Vicky, vie 28-ago-2026 · **Depende de:** `00-plan-de-trabajo.md`
 > ⚠️ **Actualizado el 26-ago con evidencia del Brain y del código de producción.** Ver `04-respuestas-preguntas-abiertas.md`. Los cambios de fondo: la ruta 4 queda confirmada, y la ruta 3 se parte en dos porque la mitad ya existe.
 
+> 🔒 **Cerrada el 28-ago-2026.** La sesión con Andrea eligió la ruta del Marketplace y descartó la sugerencia en el Centro de operaciones. Las decisiones y los cambios que salieron de ahí están en [`05-cambios-post-sesion-28-ago.md`](05-cambios-post-sesion-28-ago.md). Este documento se conserva por el análisis de las cuatro rutas y los criterios; al prototipo que menciona se le quitó el switch de opciones el 1-sep: quedó solo el camino del Marketplace.
+
 ## La pregunta
 
 El motor ya construye todo por detrás: identifica los recursos de contracargo, arma el diccionario canónico, genera el dataset y el tablero. Lo que no está resuelto es **el momento de entrada del usuario**: cómo un merchant se entera de que ese tablero existe y llega a él sin haber configurado nada.
