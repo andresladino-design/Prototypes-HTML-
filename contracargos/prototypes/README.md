@@ -2,11 +2,12 @@
 
 | Archivo | Qué es | Estado |
 |---|---|---|
-| `acceso-marketplace.html` | **⭐ El que se presenta.** El camino del merchant desde el Marketplace hasta el tablero operando | Al día con la sesión del 28-ago |
+| `../Simetrik · Centro de Disputas — Operations Center.html` | **⭐ El que se presenta.** El proto del centro de disputas con el camino del Marketplace encima. Sin opciones: quedó solo la del Marketplace | Al día con la sesión del 28-ago |
+| `acceso-marketplace.html` | El mismo camino en limpio, sobre tokens desyk, con el árbol de dependencias y el espacio de trabajo | Al día con la sesión del 28-ago |
 | `contracargos-merchant.html` | El tablero al que llega. Tokens desyk reales | Iterable, 28-ago-2026 |
 | `../plans/archivo-julio-2026/proto-andrea-original-2026-06-30.html` | El proto de Andrea **sin tocar** | Respaldo del original |
 
-> La presentación A/B que se mostró el 27-ago se borró: su único aporte sobre el original de Andrea era la capa de las dos opciones, y la opción B quedó descartada el 28-ago. Vive en el historial de git si hiciera falta.
+> Al prototipo de la presentación se le quitó el switch de Opción A / Opción B: ya no hay dos caminos que comparar, solo el del Marketplace. Se le sacaron también el bloque de «Sugerido para ti» y la pantalla de «Esto es lo que encontramos», que eran los dos pasos de la opción B. El proto de Andrea por debajo no se tocó.
 
 ---
 
