@@ -2105,21 +2105,26 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
   /* Detalle del template — escala de design.md, no medida de capturas */
   .pz-det{display:grid;grid-template-columns:minmax(0,336px) minmax(0,1fr);gap:40px;padding:6px 24px 34px;align-items:start}
   .pz-det h1{font-size:20px;font-weight:700;letter-spacing:-.025em;line-height:1.2}      /* título de página */
-  .pz-det .lede{font-size:14px;line-height:1.6;color:hsl(var(--muted-foreground));margin-top:10px}  /* body */
-  .pz-det .lbl{font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
-    color:var(--faint);margin-top:22px}                                                   /* label */
+  .pz-det .lede{font-size:13.5px;line-height:1.55;color:hsl(var(--muted-foreground));margin-top:8px}  /* body */
+  /* Metadatos: retícula etiqueta/valor. La etiqueta acompaña, no compite */
+  .pz-meta{margin-top:20px;padding-top:16px;border-top:1px solid hsl(var(--border));
+    display:flex;flex-direction:column;gap:12px}
+  .pz-meta .row{display:flex;align-items:center;gap:12px;margin:0}
+  .pz-meta dt{flex:none;width:92px;font-size:11.5px;color:var(--faint)}
+  .pz-meta dd{margin:0;min-width:0}
   .pz-catpill{display:inline-flex;border:1px solid hsl(var(--border));background:var(--surface);
-    border-radius:var(--rp);padding:5px 13px;font-size:12px;margin-top:8px}
-  .pz-pubrow{display:flex;align-items:center;gap:9px;margin-top:8px}
+    border-radius:var(--rp);padding:4px 11px;font-size:12px}
+  .pz-pubrow{display:flex;align-items:center;gap:8px}
   .pz-pubrow .av{width:24px;height:24px;border-radius:50%;background:hsl(var(--muted));display:flex;
     align-items:center;justify-content:center;color:var(--faint);flex:none}
   .pz-pubrow .nm{font-size:13px}
   /* Botón: el .btn del propio prototipo, a ancho completo. Nada de bloques de 56px */
   #pzInstall{width:100%;justify-content:center;margin-top:20px;padding:9px 13px}
-  .pz-hist{margin-top:16px;border:1px solid hsl(var(--border));border-radius:var(--r);padding:14px;background:var(--surface)}
-  .pz-hist h4{font-size:13px;font-weight:650}                                             /* título de card */
-  .pz-hist .empty{text-align:center;padding:18px 0 4px;color:hsl(var(--muted-foreground));font-size:12px}
-  .pz-hist .empty svg{color:var(--faint);margin:0 auto 9px;display:block}
+  .pz-hist{margin-top:14px;border:1px solid hsl(var(--border));border-radius:var(--r);padding:14px;background:var(--surface)}
+  .pz-hist h4{font-size:13px;font-weight:650;display:flex;align-items:center;gap:7px}
+  .pz-hist h4 .n{font-size:11px;font-weight:600;color:var(--faint);background:hsl(var(--muted));
+    border-radius:var(--r-badge);padding:1px 7px}
+  .pz-hist .empty{margin:8px 0 0;color:hsl(var(--muted-foreground));font-size:12px;line-height:1.5}
 
   /* Mini-render del tablero */
   .pz-pv{border:1px solid hsl(var(--border));border-radius:var(--r);background:var(--surface);
@@ -2295,14 +2300,14 @@ document.getElementById('fa-stage').addEventListener('click',e=>{const b=e.targe
       <div>
         <h1>Contracargos</h1>
         <p class="lede">Controla lo que te notificaron y lo que ya te debitaron: la tasa contra los umbrales de Visa y Mastercard, las tarjetas que faltan por bloquear y los contracargos que te descontaron dos veces.</p>
-        <div class="lbl">Categorías:</div>
-        <span class="pz-catpill">Aceptación Crédito / Débito</span>
-        <div class="lbl">Publicado por:</div>
-        <div class="pz-pubrow"><span class="av">${ic(I.user,13)}</span><span class="nm">Simetrik</span></div>
+        <dl class="pz-meta">
+          <div class="row"><dt>Categoría</dt><dd><span class="pz-catpill">Aceptación Crédito / Débito</span></dd></div>
+          <div class="row"><dt>Publicado por</dt><dd class="pz-pubrow"><span class="av">${ic(I.user,13)}</span><span class="nm">Simetrik</span></dd></div>
+        </dl>
         <button class="btn primary" id="pzInstall">${ic(I.box,15)}Instalar template</button>
         <div class="pz-hist">
-          <h4>Historial de instalaciones (0)</h4>
-          <div class="empty">${ic(I.box,20)}Este template aún no se ha instalado en esta cuenta.</div>
+          <h4>Historial de instalaciones <span class="n">0</span></h4>
+          <p class="empty">Este template aún no se ha instalado en esta cuenta.</p>
         </div>
       </div>
 
